@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Munchirai YMCA | Admin Portal Settings</title>
+    <title>Munchirai YMCA | Admin CMS & Portal Control</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -21,7 +21,7 @@
                 <i class="fa-solid fa-lock"></i>
             </div>
             <h2 class="text-xl font-extrabold text-gray-900 mb-1">Admin Authentication</h2>
-            <p class="text-xs text-gray-500 mb-6">Enter password to access portal settings.</p>
+            <p class="text-xs text-gray-500 mb-6">Enter password to manage website content.</p>
             
             <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
                 <div>
@@ -35,7 +35,7 @@
                 </div>
                 <p id="login-error" class="text-xs text-red-600 font-semibold hidden">Incorrect password.</p>
                 <button type="submit" class="w-full bg-black text-white hover:bg-gray-800 font-bold py-3.5 rounded-xl text-sm transition shadow">
-                    Login to Portal Settings
+                    Login to CMS
                 </button>
             </form>
         </div>
@@ -81,58 +81,74 @@
     <header class="bg-black text-white py-4 px-4 sm:px-6 shadow-md sticky top-0 z-40">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3 w-full sm:w-auto">
-                <div class="w-9 h-9 bg-white text-black rounded-lg flex items-center justify-center font-black shrink-0">A</div>
+                <div class="w-9 h-9 bg-white text-black rounded-xl flex items-center justify-center font-black shrink-0">A</div>
                 <div>
-                    <h1 class="font-bold text-sm sm:text-base tracking-tight">Portal Settings & Control</h1>
-                    <span class="text-[10px] text-gray-400 block">Munchirai YMCA Official Management</span>
+                    <h1 class="font-bold text-sm sm:text-base tracking-tight">Website Content Management System</h1>
+                    <span class="text-[10px] text-gray-400 block">Edit index.html Content User-Friendlier</span>
                 </div>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
                 <a href="admininventory.html" class="text-xs bg-white text-black font-bold px-3.5 py-2 rounded-xl transition shadow hover:bg-gray-100 whitespace-nowrap">
-                    <i class="fa-solid fa-boxes-stacked mr-1"></i> Inventory Management
+                    <i class="fa-solid fa-boxes-stacked mr-1"></i> Inventory
                 </a>
-                <a href="index.html" class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-xl transition border border-gray-700 whitespace-nowrap">
+                <a href="index.html" class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3.5 py-2 rounded-xl transition border border-gray-700 whitespace-nowrap">
                     <i class="fa-solid fa-eye mr-1"></i> View Website
                 </a>
                 <button onclick="toggleSettingsModal()" class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3.5 py-2 rounded-xl transition border border-gray-700 whitespace-nowrap">
-                    <i class="fa-solid fa-gear"></i> Settings
+                    <i class="fa-solid fa-gear"></i>
                 </button>
                 <button onclick="handleLogout()" class="text-xs bg-red-900/60 hover:bg-red-900 text-white px-3.5 py-2 rounded-xl transition border border-red-800 whitespace-nowrap">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Settings Body -->
+    <!-- Main CMS Dashboard Body -->
     <main class="max-w-4xl mx-auto px-4 py-10">
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
-            <div>
-                <h2 class="text-xl font-bold mb-1">General Portal Configurations</h2>
-                <p class="text-xs text-gray-500">Manage global announcements, contact descriptions, and homepage highlights.</p>
+            <div class="flex items-center justify-between border-b pb-4 border-gray-100">
+                <div>
+                    <h2 class="text-xl font-bold">Edit Homepage Content (index.html)</h2>
+                    <p class="text-xs text-gray-500">Modify any text or banner images on your homepage instantly.</p>
+                </div>
+                <button onclick="resetCMSForm()" class="text-xs text-gray-400 hover:text-black underline">Reset Defaults</button>
             </div>
 
-            <form onsubmit="savePortalSettings(event)" class="space-y-4">
+            <form id="cms-form" onsubmit="saveCMSContent(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Announcement Bar Text</label>
-                    <input type="text" id="setting-announcement" placeholder="Empowering Community & Youth Initiatives in Munchirai" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Top Announcement Bar Text</label>
+                    <input type="text" id="cms-announcement" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
                 </div>
+                
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Hero Section Title</label>
-                    <input type="text" id="setting-title" placeholder="Munchirai YMCA. Leadership, Youth & Service." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Hero Main Header Title</label>
+                    <input type="text" id="cms-title" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
                 </div>
+
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Hero Banner Background Image URL</label>
-                    <input type="url" id="setting-hero-img" placeholder="https://images.unsplash.com/..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Hero Subtitle Description</label>
+                    <textarea id="cms-desc" rows="3" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black"></textarea>
                 </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Hero Background Image Link</label>
+                    <input type="url" id="cms-hero-img" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Footer About Description</label>
+                    <textarea id="cms-footer-desc" rows="2" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black"></textarea>
+                </div>
+
                 <button type="submit" class="w-full bg-black text-white font-bold py-3.5 rounded-xl text-sm hover:bg-gray-800 transition shadow">
-                    Save Portal Settings
+                    Publish Changes to index.html
                 </button>
             </form>
         </div>
     </main>
 
-    <!-- Authentication Script -->
+    <!-- Admin CMS & Auth Script -->
     <script>
         const FALLBACK_PASSWORD = "Admin@123";
 
@@ -153,6 +169,8 @@
         function checkAuth() {
             if (!sessionStorage.getItem("admin_authenticated")) {
                 document.getElementById('login-modal').classList.remove('hidden');
+            } else {
+                loadCMSValues();
             }
         }
 
@@ -166,6 +184,7 @@
                 document.getElementById('login-modal').classList.add('hidden');
                 document.getElementById('login-error').classList.add('hidden');
                 document.getElementById('login-input').value = "";
+                loadCMSValues();
             } else {
                 document.getElementById('login-error').classList.remove('hidden');
             }
@@ -197,12 +216,46 @@
             }, 1500);
         };
 
-        window.savePortalSettings = function(event) {
+        function loadCMSValues() {
+            const defaults = {
+                announcement: "Empowering Youth & Community &bull; Support Munchirai YMCA Initiatives through MY Food",
+                heroTitle: "Building Strong Kids, Strong Families, & Strong Communities.",
+                heroDesc: "Welcome to Munchirai YMCA. Discover our youth initiatives, social welfare activities, and support our eco-friendly food store enterprise.",
+                heroImg: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600",
+                footerDesc: "Dedicated to social service, spiritual growth, youth development, and sustainable local community initiatives in Munchirai."
+            };
+
+            const saved = JSON.parse(localStorage.getItem("ymca_index_settings")) || defaults;
+
+            document.getElementById('cms-announcement').value = saved.announcement;
+            document.getElementById('cms-title').value = saved.heroTitle;
+            document.getElementById('cms-desc').value = saved.heroDesc;
+            document.getElementById('cms-hero-img').value = saved.heroImg;
+            document.getElementById('cms-footer-desc').value = saved.footerDesc;
+        }
+
+        window.saveCMSContent = function(event) {
             event.preventDefault();
-            alert("Portal configurations saved successfully!");
+            const settings = {
+                announcement: document.getElementById('cms-announcement').value,
+                heroTitle: document.getElementById('cms-title').value,
+                heroDesc: document.getElementById('cms-desc').value,
+                heroImg: document.getElementById('cms-hero-img').value,
+                footerDesc: document.getElementById('cms-footer-desc').value
+            };
+
+            localStorage.setItem("ymca_index_settings", JSON.stringify(settings));
+            alert("index.html content successfully updated and published!");
+        };
+
+        window.resetCMSForm = function() {
+            localStorage.removeItem("ymca_index_settings");
+            loadCMSValues();
+            alert("CMS reset to default values.");
         };
 
         document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 </body>
-</html>
+        </html>
+        
