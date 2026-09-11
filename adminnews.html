@@ -37,7 +37,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">Manage News & Announcements</h2>
-                <p class="text-sm text-gray-600">Add, edit, or delete any headline, date, category, image URL, or text description.</p>
+                <p class="text-sm text-gray-600">Add, edit, or delete any headline, image, text, and optional custom action buttons.</p>
             </div>
             <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow transition flex items-center gap-2">
                 <i class="fa-solid fa-plus"></i> Add New Post
@@ -93,6 +93,30 @@
                     <textarea id="postDescription" rows="4" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Write full news content details..."></textarea>
                 </div>
 
+                <!-- Custom Action Button Configuration Box -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-gray-700 uppercase">Enable Custom Action Button</span>
+                        <!-- Toggle Switch -->
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="btnToggle" class="sr-only peer" onchange="toggleButtonOptions()">
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Hidden fields that appear when toggle is turned ON -->
+                    <div id="buttonOptionsContainer" class="space-y-3 hidden pt-2 border-t border-gray-200">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Button Name / Text</label>
+                            <input type="text" id="btnText" class="w-full px-3 py-1.5 border rounded-lg text-sm bg-white" placeholder="e.g. Register Now, Donate, View Form">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Button URL Link</label>
+                            <input type="url" id="btnLink" class="w-full px-3 py-1.5 border rounded-lg text-sm bg-white" placeholder="https://example.com">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-end space-x-3 pt-2">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition">Cancel</button>
                     <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Save to Database</button>
@@ -128,6 +152,17 @@
         const adminGrid = document.getElementById('admin-news-grid');
         const adminLoading = document.getElementById('admin-loading');
 
+        // Toggle visibility of button input fields based on switch
+        window.toggleButtonOptions = function() {
+            const isChecked = document.getElementById('btnToggle').checked;
+            const container = document.getElementById('buttonOptionsContainer');
+            if (isChecked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
         // Load and render admin news records
         async function loadAdminNews() {
             try {
@@ -158,10 +193,11 @@
                                     <p class="text-xs text-gray-500 mb-1"><i class="fa-solid fa-calendar-days mr-1"></i> ${item.date || 'Recent'}</p>
                                     <h3 class="font-bold text-gray-900 text-base mb-2 line-clamp-1">${item.title}</h3>
                                     <p class="text-gray-600 text-xs line-clamp-2">${item.description}</p>
+                                    ${item.showButton ? `<div class="mt-2 text-[11px] text-blue-600 font-medium"><i class="fa-solid fa-link"></i> Button Active: "${item.btnText}"</div>` : ''}
                                 </div>
                             </div>
                             <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-                                <button onclick="window.prepareEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
+                                <button onclick="window.prepareEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}', ${item.showButton ? true : false}, '${encodeURIComponent(item.btnText || '')}', '${encodeURIComponent(item.btnLink || '')}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
                                     <i class="fa-solid fa-pen-to-square"></i> Edit
                                 </button>
                                 <button onclick="window.deleteNewsItem('${id}')" class="text-red-600 hover:text-red-800 text-xs font-semibold flex items-center gap-1">
@@ -189,16 +225,18 @@
             const category = document.getElementById('postCategory').value;
             const image = document.getElementById('postImage').value;
             const description = document.getElementById('postDescription').value;
+            
+            const showButton = document.getElementById('btnToggle').checked;
+            const btnText = document.getElementById('btnText').value;
+            const btnLink = document.getElementById('btnLink').value;
 
-            const postData = { title, date, category, image, description };
+            const postData = { title, date, category, image, description, showButton, btnText, btnLink };
 
             try {
                 if (id) {
-                    // Update existing item
                     const itemRef = ref(db, 'news/' + id);
                     await update(itemRef, postData);
                 } else {
-                    // Add new item
                     const newsRef = ref(db, 'news');
                     const newPostRef = push(newsRef);
                     await set(newPostRef, postData);
@@ -223,7 +261,7 @@
         }
 
         // Prepare Edit Modal
-        window.prepareEdit = function(id, title, date, category, image, description) {
+        window.prepareEdit = function(id, title, date, category, image, description, showButton, btnText, btnLink) {
             document.getElementById('modalTitle').innerText = "Edit Post Details";
             document.getElementById('postId').value = id;
             document.getElementById('postTitle').value = decodeURIComponent(title);
@@ -232,11 +270,17 @@
             document.getElementById('postImage').value = decodeURIComponent(image);
             document.getElementById('postDescription').value = decodeURIComponent(description);
 
+            const toggle = document.getElementById('btnToggle');
+            toggle.checked = showButton;
+            window.toggleButtonOptions();
+
+            document.getElementById('btnText').value = decodeURIComponent(btnText || '');
+            document.getElementById('btnLink').value = decodeURIComponent(btnLink || '');
+
             document.getElementById('newsModal').classList.remove('hidden');
             document.getElementById('newsModal').classList.add('flex');
         }
 
-        // Initial trigger
         loadAdminNews();
     </script>
 
@@ -246,6 +290,8 @@
             document.getElementById('modalTitle').innerText = "Add New Post";
             document.getElementById('postId').value = "";
             document.getElementById('newsForm').reset();
+            document.getElementById('btnToggle').checked = false;
+            window.toggleButtonOptions();
             document.getElementById('newsModal').classList.remove('hidden');
             document.getElementById('newsModal').classList.add('flex');
         }
