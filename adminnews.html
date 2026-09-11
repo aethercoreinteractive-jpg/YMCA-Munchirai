@@ -132,7 +132,7 @@
         }
     </script>
 
-    <!-- Firebase Integration -->
+    <!-- Firebase Integration with Debugging -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
         import { getDatabase, ref, get, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -154,6 +154,7 @@
 
         async function loadAdminData() {
             try {
+                console.log("Admin panel fetching data...");
                 const snapshot = await get(ref(db, 'news'));
                 loadingBox.style.display = 'none';
                 adminGrid.classList.remove('hidden');
@@ -192,8 +193,13 @@
                     adminGrid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10 bg-white rounded-xl border border-dashed">No articles found in database. Click 'Add New Post'.</p>`;
                 }
             } catch (err) {
-                console.error(err);
-                loadingBox.innerHTML = `<p class="text-red-500 text-sm">Failed to connect to database. Check Firebase rules.</p>`;
+                console.error("Admin fetch error:", err);
+                loadingBox.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 text-red-700 p-5 rounded-xl text-left max-w-lg mx-auto shadow-sm">
+                        <p class="font-bold text-base mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Database Error</p>
+                        <p class="text-xs font-mono bg-red-100 p-2 rounded mb-2">${err.message}</p>
+                        <p class="text-xs">👉 Check your Firebase Console Realtime Database Rules to ensure read/write access is set to <code class="bg-red-100 px-1 py-0.5 rounded">true</code>.</p>
+                    </div>`;
             }
         }
 
@@ -266,5 +272,4 @@
         loadAdminData();
     </script>
 </body>
-                        </html>
-                        
+</html>
