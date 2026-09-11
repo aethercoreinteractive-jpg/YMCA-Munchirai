@@ -20,6 +20,15 @@
         section[id], footer[id] {
             scroll-margin-top: 110px;
         }
+
+        /* Industry standard smooth fade & slide animation for news ticker */
+        @keyframes newsFadeSlide {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .news-animate-fade {
+            animation: newsFadeSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900 antialiased selection:bg-black selection:text-white">
@@ -239,8 +248,8 @@
         </div>
     </section>
 
-    <!-- Professional Industry-Standard News Section (Synced live from Firebase RTDB news.html source) -->
-    <section id="updates" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <!-- Professional Industry-Standard Single Rotating News Section (Synced live from Firebase RTDB) -->
+    <section id="updates" class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 border-b border-gray-200 pb-4 gap-4">
             <div>
                 <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Updates & Media</span>
@@ -252,9 +261,16 @@
             </a>
         </div>
 
-        <!-- Populated automatically from Firebase RTDB -->
-        <div id="homepage-news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="col-span-3 text-center py-8 text-xs text-gray-500">Loading latest announcements...</div>
+        <!-- Single rotating news display card container with industry-standard ticker controls -->
+        <div class="relative">
+            <div id="homepage-news-container">
+                <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm p-6 text-center text-xs text-gray-500">Loading latest announcement...</div>
+            </div>
+
+            <!-- Ticker indicators & manual controls -->
+            <div id="news-pagination-dots" class="flex items-center justify-center gap-2 mt-4">
+                <!-- Dynamically injected pagination bullets -->
+            </div>
         </div>
     </section>
 
@@ -307,9 +323,12 @@
         </div>
     </footer>
 
-    <!-- Firebase Real-Time Database News Integration (Matching news.html) -->
+    <!-- Firebase Real-Time Database News Integration with 4-second Rotation Logic -->
     <script>
         const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
+        let newsList = [];
+        let currentNewsIndex = 0;
+        let newsRotationTimer = null;
 
         function formatImageURL(url) {
             if (!url) return '';
@@ -362,66 +381,99 @@
                 const data = await response.json();
                 handleDatabaseUpdate(data);
             } catch (err) {
-                const container = document.getElementById('homepage-news-grid');
+                const container = document.getElementById('homepage-news-container');
                 if (container) {
-                    container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-rose-500">Failed to load news feed from Firebase.</div>`;
+                    container.innerHTML = `<div class="bg-white border border-gray-200 rounded-2xl p-6 text-center text-xs text-rose-500">Failed to load news feed from Firebase.</div>`;
                 }
             }
         }
 
         function handleDatabaseUpdate(data) {
-            const container = document.getElementById('homepage-news-grid');
-            if (!container) return;
-            
-            container.innerHTML = '';
-
             if (data && typeof data === 'object') {
                 let records = data.data || data;
                 const keys = Object.keys(records).filter(k => records[k] !== null);
 
                 if (keys.length > 0) {
-                    // Reverse to show latest first, slice top 3 for homepage preview grid
-                    let latestKeys = keys.reverse().slice(0, 3);
-                    
-                    let newsHTML = "";
-                    latestKeys.forEach(id => {
-                        const item = records[id];
-                        if (!item) return;
-
-                        const processedImg = formatImageURL(item.image);
-                        const friendlyDate = displayFriendlyDate(item.date);
-                        
-                        newsHTML += `
-                            <article class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between">
-                                <div>
-                                    <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
-                                        <img src="${processedImg}" alt="${item.title || 'News'}" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
-                                        <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow">${item.category || 'Announcement'}</span>
-                                    </div>
-                                    <div class="p-5">
-                                        <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                                            <i class="fa-regular fa-calendar text-gray-400"></i>
-                                            <span>${friendlyDate || 'Recent'}</span>
-                                        </div>
-                                        <h3 class="font-bold text-base text-gray-900 leading-snug mb-2">${item.title || ''}</h3>
-                                        <p class="text-xs text-gray-600 font-light line-clamp-2 leading-relaxed">${item.description || ''}</p>
-                                    </div>
-                                </div>
-                                <div class="p-5 pt-0 mt-2 flex items-center justify-between border-t border-gray-100 pt-3">
-                                    <a href="news.html" class="text-xs font-bold text-amber-600 hover:text-amber-700 inline-flex items-center gap-1">
-                                        Read Full Story <i class="fa-solid fa-chevron-right text-[9px]"></i>
-                                    </a>
-                                </div>
-                            </article>
-                        `;
-                    });
-                    container.innerHTML = newsHTML;
+                    // Store chronological list (latest first)
+                    newsList = keys.reverse().map(id => records[id]);
+                    currentNewsIndex = 0;
+                    renderCurrentNewsItem();
+                    startNewsRotation();
                 } else {
-                    container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-gray-500">No news announcements available right now.</div>`;
+                    showEmptyNewsMessage();
                 }
             } else {
-                container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-gray-500">No news announcements available right now.</div>`;
+                showEmptyNewsMessage();
             }
+        }
+
+        function showEmptyNewsMessage() {
+            const container = document.getElementById('homepage-news-container');
+            if (container) {
+                container.innerHTML = `<div class="bg-white border border-gray-200 rounded-2xl p-6 text-center text-xs text-gray-500">No news announcements available right now.</div>`;
+            }
+        }
+
+        function renderCurrentNewsItem() {
+            const container = document.getElementById('homepage-news-container');
+            const dotsContainer = document.getElementById('news-pagination-dots');
+            if (!container || newsList.length === 0) return;
+
+            const item = newsList[currentNewsIndex];
+            if (!item) return;
+
+            const processedImg = formatImageURL(item.image);
+            const friendlyDate = displayFriendlyDate(item.date);
+
+            // Render single card with fade & slide animation class
+            container.innerHTML = `
+                <article class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col md:flex-row news-animate-fade">
+                    <div class="relative md:w-1/2 aspect-[16/9] md:aspect-auto overflow-hidden bg-gray-100 min-h-[220px]">
+                        <img src="${processedImg}" alt="${item.title || 'News'}" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
+                        <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow">${item.category || 'Announcement'}</span>
+                    </div>
+                    <div class="md:w-1/2 p-6 sm:p-8 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                                <i class="fa-regular fa-calendar text-gray-400"></i>
+                                <span>${friendlyDate || 'Recent'}</span>
+                            </div>
+                            <h3 class="font-bold text-lg text-gray-900 leading-snug mb-3">${item.title || ''}</h3>
+                            <p class="text-xs sm:text-sm text-gray-600 font-light line-clamp-3 leading-relaxed mb-4">${item.description || ''}</p>
+                        </div>
+                        <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                            <a href="news.html" class="text-xs font-bold text-amber-600 hover:text-amber-700 inline-flex items-center gap-1">
+                                Read Full Story <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                            </a>
+                            <span class="text-[10px] font-semibold text-gray-400">${currentNewsIndex + 1} of ${newsList.length}</span>
+                        </div>
+                    </div>
+                </article>
+            `;
+
+            // Render interactive pagination dots
+            if (dotsContainer && newsList.length > 1) {
+                dotsContainer.innerHTML = newsList.map((_, idx) => `
+                    <button onclick="manualSelectNews(${idx})" class="h-2 rounded-full transition-all duration-300 ${idx === currentNewsIndex ? 'w-6 bg-amber-500' : 'w-2 bg-gray-300 hover:bg-gray-400'}" aria-label="News slide ${idx + 1}"></button>
+                `).join('');
+            } else if (dotsContainer) {
+                dotsContainer.innerHTML = '';
+            }
+        }
+
+        function startNewsRotation() {
+            clearInterval(newsRotationTimer);
+            if (newsList.length <= 1) return;
+            newsRotationTimer = setInterval(() => {
+                currentNewsIndex = (currentNewsIndex + 1) % newsList.length;
+                renderCurrentNewsItem();
+            }, 4000); // Rotates every 4 seconds automatically
+        }
+
+        function manualSelectNews(index) {
+            currentNewsIndex = index;
+            renderCurrentNewsItem();
+            startNewsRotation(); // Reset timer on manual click
         }
 
         document.addEventListener('DOMContentLoaded', initRealtimeNews);
