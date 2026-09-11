@@ -41,7 +41,7 @@
 
         <div id="loading-box" class="text-center py-20">
             <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-900 mb-3"></i>
-            <p class="text-gray-500 text-sm">Connecting to Firebase Database...</p>
+            <p class="text-gray-500 text-sm">Loading articles...</p>
         </div>
 
         <div id="admin-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
@@ -105,6 +105,8 @@
     </footer>
 
     <script>
+        const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
+
         function openModalForAdd() {
             document.getElementById('modalHeading').innerText = "Add New Post";
             document.getElementById('recordId').value = "";
@@ -113,43 +115,29 @@
             toggleActionFields();
             document.getElementById('newsModal').classList.replace('hidden', 'flex');
         }
+
         function closeNewsModal() {
             document.getElementById('newsModal').classList.replace('flex', 'hidden');
         }
+
         function toggleActionFields() {
             const isChecked = document.getElementById('toggleButtonSwitch').checked;
             document.getElementById('actionFieldsContainer').classList.toggle('hidden', !isChecked);
         }
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
-        import { getDatabase, ref, get, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyCX0_wH5grINMxhCqVnFjiYDj0i_Dw3dIc",
-          authDomain: "munchirai-ymca-12de8.firebaseapp.com",
-          databaseURL: "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com",
-          projectId: "munchirai-ymca-12de8",
-          storageBucket: "munchirai-ymca-12de8.firebasestorage.app",
-          messagingSenderId: "890981851605",
-          appId: "1:890981851605:web:619a6fa847f309a87cdd5c",
-          measurementId: "G-PN7S9DWCMC"
-        };
-
-        const db = getDatabase(initializeApp(firebaseConfig));
-        const adminGrid = document.getElementById('admin-grid');
-        const loadingBox = document.getElementById('loading-box');
 
         async function loadAdminData() {
+            const loadingBox = document.getElementById('loading-box');
+            const adminGrid = document.getElementById('admin-grid');
+
             try {
-                const snapshot = await get(ref(db, 'news'));
+                const response = await fetch(DB_URL + ".json");
+                const data = await response.json();
+                
                 loadingBox.style.display = 'none';
                 adminGrid.classList.remove('hidden');
                 adminGrid.innerHTML = '';
 
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
+                if (data) {
                     Object.keys(data).reverse().forEach(id => {
                         const item = data[id];
                         const card = document.createElement('div');
@@ -167,10 +155,10 @@
                                 </div>
                             </div>
                             <div class="p-4 bg-gray-50 border-t flex justify-between items-center">
-                                <button onclick="window.triggerEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}', ${item.showButton ? true : false}, '${encodeURIComponent(item.btnText || '')}', '${encodeURIComponent(item.btnLink || '')}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
+                                <button onclick="triggerEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}', ${item.showButton ? true : false}, '${encodeURIComponent(item.btnText || '')}', '${encodeURIComponent(item.btnLink || '')}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
                                     <i class="fa-solid fa-pen"></i> Edit
                                 </button>
-                                <button onclick="window.triggerDelete('${id}')" class="text-red-600 hover:text-red-800 text-xs font-semibold flex items-center gap-1">
+                                <button onclick="triggerDelete('${id}')" class="text-red-600 hover:text-red-800 text-xs font-semibold flex items-center gap-1">
                                     <i class="fa-solid fa-trash"></i> Delete
                                 </button>
                             </div>
@@ -181,11 +169,7 @@
                     adminGrid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10 bg-white rounded-xl border border-dashed">No articles found in database. Click 'Add New Post'.</p>`;
                 }
             } catch (err) {
-                loadingBox.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-700 p-5 rounded-xl text-left max-w-lg mx-auto shadow-sm">
-                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Database Error</p>
-                    <p class="text-xs font-mono bg-red-100 p-2 rounded mb-2">${err.message}</p>
-                    <p class="text-xs">👉 Check your Firebase Console Realtime Database Rules.</p>
-                </div>`;
+                loadingBox.innerHTML = `<p class="text-red-500 text-sm">Error loading data: ${err.message}</p>`;
             }
         }
 
@@ -209,15 +193,23 @@
 
             try {
                 if (id) {
-                    await update(ref(db, 'news/' + id), newsPayload);
+                    // Update existing
+                    await fetch(`${DB_URL}/${id}.json`, {
+                        method: 'PUT',
+                        body: JSON.stringify(newsPayload)
+                    });
                 } else {
-                    const newRef = push(ref(db, 'news'));
-                    await set(newRef, newsPayload);
+                    // Create new
+                    await fetch(DB_URL + ".json", {
+                        method: 'POST',
+                        body: JSON.stringify(newsPayload)
+                    });
                 }
+                alert("Success! Saved to Firebase.");
                 closeNewsModal();
-                await loadAdminData();
+                loadAdminData();
             } catch (err) {
-                alert("Operation failed: " + err.message);
+                alert("Error saving: " + err.message);
             } finally {
                 saveBtn.innerText = "Save Post";
                 saveBtn.disabled = false;
@@ -227,8 +219,10 @@
         window.triggerDelete = async function(id) {
             if (confirm("Are you sure you want to delete this post?")) {
                 try {
-                    await remove(ref(db, 'news/' + id));
-                    await loadAdminData();
+                    await fetch(`${DB_URL}/${id}.json`, {
+                        method: 'DELETE'
+                    });
+                    loadAdminData();
                 } catch (err) {
                     alert("Delete failed: " + err.message);
                 }
@@ -245,7 +239,7 @@
             document.getElementById('inputDescription').value = decodeURIComponent(description);
             
             const toggle = document.getElementById('toggleButtonSwitch');
-            toggle.checked = showButton;
+            toggle.checked = showButton === 'true' || showButton === true;
             toggleActionFields();
 
             document.getElementById('inputBtnText').value = decodeURIComponent(btnText);
