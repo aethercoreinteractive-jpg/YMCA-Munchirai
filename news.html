@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News & Events | YMCA Munchirai</title>
+    <!-- Tailwind CSS CDN for rapid, clean styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- Header / Navigation -->
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-blue-900 p-2 rounded-full font-bold text-xl">
+                    <i class="fa-solid fa-y"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wide">YMCA Munchirai</h1>
+                    <p class="text-xs text-blue-200">Community & Welfare Programs</p>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="index.html" class="hover:text-blue-300 transition">Home</a>
+                <a href="about.html" class="hover:text-blue-300 transition">About Us</a>
+                <a href="news.html" class="text-blue-300 font-semibold">News & Events</a>
+                <a href="mystore.html" class="hover:text-blue-300 transition">Store</a>
+                <a href="contact.html" class="hover:text-blue-300 transition">Contact</a>
+            </nav>
+            <!-- Mobile Menu Toggle Button -->
+            <button id="menu-btn" class="md:hidden text-white focus:outline-none">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </div>
+        <!-- Mobile Nav Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-6 pt-2 pb-4 space-y-2">
+            <a href="index.html" class="block py-2 hover:bg-blue-700 rounded px-2">Home</a>
+            <a href="about.html" class="block py-2 hover:bg-blue-700 rounded px-2">About Us</a>
+            <a href="news.html" class="block py-2 bg-blue-700 rounded px-2 font-semibold">News & Events</a>
+            <a href="mystore.html" class="block py-2 hover:bg-blue-700 rounded px-2">Store</a>
+            <a href="contact.html" class="block py-2 hover:bg-blue-700 rounded px-2">Contact</a>
+        </div>
+    </header>
+
+    <!-- Page Title Header -->
+    <section class="bg-blue-800 text-white py-12">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Latest News & Announcements</h2>
+            <p class="text-blue-200 max-w-xl mx-auto text-sm md:text-base">
+                Stay updated with community initiatives, empowering youth programs, tailoring classes, and health camps at YMCA Munchirai.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <main class="container mx-auto px-6 py-10">
+        
+        <!-- Filter / Category tags -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mb-10">
+            <button class="px-4 py-2 bg-blue-900 text-white rounded-full text-sm font-medium shadow transition">All Updates</button>
+            <button class="px-4 py-2 bg-white text-gray-700 hover:bg-gray-100 rounded-full text-sm font-medium border border-gray-200 transition">Community Events</button>
+            <button class="px-4 py-2 bg-white text-gray-700 hover:bg-gray-100 rounded-full text-sm font-medium border border-gray-200 transition">Women Empowerment</button>
+            <button class="px-4 py-2 bg-white text-gray-700 hover:bg-gray-100 rounded-full text-sm font-medium border border-gray-200 transition">Announcements</button>
+        </div>
+
+        <!-- News Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- News Item 1 -->
+            <article class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition duration-300 flex flex-col justify-between">
+                <div>
+                    <!-- Image container (Tip: Replace src with Google Drive direct link if needed) -->
+                    <div class="h-48 overflow-hidden bg-gray-200">
+                        <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=600" alt="Free Tailoring Classes" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center space-x-2 text-xs text-blue-600 font-semibold mb-2">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>September 10, 2026</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">Skill Development</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">New Batch of Free Tailoring Classes for Women</h3>
+                        <p class="text-gray-600 text-sm line-clamp-3">
+                            YMCA Munchirai has launched a fresh batch of vocational training programs focused on empowering local women through professional skill building and self-reliance.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6 pt-0">
+                    <button onclick="openReadMoreModal('New Batch of Free Tailoring Classes for Women', 'YMCA Munchirai has launched a fresh batch of vocational training programs focused on empowering local women through professional skill building and self-reliance. Registrations are open now at the center office.')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 transition">
+                        Read More <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </article>
+
+            <!-- News Item 2 -->
+            <article class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition duration-300 flex flex-col justify-between">
+                <div>
+                    <div class="h-48 overflow-hidden bg-gray-200">
+                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=600" alt="Health Camp" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center space-x-2 text-xs text-blue-600 font-semibold mb-2">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>August 28, 2026</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">Healthcare</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Free Medical and Wellness Camp Organized</h3>
+                        <p class="text-gray-600 text-sm line-clamp-3">
+                            Promoting a holistic approach to health and well-being, our latest community medical camp provided check-ups and medical assistance to dozens of families in the Munchirai region.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6 pt-0">
+                    <button onclick="openReadMoreModal('Free Medical and Wellness Camp Organized', 'Promoting a holistic approach to health and well-being, our latest community medical camp provided free check-ups, consultations, and medicines, addressing regional health concerns effectively.')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 transition">
+                        Read More <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </article>
+
+            <!-- News Item 3 -->
+            <article class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition duration-300 flex flex-col justify-between">
+                <div>
+                    <div class="h-48 overflow-hidden bg-gray-200">
+                        <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=600" alt="Store launch" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center space-x-2 text-xs text-blue-600 font-semibold mb-2">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>August 15, 2026</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">Store Update</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Organic & Quality Items Available on Our Store</h3>
+                        <p class="text-gray-600 text-sm line-clamp-3">
+                            Support local community initiatives! Organic and first-quality items are now ready for sale on our platform. Check out our store section for more details.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6 pt-0">
+                    <a href="mystore.html" class="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 transition">
+                        Visit Store <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+            </article>
+
+        </div>
+    </main>
+
+    <!-- Simple Read More Modal Popup Script Structure -->
+    <div id="newsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeReadMoreModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            <h3 id="modalTitle" class="text-xl font-bold text-blue-900 mb-3"></h3>
+            <p id="modalDesc" class="text-gray-600 text-sm leading-relaxed mb-6"></p>
+            <div class="text-right">
+                <button onclick="closeReadMoreModal()" class="px-4 py-2 bg-blue-900 text-white rounded text-sm font-medium hover:bg-blue-800 transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-10 mt-16">
+        <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+            <div>
+                <h4 class="text-white font-bold text-base mb-3">YMCA Munchirai</h4>
+                <p class="text-gray-400 mb-2">Committed to enriching the quality of family, spiritual, social, mental, and physical well-being.</p>
+                <p>Pudhukadai, Munchirai, Kanyakumari Dist, Tamil Nadu - 629171</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-base mb-3">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="index.html" class="hover:text-white transition">Home</a></li>
+                    <li><a href="about.html" class="hover:text-white transition">About Us</a></li>
+                    <li><a href="news.html" class="hover:text-white transition">News & Events</a></li>
+                    <li><a href="mystore.html" class="hover:text-white transition">My Store</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-base mb-3">Contact Info</h4>
+                <p class="mb-1"><i class="fa-solid fa-envelope mr-2"></i> ymcamunchirai@yahoo.com</p>
+                <p class="mb-1"><i class="fa-solid fa-phone mr-2"></i> +91 93451 92020</p>
+            </div>
+        </div>
+        <div class="container mx-auto px-6 border-t border-gray-800 mt-8 pt-6 text-center text-xs text-gray-500">
+            &copy; 2026 YMCA Munchirai. All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- Scripts for mobile menu toggling and modal management -->
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        function openReadMoreModal(title, description) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = description;
+            document.getElementById('newsModal').classList.remove('hidden');
+            document.getElementById('newsModal').classList.add('flex');
+        }
+
+        function closeReadMoreModal() {
+            document.getElementById('newsModal').classList.remove('flex');
+            document.getElementById('newsModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
