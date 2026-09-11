@@ -59,7 +59,6 @@
             <button type="button" onclick="closeNewsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             <h3 id="modalHeading" class="text-xl font-bold text-blue-900 mb-4">Add New Post</h3>
             
-            <!-- Note: removed inline onsubmit, handled via secure addEventListener below -->
             <form id="newsForm" class="space-y-4">
                 <input type="hidden" id="recordId" value="">
 
@@ -198,7 +197,7 @@
             }
         }
 
-        // Securely bind submit event listener to avoid timing race conditions
+        // Form submission mapping strictly your exact columns
         document.getElementById('newsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const saveBtn = document.getElementById('saveBtn');
@@ -206,23 +205,24 @@
             saveBtn.disabled = true;
 
             const id = document.getElementById('recordId').value;
-            const payload = {
-                title: document.getElementById('inputTitle').value,
-                date: document.getElementById('inputDate').value,
-                category: document.getElementById('inputCategory').value,
-                image: document.getElementById('inputImage').value,
-                description: document.getElementById('inputDescription').value,
+            
+            const newsPayload = {
+                title: document.getElementById('inputTitle').value.trim(),
+                date: document.getElementById('inputDate').value.trim(),
+                category: document.getElementById('inputCategory').value.trim(),
+                image: document.getElementById('inputImage').value.trim(),
+                description: document.getElementById('inputDescription').value.trim(),
                 showButton: document.getElementById('toggleButtonSwitch').checked,
-                btnText: document.getElementById('inputBtnText').value,
-                btnLink: document.getElementById('inputBtnLink').value
+                btnText: document.getElementById('inputBtnText').value.trim(),
+                btnLink: document.getElementById('inputBtnLink').value.trim()
             };
 
             try {
                 if (id) {
-                    await update(ref(db, 'news/' + id), payload);
+                    await update(ref(db, 'news/' + id), newsPayload);
                 } else {
                     const newRef = push(ref(db, 'news'));
-                    await set(newRef, payload);
+                    await set(newRef, newsPayload);
                 }
                 closeNewsModal();
                 await loadAdminData();
@@ -266,4 +266,5 @@
         loadAdminData();
     </script>
 </body>
-</html>
+                        </html>
+                        
