@@ -3,297 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MY Food | Inventory Management</title>
-    <!-- Tailwind CSS -->
+    <title>Munchirai YMCA | Admin Inventory Manager</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
-
-    <!-- SECURE ACCESS GUARD: Blocks direct/shared link access unless authenticated via admin.html -->
-    <script>
-        if (sessionStorage.getItem("admin_authenticated") !== "true") {
-            document.documentElement.innerHTML = `
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Access Denied - Website Not Available</title>
-                    <script src="https://cdn.tailwindcss.com"><\/script>
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-                    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
-                </head>
-                <body class="bg-gray-50 text-gray-900 min-h-screen flex items-center justify-center p-4">
-                    <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-xl border border-gray-200 text-center">
-                        <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-sm">
-                            <i class="fa-solid fa-lock"></i>
-                        </div>
-                        <h1 class="text-xl font-extrabold text-gray-900 mb-2">Website Not Available</h1>
-                        <p class="text-xs text-gray-500 mb-6 leading-relaxed">Direct access to this inventory link is restricted. You must authenticate through the official admin portal first.</p>
-                        <a href="admin.html" class="inline-block w-full bg-black text-white hover:bg-gray-800 font-bold py-3.5 rounded-xl text-xs transition shadow">
-                            Go to Admin Login (admin.html)
-                        </a>
-                    </div>
-                </body>
-                </html>
-            `;
-        }
-    </script>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased">
+<body class="bg-gray-100 text-gray-900 antialiased selection:bg-black selection:text-white min-h-screen flex flex-col">
 
-    <!-- Header -->
-    <header class="bg-black text-white py-4 px-4 sm:px-6 shadow-md sticky top-0 z-40">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <div class="w-9 h-9 bg-white text-black rounded-lg flex items-center justify-center font-black shrink-0">I</div>
-                <div>
-                    <h1 class="font-bold text-sm sm:text-base tracking-tight">MY Food Inventory Management</h1>
-                    <span class="text-[10px] text-gray-400 block">Server Database Synchronization</span>
-                </div>
+    <!-- Admin Authentication Modal Guard -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-gray-100 text-center">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-4 text-xl border border-amber-100">
+                <i class="fa-solid fa-lock"></i>
             </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
-                <a href="admin.html" class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3.5 py-2 rounded-xl transition border border-gray-700 whitespace-nowrap">
-                    <i class="fa-solid fa-gear mr-1"></i> Portal Settings
+            <h2 class="text-xl font-bold text-gray-900">Admin Inventory Guard</h2>
+            <p class="text-xs text-gray-500 mt-1 mb-6">Enter your security key to access the YMCA inventory control panel.</p>
+            
+            <form onsubmit="handleAuth(event)" class="space-y-4">
+                <input type="password" id="admin-pass" placeholder="Enter admin password..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition">
+                <p id="auth-error" class="text-red-500 text-[11px] hidden font-semibold">Incorrect password. Please try again.</p>
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
+                    Unlock Inventory Dashboard
+                </button>
+            </form>
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <a href="index.html" class="text-xs text-gray-400 hover:text-gray-600 transition"><i class="fa-solid fa-arrow-left"></i> Return to Homepage</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-xl font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-lg font-bold">MY</span> Admin
                 </a>
-                <a href="myfood.html" class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3.5 py-2 rounded-xl transition border border-gray-700 whitespace-nowrap">
-                    <i class="fa-solid fa-store mr-1"></i> myfood.html
+                <span class="text-xs bg-slate-800 text-amber-400 font-semibold px-2.5 py-1 rounded-md border border-slate-700">Firebase Live Engine</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="mystore.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg transition border border-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-store text-amber-400"></i> View Storefront
                 </a>
-                <button onclick="handleLogout()" class="text-xs bg-red-900/60 hover:bg-red-900 text-white px-3.5 py-2 rounded-xl transition border border-red-800 whitespace-nowrap">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                <button onclick="logoutAdmin()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold px-3 py-2 rounded-lg transition border border-red-500/30">
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-6xl mx-auto px-4 py-6 sm:py-10 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+    <!-- Admin Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Add / Edit Product Form Card -->
-        <div class="lg:col-span-1 bg-white p-5 sm:p-6 rounded-3xl border border-gray-200 shadow-sm h-fit">
-            <div class="flex items-center justify-between mb-4">
-                <h2 id="form-heading" class="text-base sm:text-lg font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-circle-plus text-black"></i> Add New Product
-                </h2>
-                <button type="button" id="cancel-edit-btn" onclick="resetForm()" class="text-xs text-red-600 font-bold hidden hover:underline">Cancel Edit</button>
+        <!-- Add New Product Form Section -->
+        <section class="lg:col-span-1 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm h-fit">
+            <div class="border-b pb-3 mb-5 border-gray-100">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Database Entry</span>
+                <h2 class="text-lg font-bold text-gray-900 mt-1">Add Product to Inventory</h2>
             </div>
 
-            <form id="product-form" onsubmit="handleSaveProduct(event)" class="space-y-4">
-                <input type="hidden" id="p-id">
+            <form id="add-product-form" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Product Name</label>
-                    <input type="text" id="p-name" required placeholder="e.g. Organic Wild Honey" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Quantity</label>
-                        <input type="number" id="p-qty" required placeholder="50" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Unit</label>
-                        <select id="p-unit" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-black">
-                            <option value="Gram">Gram (g)</option>
-                            <option value="Kilogram">Kilogram (kg)</option>
-                            <option value="Liter">Liter (L)</option>
-                            <option value="Milliliter">Milliliter (ml)</option>
-                            <option value="Pieces">Pieces (pcs)</option>
-                        </select>
-                    </div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Product Title</label>
+                    <input type="text" id="prod-name" placeholder="e.g. Pure Wild Honey 500g" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Price ($ or ₹)</label>
-                    <input type="text" id="p-price" required placeholder="e.g. $12.00 or ₹350" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Price (₹)</label>
+                    <input type="number" id="prod-price" placeholder="e.g. 350" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Google Drive Image Link</label>
-                    <input type="url" id="p-img" required placeholder="Paste shared Google Drive link" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black">
-                    <p class="text-[10px] text-gray-400 mt-1">Make sure sharing is set to "Anyone with link can view".</p>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Image Link (Google Drive / Direct URL)</label>
+                    <input type="text" id="prod-img" placeholder="Paste image or Google Drive sharing link..." required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition">
+                    <p class="text-[10px] text-gray-400 mt-1">Tip: Google Drive view links are automatically formatted.</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Description</label>
-                    <textarea id="p-desc" rows="3" required placeholder="Enter description..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black"></textarea>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Description</label>
+                    <textarea id="prod-desc" rows="3" placeholder="Brief details about origin, ingredients, or benefits..." required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition"></textarea>
                 </div>
 
-                <button type="submit" id="submit-btn" class="w-full bg-black text-white hover:bg-gray-800 font-bold py-3.5 rounded-xl text-sm transition shadow">
-                    Save Product to Database
+                <button type="submit" id="submit-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload to Firebase Database</span>
                 </button>
             </form>
-        </div>
+        </section>
 
-        <!-- Inventory List Management View -->
-        <div class="lg:col-span-2 bg-white p-5 sm:p-6 rounded-3xl border border-gray-200 shadow-sm">
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-                <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-stacked text-black"></i> Server Inventory Catalog
-                </h2>
-                <span id="product-count" class="text-xs bg-gray-100 text-gray-700 font-bold px-3 py-1 rounded-full">0 Items</span>
+        <!-- Current Inventory Real-Time List -->
+        <section class="lg:col-span-2 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between border-b pb-3 mb-5 border-gray-100">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Live Management</span>
+                    <h2 class="text-lg font-bold text-gray-900 mt-1">Current Inventory List</h2>
+                </div>
+                <span id="item-count" class="text-xs bg-gray-100 font-bold text-gray-700 px-2.5 py-1 rounded-lg">0 Products</span>
             </div>
 
-            <!-- List Container -->
-            <div id="admin-inventory-list" class="space-y-3 sm:space-y-4">
-                <p class="text-sm text-gray-400 text-center py-12">Loading inventory items from server...</p>
+            <!-- Table/List Container -->
+            <div id="admin-inventory-list" class="space-y-3">
+                <div class="text-center py-12 text-xs text-gray-400">Connecting to Firebase Realtime Database...</div>
             </div>
-        </div>
-
+        </section>
     </main>
 
-    <!-- Firebase SDK & Admin Script -->
+    <!-- Firebase Realtime Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // TODO: Replace with your actual Firebase project credentials
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "SENDER_ID",
-            appId: "APP_ID"
+          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
+          authDomain: "munchirai-ymca.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca",
+          storageBucket: "munchirai-ymca.firebasestorage.app",
+          messagingSenderId: "697387132253",
+          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
+          measurementId: "G-XRRT0Q76YK"
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
 
-        window.handleLogout = function() {
-            sessionStorage.removeItem("admin_authenticated");
-            window.location.href = "admin.html";
+        // Security Guard Logic
+        window.handleAuth = function(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-pass').value;
+            if (pass === "admin123" || pass === "ymca2026") { // Set your admin password here
+                sessionStorage.setItem("ymca_admin_authed", "true");
+                document.getElementById('auth-modal').classList.add('hidden');
+            } else {
+                document.getElementById('auth-error').classList.remove('hidden');
+            }
         };
 
-        function formatDriveLink(url) {
-            if (url.includes('drive.google.com')) {
-                const match = url.match(/\/d\/(.*?)\/|\?id=(.*?)(&|$)/);
-                const fileId = match ? (match[1] || match[2]) : null;
-                if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
+        window.logoutAdmin = function() {
+            sessionStorage.removeItem("ymca_admin_authed");
+            location.reload();
+        };
+
+        // Helper: Convert Google Drive sharing link to direct viewable image link
+        function formatImageUrl(url) {
+            if (url.includes("drive.google.com")) {
+                const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
             }
             return url;
         }
 
-        window.handleSaveProduct = async function(event) {
-            event.preventDefault();
-            const id = document.getElementById('p-id').value;
-            const rawImg = document.getElementById('p-img').value;
-            const formattedImg = formatDriveLink(rawImg);
+        // Add Product Form Handler
+        document.getElementById('add-product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
 
-            const productData = {
-                name: document.getElementById('p-name').value,
-                quantity: document.getElementById('p-qty').value,
-                unit: document.getElementById('p-unit').value,
-                price: document.getElementById('p-price').value,
-                image: formattedImg,
-                description: document.getElementById('p-desc').value,
-                updatedAt: new Date().toISOString()
+            const rawImg = document.getElementById('prod-img').value.trim();
+            const formattedImg = formatImageUrl(rawImg);
+
+            const newProduct = {
+                name: document.getElementById('prod-name').value.trim(),
+                price: document.getElementById('prod-price').value.trim(),
+                rating: "4.9",
+                img: formattedImg,
+                desc: document.getElementById('prod-desc').value.trim(),
+                createdAt: Date.now()
             };
 
-            try {
-                if (id) {
-                    await updateDoc(doc(db, "inventory", id), productData);
-                    alert("Product successfully updated!");
-                } else {
-                    productData.createdAt = new Date().toISOString();
-                    await addDoc(collection(db, "inventory"), productData);
-                    alert("Product successfully added to server database!");
-                }
-                resetForm();
-                loadAdminInventory();
-            } catch (error) {
-                console.error("Error saving product: ", error);
-                alert("Failed to save product. Check Firebase configuration.");
-            }
-        };
-
-        async function loadAdminInventory() {
-            const container = document.getElementById('admin-inventory-list');
-            const countBadge = document.getElementById('product-count');
-            
-            try {
-                const querySnapshot = await getDocs(collection(db, "inventory"));
-                window.inventoryItems = [];
-                querySnapshot.forEach((docSnap) => {
-                    window.inventoryItems.push({ id: docSnap.id, ...docSnap.data() });
+            push(ref(db, 'inventory'), newProduct)
+                .then(() => {
+                    alert("Product added successfully to Firebase Database!");
+                    document.getElementById('add-product-form').reset();
+                })
+                .catch((err) => {
+                    alert("Error saving product: " + err.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload to Firebase Database</span>`;
                 });
+        });
 
-                countBadge.textContent = `${window.inventoryItems.length} Items`;
+        // Listen for live database updates
+        const inventoryRef = ref(db, 'inventory');
+        onValue(inventoryRef, (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('admin-inventory-list');
+            const countBadge = document.getElementById('item-count');
 
-                if (window.inventoryItems.length === 0) {
-                    container.innerHTML = `<p class="text-sm text-gray-400 text-center py-12">No products found in server database yet.</p>`;
-                    return;
-                }
+            if (!data) {
+                container.innerHTML = `<p class="text-center py-10 text-xs text-gray-400">No products currently in inventory database.</p>`;
+                countBadge.textContent = "0 Products";
+                return;
+            }
 
-                container.innerHTML = window.inventoryItems.map(item => `
-                    <div class="flex items-center justify-between gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition">
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gray-200 overflow-hidden shrink-0">
-                            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-xs sm:text-sm text-gray-900 truncate">${item.name}</h4>
-                            <p class="text-[11px] sm:text-xs text-gray-500 mt-0.5">Stock: <strong class="text-gray-900">${item.quantity} ${item.unit}</strong> &bull; Price: <strong class="text-gray-900">${item.price}</strong></p>
-                            <p class="text-[10px] sm:text-[11px] text-gray-400 truncate mt-0.5">${item.description}</p>
-                        </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <button onclick="editProduct('${item.id}')" class="text-gray-500 hover:text-black p-2 transition" title="Edit">
-                                <i class="fa-solid fa-pen-to-square text-sm"></i>
-                            </button>
-                            <button onclick="deleteProduct('${item.id}')" class="text-gray-400 hover:text-red-600 p-2 transition" title="Delete">
-                                <i class="fa-solid fa-trash-can text-sm"></i>
-                            </button>
+            const items = Object.keys(data).map(key => ({
+                key: key,
+                ...data[key]
+            }));
+
+            countBadge.textContent = `${items.length} Product${items.length > 1 ? 's' : ''}`;
+
+            container.innerHTML = items.map(item => `
+                <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl p-3 hover:border-amber-400 transition">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-gray-200 shrink-0">
+                        <div class="truncate">
+                            <h4 class="font-bold text-xs text-gray-900 truncate">${item.name}</h4>
+                            <p class="text-[11px] text-gray-500">₹${item.price} &bull; ${item.desc || 'No description'}</p>
                         </div>
                     </div>
-                `).join('');
-            } catch (error) {
-                console.error("Error loading inventory:", error);
-                container.innerHTML = `<p class="text-sm text-red-500 text-center py-12">Error connecting to server database.</p>`;
-            }
-        }
+                    <button onclick="window.deleteProduct('${item.key}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition shrink-0 ml-2">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                    </button>
+                </div>
+            `).join('');
+        });
 
-        window.editProduct = function(id) {
-            const item = window.inventoryItems.find(p => p.id === id);
-            if (!item) return;
-
-            document.getElementById('p-id').value = item.id;
-            document.getElementById('p-name').value = item.name;
-            document.getElementById('p-qty').value = item.quantity;
-            document.getElementById('p-unit').value = item.unit;
-            document.getElementById('p-price').value = item.price;
-            document.getElementById('p-img').value = item.image;
-            document.getElementById('p-desc').value = item.description;
-
-            document.getElementById('form-heading').innerHTML = `<i class="fa-solid fa-pen-to-square text-black"></i> Edit Product`;
-            document.getElementById('submit-btn').textContent = `Update Product on Server`;
-            document.getElementById('cancel-edit-btn').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.resetForm = function() {
-            document.getElementById('product-form').reset();
-            document.getElementById('p-id').value = '';
-            document.getElementById('form-heading').innerHTML = `<i class="fa-solid fa-circle-plus text-black"></i> Add New Product`;
-            document.getElementById('submit-btn').textContent = `Save Product to Database`;
-            document.getElementById('cancel-edit-btn').classList.add('hidden');
-        };
-
-        window.deleteProduct = async function(id) {
-            if (confirm("Are you sure you want to delete this product from the server?")) {
-                try {
-                    await deleteDoc(doc(db, "inventory", id));
-                    loadAdminInventory();
-                } catch (error) {
-                    console.error("Error deleting product: ", error);
-                }
+        // Delete product from database
+        window.deleteProduct = function(key) {
+            if (confirm("Are you sure you want to delete this product from inventory?")) {
+                remove(ref(db, `inventory/${key}`))
+                    .then(() => alert("Product removed."))
+                    .catch((err) => alert("Failed to delete: " + err.message));
             }
         };
 
+        // Check authentication state on page load
         document.addEventListener('DOMContentLoaded', () => {
-            loadAdminInventory();
+            if (sessionStorage.getItem("ymca_admin_authed") === "true") {
+                document.getElementById('auth-modal').classList.add('hidden');
+            }
         });
     </script>
 </body>
-</html>
+    </html>
+    
