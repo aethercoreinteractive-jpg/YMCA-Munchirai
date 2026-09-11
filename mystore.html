@@ -27,10 +27,10 @@
                 <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg transition border border-slate-700 flex items-center gap-1.5">
                     <i class="fa-solid fa-house text-amber-400"></i> Home
                 </a>
-                <button onclick="toggleCartModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-lg font-bold text-xs shadow transition flex items-center gap-2">
+                <a href="cart.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-lg font-bold text-xs shadow transition flex items-center gap-2">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span>Cart (<span id="cart-count">0</span>)</span>
-                </button>
+                </a>
             </div>
         </div>
     </header>
@@ -48,9 +48,8 @@
             </div>
         </div>
 
-        <!-- Products Grid (Dynamically Populated from Firebase) -->
+        <!-- Products Grid -->
         <div id="store-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- Loading state -->
             <div class="col-span-full text-center py-20 text-gray-400 text-xs">Loading live inventory from Firebase...</div>
         </div>
 
@@ -63,34 +62,6 @@
             <p class="text-xs text-gray-500 mt-1">Add items via your admin dashboard to display them here.</p>
         </div>
     </main>
-
-    <!-- Shopping Cart Modal Overlay -->
-    <div id="cart-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex justify-end hidden">
-        <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col p-6 overflow-y-auto">
-            <div class="flex items-center justify-between border-b pb-4 mb-4">
-                <h2 class="font-bold text-base text-gray-900 flex items-center gap-2">
-                    <i class="fa-solid fa-cart-shopping text-amber-500"></i> Your Shopping Cart
-                </h2>
-                <button onclick="toggleCartModal()" class="text-gray-400 hover:text-black p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <div id="cart-items-container" class="flex-1 space-y-4 overflow-y-auto">
-                <!-- Cart items populate here -->
-            </div>
-
-            <div class="border-t pt-4 mt-4 space-y-3">
-                <div class="flex justify-between text-sm font-bold">
-                    <span>Total Amount:</span>
-                    <span id="cart-total">₹0</span>
-                </div>
-                <button onclick="checkoutOrder()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-xl text-xs transition shadow">
-                    Proceed to Checkout
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Firebase SDK Imports & Store Script -->
     <script type="module">
@@ -114,12 +85,10 @@
         let liveInventory = [];
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
 
-        // Listen for live data changes in Firebase Realtime Database (/inventory)
         const inventoryRef = ref(db, 'inventory');
         onValue(inventoryRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // Convert Firebase object map into an array
                 liveInventory = Object.keys(data).map(key => ({
                     firebaseKey: key,
                     ...data[key]
@@ -128,6 +97,7 @@
                 liveInventory = [];
             }
             renderStoreProducts(liveInventory);
+            updateCartCount();
         });
 
         window.renderStoreProducts = function(productsToRender) {
@@ -144,31 +114,64 @@
             grid.innerHTML = productsToRender.map(item => `
                 <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between">
                     <div>
-                        <div class="relative bg-gray-50 rounded-lg overflow-hidden aspect-[4/3] mb-3 border border-gray-100">
-                            <img src="${item.img || item.image || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-cover">
+                        <!-- Image -->
+                        <div class="relative bg-gray-50 rounded-lg overflow-hidden aspect-[4/3] mb-3 border border-gray-100 cursor-pointer" onclick="toggleExpand('${item.firebaseKey}')">
+                            <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-cover">
                             <span class="absolute top-2 left-2 bg-amber-500 text-slate-950 font-bold text-[9px] px-2 py-0.5 rounded shadow">In Stock</span>
                         </div>
+
                         <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
-                            <span>MY Food Store</span>
-                            <span class="bg-green-100 text-green-800 px-1 py-0.5 rounded text-[9px] font-bold"><i class="fa-solid fa-star text-[8px]"></i> ${item.rating || '4.8'}</span>
+                            <span class="text-amber-600 font-bold">MY Food Store</span>
+                            <button onclick="toggleExpand('${item.firebaseKey}')" class="text-blue-600 hover:underline flex items-center gap-1 font-bold">
+                                <span id="btn-text-${item.firebaseKey}">More Info</span> <i class="fa-solid fa-chevron-down text-[8px]" id="icon-${item.firebaseKey}"></i>
+                            </button>
                         </div>
-                        <h3 class="font-bold text-sm text-gray-900 line-clamp-1">${item.name}</h3>
-                        <p class="text-[11px] text-gray-500 mt-1 line-clamp-2 font-light">${item.desc || item.description || ''}</p>
+
+                        <h3 class="font-bold text-sm text-gray-900 line-clamp-1 mb-1">${item.name}</h3>
+
+                        <!-- Small Description Below Image -->
+                        <p class="text-[11px] text-gray-600 font-light line-clamp-2 mb-2">${item.smallDesc || item.desc || 'No brief summary available.'}</p>
+
+                        <!-- Expanded Big Description (Hidden by default) -->
+                        <div id="expanded-desc-${item.firebaseKey}" class="hidden bg-amber-50/50 border border-amber-200/60 p-2.5 rounded-lg mb-3 text-[11px] text-gray-700 font-light leading-relaxed">
+                            <strong class="block text-gray-900 font-semibold mb-0.5">Detailed Overview:</strong>
+                            ${item.bigDesc || item.desc || 'No detailed specifications provided.'}
+                        </div>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+
+                    <!-- Price & Add to Cart Button -->
+                    <div class="mt-2 pt-3 border-t border-gray-100 flex items-center justify-between">
                         <span class="font-black text-base text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
-                        <button onclick="window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5">
-                            <i class="fa-solid fa-cart-plus text-xs"></i> Add
+                        <button onclick="window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+                            <i class="fa-solid fa-cart-plus text-xs"></i> Add to Cart
                         </button>
                     </div>
                 </div>
             `).join('');
         };
 
+        window.toggleExpand = function(key) {
+            const descEl = document.getElementById(`expanded-desc-${key}`);
+            const btnText = document.getElementById(`btn-text-${key}`);
+            const icon = document.getElementById(`icon-${key}`);
+            
+            if (descEl.classList.contains('hidden')) {
+                descEl.classList.remove('hidden');
+                btnText.textContent = "Less Info";
+                icon.className = "fa-solid fa-chevron-up text-[8px]";
+            } else {
+                descEl.classList.add('hidden');
+                btnText.textContent = "More Info";
+                icon.className = "fa-solid fa-chevron-down text-[8px]";
+            }
+        };
+
         window.filterProducts = function() {
             const query = document.getElementById('search-bar').value.toLowerCase();
             const filtered = liveInventory.filter(item => 
-                item.name.toLowerCase().includes(query) || (item.desc && item.desc.toLowerCase().includes(query))
+                item.name.toLowerCase().includes(query) || 
+                (item.smallDesc && item.smallDesc.toLowerCase().includes(query)) ||
+                (item.bigDesc && item.bigDesc.toLowerCase().includes(query))
             );
             renderStoreProducts(filtered);
         };
@@ -184,68 +187,18 @@
                 cart.push({ ...product, qty: 1 });
             }
 
-            saveCart();
+            localStorage.setItem("ymca_cart", JSON.stringify(cart));
+            updateCartCount();
             alert(`${product.name} added to cart!`);
         };
 
-        function saveCart() {
-            localStorage.setItem("ymca_cart", JSON.stringify(cart));
-            updateCartUI();
-        }
-
-        window.updateCartUI = function() {
+        function updateCartCount() {
             const totalCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
             document.getElementById('cart-count').textContent = totalCount;
-
-            const container = document.getElementById('cart-items-container');
-            if (cart.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-500 text-center py-10">Your cart is currently empty.</p>`;
-                document.getElementById('cart-total').textContent = '₹0';
-                return;
-            }
-
-            let totalPrice = 0;
-            container.innerHTML = cart.map((item, index) => {
-                const cleanPrice = parseInt(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price);
-                totalPrice += cleanPrice * (item.qty || 1);
-                return `
-                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-200 text-xs">
-                        <div>
-                            <h4 class="font-bold text-gray-900">${item.name}</h4>
-                            <p class="text-gray-500">₹${cleanPrice} &times; ${item.qty || 1}</p>
-                        </div>
-                        <button onclick="window.removeFromCart(${index})" class="text-red-500 hover:text-red-700 p-1">
-                            <i class="fa-solid fa-trash text-xs"></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('cart-total').textContent = `₹${totalPrice}`;
-        };
-
-        window.removeFromCart = function(index) {
-            cart.splice(index, 1);
-            saveCart();
-        };
-
-        window.toggleCartModal = function() {
-            document.getElementById('cart-modal').classList.toggle('hidden');
-        };
-
-        window.checkoutOrder = function() {
-            if (cart.length === 0) {
-                alert("Your cart is empty!");
-                return;
-            }
-            alert("Order placed successfully! Thank you for supporting Munchirai YMCA and MY Food.");
-            cart = [];
-            saveCart();
-            toggleCartModal();
-        };
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            updateCartUI();
+            updateCartCount();
         });
     </script>
 </body>
