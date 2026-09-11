@@ -81,12 +81,16 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Image Link (Google Drive / Direct URL)</label>
                     <input type="text" id="prod-img" placeholder="Paste image or Google Drive sharing link..." required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition">
-                    <p class="text-[10px] text-gray-400 mt-1">Tip: Google Drive view links are automatically formatted.</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Description</label>
-                    <textarea id="prod-desc" rows="3" placeholder="Brief details about origin, ingredients, or benefits..." required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition"></textarea>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Small Description (Shown below image)</label>
+                    <input type="text" id="prod-small-desc" placeholder="Brief 1-line summary..." required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Big Description (Shown when expanded)</label>
+                    <textarea id="prod-big-desc" rows="3" placeholder="Full detailed overview, origin, ingredients, or benefits..." required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition"></textarea>
                 </div>
 
                 <button type="submit" id="submit-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
@@ -106,7 +110,6 @@
                 <span id="item-count" class="text-xs bg-gray-100 font-bold text-gray-700 px-2.5 py-1 rounded-lg">0 Products</span>
             </div>
 
-            <!-- Table/List Container -->
             <div id="admin-inventory-list" class="space-y-3">
                 <div class="text-center py-12 text-xs text-gray-400">Connecting to Firebase Realtime Database...</div>
             </div>
@@ -132,11 +135,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Security Guard Logic
         window.handleAuth = function(e) {
             e.preventDefault();
             const pass = document.getElementById('admin-pass').value;
-            if (pass === "admin123" || pass === "ymca2026") { // Set your admin password here
+            if (pass === "admin123" || pass === "ymca2026") {
                 sessionStorage.setItem("ymca_admin_authed", "true");
                 document.getElementById('auth-modal').classList.add('hidden');
             } else {
@@ -149,7 +151,6 @@
             location.reload();
         };
 
-        // Helper: Convert Google Drive sharing link to direct viewable image link
         function formatImageUrl(url) {
             if (url.includes("drive.google.com")) {
                 const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -160,7 +161,6 @@
             return url;
         }
 
-        // Add Product Form Handler
         document.getElementById('add-product-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('submit-btn');
@@ -173,9 +173,9 @@
             const newProduct = {
                 name: document.getElementById('prod-name').value.trim(),
                 price: document.getElementById('prod-price').value.trim(),
-                rating: "4.9",
                 img: formattedImg,
-                desc: document.getElementById('prod-desc').value.trim(),
+                smallDesc: document.getElementById('prod-small-desc').value.trim(),
+                bigDesc: document.getElementById('prod-big-desc').value.trim(),
                 createdAt: Date.now()
             };
 
@@ -193,7 +193,6 @@
                 });
         });
 
-        // Listen for live database updates
         const inventoryRef = ref(db, 'inventory');
         onValue(inventoryRef, (snapshot) => {
             const data = snapshot.val();
@@ -219,7 +218,7 @@
                         <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-gray-200 shrink-0">
                         <div class="truncate">
                             <h4 class="font-bold text-xs text-gray-900 truncate">${item.name}</h4>
-                            <p class="text-[11px] text-gray-500">₹${item.price} &bull; ${item.desc || 'No description'}</p>
+                            <p class="text-[11px] text-gray-500">₹${item.price} &bull; ${item.smallDesc || 'No summary'}</p>
                         </div>
                     </div>
                     <button onclick="window.deleteProduct('${item.key}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition shrink-0 ml-2">
@@ -229,7 +228,6 @@
             `).join('');
         });
 
-        // Delete product from database
         window.deleteProduct = function(key) {
             if (confirm("Are you sure you want to delete this product from inventory?")) {
                 remove(ref(db, `inventory/${key}`))
@@ -238,7 +236,6 @@
             }
         };
 
-        // Check authentication state on page load
         document.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem("ymca_admin_authed") === "true") {
                 document.getElementById('auth-modal').classList.add('hidden');
@@ -246,5 +243,4 @@
         });
     </script>
 </body>
-    </html>
-    
+</html>
