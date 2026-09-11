@@ -20,11 +20,6 @@
                     <p class="text-[10px] text-slate-400">Community News & Events</p>
                 </div>
             </div>
-            <nav class="flex items-center space-x-2">
-                <a href="adminnews.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
-                    <i class="fa-solid fa-gear text-[10px]"></i> Admin
-                </a>
-            </nav>
         </div>
     </header>
 
@@ -49,7 +44,6 @@
     <script>
         const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
 
-        // Converts Google Drive share links into direct image viewing links
         function formatImageURL(url) {
             if (!url) return '';
             if (url.includes('drive.google.com')) {
