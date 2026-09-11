@@ -239,7 +239,7 @@
         </div>
     </section>
 
-    <!-- Professional Industry-Standard News Section (Synced live from Firebase) -->
+    <!-- Professional Industry-Standard News Section (Synced live from Firebase RTDB news.html source) -->
     <section id="updates" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 border-b border-gray-200 pb-4 gap-4">
             <div>
@@ -252,13 +252,13 @@
             </a>
         </div>
 
-        <!-- Populated automatically from Firebase Firestore collection 'news' -->
+        <!-- Populated automatically from Firebase RTDB -->
         <div id="homepage-news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="col-span-3 text-center py-8 text-xs text-gray-500">Loading latest news from Firebase...</div>
+            <div class="col-span-3 text-center py-8 text-xs text-gray-500">Loading latest announcements...</div>
         </div>
     </section>
 
-        <!-- About Section -->
+      <!-- About Section -->
     <section id="about" class="bg-white border-t border-gray-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div>
@@ -307,84 +307,124 @@
         </div>
     </footer>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <!-- Firebase Real-Time Database News Integration (Matching news.html) -->
+    <script>
+        const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Fetch News from Firebase Firestore 'news' collection
-        async function fetchFirebaseNews() {
-            const container = document.getElementById('homepage-news-grid');
-            if (!container) return;
-
-            try {
-                // Query collection 'news', sorting by date/timestamp if available, limiting to 3 items
-                const q = query(collection(db, "news"), limit(3));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    container.innerHTML = `
-                        <div class="col-span-3 text-center py-8 text-xs text-gray-500">
-                            No announcements found in Firebase database. Please check back later.
-                        </div>
-                    `;
-                    return;
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
                 }
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
 
-                let newsHTML = "";
-                querySnapshot.forEach((doc) => {
-                    const news = doc.data();
-                    newsHTML += `
-                        <article class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col">
-                            <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
-                                <img src="${news.image || 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'}" alt="${news.title || 'News'}" class="w-full h-full object-cover hover:scale-105 transition duration-500">
-                                <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow">${news.category || 'Announcement'}</span>
-                            </div>
-                            <div class="p-5 flex-1 flex flex-col justify-between">
-                                <div>
-                                    <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                                        <i class="fa-regular fa-calendar text-gray-400"></i>
-                                        <span>${news.date || 'Recent'}</span>
-                                    </div>
-                                    <h3 class="font-bold text-base text-gray-900 leading-snug mb-2 hover:text-amber-600 transition">${news.title || ''}</h3>
-                                    <p class="text-xs text-gray-600 font-light line-clamp-2 leading-relaxed">${news.excerpt || news.content || ''}</p>
-                                </div>
-                                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                                    <a href="news.html?id=${doc.id}" class="text-xs font-bold text-amber-600 hover:text-amber-700 inline-flex items-center gap-1">
-                                        Read Full Story <i class="fa-solid fa-chevron-right text-[9px]"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
-                    `;
-                });
+        function displayFriendlyDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                if (!isNaN(dateObj)) {
+                    return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                }
+            }
+            return dateStr;
+        }
 
-                container.innerHTML = newsHTML;
-            } catch (error) {
-                console.error("Error fetching news from Firebase:", error);
-                container.innerHTML = `
-                    <div class="col-span-3 text-center py-8 text-xs text-red-500">
-                        Unable to load announcements from Firebase at the moment.
-                    </div>
-                `;
+        function initRealtimeNews() {
+            const eventSource = new EventSource(DB_URL + ".json");
+
+            eventSource.addEventListener('put', function(e) {
+                handleDatabaseUpdate(JSON.parse(e.data));
+            });
+
+            eventSource.addEventListener('patch', function(e) {
+                handleDatabaseUpdate(JSON.parse(e.data));
+            });
+
+            eventSource.onerror = function() {
+                fetchNewsOnce();
+            };
+
+            fetchNewsOnce();
+        }
+
+        async function fetchNewsOnce() {
+            try {
+                const response = await fetch(DB_URL + ".json");
+                const data = await response.json();
+                handleDatabaseUpdate(data);
+            } catch (err) {
+                const container = document.getElementById('homepage-news-grid');
+                if (container) {
+                    container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-rose-500">Failed to load news feed from Firebase.</div>`;
+                }
             }
         }
 
-        window.addEventListener('DOMContentLoaded', fetchFirebaseNews);
+        function handleDatabaseUpdate(data) {
+            const container = document.getElementById('homepage-news-grid');
+            if (!container) return;
+            
+            container.innerHTML = '';
+
+            if (data && typeof data === 'object') {
+                let records = data.data || data;
+                const keys = Object.keys(records).filter(k => records[k] !== null);
+
+                if (keys.length > 0) {
+                    // Reverse to show latest first, slice top 3 for homepage preview grid
+                    let latestKeys = keys.reverse().slice(0, 3);
+                    
+                    let newsHTML = "";
+                    latestKeys.forEach(id => {
+                        const item = records[id];
+                        if (!item) return;
+
+                        const processedImg = formatImageURL(item.image);
+                        const friendlyDate = displayFriendlyDate(item.date);
+                        
+                        newsHTML += `
+                            <article class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between">
+                                <div>
+                                    <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
+                                        <img src="${processedImg}" alt="${item.title || 'News'}" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
+                                        <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow">${item.category || 'Announcement'}</span>
+                                    </div>
+                                    <div class="p-5">
+                                        <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                                            <i class="fa-regular fa-calendar text-gray-400"></i>
+                                            <span>${friendlyDate || 'Recent'}</span>
+                                        </div>
+                                        <h3 class="font-bold text-base text-gray-900 leading-snug mb-2">${item.title || ''}</h3>
+                                        <p class="text-xs text-gray-600 font-light line-clamp-2 leading-relaxed">${item.description || ''}</p>
+                                    </div>
+                                </div>
+                                <div class="p-5 pt-0 mt-2 flex items-center justify-between border-t border-gray-100 pt-3">
+                                    <a href="news.html" class="text-xs font-bold text-amber-600 hover:text-amber-700 inline-flex items-center gap-1">
+                                        Read Full Story <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                    </a>
+                                </div>
+                            </article>
+                        `;
+                    });
+                    container.innerHTML = newsHTML;
+                } else {
+                    container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-gray-500">No news announcements available right now.</div>`;
+                }
+            } else {
+                container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-gray-500">No news announcements available right now.</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initRealtimeNews);
     </script>
 
     <!-- General Application Logic -->
