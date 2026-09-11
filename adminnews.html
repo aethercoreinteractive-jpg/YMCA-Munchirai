@@ -154,7 +154,7 @@
         }
     </script>
 
-    <!-- Firebase Realtime Database Integration Module -->
+    <!-- Firebase Integration Module -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
         import { getDatabase, ref, get, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -176,7 +176,6 @@
         const adminGrid = document.getElementById('admin-grid');
         const loadingBox = document.getElementById('loading-box');
 
-        // Fetch & Display Records
         async function loadAdminData() {
             try {
                 const dbRef = ref(db, 'news');
@@ -229,7 +228,6 @@
             }
         }
 
-        // Form Submit Handler (Create or Update)
         window.handleFormSubmit = async function(e) {
             e.preventDefault();
             const id = document.getElementById('recordId').value;
@@ -259,7 +257,6 @@
             }
         }
 
-        // Delete Item Handler
         window.triggerDelete = async function(id) {
             if (confirm("Are you sure you want to delete this news article?")) {
                 try {
@@ -271,7 +268,6 @@
             }
         }
 
-        // Prepare Edit Mode
         window.triggerEdit = function(id, title, date, category, image, description, showButton, btnText, btnLink) {
             document.getElementById('modalHeading').innerText = "Edit Post Details";
             document.getElementById('recordId').value = id;
@@ -293,7 +289,6 @@
             modal.classList.add('flex');
         }
 
-        // Trigger initial data load
         loadAdminData();
     </script>
 </body>
