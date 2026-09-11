@@ -52,19 +52,20 @@
             </div>
         </div>
 
-        <!-- Sub-Navigation Categories Bar (Visible: Home, Updates, Contact, Online Test | Hidden/Scrollable: Member's login, About us, All products) -->
+        <!-- Sub-Navigation Categories Bar (Fit up to Online Test, remaining items padded & horizontally scrollable) -->
         <div class="bg-slate-800 border-t border-slate-700/60 text-xs font-medium text-slate-300">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center gap-5 overflow-x-auto no-scrollbar whitespace-nowrap">
-                <!-- Visible Items -->
-                <a href="index.html" class="text-amber-400 font-bold flex items-center gap-1 shrink-0"><i class="fa-solid fa-house"></i> Home</a>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
+                <!-- Visibly Fit Items -->
+                <a href="index.html" class="text-amber-400 font-bold flex items-center gap-1.5 shrink-0"><i class="fa-solid fa-house"></i> Home</a>
                 <a href="#updates" class="hover:text-white transition shrink-0">Updates</a>
                 <a href="#contact" class="hover:text-white transition shrink-0">Contact</a>
                 <a href="#onlinetest" class="hover:text-white transition shrink-0">Online Test</a>
                 
-                <!-- Hidden/Scrollable Items -->
-                <a href="#login" class="hover:text-white transition shrink-0">Member's Login</a>
-                <a href="#about" class="hover:text-white transition shrink-0">About Us</a>
-                <a href="myfood.html" class="hover:text-white transition shrink-0 pr-6">All Products</a>
+                <!-- Separated Scrollable Items -->
+                <div class="h-4 w-px bg-slate-700 shrink-0 mx-1"></div>
+                <a href="#login" class="hover:text-white transition shrink-0 text-slate-400">Member's Login</a>
+                <a href="#about" class="hover:text-white transition shrink-0 text-slate-400">About Us</a>
+                <a href="myfood.html" class="hover:text-white transition shrink-0 text-slate-400 pr-8">All Products</a>
             </div>
         </div>
     </header>
@@ -188,25 +189,6 @@
         </div>
     </section>
 
-    <!-- Member's Login Section -->
-    <section id="login" class="bg-gray-50 border-t border-gray-200 py-16">
-        <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Secure Access</span>
-            <h2 class="text-xl font-bold tracking-tight mt-2 mb-4 text-gray-900">Member's Login</h2>
-            <form class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Email or Member ID</label>
-                    <input type="text" placeholder="Enter your registered ID" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Password</label>
-                    <input type="password" placeholder="••••••••" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-amber-500">
-                </div>
-                <button type="button" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-lg transition">Login to Portal</button>
-            </form>
-        </div>
-    </section>
-
     <!-- About Section -->
     <section id="about" class="bg-white border-t border-gray-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
@@ -327,4 +309,4 @@
         });
     </script>
 </body>
-</html>  
+</html>
