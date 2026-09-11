@@ -3,247 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - News | YMCA Munchirai</title>
+    <title>Admin Panel - Manage News | YMCA Munchirai</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase App, Auth, & Firestore Compat SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
 
     <!-- Header / Admin Navigation -->
-    <header class="bg-red-900 text-white shadow-md sticky top-0 z-50">
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="bg-white text-red-900 p-2 rounded-full font-bold text-xl">
-                    <i class="fa-solid fa-lock"></i>
+                <div class="bg-white text-blue-900 p-2 rounded-full font-bold text-xl">
+                    <i class="fa-solid fa-gear"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-wide">YMCA Munchirai - Admin Panel</h1>
-                    <p class="text-xs text-red-200">Connected to munchirai-ymca</p>
+                    <h1 class="text-lg font-bold tracking-wide">YMCA Munchirai - News Admin</h1>
+                    <p class="text-xs text-blue-200">Realtime Database Management</p>
                 </div>
             </div>
             <nav class="flex items-center space-x-4 text-sm font-medium">
-                <span id="admin-user-email" class="text-xs text-red-200 hidden md:inline"></span>
-                <a href="news.html" target="_blank" class="bg-red-800 hover:bg-red-700 px-3 py-1.5 rounded transition flex items-center gap-1">
-                    <i class="fa-solid fa-eye text-xs"></i> View Live Site
+                <a href="news.html" target="_blank" class="bg-blue-800 hover:bg-blue-700 px-3 py-1.5 rounded transition flex items-center gap-1">
+                    <i class="fa-solid fa-eye text-xs"></i> View Live News Page
                 </a>
-                <button onclick="logoutAdmin()" class="bg-black bg-opacity-30 hover:bg-opacity-50 px-3 py-1.5 rounded transition text-xs">
-                    Logout
-                </button>
             </nav>
         </div>
     </header>
 
-    <!-- Admin Login Screen (Hidden if logged in) -->
-    <div id="login-section" class="flex-grow flex items-center justify-center px-4 py-12 hidden">
-        <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-200">
-            <h2 class="text-2xl font-bold text-red-900 mb-2 text-center">Admin Login</h2>
-            <p class="text-xs text-gray-500 mb-6 text-center">Sign in to manage YMCA Munchirai updates.</p>
-            <form onsubmit="loginAdmin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Admin Email</label>
-                    <input type="email" id="login-email" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 text-sm" placeholder="ymcamunchirai@yahoo.com">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
-                    <input type="password" id="login-password" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 text-sm" placeholder="••••••••">
-                </div>
-                <button type="submit" class="w-full bg-red-900 text-white py-2.5 rounded-lg font-semibold hover:bg-red-800 transition text-sm">Secure Login</button>
-                <p id="login-error" class="text-red-600 text-xs text-center mt-2"></p>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main Dashboard Content (Hidden until logged in) -->
-    <main id="dashboard-section" class="container mx-auto px-6 py-8 flex-grow hidden">
+    <!-- Main Dashboard Container -->
+    <main class="container mx-auto px-6 py-8 flex-grow">
+        
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">Manage Cloud News & Announcements</h2>
-                <p class="text-sm text-gray-600">Changes here instantly update the live database server.</p>
+                <h2 class="text-2xl font-bold text-gray-900">Manage News & Announcements</h2>
+                <p class="text-sm text-gray-600">Add, edit, or delete any headline, date, category, image URL, or text description.</p>
             </div>
             <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow transition flex items-center gap-2">
                 <i class="fa-solid fa-plus"></i> Add New Post
             </button>
         </div>
 
-        <!-- Cards Grid Container -->
-        <div id="adminNewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Loaded dynamically from Firebase -->
+        <!-- Loading Indicator -->
+        <div id="admin-loading" class="text-center py-16">
+            <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-900 mb-2"></i>
+            <p class="text-gray-500 text-sm">Connecting to Realtime Database...</p>
         </div>
+
+        <!-- Admin Cards Grid -->
+        <div id="admin-news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <!-- Dynamic Data from Firebase Realtime Database injected here -->
+        </div>
+
     </main>
 
-    <!-- Add/Edit News Modal -->
+    <!-- Add/Edit Modal Popup -->
     <div id="newsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl relative my-8">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-            <h3 id="modalTitle" class="text-xl font-bold text-gray-900 mb-4">Add New Post</h3>
+            <h3 id="modalTitle" class="text-xl font-bold text-blue-900 mb-4">Add New Post</h3>
             
-            <form id="newsForm" onsubmit="saveNewsToFirebase(event)" class="space-y-4">
-                <input type="hidden" id="newsId" value="">
+            <form id="newsForm" onsubmit="handleSaveNews(event)" class="space-y-4">
+                <input type="hidden" id="postId" value="">
                 
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Post Title</label>
-                    <input type="text" id="postTitle" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="postTitle" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="e.g. Free Computer Literacy Camp">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Date</label>
-                        <input type="text" id="postDate" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                        <input type="text" id="postDate" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="e.g. September 12, 2026">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Category Badge</label>
-                        <input type="text" id="postCategory" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                        <input type="text" id="postCategory" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="e.g. Skill Development">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Image Link (Google Drive / Direct URL)</label>
-                    <input type="url" id="postImage" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                    <input type="url" id="postImage" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Paste Direct Image or Drive Link here">
                     <p class="text-[11px] text-gray-500 mt-1">Google Drive link permissions must be set to "Anyone with the link can view".</p>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Full Content / Description</label>
-                    <textarea id="postDesc" rows="4" required class="w-full px-3 py-2 border rounded-lg text-sm"></textarea>
+                    <textarea id="postDescription" rows="4" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Write full news content details..."></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">Save to Cloud</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Save to Database</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-xs">
-        &copy; 2026 YMCA Munchirai. Powered by Firebase Cloud Database.
+    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-xs mt-12">
+        &copy; 2026 YMCA Munchirai. Admin Control Panel.
     </footer>
 
-    <!-- Firebase Script Logic -->
-    <script>
-        // Your exact Firebase configuration
+    <!-- Firebase SDK Scripts & Management Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
+        import { getDatabase, ref, get, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
         const firebaseConfig = {
-            apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
-            authDomain: "munchirai-ymca.firebaseapp.com",
-            databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
-            projectId: "munchirai-ymca",
-            storageBucket: "munchirai-ymca.firebasestorage.app",
-            messagingSenderId: "697387132253",
-            appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
-            measurementId: "G-XRRT0Q76YK"
+          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
+          authDomain: "munchirai-ymca.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca",
+          storageBucket: "munchirai-ymca.firebasestorage.app",
+          messagingSenderId: "697387132253",
+          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
+          measurementId: "G-XRRT0Q76YK"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-        // Auth state observer
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('dashboard-section').classList.remove('hidden');
-                document.getElementById('admin-user-email').innerText = `Logged in: ${user.email}`;
-                loadNewsFromFirebase();
-            } else {
-                document.getElementById('dashboard-section').classList.add('hidden');
-                document.getElementById('login-section').classList.remove('hidden');
-            }
-        });
+        const adminGrid = document.getElementById('admin-news-grid');
+        const adminLoading = document.getElementById('admin-loading');
 
-        function loginAdmin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
-            auth.signInWithEmailAndPassword(email, pass)
-                .catch((error) => {
-                    document.getElementById('login-error').innerText = error.message;
-                });
-        }
+        // Load and render admin news records
+        async function loadAdminNews() {
+            try {
+                const newsRef = ref(db, 'news');
+                const snapshot = await get(newsRef);
 
-        function logoutAdmin() {
-            auth.signOut();
-        }
+                adminLoading.style.display = 'none';
+                adminGrid.classList.remove('hidden');
+                adminGrid.innerHTML = '';
 
-        // Format Google Drive links automatically
-        function formatImageUrl(url) {
-            if (!url) return '';
-            if (url.includes('drive.google.com') && url.includes('/file/d/')) {
-                const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
-                }
-            }
-            return url;
-        }
-
-        // Load News from Cloud Firestore
-        function loadNewsFromFirebase() {
-            const grid = document.getElementById('adminNewsGrid');
-            db.collection("news").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
-                grid.innerHTML = "";
-                if (snapshot.empty) {
-                    grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10">No cloud news records found. Click 'Add New Post'.</p>`;
-                    return;
-                }
-                snapshot.forEach((doc) => {
-                    const item = doc.data();
-                    const id = doc.id;
-                    const safeImage = formatImageUrl(item.image);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
                     
-                    const card = document.createElement('div');
-                    card.className = "bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 flex flex-col justify-between";
-                    card.innerHTML = `
-                        <div>
-                            <div class="h-40 overflow-hidden bg-gray-200 relative">
-                                <img src="${safeImage}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=Invalid+Image'">
-                                <span class="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-[10px] px-2 py-1 rounded">${item.category}</span>
+                    Object.keys(data).forEach(id => {
+                        const item = data[id];
+                        const imageUrl = item.image || 'https://via.placeholder.com/600x400?text=No+Image';
+
+                        const card = document.createElement('div');
+                        card.className = "bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 flex flex-col justify-between";
+                        
+                        card.innerHTML = `
+                            <div>
+                                <div class="h-40 overflow-hidden bg-gray-200 relative">
+                                    <img src="${imageUrl}" alt="News Image" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=Invalid+Image'">
+                                    <span class="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-[10px] px-2 py-1 rounded">${item.category || 'General'}</span>
+                                </div>
+                                <div class="p-4">
+                                    <p class="text-xs text-gray-500 mb-1"><i class="fa-solid fa-calendar-days mr-1"></i> ${item.date || 'Recent'}</p>
+                                    <h3 class="font-bold text-gray-900 text-base mb-2 line-clamp-1">${item.title}</h3>
+                                    <p class="text-gray-600 text-xs line-clamp-2">${item.description}</p>
+                                </div>
                             </div>
-                            <div class="p-4">
-                                <p class="text-xs text-gray-500 mb-1"><i class="fa-solid fa-calendar-days mr-1"></i> ${item.date}</p>
-                                <h3 class="font-bold text-gray-900 text-base mb-2 line-clamp-1">${item.title}</h3>
-                                <p class="text-gray-600 text-xs line-clamp-2">${item.desc}</p>
+                            <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+                                <button onclick="window.prepareEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                                </button>
+                                <button onclick="window.deleteNewsItem('${id}')" class="text-red-600 hover:text-red-800 text-xs font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
                             </div>
-                        </div>
-                        <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-                            <button onclick="openEditModal('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.desc)}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
-                                <i class="fa-solid fa-pen-to-square"></i> Edit
-                            </button>
-                            <button onclick="deleteNewsFromFirebase('${id}')" class="text-red-600 hover:text-red-800 text-xs font-semibold flex items-center gap-1">
-                                <i class="fa-solid fa-trash"></i> Delete
-                            </button>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-            });
+                        `;
+                        adminGrid.appendChild(card);
+                    });
+                } else {
+                    adminGrid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">No news articles found in database. Click 'Add New Post' above.</p>`;
+                }
+            } catch (error) {
+                console.error("Error loading admin news:", error);
+                adminLoading.innerHTML = `<p class="text-red-500 text-sm">Failed to connect to database.</p>`;
+            }
         }
 
-        function openAddModal() {
-            document.getElementById('modalTitle').innerText = "Add New Cloud Post";
-            document.getElementById('newsId').value = "";
-            document.getElementById('newsForm').reset();
-            document.getElementById('newsModal').classList.remove('hidden');
-            document.getElementById('newsModal').classList.add('flex');
+        // Save (Add or Update) Handler
+        window.handleSaveNews = async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('postId').value;
+            const title = document.getElementById('postTitle').value;
+            const date = document.getElementById('postDate').value;
+            const category = document.getElementById('postCategory').value;
+            const image = document.getElementById('postImage').value;
+            const description = document.getElementById('postDescription').value;
+
+            const postData = { title, date, category, image, description };
+
+            try {
+                if (id) {
+                    // Update existing item
+                    const itemRef = ref(db, 'news/' + id);
+                    await update(itemRef, postData);
+                } else {
+                    // Add new item
+                    const newsRef = ref(db, 'news');
+                    const newPostRef = push(newsRef);
+                    await set(newPostRef, postData);
+                }
+                closeModal();
+                loadAdminNews();
+            } catch (error) {
+                alert("Error saving data: " + error.message);
+            }
         }
 
-        function openEditModal(id, title, date, category, image, desc) {
-            document.getElementById('modalTitle').innerText = "Edit Cloud Post";
-            document.getElementById('newsId').value = id;
+        // Delete Handler
+        window.deleteNewsItem = async function(id) {
+            if (confirm("Are you sure you want to delete this news article permanently?")) {
+                try {
+                    await remove(ref(db, 'news/' + id));
+                    loadAdminNews();
+                } catch (error) {
+                    alert("Error deleting record: " + error.message);
+                }
+            }
+        }
+
+        // Prepare Edit Modal
+        window.prepareEdit = function(id, title, date, category, image, description) {
+            document.getElementById('modalTitle').innerText = "Edit Post Details";
+            document.getElementById('postId').value = id;
             document.getElementById('postTitle').value = decodeURIComponent(title);
             document.getElementById('postDate').value = decodeURIComponent(date);
             document.getElementById('postCategory').value = decodeURIComponent(category);
             document.getElementById('postImage').value = decodeURIComponent(image);
-            document.getElementById('postDesc').value = decodeURIComponent(desc);
+            document.getElementById('postDescription').value = decodeURIComponent(description);
 
+            document.getElementById('newsModal').classList.remove('hidden');
+            document.getElementById('newsModal').classList.add('flex');
+        }
+
+        // Initial trigger
+        loadAdminNews();
+    </script>
+
+    <!-- Global Interface Modal Script Control -->
+    <script>
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "Add New Post";
+            document.getElementById('postId').value = "";
+            document.getElementById('newsForm').reset();
             document.getElementById('newsModal').classList.remove('hidden');
             document.getElementById('newsModal').classList.add('flex');
         }
@@ -251,43 +253,6 @@
         function closeModal() {
             document.getElementById('newsModal').classList.remove('flex');
             document.getElementById('newsModal').classList.add('hidden');
-        }
-
-        // Save or Update Firebase Document
-        function saveNewsToFirebase(e) {
-            e.preventDefault();
-            const id = document.getElementById('newsId').value;
-            const title = document.getElementById('postTitle').value;
-            const date = document.getElementById('postDate').value;
-            const category = document.getElementById('postCategory').value;
-            const image = document.getElementById('postImage').value;
-            const desc = document.getElementById('postDesc').value;
-
-            const postData = {
-                title,
-                date,
-                category,
-                image,
-                desc,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            const action = id ? db.collection("news").doc(id).update(postData) : db.collection("news").add(postData);
-
-            action.then(() => {
-                closeModal();
-            }).catch((error) => {
-                alert("Error saving record: " + error.message);
-            });
-        }
-
-        // Delete from Firebase
-        function deleteNewsFromFirebase(id) {
-            if (confirm("Are you sure you want to delete this cloud announcement?")) {
-                db.collection("news").doc(id).delete().catch((error) => {
-                    alert("Error deleting: " + error.message);
-                });
-            }
         }
     </script>
 </body>
