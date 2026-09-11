@@ -24,9 +24,16 @@
     </header>
 
     <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
-        <div class="mb-6">
-            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Latest Updates</h2>
-            <p class="text-xs text-slate-500">Stay informed with the latest announcements from YMCA Munchirai.</p>
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Latest Updates</h2>
+                <p class="text-xs text-slate-500">Stay informed with the latest announcements from YMCA Munchirai.</p>
+            </div>
+            <!-- Live sync indicator dot -->
+            <div class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Live Sync</span>
+            </div>
         </div>
 
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
@@ -59,22 +66,74 @@
             return url;
         }
 
-        async function loadPublicNews() {
+        function displayFriendlyDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                if (!isNaN(dateObj)) {
+                    return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                }
+            }
+            return dateStr;
+        }
+
+        // Real-time listener using Firebase EventSource stream
+        function initRealtimeNews() {
             const loadingBox = document.getElementById('loading-box');
             const newsGrid = document.getElementById('news-grid');
 
+            // Firebase EventSource supports text/event-stream for real-time updates
+            const eventSource = new EventSource(DB_URL + ".json");
+
+            eventSource.addEventListener('put', function(e) {
+                handleDatabaseUpdate(JSON.parse(e.data));
+            });
+
+            eventSource.addEventListener('patch', function(e) {
+                handleDatabaseUpdate(JSON.parse(e.data));
+            });
+
+            eventSource.onerror = function() {
+                // Fallback standard fetch if stream connection drops temporarily
+                fetchNewsOnce();
+            };
+
+            // Initial fetch to load data immediately on open
+            fetchNewsOnce();
+        }
+
+        async function fetchNewsOnce() {
             try {
                 const response = await fetch(DB_URL + ".json");
                 const data = await response.json();
-                
-                loadingBox.style.display = 'none';
-                newsGrid.classList.remove('hidden');
-                newsGrid.innerHTML = '';
+                handleDatabaseUpdate(data);
+            } catch (err) {
+                document.getElementById('loading-box').innerHTML = `<p class="text-rose-500 text-xs font-medium">Failed to load news feed. Please check your connection.</p>`;
+            }
+        }
 
-                if (data) {
-                    Object.keys(data).reverse().forEach(id => {
-                        const item = data[id];
+        function handleDatabaseUpdate(data) {
+            const loadingBox = document.getElementById('loading-box');
+            const newsGrid = document.getElementById('news-grid');
+            
+            loadingBox.style.display = 'none';
+            newsGrid.classList.remove('hidden');
+            newsGrid.innerHTML = '';
+
+            if (data && typeof data === 'object') {
+                // If data format from a patch event is nested under a path
+                let records = data.data || data;
+                
+                const keys = Object.keys(records).filter(k => records[k] !== null);
+
+                if (keys.length > 0) {
+                    keys.reverse().forEach(id => {
+                        const item = records[id];
+                        if (!item) return;
+
                         const processedImg = formatImageURL(item.image);
+                        const friendlyDate = displayFriendlyDate(item.date);
                         
                         let actionButtonHTML = '';
                         if (item.showButton && item.btnText && item.btnLink) {
@@ -96,7 +155,7 @@
                                     <span class="absolute top-2.5 right-2.5 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">${item.category}</span>
                                 </div>
                                 <div class="p-4">
-                                    <p class="text-[11px] text-slate-400 font-medium mb-1.5"><i class="fa-regular fa-calendar mr-1"></i>${item.date}</p>
+                                    <p class="text-[11px] text-slate-400 font-medium mb-1.5"><i class="fa-regular fa-calendar mr-1"></i>${friendlyDate}</p>
                                     <h3 class="font-bold text-slate-900 text-base mb-2 leading-snug">${item.title}</h3>
                                     <p class="text-slate-600 text-xs leading-relaxed whitespace-pre-line">${item.description}</p>
                                     ${actionButtonHTML}
@@ -108,12 +167,12 @@
                 } else {
                     newsGrid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No news announcements available right now. Please check back later.</p></div>`;
                 }
-            } catch (err) {
-                loadingBox.innerHTML = `<p class="text-rose-500 text-xs font-medium">Failed to load news feed. Please check your connection.</p>`;
+            } else {
+                newsGrid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No news announcements available right now. Please check back later.</p></div>`;
             }
         }
 
-        loadPublicNews();
+        initRealtimeNews();
     </script>
 </body>
 </html>
