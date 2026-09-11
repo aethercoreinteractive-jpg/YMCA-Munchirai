@@ -403,7 +403,7 @@
                 container.innerHTML = `<div class="text-center py-8 text-xs text-gray-500">No news announcements available right now.</div>`;
             }
         }
-        function renderCurrentNewsItem() {
+                function renderCurrentNewsItem() {
             const container = document.getElementById('homepage-news-container');
             if (!container || newsList.length === 0) return;
 
@@ -412,24 +412,41 @@
 
             const processedImg = formatImageURL(item.image);
             const friendlyDate = displayFriendlyDate(item.date);
+            const titleText = item.title || '';
 
-            // Fixed height on the image container (h-56) and truncate on title to enforce standard size
+            // Render the card first with original sizing, using a unique ID for the title
             container.innerHTML = `
                 <div class="bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden shadow-inner flex flex-col md:flex-row news-animate-fade">
-                    <div class="relative md:w-1/2 h-56 md:h-56 overflow-hidden bg-gray-200 shrink-0">
-                        <img src="${processedImg}" alt="${item.title || 'News'}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
+                    <div class="relative md:w-1/2 aspect-[16/9] md:aspect-auto overflow-hidden bg-gray-200 min-h-[220px]">
+                        <img src="${processedImg}" alt="${titleText}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
                         <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow">${item.category || 'Announcement'}</span>
                     </div>
-                    <div class="md:w-1/2 p-6 sm:p-8 flex flex-col justify-center h-56">
+                    <div class="md:w-1/2 p-6 sm:p-8 flex flex-col justify-center">
                         <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
                             <i class="fa-regular fa-calendar text-gray-400"></i>
                             <span>${friendlyDate || 'Recent'}</span>
                         </div>
-                        <h3 class="font-bold text-base sm:text-lg text-gray-900 leading-snug truncate" title="${item.title || ''}">${item.title || ''}</h3>
+                        <h3 id="dynamic-news-title" class="font-bold text-base sm:text-lg text-gray-900 leading-snug whitespace-nowrap">${titleText}</h3>
                     </div>
                 </div>
             `;
+
+            // Automatically scale down text size if it exceeds container width to force single-line fit
+            setTimeout(() => {
+                const titleEl = document.getElementById('dynamic-news-title');
+                if (titleEl) {
+                    let fontSize = 18; // starting size in px (corresponds to lg)
+                    titleEl.style.fontSize = fontSize + 'px';
+                    
+                    // Reduce font size step-by-step until it fits without wrapping
+                    while (titleEl.scrollWidth > titleEl.clientWidth && fontSize > 11) {
+                        fontSize -= 1;
+                        titleEl.style.fontSize = fontSize + 'px';
+                    }
+                }
+            }, 10);
         }
+
 
 
         function startNewsRotation() {
