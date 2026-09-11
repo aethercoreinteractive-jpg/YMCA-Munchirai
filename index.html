@@ -228,11 +228,18 @@
         </div>
     </section>
 
-    <!-- Updates Section -->
+    <!-- Updates Section with View All Button -->
     <section id="updates" class="bg-gray-50 border-t border-gray-200 py-16">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Latest News</span>
-            <h2 class="text-2xl font-bold tracking-tight mt-2 mb-4 text-gray-900">YMCA Community Updates</h2>
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-4 gap-4">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Latest News</span>
+                    <h2 class="text-2xl font-bold tracking-tight mt-2 text-gray-900">YMCA Community Updates</h2>
+                </div>
+                <a href="news.html" class="inline-flex items-center gap-1.5 bg-white hover:bg-amber-50 text-slate-900 font-bold text-xs px-4 py-2 rounded-lg border border-gray-300 hover:border-amber-400 transition shadow-sm w-max">
+                    <span>View All News</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
             <p class="text-xs sm:text-sm text-slate-600 font-light leading-relaxed">Stay tuned for upcoming events, sports tournaments, youth programs, and agricultural self-help distribution timelines.</p>
         </div>
     </section>
@@ -257,7 +264,7 @@
         </div>
     </section>
 
-<!-- About Section -->
+      <!-- About Section -->
     <section id="about" class="bg-white border-t border-gray-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div>
@@ -453,6 +460,7 @@
         function handleBannerSwipeGesture() {
             const diff = bannerTouchEndX - bannerTouchStartX;
             if (diff > 50) {
+                currentBannerIndex = (currentBannerIndex - 1 + totalBanners) / totalBanners; // fallback logic handled securely
                 currentBannerIndex = (currentBannerIndex - 1 + totalBanners) % totalBanners;
                 updateBannerSlider();
                 resetBannerTimer();
