@@ -39,7 +39,7 @@
                 <h2 class="text-2xl font-bold text-gray-900">Manage News & Announcements</h2>
                 <p class="text-sm text-gray-600">Add, edit, or delete any headline, image, text, and optional custom action buttons.</p>
             </div>
-            <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow transition flex items-center gap-2">
+            <button type="button" onclick="window.openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow transition flex items-center gap-2">
                 <i class="fa-solid fa-plus"></i> Add New Post
             </button>
         </div>
@@ -60,10 +60,10 @@
     <!-- Add/Edit Modal Popup -->
     <div id="newsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl relative my-8">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            <button type="button" onclick="window.closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             <h3 id="modalTitle" class="text-xl font-bold text-blue-900 mb-4">Add New Post</h3>
             
-            <form id="newsForm" onsubmit="handleSaveNews(event)" class="space-y-4">
+            <form id="newsForm" onsubmit="window.handleSaveNews(event)" class="space-y-4">
                 <input type="hidden" id="postId" value="">
                 
                 <div>
@@ -99,7 +99,7 @@
                         <span class="text-xs font-bold text-gray-700 uppercase">Enable Custom Action Button</span>
                         <!-- Toggle Switch -->
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="btnToggle" class="sr-only peer" onchange="toggleButtonOptions()">
+                            <input type="checkbox" id="btnToggle" class="sr-only peer" onchange="window.toggleButtonOptions()">
                             <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
@@ -118,7 +118,7 @@
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition">Cancel</button>
+                    <button type="button" onclick="window.closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition">Cancel</button>
                     <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Save to Database</button>
                 </div>
             </form>
@@ -151,6 +151,22 @@
 
         const adminGrid = document.getElementById('admin-news-grid');
         const adminLoading = document.getElementById('admin-loading');
+
+        // Modal Open / Close Controls mapped globally
+        window.openAddModal = function() {
+            document.getElementById('modalTitle').innerText = "Add New Post";
+            document.getElementById('postId').value = "";
+            document.getElementById('newsForm').reset();
+            document.getElementById('btnToggle').checked = false;
+            window.toggleButtonOptions();
+            document.getElementById('newsModal').classList.remove('hidden');
+            document.getElementById('newsModal').classList.add('flex');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('newsModal').classList.remove('flex');
+            document.getElementById('newsModal').classList.add('hidden');
+        }
 
         // Toggle visibility of button input fields based on switch
         window.toggleButtonOptions = function() {
@@ -197,10 +213,10 @@
                                 </div>
                             </div>
                             <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-                                <button onclick="window.prepareEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}', ${item.showButton ? true : false}, '${encodeURIComponent(item.btnText || '')}', '${encodeURIComponent(item.btnLink || '')}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
+                                <button type="button" onclick="window.prepareEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}', ${item.showButton ? true : false}, '${encodeURIComponent(item.btnText || '')}', '${encodeURIComponent(item.btnLink || '')}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1">
                                     <i class="fa-solid fa-pen-to-square"></i> Edit
                                 </button>
-                                <button onclick="window.deleteNewsItem('${id}')" class="text-red-600 hover:text-red-800 text-xs font-semibold flex items-center gap-1">
+                                <button type="button" onclick="window.deleteNewsItem('${id}')" class="text-red-600 hover:text-red-800 text-xs font-semibold flex items-center gap-1">
                                     <i class="fa-solid fa-trash"></i> Delete
                                 </button>
                             </div>
@@ -241,7 +257,7 @@
                     const newPostRef = push(newsRef);
                     await set(newPostRef, postData);
                 }
-                closeModal();
+                window.closeModal();
                 loadAdminNews();
             } catch (error) {
                 alert("Error saving data: " + error.message);
@@ -283,23 +299,6 @@
 
         loadAdminNews();
     </script>
-
-    <!-- Global Interface Modal Script Control -->
-    <script>
-        function openAddModal() {
-            document.getElementById('modalTitle').innerText = "Add New Post";
-            document.getElementById('postId').value = "";
-            document.getElementById('newsForm').reset();
-            document.getElementById('btnToggle').checked = false;
-            window.toggleButtonOptions();
-            document.getElementById('newsModal').classList.remove('hidden');
-            document.getElementById('newsModal').classList.add('flex');
-        }
-
-        function closeModal() {
-            document.getElementById('newsModal').classList.remove('flex');
-            document.getElementById('newsModal').classList.add('hidden');
-        }
-    </script>
 </body>
-</html>
+        </html>
+        
