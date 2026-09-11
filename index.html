@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        /* Hide scrollbars for clean slider aesthetics */
+        /* Hide scrollbar for clean slider aesthetics */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -52,14 +52,19 @@
             </div>
         </div>
 
-        <!-- Sub-Navigation Categories Bar (Properly aligned with partial overflow scroll) -->
+        <!-- Sub-Navigation Categories Bar (Visible: Home, Updates, Contact, Online Test | Hidden/Scrollable: Member's login, About us, All products) -->
         <div class="bg-slate-800 border-t border-slate-700/60 text-xs font-medium text-slate-300">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center gap-4 overflow-x-auto no-scrollbar whitespace-nowrap">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center gap-5 overflow-x-auto no-scrollbar whitespace-nowrap">
+                <!-- Visible Items -->
                 <a href="index.html" class="text-amber-400 font-bold flex items-center gap-1 shrink-0"><i class="fa-solid fa-house"></i> Home</a>
+                <a href="#updates" class="hover:text-white transition shrink-0">Updates</a>
+                <a href="#contact" class="hover:text-white transition shrink-0">Contact</a>
+                <a href="#onlinetest" class="hover:text-white transition shrink-0">Online Test</a>
+                
+                <!-- Hidden/Scrollable Items -->
+                <a href="#login" class="hover:text-white transition shrink-0">Member's Login</a>
                 <a href="#about" class="hover:text-white transition shrink-0">About Us</a>
-                <a href="#myfood-spotlight" class="hover:text-white transition shrink-0">Featured Catalog</a>
-                <a href="myfood.html" class="hover:text-white transition shrink-0">All Products</a>
-                <a href="#contact" class="hover:text-white transition shrink-0 pr-6">Contact Us</a>
+                <a href="myfood.html" class="hover:text-white transition shrink-0 pr-6">All Products</a>
             </div>
         </div>
     </header>
@@ -164,6 +169,44 @@
         </div>
     </section>
 
+    <!-- Updates Section -->
+    <section id="updates" class="bg-gray-50 border-t border-gray-200 py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Latest News</span>
+            <h2 class="text-2xl font-bold tracking-tight mt-2 mb-4 text-gray-900">YMCA Community Updates</h2>
+            <p class="text-xs sm:text-sm text-slate-600 font-light leading-relaxed">Stay tuned for upcoming events, sports tournaments, youth programs, and agricultural self-help distribution timelines.</p>
+        </div>
+    </section>
+
+    <!-- Online Test Section -->
+    <section id="onlinetest" class="bg-white border-t border-gray-200 py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Assessments</span>
+            <h2 class="text-2xl font-bold tracking-tight mt-2 mb-4 text-gray-900">Online Test Portal</h2>
+            <p class="text-xs sm:text-sm text-slate-600 font-light leading-relaxed mb-4">Participate in upcoming skill-building modules, general knowledge exams, and youth leadership assessment quizzes hosted securely by the branch.</p>
+            <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition">Launch Assessment Portal</button>
+        </div>
+    </section>
+
+    <!-- Member's Login Section -->
+    <section id="login" class="bg-gray-50 border-t border-gray-200 py-16">
+        <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Secure Access</span>
+            <h2 class="text-xl font-bold tracking-tight mt-2 mb-4 text-gray-900">Member's Login</h2>
+            <form class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Email or Member ID</label>
+                    <input type="text" placeholder="Enter your registered ID" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Password</label>
+                    <input type="password" placeholder="••••••••" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-amber-500">
+                </div>
+                <button type="button" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-lg transition">Login to Portal</button>
+            </form>
+        </div>
+    </section>
+
     <!-- About Section -->
     <section id="about" class="bg-white border-t border-gray-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
@@ -192,7 +235,7 @@
                 <h4 class="font-bold uppercase tracking-wider text-slate-300 mb-3 text-[11px]">Quick Links</h4>
                 <ul class="space-y-2 text-slate-400">
                     <li><a href="index.html" class="hover:text-white transition">Home Page</a></li>
-                    <li><a href="#about" class="hover:text-white transition">Community Initiatives</a></li>
+                    <li><a href="#updates" class="hover:text-white transition">Latest Updates</a></li>
                     <li><a href="myfood.html" class="hover:text-white transition font-semibold text-amber-400">MY Food Marketplace Store</a></li>
                 </ul>
             </div>
@@ -284,4 +327,4 @@
         });
     </script>
 </body>
-</html>
+</html>  
