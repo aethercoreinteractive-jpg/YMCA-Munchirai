@@ -270,7 +270,7 @@
         </div>
     </section>
 
-     <!-- About Section -->
+    <!-- About Section -->
     <section id="about" class="bg-white border-t border-gray-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div>
@@ -419,26 +419,19 @@
             const processedImg = formatImageURL(item.image);
             const friendlyDate = displayFriendlyDate(item.date);
 
-            // Render single card layout without "Read Full Story" link or dot indicators
+            // Render single card layout showing ONLY image, title, and date
             container.innerHTML = `
                 <div class="bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden shadow-inner flex flex-col md:flex-row news-animate-fade">
                     <div class="relative md:w-1/2 aspect-[16/9] md:aspect-auto overflow-hidden bg-gray-200 min-h-[220px]">
                         <img src="${processedImg}" alt="${item.title || 'News'}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
                         <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow">${item.category || 'Announcement'}</span>
                     </div>
-                    <div class="md:w-1/2 p-6 sm:p-8 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                                <i class="fa-regular fa-calendar text-gray-400"></i>
-                                <span>${friendlyDate || 'Recent'}</span>
-                            </div>
-                            <h3 class="font-bold text-base sm:text-lg text-gray-900 leading-snug mb-3">${item.title || ''}</h3>
-                            <p class="text-xs sm:text-sm text-gray-600 font-light line-clamp-3 leading-relaxed mb-4">${item.description || ''}</p>
+                    <div class="md:w-1/2 p-6 sm:p-8 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                            <i class="fa-regular fa-calendar text-gray-400"></i>
+                            <span>${friendlyDate || 'Recent'}</span>
                         </div>
-                        <div class="pt-3 border-t border-gray-200/60 flex items-center justify-between text-[11px] text-gray-400">
-                            <span>Auto-rotating feed</span>
-                            <span class="font-medium">${currentNewsIndex + 1} of ${newsList.length}</span>
-                        </div>
+                        <h3 class="font-bold text-base sm:text-lg text-gray-900 leading-snug">${item.title || ''}</h3>
                     </div>
                 </div>
             `;
