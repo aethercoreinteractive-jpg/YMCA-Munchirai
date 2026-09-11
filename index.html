@@ -219,11 +219,11 @@
                 </div>
             </div>
 
-            <!-- Navigation Dots -->
-            <div class="absolute bottom-3 right-4 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
-                <button onclick="currentBannerSlide(0)" class="w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="0"></button>
-                <button onclick="currentBannerSlide(1)" class="w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="1"></button>
-                <button onclick="currentBannerSlide(2)" class="w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="2"></button>
+            <!-- Very Small Navigation Dots Centered at the Bottom -->
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-slate-950/50 backdrop-blur px-2.5 py-1 rounded-full border border-white/10">
+                <button onclick="currentBannerSlide(0)" class="w-1.5 h-1.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="0"></button>
+                <button onclick="currentBannerSlide(1)" class="w-1.5 h-1.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="1"></button>
+                <button onclick="currentBannerSlide(2)" class="w-1.5 h-1.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="2"></button>
             </div>
         </div>
     </section>
@@ -257,7 +257,7 @@
         </div>
     </section>
 
-      <!-- About Section -->
+<!-- About Section -->
     <section id="about" class="bg-white border-t border-gray-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div>
@@ -381,14 +381,14 @@
             if (!track) return;
             track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
 
-            // Update dots
+            // Update dots (Very small styling active indicator state)
             document.querySelectorAll('.banner-dot').forEach((dot, idx) => {
                 if (idx === currentBannerIndex) {
-                    dot.classList.remove('bg-white/40');
-                    dot.classList.add('bg-white', 'w-6');
+                    dot.classList.remove('bg-white/40', 'w-1.5');
+                    dot.classList.add('bg-white', 'w-4');
                 } else {
-                    dot.classList.add('bg-white/40');
-                    dot.classList.remove('bg-white', 'w-6');
+                    dot.classList.add('bg-white/40', 'w-1.5');
+                    dot.classList.remove('bg-white', 'w-4');
                 }
             });
         }
