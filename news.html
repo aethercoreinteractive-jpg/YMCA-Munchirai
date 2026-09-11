@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News & Events | YMCA Munchirai</title>
-    <!-- Tailwind CSS CDN for rapid, clean styling -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,12 +30,10 @@
                 <a href="mystore.html" class="hover:text-blue-300 transition">Store</a>
                 <a href="contact.html" class="hover:text-blue-300 transition">Contact</a>
             </nav>
-            <!-- Mobile Menu Toggle Button -->
             <button id="menu-btn" class="md:hidden text-white focus:outline-none">
                 <i class="fa-solid fa-bars text-2xl"></i>
             </button>
         </div>
-        <!-- Mobile Nav Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-6 pt-2 pb-4 space-y-2">
             <a href="index.html" class="block py-2 hover:bg-blue-700 rounded px-2">Home</a>
             <a href="about.html" class="block py-2 hover:bg-blue-700 rounded px-2">About Us</a>
@@ -55,108 +53,27 @@
         </div>
     </section>
 
-    <!-- Main Content Grid -->
+    <!-- Main Content Container -->
     <main class="container mx-auto px-6 py-10">
         
-        <!-- Filter / Category tags -->
-        <div class="flex flex-wrap items-center justify-center gap-2 mb-10">
-            <button class="px-4 py-2 bg-blue-900 text-white rounded-full text-sm font-medium shadow transition">All Updates</button>
-            <button class="px-4 py-2 bg-white text-gray-700 hover:bg-gray-100 rounded-full text-sm font-medium border border-gray-200 transition">Community Events</button>
-            <button class="px-4 py-2 bg-white text-gray-700 hover:bg-gray-100 rounded-full text-sm font-medium border border-gray-200 transition">Women Empowerment</button>
-            <button class="px-4 py-2 bg-white text-gray-700 hover:bg-gray-100 rounded-full text-sm font-medium border border-gray-200 transition">Announcements</button>
+        <!-- Loading State Indicator -->
+        <div id="loading-spinner" class="text-center py-20">
+            <i class="fa-solid fa-spinner fa-spin text-4xl text-blue-900 mb-3"></i>
+            <p class="text-gray-500 text-sm">Loading live updates from admin database...</p>
         </div>
 
-        <!-- News Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            <!-- News Item 1 -->
-            <article class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition duration-300 flex flex-col justify-between">
-                <div>
-                    <!-- Image container (Tip: Replace src with Google Drive direct link if needed) -->
-                    <div class="h-48 overflow-hidden bg-gray-200">
-                        <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=600" alt="Free Tailoring Classes" class="w-full h-full object-cover hover:scale-105 transition duration-500">
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center space-x-2 text-xs text-blue-600 font-semibold mb-2">
-                            <i class="fa-solid fa-calendar-days"></i>
-                            <span>September 10, 2026</span>
-                            <span class="text-gray-300">|</span>
-                            <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">Skill Development</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">New Batch of Free Tailoring Classes for Women</h3>
-                        <p class="text-gray-600 text-sm line-clamp-3">
-                            YMCA Munchirai has launched a fresh batch of vocational training programs focused on empowering local women through professional skill building and self-reliance.
-                        </p>
-                    </div>
-                </div>
-                <div class="px-6 pb-6 pt-0">
-                    <button onclick="openReadMoreModal('New Batch of Free Tailoring Classes for Women', 'YMCA Munchirai has launched a fresh batch of vocational training programs focused on empowering local women through professional skill building and self-reliance. Registrations are open now at the center office.')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 transition">
-                        Read More <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </div>
-            </article>
-
-            <!-- News Item 2 -->
-            <article class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition duration-300 flex flex-col justify-between">
-                <div>
-                    <div class="h-48 overflow-hidden bg-gray-200">
-                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=600" alt="Health Camp" class="w-full h-full object-cover hover:scale-105 transition duration-500">
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center space-x-2 text-xs text-blue-600 font-semibold mb-2">
-                            <i class="fa-solid fa-calendar-days"></i>
-                            <span>August 28, 2026</span>
-                            <span class="text-gray-300">|</span>
-                            <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">Healthcare</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Free Medical and Wellness Camp Organized</h3>
-                        <p class="text-gray-600 text-sm line-clamp-3">
-                            Promoting a holistic approach to health and well-being, our latest community medical camp provided check-ups and medical assistance to dozens of families in the Munchirai region.
-                        </p>
-                    </div>
-                </div>
-                <div class="px-6 pb-6 pt-0">
-                    <button onclick="openReadMoreModal('Free Medical and Wellness Camp Organized', 'Promoting a holistic approach to health and well-being, our latest community medical camp provided free check-ups, consultations, and medicines, addressing regional health concerns effectively.')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 transition">
-                        Read More <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </div>
-            </article>
-
-            <!-- News Item 3 -->
-            <article class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition duration-300 flex flex-col justify-between">
-                <div>
-                    <div class="h-48 overflow-hidden bg-gray-200">
-                        <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=600" alt="Store launch" class="w-full h-full object-cover hover:scale-105 transition duration-500">
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center space-x-2 text-xs text-blue-600 font-semibold mb-2">
-                            <i class="fa-solid fa-calendar-days"></i>
-                            <span>August 15, 2026</span>
-                            <span class="text-gray-300">|</span>
-                            <span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">Store Update</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Organic & Quality Items Available on Our Store</h3>
-                        <p class="text-gray-600 text-sm line-clamp-3">
-                            Support local community initiatives! Organic and first-quality items are now ready for sale on our platform. Check out our store section for more details.
-                        </p>
-                    </div>
-                </div>
-                <div class="px-6 pb-6 pt-0">
-                    <a href="mystore.html" class="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 transition">
-                        Visit Store <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </a>
-                </div>
-            </article>
-
+        <!-- News Cards Dynamic Grid Container -->
+        <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 hidden">
+            <!-- Dynamic Data from Firebase Realtime Database inserted here -->
         </div>
     </main>
 
-    <!-- Simple Read More Modal Popup Script Structure -->
+    <!-- Modal Popup for Reading Full News -->
     <div id="newsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl relative">
             <button onclick="closeReadMoreModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             <h3 id="modalTitle" class="text-xl font-bold text-blue-900 mb-3"></h3>
-            <p id="modalDesc" class="text-gray-600 text-sm leading-relaxed mb-6"></p>
+            <p id="modalDesc" class="text-gray-600 text-sm leading-relaxed mb-6 whitespace-pre-line"></p>
             <div class="text-right">
                 <button onclick="closeReadMoreModal()" class="px-4 py-2 bg-blue-900 text-white rounded text-sm font-medium hover:bg-blue-800 transition">Close</button>
             </div>
@@ -191,7 +108,97 @@
         </div>
     </footer>
 
-    <!-- Scripts for mobile menu toggling and modal management -->
+    <!-- Firebase SDK Imports & Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Your exact Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
+          authDomain: "munchirai-ymca.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca",
+          storageBucket: "munchirai-ymca.firebasestorage.app",
+          messagingSenderId: "697387132253",
+          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
+          measurementId: "G-XRRT0Q76YK"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Fetch news data matching the database structure populated by adminnews.html
+        async function fetchNewsData() {
+            const newsGrid = document.getElementById('news-grid');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            try {
+                const newsRef = ref(db, 'news');
+                const snapshot = await get(newsRef);
+
+                loadingSpinner.style.display = 'none';
+                newsGrid.classList.remove('hidden');
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    newsGrid.innerHTML = ''; // Clear prior entries
+
+                    // Loop through database nodes saved by admin panel
+                    Object.keys(data).forEach(key => {
+                        const item = data[key];
+                        
+                        // Fallback image handling if empty or broken link
+                        const imageUrl = item.image || 'https://via.placeholder.com/600x400?text=YMCA+Munchirai';
+                        
+                        const card = document.createElement('article');
+                        card.className = "bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition duration-300 flex flex-col justify-between";
+                        
+                        card.innerHTML = `
+                            <div>
+                                <div class="h-48 overflow-hidden bg-gray-200 relative">
+                                    <img src="${imageUrl}" alt="News Image" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='https://via.placeholder.com/600x400?text=Image+Unavailable'">
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center space-x-2 text-xs text-blue-600 font-semibold mb-2">
+                                        <i class="fa-solid fa-calendar-days"></i>
+                                        <span>${item.date || 'Recent Update'}</span>
+                                        <span class="text-gray-300">|</span>
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">${item.category || 'Announcement'}</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">${item.title}</h3>
+                                    <p class="text-gray-600 text-sm line-clamp-3">${item.description}</p>
+                                </div>
+                            </div>
+                            <div class="px-6 pb-6 pt-0">
+                                <button onclick="openReadMoreModal('${encodeURIComponent(item.title)}', '${encodeURIComponent(item.description)}')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 transition">
+                                    Read More <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+                        `;
+                        newsGrid.appendChild(card);
+                    });
+                } else {
+                    newsGrid.innerHTML = `
+                        <div class="col-span-full text-center py-16 bg-white rounded-xl border border-dashed border-gray-300 p-8">
+                            <i class="fa-solid fa-newspaper text-4xl text-blue-400 mb-3"></i>
+                            <h3 class="text-lg font-bold text-gray-800">No News Articles Found</h3>
+                            <p class="text-gray-500 text-sm mt-1">Use your admin panel to create and publish news posts.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error fetching news:", error);
+                loadingSpinner.innerHTML = `<p class="text-red-500 text-sm">Failed to load content. Please check your internet connectivity or Firebase configuration rules.</p>`;
+            }
+        }
+
+        // Execute fetch on page load
+        fetchNewsData();
+    </script>
+
+    <!-- Global Interface Scripts -->
     <script>
         const menuBtn = document.getElementById('menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -200,7 +207,10 @@
             mobileMenu.classList.toggle('hidden');
         });
 
-        function openReadMoreModal(title, description) {
+        function openReadMoreModal(encodedTitle, encodedDesc) {
+            const title = decodeURIComponent(encodedTitle);
+            const description = decodeURIComponent(encodedDesc);
+
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalDesc').innerText = description;
             document.getElementById('newsModal').classList.remove('hidden');
