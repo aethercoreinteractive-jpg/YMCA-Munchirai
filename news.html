@@ -2,111 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live News & Announcements | YMCA Munchirai</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>News & Announcements | YMCA Munchirai</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <header class="bg-blue-900 text-white shadow-md">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white text-blue-900 p-2 rounded-full font-bold text-xl">
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-2.5">
+                <div class="bg-blue-600 text-white p-2 rounded-lg text-sm">
                     <i class="fa-solid fa-bullhorn"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-wide">YMCA Munchirai</h1>
-                    <p class="text-xs text-blue-200">Community News Feed</p>
+                    <h1 class="text-sm font-bold tracking-tight">YMCA Munchirai</h1>
+                    <p class="text-[10px] text-slate-400">Community News & Events</p>
                 </div>
             </div>
-            <a href="adminnews.html" class="bg-blue-800 hover:bg-blue-700 px-3 py-1.5 rounded transition text-xs flex items-center gap-1">
-                <i class="fa-solid fa-lock text-[10px]"></i> Admin Login
-            </a>
+            <nav class="flex items-center space-x-2">
+                <a href="adminnews.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-gear text-[10px]"></i> Admin
+                </a>
+            </nav>
         </div>
     </header>
 
-    <main class="container mx-auto px-6 py-10 flex-grow">
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900">Latest Updates</h2>
-            <p class="text-sm text-gray-600">Explore recent programs, seminars, and announcements.</p>
+    <!-- Main Content Area -->
+    <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Latest Updates</h2>
+            <p class="text-xs text-slate-500">Stay informed with the latest announcements from YMCA Munchirai.</p>
         </div>
 
-        <div id="public-loading" class="text-center py-20">
-            <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-900 mb-3"></i>
-            <p class="text-gray-500 text-sm">Fetching live news updates...</p>
+        <!-- Loading State -->
+        <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-600 mb-2"></i>
+            <p class="text-slate-500 text-xs font-medium">Loading announcements...</p>
         </div>
 
-        <div id="public-news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+        <!-- Public News Grid -->
+        <div id="news-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden"></div>
     </main>
 
-    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-xs mt-12">
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 text-slate-400 py-4 text-center text-[11px] mt-auto">
         &copy; 2026 YMCA Munchirai. All Rights Reserved.
     </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyCX0_wH5grINMxhCqVnFjiYDj0i_Dw3dIc",
-          authDomain: "munchirai-ymca-12de8.firebaseapp.com",
-          databaseURL: "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com",
-          projectId: "munchirai-ymca-12de8",
-          storageBucket: "munchirai-ymca-12de8.firebasestorage.app",
-          messagingSenderId: "890981851605",
-          appId: "1:890981851605:web:619a6fa847f309a87cdd5c",
-          measurementId: "G-PN7S9DWCMC"
-        };
-
-        const db = getDatabase(initializeApp(firebaseConfig));
+    <!-- Script Logic to Fetch and Display Data -->
+    <script>
+        const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
 
         async function loadPublicNews() {
-            const grid = document.getElementById('public-news-grid');
-            const loading = document.getElementById('public-loading');
+            const loadingBox = document.getElementById('loading-box');
+            const newsGrid = document.getElementById('news-grid');
 
             try {
-                const snapshot = await get(ref(db, 'news'));
+                const response = await fetch(DB_URL + ".json");
+                const data = await response.json();
+                
+                loadingBox.style.display = 'none';
+                newsGrid.classList.remove('hidden');
+                newsGrid.innerHTML = '';
 
-                loading.style.display = 'none';
-                grid.classList.remove('hidden');
-                grid.innerHTML = '';
-
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    Object.values(data).reverse().forEach(item => {
-                        const card = document.createElement('div');
-                        card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between";
-                        card.innerHTML = `
-                            <div>
-                                <div class="h-48 bg-gray-100 relative">
-                                    <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=Image+Unavailable'">
-                                    <span class="absolute top-3 right-3 bg-blue-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">${item.category}</span>
-                                </div>
-                                <div class="p-5">
-                                    <p class="text-xs text-gray-500 mb-2"><i class="fa-solid fa-calendar-days text-blue-800 mr-1"></i> ${item.date}</p>
-                                    <h3 class="font-bold text-gray-900 text-lg mb-2 leading-snug">${item.title}</h3>
-                                    <p class="text-gray-600 text-sm whitespace-pre-line leading-relaxed">${item.description}</p>
-                                </div>
-                            </div>
-                            ${item.showButton && item.btnLink ? `
-                                <div class="p-5 pt-0">
-                                    <a href="${item.btnLink}" target="_blank" class="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2.5 rounded-lg transition shadow-sm">
-                                        ${item.btnText || 'Learn More'} <i class="fa-solid fa-arrow-right ml-1"></i>
+                if (data) {
+                    Object.keys(data).reverse().forEach(id => {
+                        const item = data[id];
+                        
+                        // Check if optional action button is enabled and valid
+                        let actionButtonHTML = '';
+                        if (item.showButton && item.btnText && item.btnLink) {
+                            actionButtonHTML = `
+                                <div class="mt-4 pt-3 border-t border-slate-100">
+                                    <a href="${item.btnLink}" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 px-4 rounded-xl shadow-xs transition">
+                                        ${item.btnText} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                                     </a>
                                 </div>
-                            ` : ''}
+                            `;
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = "bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col justify-between";
+                        card.innerHTML = `
+                            <div>
+                                <div class="h-44 bg-slate-100 relative">
+                                    <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=YMCA+Munchirai'">
+                                    <span class="absolute top-2.5 right-2.5 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">${item.category}</span>
+                                </div>
+                                <div class="p-4">
+                                    <p class="text-[11px] text-slate-400 font-medium mb-1.5"><i class="fa-regular fa-calendar mr-1"></i>${item.date}</p>
+                                    <h3 class="font-bold text-slate-900 text-base mb-2 leading-snug">${item.title}</h3>
+                                    <p class="text-slate-600 text-xs leading-relaxed whitespace-pre-line">${item.description}</p>
+                                    ${actionButtonHTML}
+                                </div>
+                            </div>
                         `;
-                        grid.appendChild(card);
+                        newsGrid.appendChild(card);
                     });
                 } else {
-                    grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-16 bg-white rounded-xl border border-dashed">No announcements posted yet.</p>`;
+                    newsGrid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No news announcements available right now. Please check back later.</p></div>`;
                 }
             } catch (err) {
-                loading.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-700 p-5 rounded-xl text-left max-w-lg mx-auto shadow-sm">
-                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Firebase Error Occurred</p>
-                    <p class="text-xs font-mono bg-red-100 p-2 rounded mb-3">${err.message}</p>
-                </div>`;
+                loadingBox.innerHTML = `<p class="text-rose-500 text-xs font-medium">Failed to load news feed. Please check your connection.</p>`;
             }
         }
 
