@@ -74,7 +74,6 @@
             const loading = document.getElementById('public-loading');
 
             try {
-                // Safeguard timeout to handle network/rule hangups
                 const timeoutPromise = new Promise((_, reject) => 
                     setTimeout(() => reject(new Error("Database connection timed out. Check your Firebase Rules.")), 5000)
                 );
