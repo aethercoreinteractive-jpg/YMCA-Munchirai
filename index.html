@@ -30,7 +30,7 @@
                 </a>
             </div>
 
-            <!-- Clean Horizontal Scroll Navigation (Properly aligned with clear padding and smooth scroll) -->
+            <!-- Clean Horizontal Scroll Navigation -->
             <nav class="flex-1 overflow-x-auto no-scrollbar mx-2 py-2">
                 <div class="flex items-center gap-2 sm:gap-4 w-max px-2">
                     <a href="index.html" class="text-xs bg-slate-800 text-amber-400 font-bold px-3 py-1.5 rounded-lg border border-slate-700 transition">Home</a>
@@ -70,7 +70,7 @@
         </div>
     </section>
 
-    <!-- Featured Products Slider Section with Dot Indicators (No Arrows) -->
+    <!-- Featured Products Slider Section (Free Sliding, No Indicator Dots) -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div class="flex items-end justify-between mb-6">
             <div>
@@ -82,16 +82,11 @@
             </a>
         </div>
 
-        <!-- Slider Track Container -->
+        <!-- Slider Track Container (Scrollable via touch/mouse drag) -->
         <div class="relative">
-            <div id="slider-track" class="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth pb-4">
+            <div id="slider-track" class="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth pb-2">
                 <!-- Dynamically populated from Firebase -->
                 <div class="w-full text-center py-12 text-xs text-gray-400">Loading featured highlights...</div>
-            </div>
-
-            <!-- Slide Indicator Dots (Under Products Sliding) -->
-            <div id="slider-dots" class="flex justify-center items-center gap-2 mt-4">
-                <!-- Dots generated dynamically -->
             </div>
         </div>
     </section>
@@ -143,11 +138,9 @@
         onValue(inventoryRef, (snapshot) => {
             const data = snapshot.val();
             const track = document.getElementById('slider-track');
-            const dotsContainer = document.getElementById('slider-dots');
 
             if (!data) {
                 track.innerHTML = `<div class="w-full text-center py-12 text-xs text-gray-400 bg-white rounded-xl border">No products available in database yet.</div>`;
-                dotsContainer.innerHTML = "";
                 return;
             }
 
@@ -174,43 +167,6 @@
                     </div>
                 </div>
             `).join('');
-
-            // Generate Dot Indicators based on item count
-            dotsContainer.innerHTML = items.map((_, index) => `
-                <button onclick="scrollToSlide(${index})" id="dot-${index}" class="w-2.5 h-2.5 rounded-full bg-gray-300 hover:bg-amber-500 transition"></button>
-            `).join('');
-            
-            if (items.length > 0) highlightDot(0);
-        });
-
-        window.scrollToSlide = function(index) {
-            const track = document.getElementById('slider-track');
-            const cardWidth = 300; // approximate card width + gap
-            track.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
-            highlightDot(index);
-        };
-
-        function highlightDot(activeIndex) {
-            const dots = document.querySelectorAll('#slider-dots button');
-            dots.forEach((dot, idx) => {
-                if (idx === activeIndex) {
-                    dot.className = "w-6 h-2.5 rounded-full bg-amber-500 transition-all";
-                } else {
-                    dot.className = "w-2.5 h-2.5 rounded-full bg-gray-300 hover:bg-amber-400 transition-all";
-                }
-            });
-        }
-
-        // Track scroll position to update active dot automatically
-        document.addEventListener('DOMContentLoaded', () => {
-            const track = document.getElementById('slider-track');
-            if (track) {
-                track.addEventListener('scroll', () => {
-                    const cardWidth = 300;
-                    const activeIndex = Math.round(track.scrollLeft / cardWidth);
-                    highlightDot(activeIndex);
-                });
-            }
         });
     </script>
 </body>
