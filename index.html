@@ -175,22 +175,65 @@
         </div>
     </section>
 
+    <!-- Online Test Section -->
+    <section id="onlinetest" class="bg-white border-top border-gray-200 py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Assessments</span>
+            <h2 class="text-2xl font-bold tracking-tight mt-2 mb-4 text-gray-900">Online Test Portal</h2>
+            <p class="text-xs sm:text-sm text-slate-600 font-light leading-relaxed mb-4">Participate in upcoming skill-building modules, general knowledge exams, and youth leadership assessment quizzes hosted securely by the branch.</p>
+            <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition">Launch Assessment Portal</button>
+        </div>
+    </section>
+
+    <!-- 16:9 Ratio Automatic & Swipable Heroic Banners Section -->
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-lg bg-slate-900 group">
+            <!-- Slider Track -->
+            <div id="heroic-slider-track" class="flex h-full transition-transform duration-500 ease-out cursor-grab active:cursor-grabbing">
+                <!-- Banner 1 -->
+                <div class="min-w-full h-full relative shrink-0">
+                    <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600" alt="Banner 1" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
+                        <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">Featured Initiative</span>
+                        <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">Empowering Youth Through Community Sports</h3>
+                        <p class="text-xs sm:text-sm text-slate-300 font-light line-clamp-2">Join our active sports training programs designed to foster teamwork, health, and leadership.</p>
+                    </div>
+                </div>
+                <!-- Banner 2 -->
+                <div class="min-w-full h-full relative shrink-0">
+                    <img src="https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=1600" alt="Banner 2" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
+                        <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">MY Store Special</span>
+                        <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">100% Pure Organic Self-Help Products</h3>
+                        <p class="text-xs sm:text-sm text-slate-300 font-light line-clamp-2">Support local farmers and self-help groups by purchasing unpasteurized wild honey and authentic spices.</p>
+                    </div>
+                </div>
+                <!-- Banner 3 -->
+                <div class="min-w-full h-full relative shrink-0">
+                    <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1600" alt="Banner 3" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
+                        <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">Community Welfare</span>
+                        <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">Building Stronger Families Together</h3>
+                        <p class="text-xs sm:text-sm text-slate-300 font-light line-clamp-2">Participate in our developmental seminars, spiritual wellness sessions, and social welfare programs.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Dots -->
+            <div class="absolute bottom-3 right-4 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
+                <button onclick="currentBannerSlide(0)" class="w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="0"></button>
+                <button onclick="currentBannerSlide(1)" class="w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="1"></button>
+                <button onclick="currentBannerSlide(2)" class="w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white transition banner-dot" data-index="2"></button>
+            </div>
+        </div>
+    </section>
+
     <!-- Updates Section -->
     <section id="updates" class="bg-gray-50 border-t border-gray-200 py-16">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Latest News</span>
             <h2 class="text-2xl font-bold tracking-tight mt-2 mb-4 text-gray-900">YMCA Community Updates</h2>
             <p class="text-xs sm:text-sm text-slate-600 font-light leading-relaxed">Stay tuned for upcoming events, sports tournaments, youth programs, and agricultural self-help distribution timelines.</p>
-        </div>
-    </section>
-
-    <!-- Online Test Section -->
-    <section id="onlinetest" class="bg-white border-t border-gray-200 py-16">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Assessments</span>
-            <h2 class="text-2xl font-bold tracking-tight mt-2 mb-4 text-gray-900">Online Test Portal</h2>
-            <p class="text-xs sm:text-sm text-slate-600 font-light leading-relaxed mb-4">Participate in upcoming skill-building modules, general knowledge exams, and youth leadership assessment quizzes hosted securely by the branch.</p>
-            <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition">Launch Assessment Portal</button>
         </div>
     </section>
 
@@ -214,7 +257,7 @@
         </div>
     </section>
 
-    <!-- About Section -->
+      <!-- About Section -->
     <section id="about" class="bg-white border-t border-gray-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div>
@@ -263,7 +306,7 @@
         </div>
     </footer>
 
-     <!-- Dynamic Index Script -->
+    <!-- Dynamic Index Script -->
     <script>
         const inventory = [
             { id: "item-1", name: "Munchirai Pure Wild Honey", price: "₹350", rating: "4.9", img: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600", desc: "100% natural, unpasteurized wild honey harvested directly by Munchirai YMCA youth self-help groups. Packed with antioxidants and rich natural flavor." },
@@ -328,9 +371,103 @@
             document.getElementById('expanded-product-view').classList.add('hidden');
         }
 
+        // Heroic Banners Automatic & Swipable Slider Logic
+        let currentBannerIndex = 0;
+        const totalBanners = 3;
+        let bannerInterval;
+
+        function updateBannerSlider() {
+            const track = document.getElementById('heroic-slider-track');
+            if (!track) return;
+            track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+
+            // Update dots
+            document.querySelectorAll('.banner-dot').forEach((dot, idx) => {
+                if (idx === currentBannerIndex) {
+                    dot.classList.remove('bg-white/40');
+                    dot.classList.add('bg-white', 'w-6');
+                } else {
+                    dot.classList.add('bg-white/40');
+                    dot.classList.remove('bg-white', 'w-6');
+                }
+            });
+        }
+
+        function currentBannerSlide(index) {
+            currentBannerIndex = index;
+            updateBannerSlider();
+            resetBannerTimer();
+        }
+
+        function nextBannerSlide() {
+            currentBannerIndex = (currentBannerIndex + 1) % totalBanners;
+            updateBannerSlider();
+        }
+
+        function resetBannerTimer() {
+            clearInterval(bannerInterval);
+            bannerInterval = setInterval(nextBannerSlide, 4000);
+        }
+
+        // Touch & Mouse Swipe Support for Heroic Banners
+        let bannerTouchStartX = 0;
+        let bannerTouchEndX = 0;
+
+        function initBannerSwipe() {
+            const track = document.getElementById('heroic-slider-track');
+            if (!track) return;
+
+            track.addEventListener('touchstart', e => {
+                bannerTouchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            track.addEventListener('touchend', e => {
+                bannerTouchEndX = e.changedTouches[0].screenX;
+                handleBannerSwipeGesture();
+            }, { passive: true });
+
+            // Mouse drag support
+            let isDragging = false;
+            let startX = 0;
+
+            track.addEventListener('mousedown', e => {
+                isDragging = true;
+                startX = e.clientX;
+            });
+
+            track.addEventListener('mouseup', e => {
+                if (!isDragging) return;
+                isDragging = false;
+                const diff = e.clientX - startX;
+                if (diff > 50) {
+                    currentBannerIndex = (currentBannerIndex - 1 + totalBanners) % totalBanners;
+                    updateBannerSlider();
+                    resetBannerTimer();
+                } else if (diff < -50) {
+                    nextBannerSlide();
+                    resetBannerTimer();
+                }
+            });
+        }
+
+        function handleBannerSwipeGesture() {
+            const diff = bannerTouchEndX - bannerTouchStartX;
+            if (diff > 50) {
+                currentBannerIndex = (currentBannerIndex - 1 + totalBanners) % totalBanners;
+                updateBannerSlider();
+                resetBannerTimer();
+            } else if (diff < -50) {
+                nextBannerSlide();
+                resetBannerTimer();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             applyLiveIndexSettings();
             renderInventorySlider();
+            updateBannerSlider();
+            resetBannerTimer();
+            initBannerSwipe();
         });
     </script>
 </body>
