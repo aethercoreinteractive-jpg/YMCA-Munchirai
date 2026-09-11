@@ -6,7 +6,7 @@
     <title>Live News & Announcements | YMCA Munchirai</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
@@ -20,14 +20,12 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-wide">YMCA Munchirai</h1>
-                    <p class="text-xs text-blue-200">Community News & Events Feed</p>
+                    <p class="text-xs text-blue-200">Community News Feed</p>
                 </div>
             </div>
-            <nav class="flex items-center space-x-4 text-sm font-medium">
-                <a href="adminnews.html" class="bg-blue-800 hover:bg-blue-700 px-3 py-1.5 rounded transition flex items-center gap-1 text-xs">
-                    <i class="fa-solid fa-lock text-[10px]"></i> Admin Login
-                </a>
-            </nav>
+            <a href="adminnews.html" class="bg-blue-800 hover:bg-blue-700 px-3 py-1.5 rounded transition text-xs flex items-center gap-1">
+                <i class="fa-solid fa-lock text-[10px]"></i> Admin Login
+            </a>
         </div>
     </header>
 
@@ -35,7 +33,7 @@
     <main class="container mx-auto px-6 py-10 flex-grow">
         <div class="mb-8">
             <h2 class="text-2xl font-bold text-gray-900">Latest Updates</h2>
-            <p class="text-sm text-gray-600">Explore recent programs, seminars, and announcements from YMCA Munchirai.</p>
+            <p class="text-sm text-gray-600">Explore recent programs, seminars, and announcements.</p>
         </div>
 
         <!-- Loading Indicator -->
@@ -69,17 +67,16 @@
           measurementId: "G-XRRT0Q76YK"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        const db = getDatabase(initializeApp(firebaseConfig));
 
         async function loadPublicNews() {
             const grid = document.getElementById('public-news-grid');
             const loading = document.getElementById('public-loading');
 
             try {
-                // Add a 5-second timer so it never stays stuck on "Fetching..." forever
+                // Safeguard timeout to handle network/rule hangups
                 const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error("Connection took too long. Check your internet or Firebase Rules.")), 5000)
+                    setTimeout(() => reject(new Error("Database connection timed out. Check your Firebase Rules.")), 5000)
                 );
 
                 const fetchPromise = get(ref(db, 'news'));
@@ -91,19 +88,17 @@
 
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    
                     Object.values(data).reverse().forEach(item => {
                         const card = document.createElement('div');
                         card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between";
-                        
                         card.innerHTML = `
                             <div>
-                                <div class="h-48 overflow-hidden bg-gray-100 relative">
-                                    <img src="${item.image || 'https://via.placeholder.com/600x400'}" alt="News Image" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=Image+Unavailable'">
-                                    <span class="absolute top-3 right-3 bg-blue-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">${item.category || 'General'}</span>
+                                <div class="h-48 bg-gray-100 relative">
+                                    <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=Image+Unavailable'">
+                                    <span class="absolute top-3 right-3 bg-blue-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">${item.category}</span>
                                 </div>
                                 <div class="p-5">
-                                    <p class="text-xs text-gray-500 mb-2"><i class="fa-solid fa-calendar-days mr-1 text-blue-800"></i> ${item.date || 'Recent'}</p>
+                                    <p class="text-xs text-gray-500 mb-2"><i class="fa-solid fa-calendar-days text-blue-800 mr-1"></i> ${item.date}</p>
                                     <h3 class="font-bold text-gray-900 text-lg mb-2 leading-snug">${item.title}</h3>
                                     <p class="text-gray-600 text-sm whitespace-pre-line leading-relaxed">${item.description}</p>
                                 </div>
@@ -119,13 +114,13 @@
                         grid.appendChild(card);
                     });
                 } else {
-                    grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-16 bg-white rounded-xl border border-dashed border-gray-300">No news announcements posted yet. Add one from the admin panel!</p>`;
+                    grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-16 bg-white rounded-xl border border-dashed">No announcements posted yet.</p>`;
                 }
             } catch (err) {
                 console.error(err);
                 loading.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl text-sm max-w-md mx-auto">
                     <i class="fa-solid fa-triangle-exclamation mb-1 text-lg"></i><br>
-                    <strong>Failed to load feed:</strong> ${err.message}
+                    <strong>Failed to load public feed:</strong> ${err.message}
                 </div>`;
             }
         }
