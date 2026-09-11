@@ -41,16 +41,17 @@
             <div>
                 <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">Official Storefront</span>
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mt-2">MY Food Product Catalog</h1>
-                <p class="text-xs text-gray-500 mt-1">Browse and purchase products added directly via the Admin Inventory system.</p>
+                <p class="text-xs text-gray-500 mt-1">Live inventory synchronized directly from your Firebase database.</p>
             </div>
             <div class="w-full md:w-72">
                 <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
             </div>
         </div>
 
-        <!-- Products Grid (Dynamically Populated from Admin Inventory) -->
+        <!-- Products Grid (Dynamically Populated from Firebase) -->
         <div id="store-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- Dynamically injected items appear here -->
+            <!-- Loading state -->
+            <div class="col-span-full text-center py-20 text-gray-400 text-xs">Loading live inventory from Firebase...</div>
         </div>
 
         <!-- Empty State Notice -->
@@ -59,7 +60,7 @@
                 <i class="fa-solid fa-box-open"></i>
             </div>
             <h3 class="font-bold text-sm text-gray-900">No products found</h3>
-            <p class="text-xs text-gray-500 mt-1">Add items via your admin inventory dashboard to display them here.</p>
+            <p class="text-xs text-gray-500 mt-1">Add items via your admin dashboard to display them here.</p>
         </div>
     </main>
 
@@ -91,31 +92,45 @@
         </div>
     </div>
 
-    <!-- Storefront Script -->
-    <script>
-        // Fallback default inventory items matching index.html if admin storage is empty
-        const defaultInventory = [
-            { id: "item-1", name: "Munchirai Pure Wild Honey", price: 350, rating: "4.9", img: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600", desc: "100% natural, unpasteurized wild honey harvested directly by Munchirai YMCA youth self-help groups." },
-            { id: "item-2", name: "Organic Homemade Millet Mix", price: 180, rating: "4.8", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=600", desc: "Nutrient-rich traditional multi-millet health mix prepared under strict hygienic standards." },
-            { id: "item-3", name: "Cold-Pressed Virgin Coconut Oil", price: 290, rating: "5.0", img: "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?auto=format&fit=crop&q=80&w=600", desc: "Extracted from freshly selected coconuts using traditional cold-pressed techniques." },
-            { id: "item-4", name: "Traditional South Indian Spice Blend", price: 120, rating: "4.7", img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&q=80&w=600", desc: "Hand-ground authentic curry powders and aromatic spices made without added preservatives." }
-        ];
+    <!-- Firebase SDK Imports & Store Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+        const firebaseConfig = {
+          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
+          authDomain: "munchirai-ymca.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca",
+          storageBucket: "munchirai-ymca.firebasestorage.app",
+          messagingSenderId: "697387132253",
+          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
+          measurementId: "G-XRRT0Q76YK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let liveInventory = [];
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
 
-        function getInventory() {
-            // Checks for admin-added inventory or falls back to default catalog
-            const adminStored = localStorage.getItem("ymca_admin_inventory");
-            if (adminStored) {
-                try {
-                    const parsed = JSON.parse(adminStored);
-                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-                } catch(e) {}
+        // Listen for live data changes in Firebase Realtime Database (/inventory)
+        const inventoryRef = ref(db, 'inventory');
+        onValue(inventoryRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Convert Firebase object map into an array
+                liveInventory = Object.keys(data).map(key => ({
+                    firebaseKey: key,
+                    ...data[key]
+                }));
+            } else {
+                liveInventory = [];
             }
-            return defaultInventory;
-        }
+            renderStoreProducts(liveInventory);
+        });
 
-        function renderStoreProducts(productsToRender) {
+        window.renderStoreProducts = function(productsToRender) {
             const grid = document.getElementById('store-products-grid');
             const emptyState = document.getElementById('empty-state');
 
@@ -142,29 +157,27 @@
                     </div>
                     <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
                         <span class="font-black text-base text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
-                        <button onclick="addToCart('${item.id || item.name}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+                        <button onclick="window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5">
                             <i class="fa-solid fa-cart-plus text-xs"></i> Add
                         </button>
                     </div>
                 </div>
             `).join('');
-        }
+        };
 
-        function filterProducts() {
+        window.filterProducts = function() {
             const query = document.getElementById('search-bar').value.toLowerCase();
-            const inventory = getInventory();
-            const filtered = inventory.filter(item => 
+            const filtered = liveInventory.filter(item => 
                 item.name.toLowerCase().includes(query) || (item.desc && item.desc.toLowerCase().includes(query))
             );
             renderStoreProducts(filtered);
-        }
+        };
 
-        function addToCart(id) {
-            const inventory = getInventory();
-            const product = inventory.find(p => (p.id === id || p.name === id));
+        window.addToCart = function(firebaseKey) {
+            const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             if (!product) return;
 
-            const existing = cart.find(item => (item.id === id || item.name === id));
+            const existing = cart.find(item => item.firebaseKey === firebaseKey);
             if (existing) {
                 existing.qty = (existing.qty || 1) + 1;
             } else {
@@ -173,14 +186,14 @@
 
             saveCart();
             alert(`${product.name} added to cart!`);
-        }
+        };
 
         function saveCart() {
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartUI();
         }
 
-        function updateCartUI() {
+        window.updateCartUI = function() {
             const totalCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
             document.getElementById('cart-count').textContent = totalCount;
 
@@ -201,7 +214,7 @@
                             <h4 class="font-bold text-gray-900">${item.name}</h4>
                             <p class="text-gray-500">₹${cleanPrice} &times; ${item.qty || 1}</p>
                         </div>
-                        <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700 p-1">
+                        <button onclick="window.removeFromCart(${index})" class="text-red-500 hover:text-red-700 p-1">
                             <i class="fa-solid fa-trash text-xs"></i>
                         </button>
                     </div>
@@ -209,18 +222,18 @@
             }).join('');
 
             document.getElementById('cart-total').textContent = `₹${totalPrice}`;
-        }
+        };
 
-        function removeFromCart(index) {
+        window.removeFromCart = function(index) {
             cart.splice(index, 1);
             saveCart();
-        }
+        };
 
-        function toggleCartModal() {
+        window.toggleCartModal = function() {
             document.getElementById('cart-modal').classList.toggle('hidden');
-        }
+        };
 
-        function checkoutOrder() {
+        window.checkoutOrder = function() {
             if (cart.length === 0) {
                 alert("Your cart is empty!");
                 return;
@@ -229,10 +242,9 @@
             cart = [];
             saveCart();
             toggleCartModal();
-        }
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderStoreProducts(getInventory());
             updateCartUI();
         });
     </script>
