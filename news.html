@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- Header -->
     <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
@@ -29,31 +28,42 @@
         </div>
     </header>
 
-    <!-- Main Content Area -->
     <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
         <div class="mb-6">
             <h2 class="text-xl font-bold text-slate-900 tracking-tight">Latest Updates</h2>
             <p class="text-xs text-slate-500">Stay informed with the latest announcements from YMCA Munchirai.</p>
         </div>
 
-        <!-- Loading State -->
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-600 mb-2"></i>
             <p class="text-slate-500 text-xs font-medium">Loading announcements...</p>
         </div>
 
-        <!-- Public News Grid -->
         <div id="news-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden"></div>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 text-slate-400 py-4 text-center text-[11px] mt-auto">
         &copy; 2026 YMCA Munchirai. All Rights Reserved.
     </footer>
 
-    <!-- Script Logic to Fetch and Display Data -->
     <script>
         const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
+
+        // Converts Google Drive share links into direct image viewing links
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
 
         async function loadPublicNews() {
             const loadingBox = document.getElementById('loading-box');
@@ -70,8 +80,8 @@
                 if (data) {
                     Object.keys(data).reverse().forEach(id => {
                         const item = data[id];
+                        const processedImg = formatImageURL(item.image);
                         
-                        // Check if optional action button is enabled and valid
                         let actionButtonHTML = '';
                         if (item.showButton && item.btnText && item.btnLink) {
                             actionButtonHTML = `
@@ -88,7 +98,7 @@
                         card.innerHTML = `
                             <div>
                                 <div class="h-44 bg-slate-100 relative">
-                                    <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=YMCA+Munchirai'">
+                                    <img src="${processedImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=YMCA+Munchirai'">
                                     <span class="absolute top-2.5 right-2.5 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">${item.category}</span>
                                 </div>
                                 <div class="p-4">
