@@ -102,7 +102,7 @@
 
                 <div class="flex justify-end space-x-3 pt-2">
                     <button type="button" onclick="closeNewsModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">Save Post</button>
+                    <button type="submit" id="saveBtn" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">Save Post</button>
                 </div>
             </form>
         </div>
@@ -161,7 +161,8 @@
 
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    Object.keys(data).forEach(id => {
+                    // Display latest items first
+                    Object.keys(data).reverse().forEach(id => {
                         const item = data[id];
                         const card = document.createElement('div');
                         card.className = "bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 flex flex-col justify-between";
@@ -199,6 +200,10 @@
 
         window.handleFormSubmit = async function(e) {
             e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.innerText = "Saving...";
+            saveBtn.disabled = true;
+
             const id = document.getElementById('recordId').value;
             const payload = {
                 title: document.getElementById('inputTitle').value,
@@ -215,12 +220,16 @@
                 if (id) {
                     await update(ref(db, 'news/' + id), payload);
                 } else {
-                    await set(push(ref(db, 'news')), payload);
+                    const newRef = push(ref(db, 'news'));
+                    await set(newRef, payload);
                 }
                 closeNewsModal();
-                loadAdminData();
+                await loadAdminData(); // Immediately refresh the grid below
             } catch (err) {
                 alert("Operation failed: " + err.message);
+            } finally {
+                saveBtn.innerText = "Save Post";
+                saveBtn.disabled = false;
             }
         }
 
@@ -228,7 +237,7 @@
             if (confirm("Are you sure you want to delete this post?")) {
                 try {
                     await remove(ref(db, 'news/' + id));
-                    loadAdminData();
+                    await loadAdminData();
                 } catch (err) {
                     alert("Delete failed: " + err.message);
                 }
