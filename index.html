@@ -248,11 +248,11 @@
         </div>
     </section>
 
-    <!-- Professional Industry-Standard Card News Section (Synced live from Firebase RTDB) -->
-    <section id="updates" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-0">
-    <!-- Section Header Card -->
-    <div>
-
+    <!-- Professional Industry-Standard Card News Section (Seamless white background with no outer outline, proper inner spacing) -->
+    <section id="updates" class="bg-white w-full py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 border-b border-gray-100 pb-4 gap-4">
+                <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Updates & Media</span>
                     <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 mt-1">Latest News & Announcements</h2>
                 </div>
@@ -418,10 +418,10 @@
             const processedImg = formatImageURL(item.image);
             const friendlyDate = displayFriendlyDate(item.date);
 
-            // Render single card layout showing ONLY image, title, and date
+            // Render single card layout showing ONLY image, title, and date cleanly without description
             container.innerHTML = `
                 <div class="bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden shadow-inner flex flex-col md:flex-row news-animate-fade">
-                    <div class="relative md:w-1/2 aspect-[16/9] md:aspect-auto overflow-hidden bg-gray-200 min-h-[220px]">
+                    <div class="relative md:w-1/2 aspect-[16/9] md:aspect-auto overflow-hidden bg-gray-200 min-h-[200px]">
                         <img src="${processedImg}" alt="${item.title || 'News'}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
                         <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow">${item.category || 'Announcement'}</span>
                     </div>
