@@ -1,75 +1,116 @@
-<!-- Firebase Reader Module with Error Debugging -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live News & Announcements | YMCA Munchirai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
-      authDomain: "munchirai-ymca.firebaseapp.com",
-      databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
-      projectId: "munchirai-ymca",
-      storageBucket: "munchirai-ymca.firebasestorage.app",
-      messagingSenderId: "697387132253",
-      appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
-      measurementId: "G-XRRT0Q76YK"
-    };
+    <header class="bg-blue-900 text-white shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-blue-900 p-2 rounded-full font-bold text-xl">
+                    <i class="fa-solid fa-bullhorn"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wide">YMCA Munchirai</h1>
+                    <p class="text-xs text-blue-200">Community News Feed</p>
+                </div>
+            </div>
+            <a href="adminnews.html" class="bg-blue-800 hover:bg-blue-700 px-3 py-1.5 rounded transition text-xs flex items-center gap-1">
+                <i class="fa-solid fa-lock text-[10px]"></i> Admin Login
+            </a>
+        </div>
+    </header>
 
-    const db = getDatabase(initializeApp(firebaseConfig));
+    <main class="container mx-auto px-6 py-10 flex-grow">
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">Latest Updates</h2>
+            <p class="text-sm text-gray-600">Explore recent programs, seminars, and announcements.</p>
+        </div>
 
-    async function loadPublicNews() {
-        const grid = document.getElementById('public-news-grid');
-        const loading = document.getElementById('public-loading');
+        <div id="public-loading" class="text-center py-20">
+            <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-900 mb-3"></i>
+            <p class="text-gray-500 text-sm">Fetching live news updates...</p>
+        </div>
 
-        try {
-            console.log("Attempting to fetch from Firebase...");
-            const snapshot = await get(ref(db, 'news'));
+        <div id="public-news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+    </main>
 
-            loading.style.display = 'none';
-            grid.classList.remove('hidden');
-            grid.innerHTML = '';
+    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-xs mt-12">
+        &copy; 2026 YMCA Munchirai. All Rights Reserved.
+    </footer>
 
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                console.log("Data fetched successfully:", data);
-                
-                Object.values(data).reverse().forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between";
-                    card.innerHTML = `
-                        <div>
-                            <div class="h-48 bg-gray-100 relative">
-                                <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=Image+Unavailable'">
-                                <span class="absolute top-3 right-3 bg-blue-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">${item.category}</span>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyCX0_wH5grINMxhCqVnFjiYDj0i_Dw3dIc",
+          authDomain: "munchirai-ymca-12de8.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-12de8",
+          storageBucket: "munchirai-ymca-12de8.firebasestorage.app",
+          messagingSenderId: "890981851605",
+          appId: "1:890981851605:web:619a6fa847f309a87cdd5c",
+          measurementId: "G-PN7S9DWCMC"
+        };
+
+        const db = getDatabase(initializeApp(firebaseConfig));
+
+        async function loadPublicNews() {
+            const grid = document.getElementById('public-news-grid');
+            const loading = document.getElementById('public-loading');
+
+            try {
+                const snapshot = await get(ref(db, 'news'));
+
+                loading.style.display = 'none';
+                grid.classList.remove('hidden');
+                grid.innerHTML = '';
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    Object.values(data).reverse().forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between";
+                        card.innerHTML = `
+                            <div>
+                                <div class="h-48 bg-gray-100 relative">
+                                    <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=Image+Unavailable'">
+                                    <span class="absolute top-3 right-3 bg-blue-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">${item.category}</span>
+                                </div>
+                                <div class="p-5">
+                                    <p class="text-xs text-gray-500 mb-2"><i class="fa-solid fa-calendar-days text-blue-800 mr-1"></i> ${item.date}</p>
+                                    <h3 class="font-bold text-gray-900 text-lg mb-2 leading-snug">${item.title}</h3>
+                                    <p class="text-gray-600 text-sm whitespace-pre-line leading-relaxed">${item.description}</p>
+                                </div>
                             </div>
-                            <div class="p-5">
-                                <p class="text-xs text-gray-500 mb-2"><i class="fa-solid fa-calendar-days text-blue-800 mr-1"></i> ${item.date}</p>
-                                <h3 class="font-bold text-gray-900 text-lg mb-2 leading-snug">${item.title}</h3>
-                                <p class="text-gray-600 text-sm whitespace-pre-line leading-relaxed">${item.description}</p>
-                            </div>
-                        </div>
-                        ${item.showButton && item.btnLink ? `
-                            <div class="p-5 pt-0">
-                                <a href="${item.btnLink}" target="_blank" class="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2.5 rounded-lg transition shadow-sm">
-                                    ${item.btnText || 'Learn More'} <i class="fa-solid fa-arrow-right ml-1"></i>
-                                </a>
-                            </div>
-                        ` : ''}
-                    `;
-                    grid.appendChild(card);
-                });
-            } else {
-                grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-16 bg-white rounded-xl border border-dashed">No announcements posted yet in database.</p>`;
-            }
-        } catch (err) {
-            console.error("Firebase fetch error:", err);
-            loading.innerHTML = `
-                <div class="bg-red-50 border border-red-200 text-red-700 p-5 rounded-xl text-left max-w-lg mx-auto shadow-sm">
+                            ${item.showButton && item.btnLink ? `
+                                <div class="p-5 pt-0">
+                                    <a href="${item.btnLink}" target="_blank" class="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2.5 rounded-lg transition shadow-sm">
+                                        ${item.btnText || 'Learn More'} <i class="fa-solid fa-arrow-right ml-1"></i>
+                                    </a>
+                                </div>
+                            ` : ''}
+                        `;
+                        grid.appendChild(card);
+                    });
+                } else {
+                    grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-16 bg-white rounded-xl border border-dashed">No announcements posted yet.</p>`;
+                }
+            } catch (err) {
+                loading.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-700 p-5 rounded-xl text-left max-w-lg mx-auto shadow-sm">
                     <p class="font-bold text-base mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Firebase Error Occurred</p>
                     <p class="text-xs font-mono bg-red-100 p-2 rounded mb-3">${err.message}</p>
-                    <p class="text-xs">👉 <strong>Fix:</strong> Go to your Firebase Console -> Realtime Database -> Rules tab, and set <code class="bg-red-100 px-1 py-0.5 rounded">".read": true</code>.</p>
                 </div>`;
+            }
         }
-    }
 
-    loadPublicNews();
-</script>
+        loadPublicNews();
+    </script>
+</body>
+</html>
