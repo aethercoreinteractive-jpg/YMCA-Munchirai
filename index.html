@@ -243,7 +243,7 @@
         </div>
     </section>
 
-    <!-- Professional Industry-Standard Card News Section (Seamless white background, no outer outline, standard sizes with single-line truncation) -->
+    <!-- Professional Industry-Standard Card News Section (Seamless white background, auto-scaling single-line title) -->
     <section id="updates" class="bg-white w-full py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 border-b border-gray-100 pb-4 gap-4">
@@ -313,7 +313,7 @@
         </div>
     </footer>
 
-    <!-- Firebase Real-Time Database News Integration with Robust Fetch & Single-Line Title Truncation -->
+    <!-- Firebase Real-Time Database News Integration with Auto-Scaling Single-Line Titles -->
     <script>
         const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
         let newsList = [];
@@ -349,7 +349,6 @@
 
         function initRealtimeNews() {
             fetchNewsOnce();
-            // Polling interval to refresh news data smoothly
             setInterval(fetchNewsOnce, 15000);
         }
 
@@ -403,7 +402,7 @@
             const friendlyDate = displayFriendlyDate(item.date);
             const titleText = item.title || '';
 
-            // Preserves original size and design with truncate to keep text strictly on one line
+            // Card structure with unique ID and whitespace-nowrap to lock it to one line
             container.innerHTML = `
                 <div class="bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden shadow-inner flex flex-col md:flex-row news-animate-fade">
                     <div class="relative md:w-1/2 aspect-[16/9] md:aspect-auto overflow-hidden bg-gray-200 min-h-[220px]">
@@ -415,10 +414,25 @@
                             <i class="fa-regular fa-calendar text-gray-400"></i>
                             <span>${friendlyDate || 'Recent'}</span>
                         </div>
-                        <h3 class="font-bold text-base sm:text-lg text-gray-900 leading-snug truncate" title="${titleText}">${titleText}</h3>
+                        <h3 id="dynamic-news-title" class="font-bold text-gray-900 leading-snug whitespace-nowrap" style="font-size: 18px;" title="${titleText}">${titleText}</h3>
                     </div>
                 </div>
             `;
+
+            // Automatically decrease font size on the fly if the title text is too long to fit in one line
+            setTimeout(() => {
+                const titleEl = document.getElementById('dynamic-news-title');
+                if (titleEl) {
+                    let fontSize = 18; // Standard starting size
+                    titleEl.style.fontSize = fontSize + 'px';
+                    
+                    // Step-by-step reduction until it fits completely on a single line
+                    while (titleEl.scrollWidth > titleEl.clientWidth && fontSize > 11) {
+                        fontSize -= 1;
+                        titleEl.style.fontSize = fontSize + 'px';
+                    }
+                }
+            }, 10);
         }
 
         function startNewsRotation() {
@@ -544,4 +558,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
