@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News Admin Panel | YMCA Munchirai</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- Header -->
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
@@ -31,7 +28,6 @@
         </div>
     </header>
 
-    <!-- Main Section -->
     <main class="container mx-auto px-6 py-8 flex-grow">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
@@ -43,17 +39,14 @@
             </button>
         </div>
 
-        <!-- Loading Box -->
         <div id="loading-box" class="text-center py-20">
             <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-900 mb-3"></i>
             <p class="text-gray-500 text-sm">Connecting to Firebase Database...</p>
         </div>
 
-        <!-- Cards Grid -->
         <div id="admin-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
     </main>
 
-    <!-- Modal Form (Add / Edit) -->
     <div id="newsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl relative my-8">
             <button type="button" onclick="closeNewsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
@@ -88,7 +81,6 @@
                     <textarea id="inputDescription" rows="4" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter post details..."></textarea>
                 </div>
 
-                <!-- Action Button Options -->
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-gray-700 uppercase">Enable Action Button</span>
@@ -108,12 +100,10 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-gray-900 text-gray-400 py-6 text-center text-xs mt-12">
         &copy; 2026 YMCA Munchirai. All Rights Reserved.
     </footer>
 
-    <!-- UI Helper Scripts -->
     <script>
         function openModalForAdd() {
             document.getElementById('modalHeading').innerText = "Add New Post";
@@ -132,20 +122,19 @@
         }
     </script>
 
-    <!-- Firebase Integration with Debugging -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
         import { getDatabase, ref, get, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
-          authDomain: "munchirai-ymca.firebaseapp.com",
-          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
-          projectId: "munchirai-ymca",
-          storageBucket: "munchirai-ymca.firebasestorage.app",
-          messagingSenderId: "697387132253",
-          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
-          measurementId: "G-XRRT0Q76YK"
+          apiKey: "AIzaSyCX0_wH5grINMxhCqVnFjiYDj0i_Dw3dIc",
+          authDomain: "munchirai-ymca-12de8.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-12de8",
+          storageBucket: "munchirai-ymca-12de8.firebasestorage.app",
+          messagingSenderId: "890981851605",
+          appId: "1:890981851605:web:619a6fa847f309a87cdd5c",
+          measurementId: "G-PN7S9DWCMC"
         };
 
         const db = getDatabase(initializeApp(firebaseConfig));
@@ -154,7 +143,6 @@
 
         async function loadAdminData() {
             try {
-                console.log("Admin panel fetching data...");
                 const snapshot = await get(ref(db, 'news'));
                 loadingBox.style.display = 'none';
                 adminGrid.classList.remove('hidden');
@@ -193,17 +181,14 @@
                     adminGrid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10 bg-white rounded-xl border border-dashed">No articles found in database. Click 'Add New Post'.</p>`;
                 }
             } catch (err) {
-                console.error("Admin fetch error:", err);
-                loadingBox.innerHTML = `
-                    <div class="bg-red-50 border border-red-200 text-red-700 p-5 rounded-xl text-left max-w-lg mx-auto shadow-sm">
-                        <p class="font-bold text-base mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Database Error</p>
-                        <p class="text-xs font-mono bg-red-100 p-2 rounded mb-2">${err.message}</p>
-                        <p class="text-xs">👉 Check your Firebase Console Realtime Database Rules to ensure read/write access is set to <code class="bg-red-100 px-1 py-0.5 rounded">true</code>.</p>
-                    </div>`;
+                loadingBox.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-700 p-5 rounded-xl text-left max-w-lg mx-auto shadow-sm">
+                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Database Error</p>
+                    <p class="text-xs font-mono bg-red-100 p-2 rounded mb-2">${err.message}</p>
+                    <p class="text-xs">👉 Check your Firebase Console Realtime Database Rules.</p>
+                </div>`;
             }
         }
 
-        // Form submission mapping strictly your exact columns
         document.getElementById('newsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const saveBtn = document.getElementById('saveBtn');
@@ -211,7 +196,6 @@
             saveBtn.disabled = true;
 
             const id = document.getElementById('recordId').value;
-            
             const newsPayload = {
                 title: document.getElementById('inputTitle').value.trim(),
                 date: document.getElementById('inputDate').value.trim(),
