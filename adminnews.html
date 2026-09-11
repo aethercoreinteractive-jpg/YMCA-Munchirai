@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- Header -->
     <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
@@ -29,7 +28,6 @@
         </div>
     </header>
 
-    <!-- Main Content Area -->
     <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <div>
@@ -41,17 +39,15 @@
             </button>
         </div>
 
-        <!-- Loading State -->
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-600 mb-2"></i>
             <p class="text-slate-500 text-xs font-medium">Syncing database records...</p>
         </div>
 
-        <!-- Article Card Grid -->
         <div id="admin-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden"></div>
     </main>
 
-    <!-- Mobile-Friendly Modal Form -->
+    <!-- Modal Form -->
     <div id="newsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl relative my-auto border border-slate-100">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
@@ -79,8 +75,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Image URL</label>
-                    <input type="url" id="inputImage" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition" placeholder="https://...">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Image URL (Google Drive or Direct Link)</label>
+                    <input type="url" id="inputImage" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition" placeholder="Paste Google Drive link or image URL...">
                 </div>
 
                 <div>
@@ -88,11 +84,15 @@
                     <textarea id="inputDescription" rows="3" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition" placeholder="Enter post summary..."></textarea>
                 </div>
 
-                <!-- Toggle Action Button Card -->
+                <!-- Modern Sliding Toggle Action Button Section -->
                 <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
-                    <div class="flex items-center justify-between cursor-pointer" onclick="document.getElementById('toggleButtonSwitch').click()">
-                        <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Include Action Button</span>
-                        <input type="checkbox" id="toggleButtonSwitch" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" onchange="toggleActionFields()">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Enable Action Button</span>
+                        <!-- Sliding Switch CSS structure -->
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="toggleButtonSwitch" class="sr-only peer" onchange="toggleActionFields()">
+                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
                     </div>
                     <div id="actionFieldsContainer" class="space-y-2.5 hidden pt-2 border-t border-slate-200">
                         <input type="text" id="inputBtnText" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="Button Label (e.g. Register Now)">
@@ -108,14 +108,28 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 text-slate-400 py-4 text-center text-[11px] mt-auto">
-        &copy; 2026 YMCA Munchirai. System Panel v2.1
+        &copy; 2026 YMCA Munchirai. System Panel v2.2
     </footer>
 
-    <!-- Script Logic -->
     <script>
         const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
+
+        // Converts Google Drive share links into direct image viewing links
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
 
         function openModalForAdd() {
             document.getElementById('modalHeading').innerText = "Add New Post";
@@ -157,13 +171,14 @@
                 if (data) {
                     Object.keys(data).reverse().forEach(id => {
                         const item = data[id];
+                        const processedImg = formatImageURL(item.image);
                         const card = document.createElement('div');
                         card.className = "bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col justify-between";
                         card.innerHTML = `
                             <div>
                                 <div class="h-36 bg-slate-100 relative">
-                                    <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'">
-                                    <span class="absolute top-2 right-2 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-md">${item.category}</span>
+                                    <img src="${processedImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'">
+                                    <span class="absolute top-2.5 right-2.5 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">${item.category}</span>
                                 </div>
                                 <div class="p-3.5">
                                     <p class="text-[11px] text-slate-400 font-medium mb-1"><i class="fa-regular fa-calendar mr-1"></i>${item.date}</p>
