@@ -31,7 +31,7 @@
             <!-- Brand Logo -->
             <div class="flex items-center gap-3 shrink-0">
                 <a href="index.html" class="text-xl sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-2">
-                    <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-lg font-bold">Munchirai</span> YMCA
+                    <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-lg font-bold">MY</span> Munchirai
                 </a>
             </div>
 
@@ -50,9 +50,9 @@
                 <a href="admin.html" class="hidden sm:inline-flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-3.5 py-2 rounded-lg transition border border-slate-700">
                     <i class="fa-solid fa-gear text-amber-400"></i> Admin CMS
                 </a>
-                <a href="mystore.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-lg font-bold text-xs shadow transition flex items-center gap-2">
+                <a href="myfood.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-lg font-bold text-xs shadow transition flex items-center gap-2">
                     <i class="fa-solid fa-cart-shopping"></i>
-                    <span>MY Store</span>
+                    <span>MY Food Store</span>
                 </a>
             </div>
         </div>
@@ -70,7 +70,7 @@
                 <span class="text-slate-500 shrink-0 mx-1"><i class="fa-solid fa-chevron-right text-[10px]"></i></span>
                 <a href="#login" class="hover:text-white transition shrink-0 text-slate-400">Member's Login</a>
                 <a href="#about" class="hover:text-white transition shrink-0 text-slate-400">About Us</a>
-                <a href="mystore.html" class="hover:text-white transition shrink-0 text-slate-400 pr-8">All Products</a>
+                <a href="myfood.html" class="hover:text-white transition shrink-0 text-slate-400 pr-8">All Products</a>
             </div>
         </div>
     </header>
@@ -86,7 +86,7 @@
             <p id="display-hero-desc" class="text-base text-slate-300 max-w-lg mb-8 font-light">Welcome to Munchirai YMCA. Discover our youth initiatives and support our eco-friendly food store enterprise.</p>
             <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <a href="myfood.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-7 py-3.5 rounded-lg font-bold text-xs text-center transition shadow flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-store"></i> Shop MY Store Now
+                    <i class="fa-solid fa-store"></i> Shop MY Food Store Now
                 </a>
                 <a href="#about" class="border border-slate-700 bg-slate-900/60 text-slate-200 px-7 py-3.5 rounded-lg font-bold text-xs text-center hover:bg-slate-800 transition">
                     Learn More
@@ -194,6 +194,26 @@
         </div>
     </section>
 
+    <!-- Volunteer Registration Section (Matching About Section Template) -->
+    <section id="volunteer" class="bg-white border-t border-gray-200 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Join Our Mission</span>
+                <h2 class="text-2xl font-bold tracking-tight mt-2 mb-3 text-gray-900">Volunteer Registration</h2>
+                <p class="text-gray-600 font-light text-xs sm:text-sm leading-relaxed mb-3">Become an active part of Munchirai YMCA's community initiatives. Whether you want to mentor youth, support sports events, or assist with sustainable agricultural projects, your time and energy make a profound impact.</p>
+                <p class="text-gray-600 font-light text-xs sm:text-sm leading-relaxed mb-6">Sign up today to connect with local programs and help us foster meaningful growth across our region.</p>
+                <div>
+                    <a href="volunteer.html" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-6 py-3 rounded-lg shadow transition">
+                        <i class="fa-solid fa-hands-holding-child"></i> Register as Volunteer
+                    </a>
+                </div>
+            </div>
+            <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-gray-100 border border-gray-200 shadow-sm">
+                <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1000" alt="Volunteer Community Activity" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </section>
+
     <!-- About Section -->
     <section id="about" class="bg-white border-t border-gray-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
@@ -229,8 +249,8 @@
             <div>
                 <h4 class="font-bold uppercase tracking-wider text-slate-300 mb-3 text-[11px]">Customer Support</h4>
                 <p class="text-slate-400 font-light mb-3">Access our full e-commerce inventory catalog directly.</p>
-                <a href="mystore.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-lg text-xs font-bold transition inline-block shadow">
-                    Go to MY Store
+                <a href="myfood.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-lg text-xs font-bold transition inline-block shadow">
+                    Go to myfood.html
                 </a>
             </div>
         </div>
@@ -243,7 +263,7 @@
         </div>
     </footer>
 
-    <!-- Dynamic Index Script -->
+ <!-- Dynamic Index Script -->
     <script>
         const inventory = [
             { id: "item-1", name: "Munchirai Pure Wild Honey", price: "₹350", rating: "4.9", img: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600", desc: "100% natural, unpasteurized wild honey harvested directly by Munchirai YMCA youth self-help groups. Packed with antioxidants and rich natural flavor." },
