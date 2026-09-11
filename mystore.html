@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munchirai YMCA | MY Food Store Catalog</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased selection:bg-black selection:text-white">
+
+    <!-- Store Header -->
+    <header class="sticky top-0 z-40 bg-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="index.html" class="text-xl sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-lg font-bold">MY</span> Munchirai
+                </a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg transition border border-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-house text-amber-400"></i> Home
+                </a>
+                <button onclick="toggleCartModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-lg font-bold text-xs shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Cart (<span id="cart-count">0</span>)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Store Catalog Section -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b pb-4 border-gray-200">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">Official Storefront</span>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mt-2">MY Food Product Catalog</h1>
+                <p class="text-xs text-gray-500 mt-1">Browse and purchase products added directly via the Admin Inventory system.</p>
+            </div>
+            <div class="w-full md:w-72">
+                <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
+            </div>
+        </div>
+
+        <!-- Products Grid (Dynamically Populated from Admin Inventory) -->
+        <div id="store-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Dynamically injected items appear here -->
+        </div>
+
+        <!-- Empty State Notice -->
+        <div id="empty-state" class="hidden text-center py-20 bg-white rounded-2xl border border-gray-200 shadow-sm mt-4">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-3 text-lg">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="font-bold text-sm text-gray-900">No products found</h3>
+            <p class="text-xs text-gray-500 mt-1">Add items via your admin inventory dashboard to display them here.</p>
+        </div>
+    </main>
+
+    <!-- Shopping Cart Modal Overlay -->
+    <div id="cart-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex justify-end hidden">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col p-6 overflow-y-auto">
+            <div class="flex items-center justify-between border-b pb-4 mb-4">
+                <h2 class="font-bold text-base text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-amber-500"></i> Your Shopping Cart
+                </h2>
+                <button onclick="toggleCartModal()" class="text-gray-400 hover:text-black p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div id="cart-items-container" class="flex-1 space-y-4 overflow-y-auto">
+                <!-- Cart items populate here -->
+            </div>
+
+            <div class="border-t pt-4 mt-4 space-y-3">
+                <div class="flex justify-between text-sm font-bold">
+                    <span>Total Amount:</span>
+                    <span id="cart-total">₹0</span>
+                </div>
+                <button onclick="checkoutOrder()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-xl text-xs transition shadow">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Storefront Script -->
+    <script>
+        // Fallback default inventory items matching index.html if admin storage is empty
+        const defaultInventory = [
+            { id: "item-1", name: "Munchirai Pure Wild Honey", price: 350, rating: "4.9", img: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600", desc: "100% natural, unpasteurized wild honey harvested directly by Munchirai YMCA youth self-help groups." },
+            { id: "item-2", name: "Organic Homemade Millet Mix", price: 180, rating: "4.8", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=600", desc: "Nutrient-rich traditional multi-millet health mix prepared under strict hygienic standards." },
+            { id: "item-3", name: "Cold-Pressed Virgin Coconut Oil", price: 290, rating: "5.0", img: "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?auto=format&fit=crop&q=80&w=600", desc: "Extracted from freshly selected coconuts using traditional cold-pressed techniques." },
+            { id: "item-4", name: "Traditional South Indian Spice Blend", price: 120, rating: "4.7", img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&q=80&w=600", desc: "Hand-ground authentic curry powders and aromatic spices made without added preservatives." }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
+
+        function getInventory() {
+            // Checks for admin-added inventory or falls back to default catalog
+            const adminStored = localStorage.getItem("ymca_admin_inventory");
+            if (adminStored) {
+                try {
+                    const parsed = JSON.parse(adminStored);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                } catch(e) {}
+            }
+            return defaultInventory;
+        }
+
+        function renderStoreProducts(productsToRender) {
+            const grid = document.getElementById('store-products-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (!productsToRender || productsToRender.length === 0) {
+                grid.innerHTML = "";
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = productsToRender.map(item => `
+                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between">
+                    <div>
+                        <div class="relative bg-gray-50 rounded-lg overflow-hidden aspect-[4/3] mb-3 border border-gray-100">
+                            <img src="${item.img || item.image || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 left-2 bg-amber-500 text-slate-950 font-bold text-[9px] px-2 py-0.5 rounded shadow">In Stock</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
+                            <span>MY Food Store</span>
+                            <span class="bg-green-100 text-green-800 px-1 py-0.5 rounded text-[9px] font-bold"><i class="fa-solid fa-star text-[8px]"></i> ${item.rating || '4.8'}</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-gray-900 line-clamp-1">${item.name}</h3>
+                        <p class="text-[11px] text-gray-500 mt-1 line-clamp-2 font-light">${item.desc || item.description || ''}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                        <span class="font-black text-base text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
+                        <button onclick="addToCart('${item.id || item.name}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+                            <i class="fa-solid fa-cart-plus text-xs"></i> Add
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            const inventory = getInventory();
+            const filtered = inventory.filter(item => 
+                item.name.toLowerCase().includes(query) || (item.desc && item.desc.toLowerCase().includes(query))
+            );
+            renderStoreProducts(filtered);
+        }
+
+        function addToCart(id) {
+            const inventory = getInventory();
+            const product = inventory.find(p => (p.id === id || p.name === id));
+            if (!product) return;
+
+            const existing = cart.find(item => (item.id === id || item.name === id));
+            if (existing) {
+                existing.qty = (existing.qty || 1) + 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+
+            saveCart();
+            alert(`${product.name} added to cart!`);
+        }
+
+        function saveCart() {
+            localStorage.setItem("ymca_cart", JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+            document.getElementById('cart-count').textContent = totalCount;
+
+            const container = document.getElementById('cart-items-container');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 text-center py-10">Your cart is currently empty.</p>`;
+                document.getElementById('cart-total').textContent = '₹0';
+                return;
+            }
+
+            let totalPrice = 0;
+            container.innerHTML = cart.map((item, index) => {
+                const cleanPrice = parseInt(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price);
+                totalPrice += cleanPrice * (item.qty || 1);
+                return `
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-200 text-xs">
+                        <div>
+                            <h4 class="font-bold text-gray-900">${item.name}</h4>
+                            <p class="text-gray-500">₹${cleanPrice} &times; ${item.qty || 1}</p>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700 p-1">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cart-total').textContent = `₹${totalPrice}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCart();
+        }
+
+        function toggleCartModal() {
+            document.getElementById('cart-modal').classList.toggle('hidden');
+        }
+
+        function checkoutOrder() {
+            if (cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            alert("Order placed successfully! Thank you for supporting Munchirai YMCA and MY Food.");
+            cart = [];
+            saveCart();
+            toggleCartModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStoreProducts(getInventory());
+            updateCartUI();
+        });
+    </script>
+</body>
+</html>
