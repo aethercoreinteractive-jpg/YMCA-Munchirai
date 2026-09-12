@@ -86,8 +86,8 @@
                         <input type="number" id="prod-price" placeholder="e.g. 350" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Quantity</label>
-                        <input type="number" id="prod-qty" placeholder="e.g. 25" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Quantity & Unit</label>
+                        <input type="text" id="prod-qty" placeholder="e.g. 500g or 2L" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
                     </div>
                 </div>
 
@@ -248,10 +248,10 @@
                     </div>
                     
                     <div class="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
-                        <!-- Quick Quantity Update Section -->
+                        <!-- Quick Quantity Text Update Section -->
                         <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner">
                             <span class="text-[10px] font-bold text-slate-500 uppercase">Qty:</span>
-                            <input type="number" id="qty-input-${item.key}" value="${item.qty || 0}" class="w-12 text-xs font-bold text-slate-900 bg-transparent focus:outline-none text-center">
+                            <input type="text" id="qty-input-${item.key}" value="${item.qty || ''}" class="w-16 text-xs font-bold text-slate-900 bg-transparent focus:outline-none text-center">
                             <button onclick="window.updateQuantity('${item.key}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-bold px-2 py-1 rounded transition ml-1" title="Save Quantity">
                                 Update
                             </button>
@@ -271,7 +271,7 @@
         });
 
         window.updateQuantity = function(key) {
-            const newQty = document.getElementById(`qty-input-${key}`).value;
+            const newQty = document.getElementById(`qty-input-${key}`).value.trim();
             update(ref(db, `inventory/${key}`), { qty: newQty, updatedAt: Date.now() })
                 .then(() => alert("Quantity updated successfully!"))
                 .catch((err) => alert("Failed to update quantity: " + err.message));
@@ -320,5 +320,4 @@
         };
     </script>
 </body>
-    </html>
-    
+</html>
