@@ -220,8 +220,8 @@
                                 <span class="text-[10px] font-bold text-amber-700 bg-amber-100/60 px-1.5 py-0.5 rounded">${item.category || 'General'}</span>
                             </div>
                         </div>
-                        <div class="w-6 h-6 rounded-lg border border-slate-300 peer-checked:bg-amber-500 peer-checked:border-amber-500 flex items-center justify-center text-slate-950 transition shrink-0">
-                            <i class="fa-solid fa-check text-[10px] text-white opacity-0 peer-checked:opacity-100"></i>
+                        <div class="w-6 h-6 rounded-lg border ${isChecked ? 'border-amber-500 bg-amber-500' : 'border-slate-300 bg-white'} flex items-center justify-center text-white transition shrink-0 checkbox-indicator">
+                            <i class="fa-solid fa-check text-[10px] ${isChecked ? 'opacity-100' : 'opacity-0'}"></i>
                         </div>
                     </label>
                 `;
@@ -232,22 +232,28 @@
 
         window.handleCheckboxChange = function(checkbox) {
             const key = checkbox.value;
+            const label = checkbox.closest('label');
+            const indicator = label.querySelector('.checkbox-indicator');
+            const checkIcon = indicator.querySelector('i');
+
             if (checkbox.checked) {
                 selectedCache[key] = true;
-            } else {
-                delete selectedCache[key];
-            }
-            window.updateSelectionCountUI();
-
-            // Instantly update border styling for the toggled card
-            const label = checkbox.closest('label');
-            if (checkbox.checked) {
                 label.classList.add('border-amber-400', 'shadow-sm');
                 label.classList.remove('border-slate-200');
+                indicator.classList.remove('border-slate-300', 'bg-white');
+                indicator.classList.add('border-amber-500', 'bg-amber-500');
+                checkIcon.classList.remove('opacity-0');
+                checkIcon.classList.add('opacity-100');
             } else {
+                delete selectedCache[key];
                 label.classList.remove('border-amber-400', 'shadow-sm');
                 label.classList.add('border-slate-200');
+                indicator.classList.remove('border-amber-500', 'bg-amber-500');
+                indicator.classList.add('border-slate-300', 'bg-white');
+                checkIcon.classList.remove('opacity-100');
+                checkIcon.classList.add('opacity-0');
             }
+            window.updateSelectionCountUI();
         };
 
         window.updateSelectionCountUI = function() {
