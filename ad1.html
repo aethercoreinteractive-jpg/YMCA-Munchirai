@@ -211,12 +211,12 @@
         let adsCache = [];
         let deleteTargetIndex = null;
         let previewInterval = null;
+        let currentPreviewIdx = 0;
 
         const adsListContainer = document.getElementById('ads-list-container');
         const previewWrapper = document.getElementById('ad1-preview-wrapper');
         const adRef = ref(db, 'ads/ad1');
 
-        // FIXED: Reliable Google Drive Direct Image/Video URL parser
         function formatDriveLink(url) {
             if (!url) return '';
             let fileId = '';
@@ -232,7 +232,6 @@
             }
 
             if (fileId) {
-                // Use content direct link endpoint which loads reliably inside <img> tags
                 return `https://lh3.googleusercontent.com/d/${fileId}`;
             }
             return url;
@@ -259,7 +258,6 @@
             else fields.classList.add('hidden');
         };
 
-        // Render Displayed Ads List Below
         function renderAdsList() {
             if (adsCache.length === 0) {
                 adsListContainer.innerHTML = `<span class="text-xs text-slate-400 py-3 block text-center">No ads added yet. Add an ad above.</span>`;
@@ -298,7 +296,6 @@
             updateLivePreview();
         }
 
-        // Tap, Hold & Drag Sorting Logic
         function initDragAndDrop() {
             const items = adsListContainer.querySelectorAll('.ad-item');
             items.forEach(item => {
@@ -359,7 +356,6 @@
             closeDeleteModal();
         });
 
-        // Save & Add New Ad Trigger
         document.getElementById('save-new-ad-btn').addEventListener('click', () => {
             const linkInput = document.getElementById('new-link');
             const mediaType = document.getElementById('new-media-type').value;
@@ -383,7 +379,6 @@
                 buttonUrl: buttonUrl
             });
 
-            // Instantly clear the form inputs
             linkInput.value = '';
             document.getElementById('new-media-type').value = 'photo';
             document.getElementById('new-audio-box').classList.add('hidden');
@@ -396,19 +391,26 @@
             showStatus("Ad added below successfully!");
         });
 
-        // Live Auto-Sliding Preview Engine (4 seconds rotation)
         function updateLivePreview() {
-            if (previewInterval) clearInterval(previewInterval);
+            if (previewInterval) {
+                clearInterval(previewInterval);
+                previewInterval = null;
+            }
 
             if (adsCache.length === 0 || !adsCache[0].link) {
                 previewWrapper.innerHTML = `<span class="text-[11px] text-slate-400">Add ads to preview rotation...</span>`;
                 return;
             }
 
-            let currentIdx = 0;
+            if (currentPreviewIdx >= adsCache.length) {
+                currentPreviewIdx = 0;
+            }
 
-            function showCurrentSlide() {
-                const ad = adsCache[currentIdx];
+            function renderSlide() {
+                if (adsCache.length === 0) return;
+                if (currentPreviewIdx >= adsCache.length) currentPreviewIdx = 0;
+
+                const ad = adsCache[currentPreviewIdx];
                 if (!ad || !ad.link) return;
 
                 const directUrl = formatDriveLink(ad.link);
@@ -417,13 +419,13 @@
                 if (ad.mediaType === 'video') {
                     const isMuted = ad.audioState === 'mute' ? 'muted' : '';
                     content = `
-                        <video id="preview-vid" src="${directUrl}" autoplay loop playsinline ${isMuted} class="w-full h-full object-cover cursor-pointer"></video>
+                        <video src="${directUrl}" autoplay loop playsinline ${isMuted} class="w-full h-full object-cover"></video>
                         <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-md text-white px-2 py-0.5 rounded-full text-[9px] font-bold border border-white/10 shadow-md">
                             <span>${isMuted ? 'Muted' : 'Unmuted'}</span>
                         </div>
                     `;
                 } else {
-                    content = `<img src="${directUrl}" alt="Preview Ad" class="w-full h-full object-cover transition-opacity duration-700 ease-in-out">`;
+                    content = `<img src="${directUrl}" alt="Preview Ad" class="w-full h-full object-cover">`;
                 }
 
                 if (ad.showButton && ad.buttonName && ad.buttonUrl) {
@@ -440,17 +442,16 @@
                 previewWrapper.innerHTML = content;
             }
 
-            showCurrentSlide();
+            renderSlide();
 
             if (adsCache.length > 1) {
                 previewInterval = setInterval(() => {
-                    currentIdx = (currentIdx + 1) % adsCache.length;
-                    showCurrentSlide();
+                    currentPreviewIdx = (currentPreviewIdx + 1) % adsCache.length;
+                    renderSlide();
                 }, 4000);
             }
         }
 
-        // Load saved ads from Firebase on startup
         get(adRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -470,7 +471,6 @@
             }
         }).catch(err => console.error("Error loading ads:", err));
 
-        // Publish All Ads to Firebase
         document.getElementById('publish-all-btn').addEventListener('click', () => {
             if (adsCache.length === 0) {
                 showStatus("Please add at least one ad before publishing.", true);
