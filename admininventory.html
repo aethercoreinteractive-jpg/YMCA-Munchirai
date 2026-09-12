@@ -252,7 +252,7 @@
                         <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner">
                             <span class="text-[10px] font-bold text-slate-500 uppercase">Qty:</span>
                             <input type="number" id="qty-input-${item.key}" value="${item.qty || 0}" class="w-12 text-xs font-bold text-slate-900 bg-transparent focus:outline-none text-center">
-                            <button onclick="window.updateQuantity('${item.key}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-bold px-2 py-1 rounded transition" title="Save Quantity">
+                            <button onclick="window.updateQuantity('${item.key}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-bold px-2 py-1 rounded transition ml-1" title="Save Quantity">
                                 Update
                             </button>
                         </div>
@@ -320,4 +320,5 @@
         };
     </script>
 </body>
-</html>
+    </html>
+    
