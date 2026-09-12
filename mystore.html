@@ -25,14 +25,14 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950">
+<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14">
 
-    <!-- Store Header -->
-    <header class="sticky top-0 z-40 bg-slate-900 text-white shadow-md">
+    <!-- Professional Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
                 <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold">MY</span> Munchirai
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Munchirai
                 </a>
             </div>
 
@@ -40,9 +40,11 @@
                 <a href="index.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1">
                     <i class="fa-solid fa-house text-amber-400"></i> Home
                 </a>
-                <a href="cart.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
+                <a href="cart.html" class="relative bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
                     <i class="fa-solid fa-cart-shopping"></i>
-                    <span>Cart (<span id="cart-count">0</span>)</span>
+                    <span>Cart</span>
+                    <!-- Notification Badge -->
+                    <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-white">0</span>
                 </a>
             </div>
         </div>
@@ -161,6 +163,32 @@
             updateCartCount();
         });
 
+        // Helper to generate either Add to Cart button or (- qty +) stepper widget
+        function getCartActionHTML(firebaseKey) {
+            const cartItem = cart.find(item => item.firebaseKey === firebaseKey);
+            const count = cartItem ? (cartItem.qtyCount || 1) : 0;
+
+            if (count > 0) {
+                return `
+                    <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded text-[10px] font-bold overflow-hidden shadow-sm" onclick="event.stopPropagation()">
+                        <button onclick="window.updateQuantity('${firebaseKey}', -1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-minus text-[9px]"></i>
+                        </button>
+                        <span class="px-1.5 font-black text-slate-950">${count}</span>
+                        <button onclick="window.updateQuantity('${firebaseKey}', 1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-plus text-[9px]"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <button onclick="event.stopPropagation(); window.addToCart('${firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-cart-plus text-[9px]"></i> Add
+                    </button>
+                `;
+            }
+        }
+
         window.renderCatalog = function(productsToRender) {
             const container = document.getElementById('store-categories-container');
             const emptyState = document.getElementById('empty-state');
@@ -219,6 +247,7 @@
 
                 groupItems.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
 
                     htmlOutput += `
                         <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border border-gray-200 active:border-amber-500 bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
@@ -241,10 +270,10 @@
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
 
-                                <!-- Lengthy Full-Width Add to Cart Button -->
-                                <button onclick="event.stopPropagation(); window.addToCart('${item.firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-cart-plus text-[9px]"></i> Add
-                                </button>
+                                <!-- Dynamic Cart Action Control -->
+                                <div id="action-container-${item.firebaseKey}">
+                                    ${actionButtonHtml}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -263,10 +292,12 @@
             const starsDisplay = generateStarRatingHTML(item.rating || 5, "text-sm");
             const pageContent = document.getElementById('product-page-content');
 
-            // Generate full grid of all products for the explore section with 2 cards per row (grid-cols-2)
+            // Generate full grid of all products for the explore section with 2 cards per row
             let exploreGridHtml = '';
             liveInventory.forEach(prod => {
                 const cleanPrice = typeof prod.price === 'string' ? prod.price.replace('₹', '') : prod.price;
+                const prodActionHtml = getCartActionHTML(prod.firebaseKey);
+
                 exploreGridHtml += `
                     <div onclick="openProductPageView('${prod.firebaseKey}')" class="border border-gray-200 active:border-amber-500 bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                         <div>
@@ -281,13 +312,15 @@
                                 <span class="font-black text-slate-900">₹${cleanPrice}</span>
                                 <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${prod.qty ? prod.qty : 'Std'}</span>
                             </div>
-                            <button onclick="event.stopPropagation(); window.addToCart('${prod.firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-cart-plus text-[9px]"></i> Add
-                            </button>
+                            <div id="action-container-${prod.firebaseKey}">
+                                ${prodActionHtml}
+                            </div>
                         </div>
                     </div>
                 `;
             });
+
+            const mainActionHtml = getCartActionHTML(item.firebaseKey);
 
             pageContent.innerHTML = `
                 <div class="grid grid-cols-1 gap-4 items-start">
@@ -297,7 +330,7 @@
                         <span class="absolute top-2.5 left-2.5 bg-amber-500 text-slate-950 font-bold text-[10px] px-2.5 py-0.5 rounded shadow">In Stock</span>
                     </div>
 
-                    <!-- Product Full Info Details -->
+                      <!-- Product Full Info Details -->
                     <div class="space-y-3">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <span class="text-amber-600 font-bold uppercase tracking-wider text-[10px] bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200">${item.category || 'General'}</span>
@@ -320,16 +353,16 @@
                             ${item.bigDesc || item.desc || 'No detailed specifications provided for this product.'}
                         </div>
 
-                        <!-- Action Buttons -->
+                        <!-- Main Page Action Button -->
                         <div class="pt-2 flex items-center gap-2">
-                            <button onclick="window.addToCart('${item.firebaseKey}')" class="flex-1 bg-amber-500 active:bg-amber-600 text-slate-950 font-bold px-4 py-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-cart-plus"></i> Add to Cart
-                            </button>
+                            <div id="action-container-main-${item.firebaseKey}" class="w-full">
+                                ${mainActionHtml}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                 <!-- Below Section: Explore More Products (All products displayed with 2 cards per row) -->
+                <!-- Below Section: Explore More Products (All products displayed with 2 cards per row) -->
                 <div class="mt-8 pt-4 border-t border-gray-200">
                     <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                         <i class="fa-solid fa-store text-amber-500"></i> Explore All Products (${liveInventory.length})
@@ -376,14 +409,48 @@
                 cart.push({ ...product, qtyCount: 1 });
             }
 
+            saveAndRefreshUI(firebaseKey);
+        };
+
+        window.updateQuantity = function(firebaseKey, change) {
+            const existing = cart.find(item => item.firebaseKey === firebaseKey);
+            if (!existing) return;
+
+            existing.qtyCount = (existing.qtyCount || 1) + change;
+            if (existing.qtyCount <= 0) {
+                cart = cart.filter(item => item.firebaseKey !== firebaseKey);
+            }
+
+            saveAndRefreshUI(firebaseKey);
+        };
+
+        function saveAndRefreshUI(firebaseKey) {
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartCount();
-            alert(`${product.name} added to cart!`);
-        };
+
+            // Refresh buttons across views without alerts/popups
+            const newActionHtml = getCartActionHTML(firebaseKey);
+            
+            // Update in category catalog list if present
+            const containerElem = document.getElementById(`action-container-${firebaseKey}`);
+            if (containerElem) containerElem.innerHTML = newActionHtml;
+
+            // Update in detail page view if present
+            const mainElem = document.getElementById(`action-container-main-${firebaseKey}`);
+            if (mainElem) mainElem.innerHTML = newActionHtml;
+        }
 
         function updateCartCount() {
             const totalCount = cart.reduce((sum, item) => sum + (item.qtyCount || 1), 0);
-            document.getElementById('cart-count').textContent = totalCount;
+            const badge = document.getElementById('cart-badge');
+            if (badge) {
+                badge.textContent = totalCount;
+                if (totalCount > 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
