@@ -153,16 +153,20 @@
             <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">Live Preview</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Rotation Preview</h2>
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Rotation Preview (Tap to Next)</h2>
                 </div>
                 <div class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-[10px] font-bold border border-emerald-200">
                     <i class="fa-solid fa-eye"></i>
                 </div>
             </div>
 
-            <div id="ad1-preview-wrapper" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner flex items-center justify-center">
+            <!-- Preview Wrapper (Clickable for Manual Slide) -->
+            <div id="ad1-preview-wrapper" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner flex items-center justify-center cursor-pointer select-none" title="Tap to switch slide">
                 <span class="text-[11px] text-slate-400">Add ads to preview rotation...</span>
             </div>
+
+            <!-- Dot Indicators Center Below -->
+            <div id="preview-dots" class="flex items-center justify-center gap-1.5 mt-2.5 min-h-[12px]"></div>
         </section>
 
     </main>
@@ -215,6 +219,7 @@
 
         const adsListContainer = document.getElementById('ads-list-container');
         const previewWrapper = document.getElementById('ad1-preview-wrapper');
+        const previewDotsContainer = document.getElementById('preview-dots');
         const adRef = ref(db, 'ads/ad1');
 
         function formatDriveLink(url) {
@@ -391,6 +396,87 @@
             showStatus("Ad added below successfully!");
         });
 
+        // Render Very Small Centered Dots Below Preview
+        function renderDots() {
+            if (adsCache.length <= 1) {
+                previewDotsContainer.innerHTML = '';
+                return;
+            }
+
+            previewDotsContainer.innerHTML = adsCache.map((_, i) => `
+                <button type="button" onclick="window.jumpToSlide(${i})" class="w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentPreviewIdx ? 'bg-amber-500 w-3' : 'bg-slate-300 hover:bg-slate-400'}" aria-label="Slide ${i + 1}"></button>
+            `).join('');
+        }
+
+        window.jumpToSlide = function(index) {
+            currentPreviewIdx = index;
+            renderSlide();
+            resetInterval();
+        };
+
+        function renderSlide() {
+            if (adsCache.length === 0) {
+                previewWrapper.innerHTML = `<span class="text-[11px] text-slate-400">Add ads to preview rotation...</span>`;
+                previewDotsContainer.innerHTML = '';
+                return;
+            }
+
+            if (currentPreviewIdx >= adsCache.length) currentPreviewIdx = 0;
+
+            const ad = adsCache[currentPreviewIdx];
+            if (!ad || !ad.link) return;
+
+            const directUrl = formatDriveLink(ad.link);
+            let content = '';
+
+            if (ad.mediaType === 'video') {
+                const isMuted = ad.audioState === 'mute' ? 'muted' : '';
+                content = `
+                    <video src="${directUrl}" autoplay loop playsinline ${isMuted} class="w-full h-full object-cover pointer-events-none"></video>
+                    <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-md text-white px-2 py-0.5 rounded-full text-[9px] font-bold border border-white/10 shadow-md">
+                        <span>${isMuted ? 'Muted' : 'Unmuted'}</span>
+                    </div>
+                `;
+            } else {
+                content = `<img src="${directUrl}" alt="Preview Ad" class="w-full h-full object-cover">`;
+            }
+
+            if (ad.showButton && ad.buttonName && ad.buttonUrl) {
+                content += `
+                    <div class="absolute bottom-2 left-2 z-10">
+                        <a href="${ad.buttonUrl}" target="_blank" onclick="event.stopPropagation()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-[10px] shadow-lg transition flex items-center gap-1 border border-amber-300">
+                            <span>${ad.buttonName}</span>
+                            <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        </a>
+                    </div>
+                `;
+            }
+
+            previewWrapper.innerHTML = content;
+            renderDots();
+        }
+
+        function resetInterval() {
+            if (previewInterval) clearInterval(previewInterval);
+            if (adsCache.length > 1) {
+                previewInterval = setInterval(() => {
+                    currentPreviewIdx = (currentPreviewIdx + 1) % adsCache.length;
+                    renderSlide();
+                }, 4000);
+            }
+        }
+
+        // Manual click on preview frame to advance to next slide
+        previewWrapper.addEventListener('click', (e) => {
+            // Prevent triggering if clicked directly on the action button
+            if (e.target.closest('a')) return;
+            if (adsCache.length > 1) {
+                currentPreviewIdx = (currentPreviewIdx + 1) % adsCache.length;
+                renderSlide();
+                resetInterval();
+            }
+        });
+
         function updateLivePreview() {
             if (previewInterval) {
                 clearInterval(previewInterval);
@@ -399,6 +485,7 @@
 
             if (adsCache.length === 0 || !adsCache[0].link) {
                 previewWrapper.innerHTML = `<span class="text-[11px] text-slate-400">Add ads to preview rotation...</span>`;
+                previewDotsContainer.innerHTML = '';
                 return;
             }
 
@@ -406,50 +493,8 @@
                 currentPreviewIdx = 0;
             }
 
-            function renderSlide() {
-                if (adsCache.length === 0) return;
-                if (currentPreviewIdx >= adsCache.length) currentPreviewIdx = 0;
-
-                const ad = adsCache[currentPreviewIdx];
-                if (!ad || !ad.link) return;
-
-                const directUrl = formatDriveLink(ad.link);
-                let content = '';
-
-                if (ad.mediaType === 'video') {
-                    const isMuted = ad.audioState === 'mute' ? 'muted' : '';
-                    content = `
-                        <video src="${directUrl}" autoplay loop playsinline ${isMuted} class="w-full h-full object-cover"></video>
-                        <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-md text-white px-2 py-0.5 rounded-full text-[9px] font-bold border border-white/10 shadow-md">
-                            <span>${isMuted ? 'Muted' : 'Unmuted'}</span>
-                        </div>
-                    `;
-                } else {
-                    content = `<img src="${directUrl}" alt="Preview Ad" class="w-full h-full object-cover">`;
-                }
-
-                if (ad.showButton && ad.buttonName && ad.buttonUrl) {
-                    content += `
-                        <div class="absolute bottom-2 left-2 z-10">
-                            <a href="${ad.buttonUrl}" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-[10px] shadow-lg transition flex items-center gap-1 border border-amber-300">
-                                <span>${ad.buttonName}</span>
-                                <i class="fa-solid fa-arrow-right text-[8px]"></i>
-                            </a>
-                        </div>
-                    `;
-                }
-
-                previewWrapper.innerHTML = content;
-            }
-
             renderSlide();
-
-            if (adsCache.length > 1) {
-                previewInterval = setInterval(() => {
-                    currentPreviewIdx = (currentPreviewIdx + 1) % adsCache.length;
-                    renderSlide();
-                }, 4000);
-            }
+            resetInterval();
         }
 
         get(adRef).then((snapshot) => {
