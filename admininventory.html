@@ -191,6 +191,7 @@
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Live Management</span>
                     <h2 class="text-base font-bold text-slate-900 mt-1">Current Inventory List (Categorized Sections)</h2>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Touch and drag products by their grip icon to sort them within categories.</p>
                 </div>
                 <span id="item-count" class="text-xs bg-slate-100 font-bold text-amber-700 border border-slate-200 px-2.5 py-1 rounded-lg">0 Products</span>
             </div>
@@ -247,6 +248,7 @@
         let inventoryCache = {};
         let categoriesCache = [];
         let draggedCategoryKey = null;
+        let draggedProductKey = null;
 
         function showStatusMessage(message, isError = false) {
             const msgEl = document.getElementById('form-status-msg');
@@ -306,18 +308,18 @@
         };
 
         // Drag and Drop Handlers for Categories Sorting
-        window.handleDragStart = function(e, key) {
+        window.handleCategoryDragStart = function(e, key) {
             draggedCategoryKey = key;
             e.dataTransfer.effectAllowed = 'move';
             e.currentTarget.classList.add('opacity-40');
         };
 
-        window.handleDragOver = function(e) {
+        window.handleCategoryDragOver = function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
         };
 
-        window.handleDrop = function(e, targetKey) {
+        window.handleCategoryDrop = function(e, targetKey) {
             e.preventDefault();
             if (!draggedCategoryKey || draggedCategoryKey === targetKey) return;
 
@@ -326,11 +328,9 @@
 
             if (fromIdx === -1 || toIdx === -1) return;
 
-            // Reorder array
             const movedItem = categoriesCache.splice(fromIdx, 1)[0];
             categoriesCache.splice(toIdx, 0, movedItem);
 
-             // Assign new order sequence
             categoriesCache.forEach((cat, idx) => {
                 cat.order = idx;
             });
@@ -338,28 +338,26 @@
             saveCategoryOrder();
         };
 
-        window.handleDragEnd = function(e) {
+        window.handleCategoryDragEnd = function(e) {
             e.currentTarget.classList.remove('opacity-40');
             draggedCategoryKey = null;
         };
 
-        // Touch Drag Handlers for Mobile Devices
-        let touchItemKey = null;
-        window.handleTouchStart = function(e, key) {
-            touchItemKey = key;
-            const card = e.currentTarget;
-            card.classList.add('bg-amber-50', 'border-amber-500', 'shadow-md');
+        // Touch Drag Handlers for Categories
+        let touchCategoryKey = null;
+        window.handleCategoryTouchStart = function(e, key) {
+            touchCategoryKey = key;
         };
 
-        window.handleTouchMove = function(e) {
-            if (!touchItemKey) return;
+        window.handleCategoryTouchMove = function(e) {
+            if (!touchCategoryKey) return;
             e.preventDefault();
             const touch = e.touches[0];
             const elem = document.elementFromPoint(touch.clientX, touch.clientY);
-            const targetCard = elem ? elem.closest('.draggable-item') : null;
+            const targetCard = elem ? elem.closest('.cat-draggable-item') : null;
 
-            if (targetCard && targetCard.dataset.key && targetCard.dataset.key !== touchItemKey) {
-                const fromIdx = categoriesCache.findIndex(c => c.key === touchItemKey);
+            if (targetCard && targetCard.dataset.key && targetCard.dataset.key !== touchCategoryKey) {
+                const fromIdx = categoriesCache.findIndex(c => c.key === touchCategoryKey);
                 const toIdx = categoriesCache.findIndex(c => c.key === targetCard.dataset.key);
 
                 if (fromIdx !== -1 && toIdx !== -1) {
@@ -371,9 +369,9 @@
             }
         };
 
-        window.handleTouchEnd = function(e) {
-            if (touchItemKey) {
-                touchItemKey = null;
+        window.handleCategoryTouchEnd = function(e) {
+            if (touchCategoryKey) {
+                touchCategoryKey = null;
                 saveCategoryOrder();
             }
         };
@@ -386,7 +384,7 @@
 
             update(ref(db), updates)
                 .then(() => renderCategorySortList())
-                .catch(err => alert("Failed to save reorder: " + err.message));
+                .catch(err => alert("Failed to save category reorder: " + err.message));
         }
 
         function renderCategorySortList() {
@@ -399,14 +397,14 @@
             sortContainer.innerHTML = categoriesCache.map((cat, idx) => `
                 <div draggable="true" 
                      data-key="${cat.key}"
-                     ondragstart="window.handleDragStart(event, '${cat.key}')" 
-                     ondragover="window.handleDragOver(event)" 
-                     ondrop="window.handleDrop(event, '${cat.key}')" 
-                     ondragend="window.handleDragEnd(event)"
-                     ontouchstart="window.handleTouchStart(event, '${cat.key}')"
-                     ontouchmove="window.handleTouchMove(event)"
-                     ontouchend="window.handleTouchEnd(event)"
-                     class="draggable-item flex items-center justify-between bg-slate-50 border border-slate-200 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 transition active:scale-[0.98]">
+                     ondragstart="window.handleCategoryDragStart(event, '${cat.key}')" 
+                     ondragover="window.handleCategoryDragOver(event)" 
+                     ondrop="window.handleCategoryDrop(event, '${cat.key}')" 
+                     ondragend="window.handleCategoryDragEnd(event)"
+                     ontouchstart="window.handleCategoryTouchStart(event, '${cat.key}')"
+                     ontouchmove="window.handleCategoryTouchMove(event)"
+                     ontouchend="window.handleCategoryTouchEnd(event)"
+                     class="cat-draggable-item draggable-item flex items-center justify-between bg-slate-50 border border-slate-200 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 transition active:scale-[0.98]">
                     <div class="flex items-center gap-2.5 pointer-events-none">
                         <i class="fa-solid fa-grip-vertical text-slate-400 text-xs"></i>
                         <span>${cat.name}</span>
@@ -467,6 +465,114 @@
             renderCategorySortList();
             renderInventoryList();
         });
+          // Product Drag and Drop / Touch Sorting Handlers
+        window.handleProductDragStart = function(e, key) {
+            draggedProductKey = key;
+            e.dataTransfer.effectAllowed = 'move';
+            e.currentTarget.classList.add('opacity-40');
+        };
+
+        window.handleProductDragOver = function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        };
+
+        window.handleProductDrop = function(e, targetKey, targetCategory) {
+            e.preventDefault();
+            if (!draggedProductKey || draggedProductKey === targetKey) return;
+
+            const sourceItem = inventoryCache[draggedProductKey];
+            const targetItem = inventoryCache[targetKey];
+
+            if (!sourceItem || !targetItem) return;
+
+            // Ensure they belong to the same category section
+            if ((sourceItem.category || "Uncategorized") !== (targetItem.category || "Uncategorized")) return;
+
+            // Get all items in this category currently
+            let categoryItems = Object.keys(inventoryCache)
+                .map(k => ({ key: k, ...inventoryCache[k] }))
+                .filter(item => (item.category || "Uncategorized") === (targetItem.category || "Uncategorized"));
+
+            categoryItems.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+            const fromIdx = categoryItems.findIndex(i => i.key === draggedProductKey);
+            const toIdx = categoryItems.findIndex(i => i.key === targetKey);
+
+            if (fromIdx === -1 || toIdx === -1) return;
+
+            const moved = categoryItems.splice(fromIdx, 1)[0];
+            categoryItems.splice(toIdx, 0, moved);
+
+            const updates = {};
+            categoryItems.forEach((item, idx) => {
+                updates[`inventory/${item.key}/order`] = idx;
+            });
+
+            update(ref(db), updates)
+                .catch(err => alert("Failed to reorder products: " + err.message));
+        };
+
+        window.handleProductDragEnd = function(e) {
+            e.currentTarget.classList.remove('opacity-40');
+            draggedProductKey = null;
+        };
+
+        let touchProductKey = null;
+        window.handleProductTouchStart = function(e, key) {
+            touchProductKey = key;
+        };
+
+        window.handleProductTouchMove = function(e) {
+            if (!touchProductKey) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetCard = elem ? elem.closest('.prod-draggable-item') : null;
+
+            if (targetCard && targetCard.dataset.key && targetCard.dataset.key !== touchProductKey) {
+                const sourceItem = inventoryCache[touchProductKey];
+                const targetItem = inventoryCache[targetCard.dataset.key];
+
+                if (!sourceItem || !targetItem) return;
+                if ((sourceItem.category || "Uncategorized") !== (targetItem.category || "Uncategorized")) return;
+
+                let categoryItems = Object.keys(inventoryCache)
+                    .map(k => ({ key: k, ...inventoryCache[k] }))
+                    .filter(item => (item.category || "Uncategorized") === (targetItem.category || "Uncategorized"));
+
+                categoryItems.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+                const fromIdx = categoryItems.findIndex(i => i.key === touchProductKey);
+                const toIdx = categoryItems.findIndex(i => i.key === targetCard.dataset.key);
+
+                if (fromIdx !== -1 && toIdx !== -1) {
+                    const moved = categoryItems.splice(fromIdx, 1)[0];
+                    categoryItems.splice(toIdx, 0, moved);
+                    categoryItems.forEach((item, idx) => { item.order = idx; });
+                    renderInventoryList();
+                }
+            }
+        };
+
+        window.handleProductTouchEnd = function(e) {
+            if (touchProductKey) {
+                const item = inventoryCache[touchProductKey];
+                touchProductKey = null;
+                if (item) {
+                    let categoryItems = Object.keys(inventoryCache)
+                        .map(k => ({ key: k, ...inventoryCache[k] }))
+                        .filter(i => (i.category || "Uncategorized") === (item.category || "Uncategorized"));
+                    categoryItems.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+                    const updates = {};
+                    categoryItems.forEach((it, idx) => {
+                        updates[`inventory/${it.key}/order`] = idx;
+                    });
+                    update(ref(db), updates).catch(err => alert("Failed to save reorder: " + err.message));
+                }
+            }
+        };
 
         // Product Form Handler
         document.getElementById('add-product-form').addEventListener('submit', (e) => {
@@ -477,16 +583,22 @@
 
             const rawImg = document.getElementById('prod-img').value.trim();
             const formattedImg = formatImageUrl(rawImg);
+            const chosenCategory = document.getElementById('prod-category').value;
+
+            // Calculate next order index for this category
+            const existingInCategory = Object.values(inventoryCache).filter(item => (item.category || "Uncategorized") === chosenCategory);
+            const newOrder = existingInCategory.length;
 
             const productData = {
                 name: document.getElementById('prod-name').value.trim(),
-                category: document.getElementById('prod-category').value,
+                category: chosenCategory,
                 price: document.getElementById('prod-price').value.trim(),
                 qty: document.getElementById('prod-qty').value.trim(),
                 rating: document.getElementById('prod-rating').value,
                 img: formattedImg,
                 smallDesc: document.getElementById('prod-small-desc').value.trim(),
                 bigDesc: document.getElementById('prod-big-desc').value.trim(),
+                order: newOrder,
                 updatedAt: Date.now()
             };
 
@@ -542,7 +654,7 @@
                 ...inventoryCache[key]
             }));
 
-            // Filter by Search Query (Product Title)
+            // Filter by Search Query
             if (searchQuery) {
                 items = items.filter(item => item.name && item.name.toLowerCase().includes(searchQuery));
             }
@@ -559,7 +671,7 @@
                 return;
             }
 
-            // Group items by category following categoriesCache order
+            // Group items by category and sort each group by its order property
             let categoryGroups = {};
             
             categoriesCache.forEach(cat => {
@@ -573,6 +685,11 @@
                     categoryGroups[cat] = [];
                 }
                 categoryGroups[cat].push(item);
+            });
+
+            // Sort products inside each group by order
+            Object.keys(categoryGroups).forEach(cat => {
+                categoryGroups[cat].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
             });
 
             let htmlOutput = '';
@@ -596,10 +713,22 @@
 
                 groupItems.forEach(item => {
                     htmlOutput += `
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3.5 gap-3 hover:border-amber-500 transition shadow-sm">
+                        <div draggable="true"
+                             data-key="${item.key}"
+                             ondragstart="window.handleProductDragStart(event, '${item.key}')"
+                             ondragover="window.handleProductDragOver(event)"
+                             ondrop="window.handleProductDrop(event, '${item.key}', '${catName}')"
+                             ondragend="window.handleProductDragEnd(event)"
+                             ontouchstart="window.handleProductTouchStart(event, '${item.key}')"
+                             ontouchmove="window.handleProductTouchMove(event)"
+                             ontouchend="window.handleProductTouchEnd(event)"
+                             class="prod-draggable-item draggable-item flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3.5 gap-3 hover:border-amber-500 transition shadow-sm">
                             <div class="flex items-center gap-3 overflow-hidden w-full sm:w-auto">
-                                <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0">
-                                <div class="truncate">
+                                <div class="text-slate-400 hover:text-slate-600 shrink-0 cursor-grab active:cursor-grabbing p-1" title="Drag to reorder">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                                <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0 pointer-events-none">
+                                <div class="truncate pointer-events-none">
                                     <div class="flex items-center gap-2">
                                         <h4 class="font-bold text-xs text-slate-900 truncate">${item.name}</h4>
                                         <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded shrink-0">${item.category || 'General'}</span>
@@ -640,7 +769,7 @@
                                     <button onclick="window.startEdit('${item.key}')" class="text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 p-2 rounded-lg transition" title="Edit Full Product">
                                         <i class="fa-solid fa-pen-to-square text-xs"></i>
                                     </button>
-                                    <button onclick="window.deleteProduct('${item.key}')" class="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 p-2 rounded-lg transition" title="Delete Product">
+                                    <button onclick="window.deleteProduct('${item.key}', '${item.name.replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 p-2 rounded-lg transition" title="Delete Product">
                                         <i class="fa-solid fa-trash text-xs"></i>
                                     </button>
                                 </div>
@@ -687,7 +816,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        window.cancelEdit = function() {
+window.cancelEdit = function() {
             editingKey = null;
             document.getElementById('add-product-form').reset();
             document.getElementById('prod-rating').value = "5";
@@ -698,14 +827,16 @@
             document.getElementById('cancel-edit-top').classList.add('hidden');
         };
 
-        window.deleteProduct = function(key) {
-            remove(ref(db, `inventory/${key}`))
-                .then(() => {
-                    if (editingKey === key) cancelEdit();
-                    showStatusMessage("Product removed from inventory.");
-                })
-                .catch((err) => showStatusMessage("Failed to delete: " + err.message, true));
+        window.deleteProduct = function(key, name) {
+            if (confirm(`Are you sure you want to delete "${name}" from inventory?`)) {
+                remove(ref(db, `inventory/${key}`))
+                    .then(() => {
+                        if (editingKey === key) cancelEdit();
+                        showStatusMessage("Product removed from inventory.");
+                    })
+                    .catch((err) => showStatusMessage("Failed to delete: " + err.message, true));
+            }
         };
     </script>
 </body>
-</html>
+</html>        
