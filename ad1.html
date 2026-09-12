@@ -11,15 +11,8 @@
             theme: {
                 extend: {
                     colors: {
-                        slate: {
-                            850: '#1e293b',
-                            900: '#0f172a',
-                            950: '#090d16',
-                        },
-                        amber: {
-                            500: '#f59e0b',
-                            600: '#d97706',
-                        }
+                        slate: { 850: '#1e293b', 900: '#0f172a', 950: '#090d16' },
+                        amber: { 500: '#f59e0b', 600: '#d97706' }
                     }
                 }
             }
@@ -80,6 +73,7 @@
                 <div>
                     <label class="block text-[10px] font-bold text-slate-600 mb-1">Google Drive Link</label>
                     <input type="url" id="new-link" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" placeholder="https://drive.google.com/file/d/...">
+                    <span class="text-[9px] text-slate-400 mt-1 block">Make sure file sharing is set to <strong class="text-slate-600">"Anyone with the link can view"</strong></span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5">
@@ -175,7 +169,7 @@
 
     <!-- DELETE CONFIRMATION MODAL -->
     <div id="delete-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl border border-slate-100 text-center space-y-4 animate-in fade-in zoom-in-95 duration-150">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl border border-slate-100 text-center space-y-4">
             <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 mx-auto flex items-center justify-center text-lg font-bold">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
@@ -222,13 +216,24 @@
         const previewWrapper = document.getElementById('ad1-preview-wrapper');
         const adRef = ref(db, 'ads/ad1');
 
+        // FIXED: Reliable Google Drive Direct Image/Video URL parser
         function formatDriveLink(url) {
             if (!url) return '';
-            if (url.includes('drive.google.com')) {
-                const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (fileIdMatch && fileIdMatch[1]) {
-                    return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+            let fileId = '';
+            
+            if (url.includes('/d/')) {
+                const parts = url.split('/d/');
+                if (parts[1]) {
+                    fileId = parts[1].split('/')[0];
                 }
+            } else if (url.includes('id=')) {
+                const urlParams = new URLSearchParams(url.split('?')[1]);
+                fileId = urlParams.get('id');
+            }
+
+            if (fileId) {
+                // Use content direct link endpoint which loads reliably inside <img> tags
+                return `https://lh3.googleusercontent.com/d/${fileId}`;
             }
             return url;
         }
@@ -274,7 +279,7 @@
                             <div class="w-12 h-10 rounded-lg bg-slate-900 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200">
                                 ${ad.mediaType === 'video' ? 
                                     `<video src="${directUrl}" class="w-full h-full object-cover"></video>` : 
-                                    `<img src="${directUrl}" class="w-full h-full object-cover">`}
+                                    `<img src="${directUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x80?text=Error'">`}
                             </div>
                             <div class="min-w-0">
                                 <span class="text-[10px] font-extrabold text-slate-900 block truncate">Ad #${index + 1} (${ad.mediaType.toUpperCase()})</span>
@@ -297,9 +302,7 @@
         function initDragAndDrop() {
             const items = adsListContainer.querySelectorAll('.ad-item');
             items.forEach(item => {
-                item.addEventListener('dragstart', () => {
-                    item.classList.add('dragging');
-                });
+                item.addEventListener('dragstart', () => item.classList.add('dragging'));
                 item.addEventListener('dragend', () => {
                     item.classList.remove('dragging');
                     updateCacheOrder();
@@ -333,11 +336,7 @@
 
         function updateCacheOrder() {
             const items = [...adsListContainer.querySelectorAll('.ad-item')];
-            const newCache = items.map(item => {
-                const origIndex = parseInt(item.getAttribute('data-index'));
-                return adsCache[origIndex];
-            });
-            adsCache = newCache;
+            adsCache = items.map(item => adsCache[parseInt(item.getAttribute('data-index'))]);
             renderAdsList();
         }
 
@@ -375,7 +374,6 @@
                 return;
             }
 
-            // Push to cache
             adsCache.push({
                 link: linkValue,
                 mediaType: mediaType,
@@ -385,7 +383,7 @@
                 buttonUrl: buttonUrl
             });
 
-            // Instantly clear the form inputs as requested
+            // Instantly clear the form inputs
             linkInput.value = '';
             document.getElementById('new-media-type').value = 'photo';
             document.getElementById('new-audio-box').classList.add('hidden');
@@ -420,8 +418,7 @@
                     const isMuted = ad.audioState === 'mute' ? 'muted' : '';
                     content = `
                         <video id="preview-vid" src="${directUrl}" autoplay loop playsinline ${isMuted} class="w-full h-full object-cover cursor-pointer"></video>
-                        <div id="preview-badge" class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-md text-white px-2 py-0.5 rounded-full text-[9px] font-bold border border-white/10 shadow-md flex items-center gap-1 pointer-events-none">
-                            <i class="fa-solid ${isMuted ? 'fa-volume-xmark text-amber-400' : 'fa-volume-high text-emerald-400'}"></i>
+                        <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-md text-white px-2 py-0.5 rounded-full text-[9px] font-bold border border-white/10 shadow-md">
                             <span>${isMuted ? 'Muted' : 'Unmuted'}</span>
                         </div>
                     `;
@@ -432,7 +429,7 @@
                 if (ad.showButton && ad.buttonName && ad.buttonUrl) {
                     content += `
                         <div class="absolute bottom-2 left-2 z-10">
-                            <a href="${ad.buttonUrl}" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-[10px] shadow-lg transition active:scale-95 flex items-center gap-1 border border-amber-300">
+                            <a href="${ad.buttonUrl}" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-[10px] shadow-lg transition flex items-center gap-1 border border-amber-300">
                                 <span>${ad.buttonName}</span>
                                 <i class="fa-solid fa-arrow-right text-[8px]"></i>
                             </a>
