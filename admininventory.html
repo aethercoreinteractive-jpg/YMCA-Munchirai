@@ -216,6 +216,7 @@
 
         function showStatusMessage(message, isError = false) {
             const msgEl = document.getElementById('form-status-msg');
+            if (!msgEl) return; // Safety check to prevent null reference errors
             msgEl.textContent = message;
             msgEl.className = `mb-4 p-2.5 rounded-xl text-xs font-medium text-center ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             msgEl.classList.remove('hidden');
@@ -224,6 +225,7 @@
 
         function showCategoryStatus(message, isError = false) {
             const msgEl = document.getElementById('category-status-msg');
+            if (!msgEl) return; // Safety check
             msgEl.textContent = message;
             msgEl.className = `mb-3 p-2 rounded-xl text-xs font-medium text-center ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             msgEl.classList.remove('hidden');
