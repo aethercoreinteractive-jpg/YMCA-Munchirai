@@ -522,12 +522,15 @@
             resetInterval();
         }
 
+        // Load saved slides array from Firebase on startup
         get(adRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 if (data.slides && Array.isArray(data.slides)) {
                     adsCache = data.slides;
+                    renderAdsList();
                 } else if (data.link) {
+                    // Fallback support if old single-item format exists
                     adsCache = [{
                         link: data.link,
                         mediaType: data.mediaType || 'photo',
@@ -536,8 +539,8 @@
                         buttonName: data.buttonName || '',
                         buttonUrl: data.buttonUrl || ''
                     }];
+                    renderAdsList();
                 }
-                renderAdsList();
             }
         }).catch(err => console.error("Error loading ads:", err));
 
