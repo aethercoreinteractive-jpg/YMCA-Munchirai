@@ -33,8 +33,9 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .draggable-item { cursor: grab; touch-action: none; user-select: none; }
+        .draggable-item { cursor: grab; user-select: none; }
         .draggable-item:active { cursor: grabbing; }
+        .grip-handle { touch-action: none; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
@@ -89,12 +90,12 @@
                 </div>
             </section>
 
-            <!-- Category Sorting Manager Section (Touch & Drag) -->
+            <!-- Category Sorting Manager Section (Touch & Drag via Grip) -->
             <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200">
                 <div class="border-b border-slate-100 pb-3 mb-4">
                     <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Layout Control</span>
                     <h2 class="text-base font-bold text-slate-900 mt-1">Category Order & Sorting</h2>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Touch and drag items up or down to reorder sections.</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Use the grip handle to drag items up or down.</p>
                 </div>
 
                 <div id="category-sort-list" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar">
@@ -141,7 +142,7 @@
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rating</label>
-                            <select id="prod-rating" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition cursor-pointer">
+                            <select id="prod-rating" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition cursor-pointer">
                                 <option value="5" selected>5</option>
                                 <option value="4.5">4.5</option>
                                 <option value="4">4</option>
@@ -191,7 +192,7 @@
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Live Management</span>
                     <h2 class="text-base font-bold text-slate-900 mt-1">Current Inventory List (Categorized Sections)</h2>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Touch and drag products by their grip icon to sort them within categories.</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Use the grip icon to sort products within categories.</p>
                 </div>
                 <span id="item-count" class="text-xs bg-slate-100 font-bold text-amber-700 border border-slate-200 px-2.5 py-1 rounded-lg">0 Products</span>
             </div>
@@ -298,7 +299,7 @@
             return url;
         }
 
-         // Custom Modal Confirm Logic
+        // Custom Modal Confirm Logic
         window.deleteProduct = function(key) {
             const item = inventoryCache[key];
             const itemName = item ? item.name : "this product";
@@ -407,7 +408,7 @@
             draggedCategoryKey = null;
         };
 
-           // Touch Drag Handlers for Categories
+        // Touch Drag Handlers for Categories (Grip handle only)
         let touchCategoryKey = null;
         window.handleCategoryTouchStart = function(e, key) {
             touchCategoryKey = key;
@@ -465,12 +466,13 @@
                      ondragover="window.handleCategoryDragOver(event)" 
                      ondrop="window.handleCategoryDrop(event, '${cat.key}')" 
                      ondragend="window.handleCategoryDragEnd(event)"
-                     ontouchstart="window.handleCategoryTouchStart(event, '${cat.key}')"
-                     ontouchmove="window.handleCategoryTouchMove(event)"
-                     ontouchend="window.handleCategoryTouchEnd(event)"
                      class="cat-draggable-item draggable-item flex items-center justify-between bg-slate-50 border border-slate-200 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 transition active:scale-[0.98]">
-                    <div class="flex items-center gap-2.5 pointer-events-none">
-                        <i class="fa-solid fa-grip-vertical text-slate-400 text-xs"></i>
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-grip-vertical text-slate-400 text-xs grip-handle cursor-grab p-1"
+                           ontouchstart="window.handleCategoryTouchStart(event, '${cat.key}')"
+                           ontouchmove="window.handleCategoryTouchMove(event)"
+                           ontouchend="window.handleCategoryTouchEnd(event)"
+                           title="Tap and hold to drag"></i>
                         <span>${cat.name}</span>
                     </div>
                     <span class="text-[10px] text-slate-400 font-mono pointer-events-none">#${idx + 1}</span>
@@ -530,7 +532,7 @@
             renderInventoryList();
         });
 
-  // Product Drag and Drop / Touch Sorting Handlers
+        // Product Drag and Drop / Touch Sorting Handlers
         window.handleProductDragStart = function(e, key) {
             draggedProductKey = key;
             e.dataTransfer.effectAllowed = 'move';
@@ -637,7 +639,7 @@
             }
         };
 
-        // Product Form Handler
+ // Product Form Handler
         document.getElementById('add-product-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('submit-btn');
@@ -698,7 +700,7 @@
             renderInventoryList();
         });
 
-  window.renderInventoryList = function() {
+        window.renderInventoryList = function() {
             const container = document.getElementById('admin-inventory-list');
             const countBadge = document.getElementById('item-count');
             const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
@@ -777,12 +779,13 @@
                              ondragover="window.handleProductDragOver(event)"
                              ondrop="window.handleProductDrop(event, '${item.key}', '${catName}')"
                              ondragend="window.handleProductDragEnd(event)"
-                             ontouchstart="window.handleProductTouchStart(event, '${item.key}')"
-                             ontouchmove="window.handleProductTouchMove(event)"
-                             ontouchend="window.handleProductTouchEnd(event)"
                              class="prod-draggable-item draggable-item flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3.5 gap-3 hover:border-amber-500 transition shadow-sm">
                             <div class="flex items-center gap-3 overflow-hidden w-full sm:w-auto">
-                                <div class="text-slate-400 hover:text-slate-600 shrink-0 cursor-grab active:cursor-grabbing p-1" title="Drag to reorder">
+                                <div class="text-slate-400 hover:text-slate-600 shrink-0 cursor-grab grip-handle p-1"
+                                     ontouchstart="window.handleProductTouchStart(event, '${item.key}')"
+                                     ontouchmove="window.handleProductTouchMove(event)"
+                                     ontouchend="window.handleProductTouchEnd(event)"
+                                     title="Tap and hold to drag">
                                     <i class="fa-solid fa-grip-vertical text-xs"></i>
                                 </div>
                                 <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0 pointer-events-none">
