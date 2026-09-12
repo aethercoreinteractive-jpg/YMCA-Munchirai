@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Munchirai YMCA | Manage Best Sellers</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#1e293b',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+
+    <!-- ENTERPRISE NAVIGATION HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg backdrop-blur-md bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <!-- Brand Mark -->
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md">MY</div>
+                <div>
+                    <h1 class="text-xs font-extrabold text-white tracking-tight">MUNCHIRAI YMCA</h1>
+                    <span class="text-[10px] text-amber-400 font-mono tracking-wider block">FEATURED_NODE</span>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="flex items-center gap-2">
+                <a href="admininventory.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-arrow-left text-amber-400"></i>
+                    <span>Admin Hub</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
+        
+        <!-- Controls & Header Section -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Curated Collection</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Edit Best Sellers</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Select items to display in the bestsellers section of your store.</p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative w-full sm:w-72">
+                <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="search-input" placeholder="Search inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+            </div>
+        </section>
+
+        <div id="status-msg" class="hidden mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
+
+        <!-- Inventory Checkbox Grid Container -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Available Inventory</span>
+                <span id="selected-count" class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">0 Selected</span>
+            </div>
+
+            <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[500px] overflow-y-auto no-scrollbar pr-1">
+                <div class="col-span-full py-10 text-center text-slate-400 text-xs">Loading inventory items...</div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="pt-4 border-t border-slate-100 flex justify-end">
+                <button type="button" id="save-btn" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-8 py-3 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95">
+                    Save Best Sellers
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ENTERPRISE FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400">
+        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
+    </footer>
+
+    <!-- Firebase Realtime Engine -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
+          authDomain: "munchirai-ymca.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca",
+          storageBucket: "munchirai-ymca.firebasestorage.app",
+          messagingSenderId: "697387132253",
+          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
+          measurementId: "G-XRRT0Q76YK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allInventory = [];
+        let currentBestSellers = {};
+
+        const searchInput = document.getElementById('search-input');
+        const gridContainer = document.getElementById('inventory-grid');
+        const selectedCountEl = document.getElementById('selected-count');
+        const saveBtn = document.getElementById('save-btn');
+
+        function showStatus(message, isError = false) {
+            const msgEl = document.getElementById('status-msg');
+            msgEl.textContent = message;
+            msgEl.className = `mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            msgEl.classList.remove('hidden');
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
+        }
+
+        // Fetch existing best sellers first, then fetch inventory
+        onValue(ref(db, 'bestsellers'), (snapshot) => {
+            currentBestSellers = snapshot.val() || {};
+            
+            onValue(ref(db, 'inventory'), (invSnapshot) => {
+                const invData = invSnapshot.val();
+                if (!invData) {
+                    allInventory = [];
+                    gridContainer.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 text-xs">No inventory products found.</div>`;
+                    return;
+                }
+
+                allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+                renderGrid();
+            });
+        });
+
+        searchInput.addEventListener('input', renderGrid);
+
+        function renderGrid() {
+            const query = searchInput.value.toLowerCase().trim();
+            const filtered = allInventory.filter(item => 
+                item.name.toLowerCase().includes(query) || (item.category && item.category.toLowerCase().includes(query))
+            );
+
+            if (filtered.length === 0) {
+                gridContainer.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 text-xs">No matching products found.</div>`;
+                return;
+            }
+
+            gridContainer.innerHTML = filtered.map(item => {
+                const isChecked = currentBestSellers[item.key] === true;
+                return `
+                    <label class="group relative bg-slate-50 hover:bg-amber-50/40 border ${isChecked ? 'border-amber-400 bg-amber-50/20 shadow-sm' : 'border-slate-200'} rounded-2xl p-3.5 flex items-center gap-3.5 cursor-pointer transition">
+                        <input type="checkbox" value="${item.key}" ${isChecked ? 'checked' : ''} onchange="window.updateSelectionCount()" class="peer sr-only">
+                        <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
+                            <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h3 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h3>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[10px] font-bold text-slate-600">₹${Number(item.price || 0).toFixed(2)}</span>
+                                <span class="text-[10px] text-slate-400">&bull;</span>
+                                <span class="text-[10px] font-bold text-amber-700 bg-amber-100/60 px-1.5 py-0.5 rounded">${item.category || 'General'}</span>
+                            </div>
+                        </div>
+                        <div class="w-6 h-6 rounded-lg border border-slate-300 peer-checked:bg-amber-500 peer-checked:border-amber-500 flex items-center justify-center text-slate-950 transition shrink-0">
+                            <i class="fa-solid fa-check text-[10px] opacity-0 peer-checked:opacity-100"></i>
+                        </div>
+                    </label>
+                `;
+            }).join('');
+
+            window.updateSelectionCount();
+        }
+
+        window.updateSelectionCount = function() {
+            const checkedBoxes = gridContainer.querySelectorAll('input[type="checkbox"]:checked');
+            selectedCountEl.textContent = `${checkedBoxes.length} Selected`;
+        };
+
+        // Save selection to Firebase
+        saveBtn.addEventListener('click', () => {
+            const checkedBoxes = gridContainer.querySelectorAll('input[type="checkbox"]');
+            const newBestSellers = {};
+
+            checkedBoxes.forEach(box => {
+                if (box.checked) {
+                    newBestSellers[box.value] = true;
+                }
+            });
+
+            set(ref(db, 'bestsellers'), newBestSellers)
+                .then(() => {
+                    showStatus("Best sellers updated successfully!");
+                })
+                .catch(err => {
+                    showStatus("Failed to update best sellers: " + err.message, true);
+                });
+        });
+    </script>
+</body>
+  </html>
+  
