@@ -68,51 +68,7 @@
     <!-- MAIN DASHBOARD CONTENT -->
     <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
         
-        <!-- Action Hub Links Section -->
-        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80">
-            <div class="border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Operations Hub</span>
-                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Quick Action Panels</h2>
-                </div>
-                <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold border border-amber-200">
-                    <i class="fa-solid fa-bolt"></i>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <a href="addproduct.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
-                    <div class="w-12 h-12 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
-                        <i class="fa-solid fa-plus"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Add Product</h3>
-                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Create a new inventory listing with details.</p>
-                    </div>
-                </a>
-
-                <a href="productmanagement.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
-                    <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
-                        <i class="fa-solid fa-database text-amber-400"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Product Management</h3>
-                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Inspect stock, edit records, and manage lists.</p>
-                    </div>
-                </a>
-
-                <a href="bestsellers.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98] sm:col-span-2">
-                    <div class="w-12 h-12 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
-                        <i class="fa-solid fa-fire"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Edit Best Sellers</h3>
-                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Manage and curate top-rated featured products for your store.</p>
-                    </div>
-                </a>
-            </div>
-        </section>
-
-        <!-- Categories & Layout Management Grid -->
+        <!-- Categories & Layout Management Grid (Moved to Top) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Categories Manager Section -->
             <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 h-fit">
@@ -148,6 +104,60 @@
                 </div>
             </section>
         </div>
+
+        <!-- Action Hub Links Section -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80">
+            <div class="border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Operations Hub</span>
+                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Quick Action Panels</h2>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold border border-amber-200">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <a href="addproduct.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Add Product</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Create a new inventory listing with details.</p>
+                    </div>
+                </a>
+
+                <a href="productmanagement.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
+                    <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
+                        <i class="fa-solid fa-database text-amber-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Product Management</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Inspect stock, edit records, and manage lists.</p>
+                    </div>
+                </a>
+
+                <a href="bestsellers.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
+                    <div class="w-12 h-12 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Edit Best Sellers</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Manage and curate top-rated featured products.</p>
+                    </div>
+                </a>
+
+                <a href="admanagement.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
+                        <i class="fa-solid fa-rectangle-ad"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Ad Management</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Create and manage promotional store ads & banners.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
 
     </main>
 
