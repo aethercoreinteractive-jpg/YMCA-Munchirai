@@ -100,8 +100,8 @@
         let categoriesCache = [];
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
 
-        // Helper function to generate Amazon-style star rating HTML string
-        function generateStarRatingHTML(ratingValue, iconSizeClass = "text-[10px]") {
+        // Helper function to generate Amazon-style star rating HTML string for modal view
+        function generateStarRatingHTML(ratingValue, iconSizeClass = "text-sm") {
             const rating = parseFloat(ratingValue) || 0;
             let starsHtml = '';
             
@@ -208,8 +208,6 @@
                 `;
 
                 groupItems.forEach(item => {
-                    const starsDisplay = generateStarRatingHTML(item.rating || 5, "text-[11px]");
-
                     htmlOutput += `
                         <div onclick="openProductModal('${item.firebaseKey}')" class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between cursor-pointer group">
                             <div>
@@ -221,10 +219,6 @@
 
                                 <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
                                     <span class="text-amber-600 font-bold">${item.category || 'MY Food Store'}</span>
-                                    <div class="flex items-center gap-1">
-                                        ${starsDisplay}
-                                        <span class="text-slate-500 font-bold ml-0.5">(${item.rating || '5'})</span>
-                                    </div>
                                 </div>
 
                                 <h3 class="font-bold text-sm text-gray-900 line-clamp-1 mb-1 group-hover:text-amber-600 transition">${item.name}</h3>
