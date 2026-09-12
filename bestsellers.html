@@ -63,17 +63,22 @@
     <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
         
         <!-- Controls & Header Section -->
-        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div>
                 <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Curated Collection</span>
                 <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Edit Best Sellers</h2>
                 <p class="text-[11px] text-slate-500 mt-0.5">Select items to display in the bestsellers section of your store.</p>
             </div>
 
-            <!-- Search Bar -->
-            <div class="relative w-full sm:w-72">
-                <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="search-input" placeholder="Search inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+            <!-- Search & Category Filter Controls -->
+            <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                <div class="relative flex-grow sm:w-56">
+                    <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-input" placeholder="Search inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                </div>
+                <select id="filter-category" class="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                    <option value="">All Categories</option>
+                </select>
             </div>
         </section>
 
@@ -126,8 +131,10 @@
 
         let allInventory = [];
         let currentBestSellers = {};
+        let categoriesCache = [];
 
         const searchInput = document.getElementById('search-input');
+        const filterCategory = document.getElementById('filter-category');
         const gridContainer = document.getElementById('inventory-grid');
         const selectedCountEl = document.getElementById('selected-count');
         const saveBtn = document.getElementById('save-btn');
@@ -140,7 +147,21 @@
             setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
         }
 
-        // Fetch existing best sellers first, then fetch inventory
+        // Load Categories into dropdown filter
+        onValue(ref(db, 'categories'), (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                categoriesCache = Object.keys(data).map(k => data[k]);
+                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                
+                const currentSelection = filterCategory.value;
+                filterCategory.innerHTML = `<option value="">All Categories</option>` + categoriesCache.map(c => `
+                    <option value="${c.name}" ${currentSelection === c.name ? 'selected' : ''}>${c.name}</option>
+                `).join('');
+            }
+        });
+
+        // Fetch existing best sellers and inventory
         onValue(ref(db, 'bestsellers'), (snapshot) => {
             currentBestSellers = snapshot.val() || {};
             
@@ -158,12 +179,17 @@
         });
 
         searchInput.addEventListener('input', renderGrid);
+        filterCategory.addEventListener('change', renderGrid);
 
         function renderGrid() {
             const query = searchInput.value.toLowerCase().trim();
-            const filtered = allInventory.filter(item => 
-                item.name.toLowerCase().includes(query) || (item.category && item.category.toLowerCase().includes(query))
-            );
+            const selectedCat = filterCategory.value;
+
+            const filtered = allInventory.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(query) || (item.category && item.category.toLowerCase().includes(query));
+                const matchesCat = !selectedCat || item.category === selectedCat;
+                return matchesSearch && matchesCat;
+            });
 
             if (filtered.length === 0) {
                 gridContainer.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 text-xs">No matching products found.</div>`;
@@ -222,5 +248,4 @@
         });
     </script>
 </body>
-  </html>
-  
+</html>
