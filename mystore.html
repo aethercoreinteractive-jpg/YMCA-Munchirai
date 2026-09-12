@@ -13,7 +13,7 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         /* Custom styling for clean horizontal scrollbar */
-        .no-scrollbar::-webkit-scrollbar { height: 6px; }
+        .no-scrollbar::-webkit-scrollbar { height: 5px; }
         .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
         .no-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
         .no-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -48,7 +48,7 @@
             <div>
                 <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">Official Storefront</span>
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mt-2">MY Food Product Catalog</h1>
-                <p class="text-xs text-gray-500 mt-1">Live inventory organized by category. Slide to see more items per row.</p>
+                <p class="text-xs text-gray-500 mt-1">Live inventory organized by category. Exactly 3 compact cards visible per row.</p>
             </div>
             <div class="w-full md:w-72">
                 <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
@@ -92,9 +92,9 @@
         let liveInventory = [];
         let categoriesCache = [];
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
-        let expandedProductKeys = {}; // Tracks which category has an inline expanded view open
+        let expandedProductKeys = {};
 
-        // Helper function to generate Amazon-style star rating HTML string
+        // Helper function for Amazon-style star rating HTML string
         function generateStarRatingHTML(ratingValue, iconSizeClass = "text-sm") {
             const rating = parseFloat(ratingValue) || 0;
             let starsHtml = '';
@@ -111,7 +111,6 @@
             return `<div class="inline-flex items-center gap-0.5" title="${rating} out of 5 stars">${starsHtml}</div>`;
         }
 
-        // Fetch Categories first to keep exact sorting order
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
             const data = snapshot.val();
@@ -124,7 +123,6 @@
             renderCatalog(liveInventory);
         });
 
-        // Fetch Inventory items
         const inventoryRef = ref(db, 'inventory');
         onValue(inventoryRef, (snapshot) => {
             const data = snapshot.val();
@@ -195,42 +193,42 @@
                             <span class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                        <!-- Slider Row: Exactly 3 cards visible on desktop, scrollable for more -->
-                        <div class="flex overflow-x-auto no-scrollbar gap-6 pb-3 pt-1 snap-x scroll-smooth">
+                        <!-- Slider Row: Enforces exactly 3 compact cards visible at a time on desktop via calc width (calc(33.333% - 16px)) -->
+                        <div class="flex overflow-x-auto no-scrollbar gap-5 pb-3 pt-1 snap-x scroll-smooth">
                 `;
 
                 groupItems.forEach(item => {
                     const isSelected = item.firebaseKey === activeExpandedKey;
-                    const selectedCardRing = isSelected ? 'border-amber-500 ring-2 ring-amber-400 shadow-md' : 'border-gray-200 hover:border-amber-400';
+                    const selectedCardRing = isSelected ? 'border-amber-500 ring-2 ring-amber-400 shadow-md bg-amber-50/20' : 'border-gray-200 hover:border-amber-400 bg-white';
 
                     htmlOutput += `
-                        <div onclick="toggleExpandProduct('${catName}', '${item.firebaseKey}')" class="min-w-[280px] sm:min-w-[320px] max-w-[340px] flex-shrink-0 snap-start bg-white border ${selectedCardRing} rounded-xl p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="toggleExpandProduct('${catName}', '${item.firebaseKey}')" class="w-[85%] sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] flex-shrink-0 snap-start border ${selectedCardRing} rounded-xl p-3 shadow-sm hover:shadow transition flex flex-col justify-between cursor-pointer group">
                             <div>
-                                <!-- Image: Fully visible without cropping using object-contain -->
-                                <div class="relative bg-slate-100 rounded-lg overflow-hidden aspect-[4/3] mb-3 border border-gray-100 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-2 transition duration-300 group-hover:scale-105">
-                                    <span class="absolute top-2 left-2 bg-amber-500 text-slate-950 font-bold text-[9px] px-2 py-0.5 rounded shadow">In Stock</span>
+                                <!-- Compact Uncropped Image -->
+                                <div class="relative bg-slate-100 rounded-lg overflow-hidden aspect-[4/3] mb-2.5 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1.5 transition duration-300 group-hover:scale-105">
+                                    <span class="absolute top-1.5 left-1.5 bg-amber-500 text-slate-950 font-bold text-[8px] px-2 py-0.5 rounded shadow">In Stock</span>
                                 </div>
 
                                 <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
-                                    <span class="text-amber-600 font-bold">${item.category || 'MY Food Store'}</span>
-                                    <span class="text-[10px] text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded"><i class="fa-solid fa-arrow-pointer text-amber-500 mr-1"></i> Tap to view</span>
+                                    <span class="text-amber-600 font-bold truncate">${item.category || 'MY Food Store'}</span>
+                                    <span class="text-[9px] text-slate-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded shrink-0"><i class="fa-solid fa-arrow-pointer text-amber-500 mr-0.5"></i> Tap</span>
                                 </div>
 
-                                <h3 class="font-bold text-sm text-gray-900 line-clamp-1 mb-1 group-hover:text-amber-600 transition">${item.name}</h3>
+                                <h3 class="font-bold text-xs text-gray-900 line-clamp-1 mb-1 group-hover:text-amber-600 transition">${item.name}</h3>
 
-                                <!-- Small Description Shown Directly on Card -->
-                                <p class="text-[11px] text-gray-600 font-light line-clamp-2 mb-3">${item.smallDesc || 'No brief summary available.'}</p>
+                                <!-- Compact Short Description -->
+                                <p class="text-[10px] text-gray-600 font-light line-clamp-2 mb-2.5">${item.smallDesc || 'No brief summary available.'}</p>
                             </div>
 
-                            <!-- Price, Quantity, & Add to Cart Button -->
-                            <div class="mt-2 pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <!-- Price & Add to Cart -->
+                            <div class="mt-1 pt-2 border-t border-gray-100 flex items-center justify-between">
                                 <div>
-                                    <span class="font-black text-base text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
-                                    ${item.qty ? `<span class="block text-[10px] text-slate-400 font-medium">Qty: ${item.qty}</span>` : ''}
+                                    <span class="font-black text-sm text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
+                                    ${item.qty ? `<span class="block text-[9px] text-slate-400 font-medium">Qty: ${item.qty}</span>` : ''}
                                 </div>
-                                <button onclick="event.stopPropagation(); window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
-                                    <i class="fa-solid fa-cart-plus text-xs"></i> Add to Cart
+                                <button onclick="event.stopPropagation(); window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-bold px-3 py-1.5 rounded-lg transition shadow flex items-center gap-1">
+                                    <i class="fa-solid fa-cart-plus text-[10px]"></i> Add
                                 </button>
                             </div>
                         </div>
@@ -239,24 +237,21 @@
 
                 htmlOutput += `</div>`;
 
-                // Inline Expanded Product View (Appears right below this row, pushing subsequent categories down)
+                // Inline Expanded View Below Row
                 if (expandedItem) {
                     const starsDisplay = generateStarRatingHTML(expandedItem.rating || 5, "text-sm");
                     htmlOutput += `
                         <div class="bg-white border-2 border-amber-400 rounded-2xl p-5 sm:p-6 shadow-xl relative animate-fadeIn mt-2">
-                            <!-- Close Inline Detail Button -->
                             <button onclick="toggleExpandProduct('${catName}', '${expandedItem.firebaseKey}')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition z-10">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                             </button>
 
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                                <!-- Big Scaled Image Preview -->
                                 <div class="relative bg-slate-100 rounded-xl overflow-hidden aspect-[4/3] border border-slate-200 flex items-center justify-center shadow-inner">
                                     <img src="${expandedItem.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${expandedItem.name}" class="w-full h-full object-contain p-4">
                                     <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2.5 py-1 rounded shadow">In Stock</span>
                                 </div>
 
-                                <!-- Expanded Details & Specs -->
                                 <div class="md:col-span-2 space-y-3">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
                                         <span class="text-amber-600 font-bold uppercase tracking-wider text-[10px] bg-amber-50 px-2.5 py-1 rounded border border-amber-200">${expandedItem.category || 'General'}</span>
@@ -273,13 +268,11 @@
                                         ${expandedItem.qty ? `<span class="text-xs bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700 font-bold">Quantity / Unit: ${expandedItem.qty}</span>` : ''}
                                     </div>
 
-                                    <!-- Big Detailed Description -->
                                     <div class="bg-amber-50/60 border border-amber-200/80 p-3.5 rounded-xl text-xs text-slate-700 font-light leading-relaxed">
                                         <strong class="block text-slate-900 font-bold mb-1"><i class="fa-solid fa-circle-info text-amber-600 mr-1"></i> Detailed Overview & Specifications:</strong>
                                         ${expandedItem.bigDesc || expandedItem.desc || 'No detailed specifications provided for this product.'}
                                     </div>
 
-                                    <!-- Action Button inside Expanded View -->
                                     <div class="pt-2 flex items-center justify-end gap-3">
                                         <button onclick="toggleExpandProduct('${catName}', '${expandedItem.firebaseKey}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs transition border border-slate-200">
                                             Collapse
@@ -302,9 +295,9 @@
 
         window.toggleExpandProduct = function(categoryName, firebaseKey) {
             if (expandedProductKeys[categoryName] === firebaseKey) {
-                delete expandedProductKeys[categoryName]; // Collapse if already open
+                delete expandedProductKeys[categoryName];
             } else {
-                expandedProductKeys[categoryName] = firebaseKey; // Expand this product inline
+                expandedProductKeys[categoryName] = firebaseKey;
             }
             renderCatalog(liveInventory);
         };
