@@ -32,8 +32,8 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
-    <!-- MOBILE NAVIGATION HEADER -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-45 shadow-md backdrop-blur-md bg-opacity-95">
+    <!-- MOBILE NAVIGATION HEADER (z-50 ensures it stays in front of all layers) -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md backdrop-blur-md bg-opacity-95">
         <div class="max-w-2xl mx-auto px-3.5 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2.5 shrink-0">
                 <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-[11px] tracking-tighter shadow-sm">MY</div>
@@ -128,7 +128,7 @@
             <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60">Active Playlist</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Displayed Ads (4s Sliding)</h2>
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Displayed Ads (Swipe Supported)</h2>
                 </div>
                 <div class="w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-bold border border-indigo-200">
                     <i class="fa-solid fa-list"></i>
@@ -153,17 +153,17 @@
             <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">Live Preview</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Sliding Preview (Tap to Advance)</h2>
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Swipe Preview (Finger Sliding)</h2>
                 </div>
                 <div class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-[10px] font-bold border border-emerald-200">
                     <i class="fa-solid fa-eye"></i>
                 </div>
             </div>
 
-            <!-- Preview Wrapper Container (Clickable for Manual Slide) -->
-            <div id="ad1-preview-container" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner cursor-pointer select-none" title="Tap to slide next">
+            <!-- Preview Wrapper Container (Swipe & Touch Gesture Enabled) -->
+            <div id="ad1-preview-container" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner cursor-grab active:cursor-grabbing select-none touch-pan-y" title="Swipe left or right">
                 <!-- Sliding Track -->
-                <div id="slider-track" class="flex h-full w-full transition-transform duration-700 ease-in-out"></div>
+                <div id="slider-track" class="flex h-full w-full transition-transform duration-500 ease-out"></div>
 
                 <!-- Very Small Dot Indicators Overlay Inside Bottom Center -->
                 <div id="preview-dots" class="absolute bottom-2.5 left-0 right-0 z-20 flex items-center justify-center gap-1.5 pointer-events-auto"></div>
@@ -173,7 +173,7 @@
     </main>
 
     <!-- DELETE CONFIRMATION MODAL -->
-    <div id="delete-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div id="delete-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-60 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl border border-slate-100 text-center space-y-4">
             <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 mx-auto flex items-center justify-center text-lg font-bold">
                 <i class="fa-solid fa-triangle-exclamation"></i>
@@ -217,6 +217,10 @@
         let deleteTargetIndex = null;
         let previewInterval = null;
         let currentPreviewIdx = 0;
+
+        // Touch swipe tracking variables
+        let touchStartX = 0;
+        let touchEndX = 0;
 
         const adsListContainer = document.getElementById('ads-list-container');
         const sliderTrack = document.getElementById('slider-track');
@@ -398,7 +402,6 @@
             showStatus("Ad added below successfully!");
         });
 
-        // Jump to specific slide via dot indicator
         window.jumpToSlide = function(index) {
             currentPreviewIdx = index;
             updateSliderPosition();
@@ -434,16 +437,40 @@
             }
         }
 
-        // Manual click on preview frame to advance to next slide
-        previewContainer.addEventListener('click', (e) => {
-            // Prevent triggering if clicked directly on action button or dot buttons
+        // --- Touch Swipe / Mouse Drag Handlers for Sliding ---
+        previewContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        previewContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipeGesture();
+        }, { passive: true });
+
+        previewContainer.addEventListener('mousedown', (e) => {
             if (e.target.closest('a') || e.target.closest('button')) return;
-            if (adsCache.length > 1) {
+            touchStartX = e.clientX;
+        });
+
+        previewContainer.addEventListener('mouseup', (e) => {
+            if (e.target.closest('a') || e.target.closest('button')) return;
+            touchEndX = e.clientX;
+            handleSwipeGesture();
+        });
+
+        function handleSwipeGesture() {
+            if (adsCache.length <= 1) return;
+            const threshold = 40;
+            if (touchStartX - touchEndX > threshold) {
                 currentPreviewIdx = (currentPreviewIdx + 1) % adsCache.length;
                 updateSliderPosition();
                 resetInterval();
+            } else if (touchEndX - touchStartX > threshold) {
+                currentPreviewIdx = (currentPreviewIdx - 1 + adsCache.length) % adsCache.length;
+                updateSliderPosition();
+                resetInterval();
             }
-        });
+        }
 
         function updateLivePreview() {
             if (previewInterval) {
@@ -461,7 +488,6 @@
                 currentPreviewIdx = 0;
             }
 
-            // Build all slides into the sliding track
             sliderTrack.innerHTML = adsCache.map((ad) => {
                 const directUrl = formatDriveLink(ad.link);
                 let slideContent = '';
@@ -475,7 +501,7 @@
                         </div>
                     `;
                 } else {
-                    slideContent = `<img src="${directUrl}" alt="Preview Ad" class="w-full h-full object-cover">`;
+                    slideContent = `<img src="${directUrl}" alt="Preview Ad" class="w-full h-full object-cover pointer-events-none">`;
                 }
 
                 if (ad.showButton && ad.buttonName && ad.buttonUrl) {
