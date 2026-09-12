@@ -67,7 +67,7 @@
             <div>
                 <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Curated Collection</span>
                 <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Edit Best Sellers</h2>
-                <p class="text-[11px] text-slate-500 mt-0.5">Select items to display in the bestsellers section of your store.</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Select items to feature in the bestsellers section of your store.</p>
             </div>
 
             <!-- Search & Category Filter Controls -->
@@ -84,22 +84,40 @@
 
         <div id="status-msg" class="hidden mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
 
-        <!-- Inventory Checkbox Grid Container -->
+        <!-- INVENTORY SELECTION GRID (TOP SECTION) -->
         <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Available Inventory</span>
+                <div>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Select From Inventory</span>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Pick available products to add to your bestsellers</p>
+                </div>
                 <span id="selected-count" class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">0 Selected</span>
             </div>
 
-            <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[500px] overflow-y-auto no-scrollbar pr-1">
+            <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[420px] overflow-y-auto no-scrollbar pr-1">
                 <div class="col-span-full py-10 text-center text-slate-400 text-xs">Loading inventory items...</div>
             </div>
 
             <!-- Save Button -->
             <div class="pt-4 border-t border-slate-100 flex justify-end">
-                <button type="button" id="save-btn" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-8 py-3 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95">
-                    Save Best Sellers
+                <button type="button" id="save-btn" disabled class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-8 py-3 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Selected as Best Sellers
                 </button>
+            </div>
+        </section>
+
+        <!-- ACTIVE BEST SELLERS CATEGORIZED DISPLAY (BOTTOM SECTION) -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Active Best Sellers</span>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Organized by category & live on your storefront</p>
+                </div>
+                <span id="bestsellers-total-count" class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">0 Total Active</span>
+            </div>
+
+            <div id="saved-bestsellers-container" class="space-y-6">
+                <!-- Dynamically populated category groups -->
             </div>
         </section>
 
@@ -113,7 +131,7 @@
     <!-- Firebase Realtime Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
@@ -130,14 +148,16 @@
         const db = getDatabase(app);
 
         let allInventory = [];
-        let selectedCache = {}; // Persistent state cache across filters
+        let savedBestSellers = {}; // Live Firebase Best Sellers { key: true }
+        let pendingSelection = {}; // Unsaved temporary selections in upper grid
         let categoriesCache = [];
-        let isInitialLoad = true;
 
         const searchInput = document.getElementById('search-input');
         const filterCategory = document.getElementById('filter-category');
-        const gridContainer = document.getElementById('inventory-grid');
+        const inventoryGrid = document.getElementById('inventory-grid');
+        const savedContainer = document.getElementById('saved-bestsellers-container');
         const selectedCountEl = document.getElementById('selected-count');
+        const bestsellersTotalCountEl = document.getElementById('bestsellers-total-count');
         const saveBtn = document.getElementById('save-btn');
 
         function showStatus(message, isError = false) {
@@ -162,34 +182,33 @@
             }
         });
 
-        // Fetch existing best sellers and inventory
-        onValue(ref(db, 'bestsellers'), (snapshot) => {
-            const remoteBestSellers = snapshot.val() || {};
+        // Listen for Realtime Changes to Best Sellers & Inventory
+        onValue(ref(db, 'bestsellers'), (bSnapshot) => {
+            savedBestSellers = bSnapshot.val() || {};
             
             onValue(ref(db, 'inventory'), (invSnapshot) => {
                 const invData = invSnapshot.val();
                 if (!invData) {
                     allInventory = [];
-                    gridContainer.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 text-xs">No inventory products found.</div>`;
-                    return;
+                } else {
+                    allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
                 }
 
-                allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
-
-                // Populate persistent cache on initial load
-                if (isInitialLoad) {
-                    selectedCache = { ...remoteBestSellers };
-                    isInitialLoad = false;
-                }
-
-                renderGrid();
+                renderAll();
             });
         });
 
-        searchInput.addEventListener('input', renderGrid);
-        filterCategory.addEventListener('change', renderGrid);
+        searchInput.addEventListener('input', renderAll);
+        filterCategory.addEventListener('change', renderAll);
 
-        function renderGrid() {
+        function renderAll() {
+            renderInventoryGrid();
+            renderSavedBestSellers();
+            updateSelectionCountUI();
+        }
+
+        // 1. Render upper selection grid with LOCKED items for saved products
+        function renderInventoryGrid() {
             const query = searchInput.value.toLowerCase().trim();
             const selectedCat = filterCategory.value;
 
@@ -200,15 +219,41 @@
             });
 
             if (filtered.length === 0) {
-                gridContainer.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 text-xs">No matching products found.</div>`;
+                inventoryGrid.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 text-xs">No matching inventory products found.</div>`;
                 return;
             }
 
-            gridContainer.innerHTML = filtered.map(item => {
-                const isChecked = selectedCache[item.key] === true;
+            inventoryGrid.innerHTML = filtered.map(item => {
+                const isSaved = savedBestSellers[item.key] === true;
+                const isPending = pendingSelection[item.key] === true;
+
+                // LOCKED PRODUCT (Already active as Best Seller)
+                if (isSaved) {
+                    return `
+                        <div class="relative bg-slate-50/80 border border-slate-200 rounded-2xl p-3.5 flex items-center gap-3.5 opacity-60 cursor-not-allowed">
+                            <div class="w-12 h-12 rounded-xl bg-slate-200 border border-slate-300 overflow-hidden shrink-0 flex items-center justify-center">
+                                <img src="${item.img || ''}" alt="" class="w-full h-full object-cover grayscale" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                            </div>
+                            <div class="flex-grow min-w-0">
+                                <h3 class="font-extrabold text-slate-700 text-xs truncate">${item.name}</h3>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] font-bold text-slate-500">₹${Number(item.price || 0).toFixed(2)}</span>
+                                    <span class="text-[10px] text-slate-400">&bull;</span>
+                                    <span class="text-[10px] font-bold text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded">${item.category || 'General'}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-slate-200/80 text-slate-500 px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0">
+                                <i class="fa-solid fa-lock text-[9px]"></i>
+                                <span>Saved</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // SELECTABLE PRODUCT
                 return `
-                    <label class="group relative bg-white hover:bg-slate-50 border ${isChecked ? 'border-amber-400 shadow-sm' : 'border-slate-200'} rounded-2xl p-3.5 flex items-center gap-3.5 cursor-pointer transition">
-                        <input type="checkbox" value="${item.key}" ${isChecked ? 'checked' : ''} onchange="window.handleCheckboxChange(this)" class="peer sr-only">
+                    <label class="group relative bg-white hover:bg-slate-50 border ${isPending ? 'border-amber-400 shadow-sm' : 'border-slate-200'} rounded-2xl p-3.5 flex items-center gap-3.5 cursor-pointer transition">
+                        <input type="checkbox" value="${item.key}" ${isPending ? 'checked' : ''} onchange="window.handleCheckboxChange(this)" class="peer sr-only">
                         <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
                             <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
                         </div>
@@ -220,55 +265,124 @@
                                 <span class="text-[10px] font-bold text-amber-700 bg-amber-100/60 px-1.5 py-0.5 rounded">${item.category || 'General'}</span>
                             </div>
                         </div>
-                        <div class="w-6 h-6 rounded-lg border ${isChecked ? 'border-amber-500 bg-amber-500' : 'border-slate-300 bg-white'} flex items-center justify-center text-white transition shrink-0 checkbox-indicator">
-                            <i class="fa-solid fa-check text-[10px] ${isChecked ? 'opacity-100' : 'opacity-0'}"></i>
+                        <div class="w-6 h-6 rounded-lg border ${isPending ? 'border-amber-500 bg-amber-500' : 'border-slate-300 bg-white'} flex items-center justify-center text-white transition shrink-0 checkbox-indicator">
+                            <i class="fa-solid fa-check text-[10px] ${isPending ? 'opacity-100' : 'opacity-0'}"></i>
                         </div>
                     </label>
                 `;
             }).join('');
-
-            window.updateSelectionCountUI();
         }
 
         window.handleCheckboxChange = function(checkbox) {
             const key = checkbox.value;
-            const label = checkbox.closest('label');
-            const indicator = label.querySelector('.checkbox-indicator');
-            const checkIcon = indicator.querySelector('i');
-
             if (checkbox.checked) {
-                selectedCache[key] = true;
-                label.classList.add('border-amber-400', 'shadow-sm');
-                label.classList.remove('border-slate-200');
-                indicator.classList.remove('border-slate-300', 'bg-white');
-                indicator.classList.add('border-amber-500', 'bg-amber-500');
-                checkIcon.classList.remove('opacity-0');
-                checkIcon.classList.add('opacity-100');
+                pendingSelection[key] = true;
             } else {
-                delete selectedCache[key];
-                label.classList.remove('border-amber-400', 'shadow-sm');
-                label.classList.add('border-slate-200');
-                indicator.classList.remove('border-amber-500', 'bg-amber-500');
-                indicator.classList.add('border-slate-300', 'bg-white');
-                checkIcon.classList.remove('opacity-100');
-                checkIcon.classList.add('opacity-0');
+                delete pendingSelection[key];
             }
-            window.updateSelectionCountUI();
+            renderInventoryGrid();
+            updateSelectionCountUI();
         };
 
-        window.updateSelectionCountUI = function() {
-            const totalSelected = Object.keys(selectedCache).filter(k => selectedCache[k] === true).length;
-            selectedCountEl.textContent = `${totalSelected} Selected`;
-        };
+        // 2. Render lower section categorized active Best Sellers
+        function renderSavedBestSellers() {
+            const savedItems = allInventory.filter(item => savedBestSellers[item.key] === true);
+            
+            bestsellersTotalCountEl.textContent = `${savedItems.length} Total Active`;
 
-        // Save selection to Firebase
-        saveBtn.addEventListener('click', () => {
-            set(ref(db, 'bestsellers'), selectedCache)
+            if (savedItems.length === 0) {
+                savedContainer.innerHTML = `
+                    <div class="py-10 text-center space-y-2">
+                        <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mx-auto text-lg">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-xs text-slate-600 font-bold">No active best sellers right now.</p>
+                        <p class="text-[11px] text-slate-400 max-w-sm mx-auto">Select items from your inventory above and click "Save Selected as Best Sellers" to display them here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group saved items by category
+            const grouped = {};
+            savedItems.forEach(item => {
+                const cat = item.category || 'General';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(item);
+            });
+
+            // Render categorized list
+            const categories = Object.keys(grouped).sort();
+            savedContainer.innerHTML = categories.map(cat => {
+                const items = grouped[cat];
+                return `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></span>
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">${cat}</h4>
+                            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${items.length}</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            ${items.map(item => `
+                                <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-slate-300 transition">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+                                            <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
+                                            <span class="text-[10px] font-bold text-slate-600">₹${Number(item.price || 0).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                    
+                                      <!-- REMOVE BUTTON -->
+                                    <button type="button" onclick="window.removeBestSeller('${item.key}')" class="px-3 py-1.5 rounded-xl text-[11px] font-extrabold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/80 transition active:scale-95 flex items-center gap-1.5 shrink-0">
+                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 3. Remove Best Seller functionality
+        window.removeBestSeller = function(key) {
+            remove(ref(db, `bestsellers/${key}`))
                 .then(() => {
-                    showStatus("Best sellers updated successfully!");
+                    showStatus("Item removed from best sellers!");
                 })
                 .catch(err => {
-                    showStatus("Failed to update best sellers: " + err.message, true);
+                    showStatus("Error removing item: " + err.message, true);
+                });
+        };
+
+        function updateSelectionCountUI() {
+            const pendingCount = Object.keys(pendingSelection).length;
+            selectedCountEl.textContent = `${pendingCount} Selected`;
+            saveBtn.disabled = pendingCount === 0;
+        }
+
+        // 4. Save newly selected items to Firebase
+        saveBtn.addEventListener('click', () => {
+            const pendingKeys = Object.keys(pendingSelection);
+            if (pendingKeys.length === 0) return;
+
+            const updates = {};
+            pendingKeys.forEach(k => {
+                updates[`bestsellers/${k}`] = true;
+            });
+
+            update(ref(db), updates)
+                .then(() => {
+                    pendingSelection = {}; // Clear pending selection
+                    showStatus("Selected products added to best sellers!");
+                })
+                .catch(err => {
+                    showStatus("Failed to save best sellers: " + err.message, true);
                 });
         });
     </script>
