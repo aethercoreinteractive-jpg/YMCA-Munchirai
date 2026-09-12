@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Munchirai YMCA | Select Best Sellers</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#1e293b',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+
+    <!-- ENTERPRISE NAVIGATION HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg backdrop-blur-md bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <!-- Brand Mark -->
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md">MY</div>
+                <div>
+                    <h1 class="text-xs font-extrabold text-white tracking-tight">MUNCHIRAI YMCA</h1>
+                    <span class="text-[10px] text-amber-400 font-mono tracking-wider block">SELECTION_NODE</span>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="flex items-center gap-2">
+                <a href="bestsellers.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-arrow-left text-amber-400"></i>
+                    <span>Back to Best Sellers</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
+        
+        <!-- Controls & Header Section -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Inventory Picker</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Choose Best Sellers</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Select available products from your inventory to feature.</p>
+            </div>
+
+            <!-- Search & Category Filter Controls -->
+            <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                <div class="relative flex-grow sm:w-56">
+                    <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-input" placeholder="Search inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                </div>
+                <select id="filter-category" class="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+        </section>
+
+        <div id="status-msg" class="hidden mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
+
+        <!-- INVENTORY SELECTION GRID -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Available Inventory</span>
+                <span id="selected-count" class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">0 Selected</span>
+            </div>
+
+            <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[500px] overflow-y-auto no-scrollbar pr-1">
+                <div class="col-span-full py-10 text-center text-slate-400 text-xs">Loading inventory items...</div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="pt-4 border-t border-slate-100 flex justify-end">
+                <button type="button" id="save-btn" disabled class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-8 py-3 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Selected as Best Sellers
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ENTERPRISE FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400">
+        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
+    </footer>
+
+    <!-- Firebase Realtime Engine -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
+          authDomain: "munchirai-ymca.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca",
+          storageBucket: "munchirai-ymca.firebasestorage.app",
+          messagingSenderId: "697387132253",
+          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
+          measurementId: "G-XRRT0Q76YK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allInventory = [];
+        let savedBestSellers = {};
+        let pendingSelection = {};
+        let categoriesCache = [];
+
+        const searchInput = document.getElementById('search-input');
+        const filterCategory = document.getElementById('filter-category');
+        const gridContainer = document.getElementById('inventory-grid');
+        const selectedCountEl = document.getElementById('selected-count');
+        const saveBtn = document.getElementById('save-btn');
+
+        function showStatus(message, isError = false) {
+            const msgEl = document.getElementById('status-msg');
+            msgEl.textContent = message;
+            msgEl.className = `mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            msgEl.classList.remove('hidden');
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
+        }
+
+        // Load Categories into dropdown filter
+        onValue(ref(db, 'categories'), (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                categoriesCache = Object.keys(data).map(k => data[k]);
+                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                
+                const currentSelection = filterCategory.value;
+                filterCategory.innerHTML = `<option value="">All Categories</option>` + categoriesCache.map(c => `
+                    <option value="${c.name}" ${currentSelection === c.name ? 'selected' : ''}>${c.name}</option>
+                `).join('');
+            }
+        });
+
+        // Fetch existing best sellers and inventory
+        onValue(ref(db, 'bestsellers'), (snapshot) => {
+            savedBestSellers = snapshot.val() || {};
+            
+            onValue(ref(db, 'inventory'), (invSnapshot) => {
+                const invData = invSnapshot.val();
+                if (!invData) {
+                    allInventory = [];
+                    gridContainer.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 text-xs">No inventory products found.</div>`;
+                    return;
+                }
+
+                allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+                renderGrid();
+            });
+        });
+
+        searchInput.addEventListener('input', renderGrid);
+        filterCategory.addEventListener('change', renderGrid);
+
+        function renderGrid() {
+            const query = searchInput.value.toLowerCase().trim();
+            const selectedCat = filterCategory.value;
+
+            const filtered = allInventory.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(query) || (item.category && item.category.toLowerCase().includes(query));
+                const matchesCat = !selectedCat || item.category === selectedCat;
+                return matchesSearch && matchesCat;
+            });
+
+            if (filtered.length === 0) {
+                gridContainer.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 text-xs">No matching products found.</div>`;
+                return;
+            }
+
+            gridContainer.innerHTML = filtered.map(item => {
+                const isSaved = savedBestSellers[item.key] === true;
+                const isPending = pendingSelection[item.key] === true;
+
+                if (isSaved) {
+                    return `
+                        <div class="relative bg-slate-50/80 border border-slate-200 rounded-2xl p-3.5 flex items-center gap-3.5 opacity-60 cursor-not-allowed">
+                            <div class="w-12 h-12 rounded-xl bg-slate-200 border border-slate-300 overflow-hidden shrink-0 flex items-center justify-center">
+                                <img src="${item.img || ''}" alt="" class="w-full h-full object-cover grayscale" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                            </div>
+                            <div class="flex-grow min-w-0">
+                                <h3 class="font-extrabold text-slate-700 text-xs truncate">${item.name}</h3>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] font-bold text-slate-500">₹${Number(item.price || 0).toFixed(2)}</span>
+                                    <span class="text-[10px] text-slate-400">&bull;</span>
+                                    <span class="text-[10px] font-bold text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded">${item.category || 'General'}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-slate-200/80 text-slate-500 px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0">
+                                <i class="fa-solid fa-lock text-[9px]"></i>
+                                <span>Saved</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <label class="group relative bg-white hover:bg-slate-50 border ${isPending ? 'border-amber-400 shadow-sm' : 'border-slate-200'} rounded-2xl p-3.5 flex items-center gap-3.5 cursor-pointer transition">
+                        <input type="checkbox" value="${item.key}" ${isPending ? 'checked' : ''} onchange="window.handleCheckboxChange(this)" class="peer sr-only">
+                        <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
+                            <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h3 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h3>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[10px] font-bold text-slate-600">₹${Number(item.price || 0).toFixed(2)}</span>
+                                <span class="text-[10px] text-slate-400">&bull;</span>
+                                <span class="text-[10px] font-bold text-amber-700 bg-amber-100/60 px-1.5 py-0.5 rounded">${item.category || 'General'}</span>
+                            </div>
+                        </div>
+                        <div class="w-6 h-6 rounded-lg border ${isPending ? 'border-amber-500 bg-amber-500' : 'border-slate-300 bg-white'} flex items-center justify-center text-white transition shrink-0 checkbox-indicator">
+                            <i class="fa-solid fa-check text-[10px] ${isPending ? 'opacity-100' : 'opacity-0'}"></i>
+                        </div>
+                    </label>
+                `;
+            }).join('');
+
+            updateSelectionCountUI();
+        }
+
+        window.handleCheckboxChange = function(checkbox) {
+            const key = checkbox.value;
+            if (checkbox.checked) {
+                pendingSelection[key] = true;
+            } else {
+                delete pendingSelection[key];
+            }
+            renderGrid();
+        };
+
+        function updateSelectionCountUI() {
+            const totalSelected = Object.keys(pendingSelection).length;
+            selectedCountEl.textContent = `${totalSelected} Selected`;
+            saveBtn.disabled = totalSelected === 0;
+        }
+
+        // Save selection to Firebase and redirect back
+        saveBtn.addEventListener('click', () => {
+            const pendingKeys = Object.keys(pendingSelection);
+            if (pendingKeys.length === 0) return;
+
+            const updates = {};
+            pendingKeys.forEach(k => {
+                updates[`bestsellers/${k}`] = true;
+            });
+
+            update(ref(db), updates)
+                .then(() => {
+                    showStatus("Best sellers updated successfully! Redirecting...");
+                    setTimeout(() => {
+                        window.location.href = 'bestsellers.html';
+                    }, 1200);
+                })
+                .catch(err => {
+                    showStatus("Failed to update best sellers: " + err.message, true);
+                });
+        });
+    </script>
+</body>
+</html>
