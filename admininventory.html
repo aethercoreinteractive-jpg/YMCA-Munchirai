@@ -125,8 +125,20 @@
                             <input type="text" id="prod-qty" placeholder="e.g. 500g" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rating (/5)</label>
-                            <input type="number" id="prod-rating" step="0.1" min="0" max="5" placeholder="e.g. 4.5" value="5" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rating</label>
+                            <select id="prod-rating" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition cursor-pointer">
+                                <option value="5" selected>5</option>
+                                <option value="4.5">4.5</option>
+                                <option value="4">4</option>
+                                <option value="3.5">3.5</option>
+                                <option value="3">3</option>
+                                <option value="2.5">2.5</option>
+                                <option value="2">2</option>
+                                <option value="1.5">1.5</option>
+                                <option value="1">1</option>
+                                <option value="0.5">0.5</option>
+                                <option value="0">0</option>
+                            </select>
                         </div>
                     </div>
 
@@ -304,7 +316,7 @@
                 category: document.getElementById('prod-category').value,
                 price: document.getElementById('prod-price').value.trim(),
                 qty: document.getElementById('prod-qty').value.trim(),
-                rating: document.getElementById('prod-rating').value.trim() || "5",
+                rating: document.getElementById('prod-rating').value,
                 img: formattedImg,
                 smallDesc: document.getElementById('prod-small-desc').value.trim(),
                 bigDesc: document.getElementById('prod-big-desc').value.trim(),
@@ -380,10 +392,21 @@
                         </div>
 
                         <!-- Quick Rating Update Section -->
-                        <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner">
+                        <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner cursor-pointer">
                             <span class="text-[10px] font-bold text-slate-500 uppercase">Rate:</span>
-                            <input type="number" step="0.1" min="0" max="5" id="rating-input-${item.key}" value="${item.rating || '5'}" class="w-11 text-xs font-bold text-slate-900 bg-transparent focus:outline-none text-center">
-                            <span class="text-[10px] text-slate-400">/5</span>
+                            <select id="rating-input-${item.key}" class="text-xs font-bold text-slate-900 bg-transparent focus:outline-none text-center cursor-pointer">
+                                <option value="5" ${item.rating == '5' ? 'selected' : ''}>5</option>
+                                <option value="4.5" ${item.rating == '4.5' ? 'selected' : ''}>4.5</option>
+                                <option value="4" ${item.rating == '4' ? 'selected' : ''}>4</option>
+                                <option value="3.5" ${item.rating == '3.5' ? 'selected' : ''}>3.5</option>
+                                <option value="3" ${item.rating == '3' ? 'selected' : ''}>3</option>
+                                <option value="2.5" ${item.rating == '2.5' ? 'selected' : ''}>2.5</option>
+                                <option value="2" ${item.rating == '2' ? 'selected' : ''}>2</option>
+                                <option value="1.5" ${item.rating == '1.5' ? 'selected' : ''}>1.5</option>
+                                <option value="1" ${item.rating == '1' ? 'selected' : ''}>1</option>
+                                <option value="0.5" ${item.rating == '0.5' ? 'selected' : ''}>0.5</option>
+                                <option value="0" ${item.rating == '0' ? 'selected' : ''}>0</option>
+                            </select>
                             <button onclick="window.updateMetrics('${item.key}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-bold px-2 py-1 rounded transition ml-0.5" title="Save Changes">
                                 Save
                             </button>
@@ -404,7 +427,7 @@
 
         window.updateMetrics = function(key) {
             const newQty = document.getElementById(`qty-input-${key}`).value.trim();
-            const newRating = document.getElementById(`rating-input-${key}`).value.trim();
+            const newRating = document.getElementById(`rating-input-${key}`).value;
             
             update(ref(db, `inventory/${key}`), { qty: newQty, rating: newRating, updatedAt: Date.now() })
                 .then(() => showStatusMessage("Quantity and rating updated successfully!"))
