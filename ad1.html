@@ -1,0 +1,125 @@
+<!-- AD 1 BANNER PREVIEW CONTAINER -->
+<div id="ad1-container" class="w-full max-w-4xl mx-auto my-4 overflow-hidden rounded-3xl shadow-xl border border-slate-200 bg-slate-900 relative">
+    <!-- Dynamic Content Injected Here -->
+    <div id="ad1-content-wrapper" class="relative w-full aspect-[16/9] sm:aspect-[21/9] flex items-center justify-center overflow-hidden bg-slate-950">
+        <span class="text-xs text-slate-400 font-mono">Loading Ad 1...</span>
+    </div>
+</div>
+
+<!-- Firebase Preview Script Engine -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
+      authDomain: "munchirai-ymca.firebaseapp.com",
+      databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
+      projectId: "munchirai-ymca",
+      storageBucket: "munchirai-ymca.firebasestorage.app",
+      messagingSenderId: "697387132253",
+      appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
+      measurementId: "G-XRRT0Q76YK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const wrapper = document.getElementById('ad1-content-wrapper');
+
+    // Helper to convert Google Drive sharing links to direct viewable stream/embed links
+    function formatDriveLink(url) {
+        if (!url) return '';
+        if (url.includes('drive.google.com')) {
+            const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (fileIdMatch && fileIdMatch[1]) {
+                return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+            }
+        }
+        return url;
+    }
+
+    get(ref(db, 'ads/ad1')).then((snapshot) => {
+        if (!snapshot.exists()) {
+            wrapper.innerHTML = `<span class="text-xs text-slate-500">No active advertisement configuration found.</span>`;
+            return;
+        }
+
+        const ad = snapshot.val();
+        const links = [];
+        if (ad.link) links.push(formatDriveLink(ad.link));
+        if (ad.secondaryLink && ad.mediaType === 'photo') links.push(formatDriveLink(ad.secondaryLink));
+
+        if (links.length === 0) {
+            wrapper.innerHTML = `<span class="text-xs text-slate-500">No media links provided.</span>`;
+            return;
+        }
+
+        let currentIndex = 0;
+
+        function renderAd() {
+            const currentUrl = links[currentIndex];
+            let htmlContent = '';
+
+            if (ad.mediaType === 'video') {
+                // Default unmuted as requested, with tap-to-toggle audio UX
+                const isMuted = ad.audioState === 'mute' ? 'muted' : '';
+                htmlContent = `
+                    <video id="ad-video-elem" src="${currentUrl}" autoplay loop playsinline ${isMuted} class="w-full h-full object-cover cursor-pointer"></video>
+                    <div id="audio-badge" class="absolute bottom-4 right-4 bg-slate-950/80 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-bold border border-white/10 shadow-lg flex items-center gap-1.5 pointer-events-none transition-all">
+                        <i class="fa-solid ${isMuted ? 'fa-volume-xmark text-amber-400' : 'fa-volume-high text-emerald-400'}"></i>
+                        <span>${isMuted ? 'Tap to Unmute' : 'Playing Unmuted (Tap to Mute)'}</span>
+                    </div>
+                `;
+            } else {
+                // Photo with smooth sliding transition styling
+                htmlContent = `
+                    <img src="${currentUrl}" alt="Advertisement" class="w-full h-full object-cover transition-opacity duration-700 ease-in-out opacity-0 onload" onload="this.classList.remove('opacity-0')">
+                `;
+            }
+
+            // Append Action Button if enabled
+            if (ad.showButton && ad.buttonName && ad.buttonUrl) {
+                htmlContent += `
+                    <div class="absolute bottom-4 left-4 z-10">
+                        <a href="${ad.buttonUrl}" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs shadow-xl transition active:scale-95 flex items-center gap-2 border border-amber-300">
+                            <span>${ad.buttonName}</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </div>
+                `;
+            }
+
+            wrapper.innerHTML = htmlContent;
+
+            // Bind Video Tap-to-Mute / Unmute handler if video type
+            if (ad.mediaType === 'video') {
+                const vidElem = document.getElementById('ad-video-elem');
+                const badge = document.getElementById('audio-badge');
+                if (vidElem) {
+                    vidElem.addEventListener('click', () => {
+                        vidElem.muted = !vidElem.muted;
+                        if (vidElem.muted) {
+                            badge.innerHTML = `<i class="fa-solid fa-volume-xmark text-amber-400"></i><span>Muted (Tap to Unmute)</span>`;
+                        } else {
+                            badge.innerHTML = `<i class="fa-solid fa-volume-high text-emerald-400"></i><span>Unmuted (Tap to Mute)</span>`;
+                        }
+                    });
+                }
+            }
+        }
+
+        renderAd();
+
+        // If more than 1 photo link is provided, rotate automatically every 4 seconds
+        if (links.length > 1 && ad.mediaType === 'photo') {
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % links.length;
+                renderAd();
+            }, 4000);
+        }
+    }).catch(err => {
+        wrapper.innerHTML = `<span class="text-xs text-red-400">Failed to load advertisement stream.</span>`;
+    });
+          </script>
+          
