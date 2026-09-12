@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased selection:bg-black selection:text-white">
+<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950">
 
     <!-- Store Header -->
     <header class="sticky top-0 z-40 bg-slate-900 text-white shadow-md">
@@ -48,8 +48,8 @@
             </div>
         </div>
 
-        <!-- Products Grid -->
-        <div id="store-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Products Grid: Exactly 3 cards per row on desktop -->
+        <div id="store-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="col-span-full text-center py-20 text-gray-400 text-xs">Loading live inventory from Firebase...</div>
         </div>
 
@@ -62,6 +62,20 @@
             <p class="text-xs text-gray-500 mt-1">Add items via your admin dashboard to display them here.</p>
         </div>
     </main>
+
+    <!-- PRODUCT DETAILS MODAL (Pinned to top / centered overlay on tap) -->
+    <div id="product-detail-modal" class="fixed inset-0 z-50 flex items-start justify-center bg-slate-950/60 backdrop-blur-sm hidden p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 relative my-auto transform transition-all" id="modal-content-box">
+            <!-- Close Button -->
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition z-10">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+
+            <div id="modal-body-content">
+                <!-- Dynamically injected product details -->
+            </div>
+        </div>
+    </div>
 
     <!-- Firebase SDK Imports & Store Script -->
     <script type="module">
@@ -112,37 +126,32 @@
 
             emptyState.classList.add('hidden');
             grid.innerHTML = productsToRender.map(item => `
-                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between">
+                <div onclick="openProductModal('${item.firebaseKey}')" class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between cursor-pointer group">
                     <div>
-                        <!-- Image -->
-                        <div class="relative bg-gray-50 rounded-lg overflow-hidden aspect-[4/3] mb-3 border border-gray-100 cursor-pointer" onclick="toggleExpand('${item.firebaseKey}')">
-                            <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-cover">
+                        <!-- Image: Fully visible without cropping using object-contain -->
+                        <div class="relative bg-slate-100 rounded-lg overflow-hidden aspect-[4/3] mb-3 border border-gray-100 flex items-center justify-center">
+                            <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-2 transition duration-300 group-hover:scale-105">
                             <span class="absolute top-2 left-2 bg-amber-500 text-slate-950 font-bold text-[9px] px-2 py-0.5 rounded shadow">In Stock</span>
                         </div>
 
                         <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
-                            <span class="text-amber-600 font-bold">MY Food Store</span>
-                            <button onclick="toggleExpand('${item.firebaseKey}')" class="text-blue-600 hover:underline flex items-center gap-1 font-bold">
-                                <span id="btn-text-${item.firebaseKey}">More Info</span> <i class="fa-solid fa-chevron-down text-[8px]" id="icon-${item.firebaseKey}"></i>
-                            </button>
+                            <span class="text-amber-600 font-bold">${item.category || 'MY Food Store'}</span>
+                            <span class="text-slate-400"><i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item.rating || '5'}/5</span>
                         </div>
 
-                        <h3 class="font-bold text-sm text-gray-900 line-clamp-1 mb-1">${item.name}</h3>
+                        <h3 class="font-bold text-sm text-gray-900 line-clamp-1 mb-1 group-hover:text-amber-600 transition">${item.name}</h3>
 
-                        <!-- Small Description Below Image -->
-                        <p class="text-[11px] text-gray-600 font-light line-clamp-2 mb-2">${item.smallDesc || item.desc || 'No brief summary available.'}</p>
-
-                        <!-- Expanded Big Description (Hidden by default) -->
-                        <div id="expanded-desc-${item.firebaseKey}" class="hidden bg-amber-50/50 border border-amber-200/60 p-2.5 rounded-lg mb-3 text-[11px] text-gray-700 font-light leading-relaxed">
-                            <strong class="block text-gray-900 font-semibold mb-0.5">Detailed Overview:</strong>
-                            ${item.bigDesc || item.desc || 'No detailed specifications provided.'}
-                        </div>
+                        <!-- Small Description Shown Directly on Card (No Hiding) -->
+                        <p class="text-[11px] text-gray-600 font-light line-clamp-2 mb-3">${item.smallDesc || 'No brief summary available.'}</p>
                     </div>
 
-                    <!-- Price & Add to Cart Button -->
+                    <!-- Price, Quantity, & Add to Cart Button -->
                     <div class="mt-2 pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <span class="font-black text-base text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
-                        <button onclick="window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+                        <div>
+                            <span class="font-black text-base text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
+                            ${item.qty ? `<span class="block text-[10px] text-slate-400 font-medium">Qty: ${item.qty}</span>` : ''}
+                        </div>
+                        <button onclick="event.stopPropagation(); window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
                             <i class="fa-solid fa-cart-plus text-xs"></i> Add to Cart
                         </button>
                     </div>
@@ -150,20 +159,56 @@
             `).join('');
         };
 
-        window.toggleExpand = function(key) {
-            const descEl = document.getElementById(`expanded-desc-${key}`);
-            const btnText = document.getElementById(`btn-text-${key}`);
-            const icon = document.getElementById(`icon-${key}`);
-            
-            if (descEl.classList.contains('hidden')) {
-                descEl.classList.remove('hidden');
-                btnText.textContent = "Less Info";
-                icon.className = "fa-solid fa-chevron-up text-[8px]";
-            } else {
-                descEl.classList.add('hidden');
-                btnText.textContent = "More Info";
-                icon.className = "fa-solid fa-chevron-down text-[8px]";
-            }
+        window.openProductModal = function(firebaseKey) {
+            const item = liveInventory.find(p => p.firebaseKey === firebaseKey);
+            if (!item) return;
+
+            const modalBody = document.getElementById('modal-body-content');
+            modalBody.innerHTML = `
+                <!-- Scaled Big Image Pinned / Centered Top -->
+                <div class="relative bg-slate-100 rounded-xl overflow-hidden aspect-[16/9] mb-4 border border-slate-200 flex items-center justify-center shadow-inner">
+                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-4">
+                    <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2.5 py-1 rounded shadow">In Stock</span>
+                </div>
+
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-1.5">
+                    <span class="text-amber-600 font-bold uppercase tracking-wider text-[10px] bg-amber-50 px-2 py-0.5 rounded border border-amber-200">${item.category || 'General'}</span>
+                    <div class="flex items-center gap-1 text-slate-700 font-bold">
+                        <i class="fa-solid fa-star text-amber-500"></i> ${item.rating || '5'} / 5 Rating
+                    </div>
+                </div>
+
+                <h2 class="text-lg font-black text-slate-900 mb-2">${item.name}</h2>
+
+                <div class="flex items-center gap-4 mb-4">
+                    <span class="text-xl font-black text-slate-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
+                    ${item.qty ? `<span class="text-xs bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700 font-bold">Quantity / Unit: ${item.qty}</span>` : ''}
+                </div>
+
+                <!-- Big Detailed Description (Small description is hidden/replaced by this comprehensive view) -->
+                <div class="bg-amber-50/60 border border-amber-200/80 p-3.5 rounded-xl mb-6 text-xs text-slate-700 font-light leading-relaxed">
+                    <strong class="block text-slate-900 font-bold mb-1"><i class="fa-solid fa-circle-info text-amber-600 mr-1"></i> Detailed Overview & Specifications:</strong>
+                    ${item.bigDesc || item.desc || 'No detailed specifications provided for this product.'}
+                </div>
+
+                <!-- Action Footer -->
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button onclick="closeProductModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs transition border border-slate-200">
+                        Close
+                    </button>
+                    <button onclick="window.addToCart('${item.firebaseKey}'); closeProductModal();" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            `;
+
+            const modal = document.getElementById('product-detail-modal');
+            modal.classList.remove('hidden');
+        };
+
+        window.closeProductModal = function() {
+            const modal = document.getElementById('product-detail-modal');
+            modal.classList.add('hidden');
         };
 
         window.filterProducts = function() {
@@ -171,7 +216,8 @@
             const filtered = liveInventory.filter(item => 
                 item.name.toLowerCase().includes(query) || 
                 (item.smallDesc && item.smallDesc.toLowerCase().includes(query)) ||
-                (item.bigDesc && item.bigDesc.toLowerCase().includes(query))
+                (item.bigDesc && item.bigDesc.toLowerCase().includes(query)) ||
+                (item.category && item.category.toLowerCase().includes(query))
             );
             renderStoreProducts(filtered);
         };
@@ -182,9 +228,9 @@
 
             const existing = cart.find(item => item.firebaseKey === firebaseKey);
             if (existing) {
-                existing.qty = (existing.qty || 1) + 1;
+                existing.qtyCount = (existing.qtyCount || 1) + 1;
             } else {
-                cart.push({ ...product, qty: 1 });
+                cart.push({ ...product, qtyCount: 1 });
             }
 
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
@@ -193,7 +239,7 @@
         };
 
         function updateCartCount() {
-            const totalCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+            const totalCount = cart.reduce((sum, item) => sum + (item.qtyCount || 1), 0);
             document.getElementById('cart-count').textContent = totalCount;
         }
 
