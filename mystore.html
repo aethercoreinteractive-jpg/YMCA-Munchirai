@@ -100,6 +100,26 @@
         let categoriesCache = [];
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
 
+        // Helper function to generate Amazon-style star rating HTML string
+        function generateStarRatingHTML(ratingValue, iconSizeClass = "text-[10px]") {
+            const rating = parseFloat(ratingValue) || 0;
+            let starsHtml = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                if (rating >= i) {
+                    // Full Golden Star
+                    starsHtml += `<i class="fa-solid fa-star text-amber-400 ${iconSizeClass}"></i>`;
+                } else if (rating >= i - 0.5) {
+                    // Half Golden Star
+                    starsHtml += `<i class="fa-solid fa-star-half-stroke text-amber-400 ${iconSizeClass}"></i>`;
+                } else {
+                    // Empty Gray Star
+                    starsHtml += `<i class="fa-regular fa-star text-slate-300 ${iconSizeClass}"></i>`;
+                }
+            }
+            return `<div class="inline-flex items-center gap-0.5" title="${rating} out of 5 stars">${starsHtml}</div>`;
+        }
+
         // Fetch Categories first to keep exact sorting order
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
@@ -188,6 +208,8 @@
                 `;
 
                 groupItems.forEach(item => {
+                    const starsDisplay = generateStarRatingHTML(item.rating || 5, "text-[11px]");
+
                     htmlOutput += `
                         <div onclick="openProductModal('${item.firebaseKey}')" class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between cursor-pointer group">
                             <div>
@@ -199,7 +221,10 @@
 
                                 <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
                                     <span class="text-amber-600 font-bold">${item.category || 'MY Food Store'}</span>
-                                    <span class="text-slate-400"><i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item.rating || '5'}/5</span>
+                                    <div class="flex items-center gap-1">
+                                        ${starsDisplay}
+                                        <span class="text-slate-500 font-bold ml-0.5">(${item.rating || '5'})</span>
+                                    </div>
                                 </div>
 
                                 <h3 class="font-bold text-sm text-gray-900 line-clamp-1 mb-1 group-hover:text-amber-600 transition">${item.name}</h3>
@@ -232,6 +257,8 @@
             const item = liveInventory.find(p => p.firebaseKey === firebaseKey);
             if (!item) return;
 
+            const modalStars = generateStarRatingHTML(item.rating || 5, "text-sm");
+
             const modalBody = document.getElementById('modal-body-content');
             modalBody.innerHTML = `
                 <!-- Scaled Big Image Pinned / Centered Top -->
@@ -242,8 +269,9 @@
 
                 <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-1.5">
                     <span class="text-amber-600 font-bold uppercase tracking-wider text-[10px] bg-amber-50 px-2 py-0.5 rounded border border-amber-200">${item.category || 'General'}</span>
-                    <div class="flex items-center gap-1 text-slate-700 font-bold">
-                        <i class="fa-solid fa-star text-amber-500"></i> ${item.rating || '5'} / 5 Rating
+                    <div class="flex items-center gap-1.5 text-slate-700 font-bold bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
+                        ${modalStars}
+                        <span class="text-slate-800 text-xs ml-1">${item.rating || '5'} / 5</span>
                     </div>
                 </div>
 
@@ -254,7 +282,7 @@
                     ${item.qty ? `<span class="text-xs bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700 font-bold">Quantity / Unit: ${item.qty}</span>` : ''}
                 </div>
 
-                <!-- Big Detailed Description (Small description is hidden/replaced by this comprehensive view) -->
+                <!-- Big Detailed Description -->
                 <div class="bg-amber-50/60 border border-amber-200/80 p-3.5 rounded-xl mb-6 text-xs text-slate-700 font-light leading-relaxed">
                     <strong class="block text-slate-900 font-bold mb-1"><i class="fa-solid fa-circle-info text-amber-600 mr-1"></i> Detailed Overview & Specifications:</strong>
                     ${item.bigDesc || item.desc || 'No detailed specifications provided for this product.'}
