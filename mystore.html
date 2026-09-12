@@ -73,7 +73,7 @@
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Official Storefront</span>
                     <h1 class="text-lg sm:text-3xl font-extrabold tracking-tight text-gray-900 mt-1">MY Food Product Catalog</h1>
-                    <p class="text-[11px] text-gray-500">Live inventory. Exactly 3 compact cards visible per row.</p>
+                    <p class="text-[11px] text-gray-500">Explore our delicious food products below.</p>
                 </div>
                 <div class="w-full md:w-72">
                     <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
@@ -82,7 +82,7 @@
 
             <!-- Products Container Grouped by Category -->
             <div id="store-categories-container" class="space-y-6">
-                <div class="text-center py-16 text-gray-400 text-xs">Loading live inventory from Firebase...</div>
+                <div class="text-center py-16 text-gray-400 text-xs">Loading products...</div>
             </div>
 
             <!-- Empty State Notice -->
@@ -241,7 +241,7 @@
                             <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                        <!-- Slider Row: Enforces exactly 3 cards visible simultaneously -->
+                        <!-- Slider Row -->
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
@@ -258,10 +258,11 @@
                                     <span class="absolute top-0.5 left-0.5 bg-amber-500 text-slate-950 font-bold text-[7px] px-1 py-0.2 rounded shadow">Stock</span>
                                 </div>
 
-                                <h3 class="font-bold text-[10px] text-gray-900 line-clamp-1 mb-0.5">${item.name}</h3>
+                                <!-- Full Title without truncation (decreased size to fit fully) -->
+                                <h3 class="font-bold text-[8.5k] text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
 
-                                <!-- Strict single line description with reduced size -->
-                                <p class="text-[7.5px] text-gray-500 font-light truncate mb-1">${item.smallDesc || 'No summary.'}</p>
+                                <!-- Full description without truncation (decreased size to fit fully) -->
+                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${item.smallDesc || 'No summary.'}</p>
                             </div>
 
                             <!-- Price on left, Quantity on right -->
@@ -305,8 +306,8 @@
                             <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                 <img src="${prod.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${prod.name}" class="w-full h-full object-contain p-1">
                             </div>
-                            <h4 class="font-bold text-[11px] text-gray-900 line-clamp-1 mb-0.5">${prod.name}</h4>
-                            <p class="text-[8px] text-gray-500 font-light truncate mb-1.5">${prod.smallDesc || 'No summary.'}</p>
+                            <h4 class="font-bold text-[9.5px] text-gray-900 leading-tight mb-0.5" style="word-break: break-word;">${prod.name}</h4>
+                            <p class="text-gray-500 font-light leading-tight mb-1.5" style="font-size: 7.5px; word-break: break-word;">${prod.smallDesc || 'No summary.'}</p>
                         </div>
                         <div>
                             <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
@@ -363,7 +364,7 @@
                     </div>
                 </div>
 
-                <!-- Below Section: Explore More Products (All products displayed with 2 cards per row) -->
+                <!-- Below Section: Explore More Products -->
                 <div class="mt-8 pt-4 border-t border-gray-200">
                     <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                         <i class="fa-solid fa-store text-amber-500"></i> Explore All Products (${liveInventory.length})
