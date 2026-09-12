@@ -54,8 +54,11 @@
             
             <!-- Quick Actions -->
             <div class="flex items-center gap-2">
-                <a href="mystore.html" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1.5 transition hover:bg-amber-400">
-                    <i class="fa-solid fa-store text-[10px]"></i> MY Store
+                <a href="add-product.html" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1.5 transition hover:bg-amber-400">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Add Product
+                </a>
+                <a href="mystore.html" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-store text-[10px] text-amber-400"></i> MY Store
                 </a>
                 <a href="index.html" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition" title="Home">
                     <i class="fa-solid fa-house text-[10px]"></i>
@@ -67,7 +70,7 @@
     <!-- MAIN DASHBOARD CONTENT -->
     <main class="max-w-7xl mx-auto w-full px-3 sm:px-6 py-6 sm:py-10 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Left Column: Categories Manager + Category Sort Manager + Product Form -->
+        <!-- Left Column: Categories Manager + Category Sort Manager -->
         <div class="space-y-6">
             <!-- Categories Manager Section -->
             <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200">
@@ -102,95 +105,13 @@
                     <span class="text-xs text-slate-400">No categories to sort.</span>
                 </div>
             </section>
-
-            <!-- Add / Edit Product Form Section -->
-            <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 h-fit">
-                <div class="border-b border-slate-100 pb-3 mb-5 flex items-center justify-between">
-                    <div>
-                        <span id="form-badge" class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Database Entry</span>
-                        <h2 id="form-title" class="text-base font-bold text-slate-900 mt-1">Add Product to Inventory</h2>
-                    </div>
-                    <button type="button" id="cancel-edit-top" onclick="cancelEdit()" class="text-[11px] text-slate-500 hover:text-amber-600 underline hidden font-medium">Cancel Edit</button>
-                </div>
-
-                <!-- Inline Notification Banner -->
-                <div id="form-status-msg" class="hidden mb-4 p-2.5 rounded-xl text-xs font-medium text-center"></div>
-
-                <form id="add-product-form" class="space-y-4">
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Product Title</label>
-                        <input type="text" id="prod-name" placeholder="e.g. Pure Wild Honey 500g" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Category</label>
-                            <select id="prod-category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                                <option value="" disabled selected>Select category...</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Price (₹)</label>
-                            <input type="number" id="prod-price" placeholder="e.g. 350" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Quantity & Unit</label>
-                            <input type="text" id="prod-qty" placeholder="e.g. 500g" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rating</label>
-                            <select id="prod-rating" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition cursor-pointer">
-                                <option value="5" selected>5</option>
-                                <option value="4.5">4.5</option>
-                                <option value="4">4</option>
-                                <option value="3.5">3.5</option>
-                                <option value="3">3</option>
-                                <option value="2.5">2.5</option>
-                                <option value="2">2</option>
-                                <option value="1.5">1.5</option>
-                                <option value="1">1</option>
-                                <option value="0.5">0.5</option>
-                                <option value="0">0</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Image Link (Google Drive / Direct URL)</label>
-                        <input type="text" id="prod-img" placeholder="Paste image or Google Drive link..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Small Description (1-line summary)</label>
-                        <input type="text" id="prod-small-desc" placeholder="Brief summary..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Big Description (Detailed overview)</label>
-                        <textarea id="prod-big-desc" rows="3" placeholder="Full detailed overview, origin, ingredients..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition resize-none"></textarea>
-                    </div>
-
-                    <div class="space-y-2 pt-2">
-                        <button type="submit" id="submit-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                            <span id="submit-btn-text">Save</span>
-                        </button>
-                        <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition hidden border border-slate-200">
-                            Cancel Edit
-                        </button>
-                    </div>
-                </form>
-            </section>
         </div>
 
         <!-- Right Column: Current Inventory Section-by-Section Real-Time List -->
         <section class="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 h-fit">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-4 mb-5 gap-3">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Live Management</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Database Manager</span>
                     <h2 class="text-base font-bold text-slate-900 mt-1">Current Inventory List (Categorized Sections)</h2>
                     <p class="text-[11px] text-slate-500 mt-0.5">Use the grip icon to sort products within categories.</p>
                 </div>
@@ -264,21 +185,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let editingKey = null;
         let inventoryCache = {};
         let categoriesCache = [];
         let draggedCategoryKey = null;
         let draggedProductKey = null;
         let pendingDeleteKey = null;
-
-        function showStatusMessage(message, isError = false) {
-            const msgEl = document.getElementById('form-status-msg');
-            if (!msgEl) return;
-            msgEl.textContent = message;
-            msgEl.className = `mb-4 p-2.5 rounded-xl text-xs font-medium text-center ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
-            msgEl.classList.remove('hidden');
-            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
-        }
 
         function showCategoryStatus(message, isError = false) {
             const msgEl = document.getElementById('category-status-msg');
@@ -287,16 +198,6 @@
             msgEl.className = `mb-3 p-2 rounded-xl text-xs font-medium text-center ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             msgEl.classList.remove('hidden');
             setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
-        }
-
-        function formatImageUrl(url) {
-            if (url.includes("drive.google.com")) {
-                const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
-                }
-            }
-            return url;
         }
 
         // Custom Modal Confirm Logic
@@ -339,10 +240,9 @@
         function executeDelete(key) {
             remove(ref(db, `inventory/${key}`))
                 .then(() => {
-                    if (editingKey === key) cancelEdit();
-                    showStatusMessage("Product removed from inventory.");
+                    // Item deleted successfully
                 })
-                .catch((err) => showStatusMessage("Failed to delete: " + err.message, true));
+                .catch((err) => alert("Failed to delete: " + err.message));
         }
 
         // Categories Management Engine
@@ -408,7 +308,6 @@
             draggedCategoryKey = null;
         };
 
-        // Touch Drag Handlers for Categories (Grip handle only)
         let touchCategoryKey = null;
         window.handleCategoryTouchStart = function(e, key) {
             touchCategoryKey = key;
@@ -484,13 +383,9 @@
         onValue(categoriesRef, (snapshot) => {
             const data = snapshot.val();
             const listContainer = document.getElementById('categories-list');
-            const selectEl = document.getElementById('prod-category');
             const filterEl = document.getElementById('filter-category');
             
-            const currentSelected = selectEl.value;
             const currentFilter = filterEl.value;
-
-            selectEl.innerHTML = `<option value="" disabled selected>Select category...</option>`;
             filterEl.innerHTML = `<option value="ALL">All Categories (Section View)</option>`;
 
             if (!data) {
@@ -514,18 +409,12 @@
             `).join('');
 
             categoriesCache.forEach(cat => {
-                const opt1 = document.createElement('option');
-                opt1.value = cat.name;
-                opt1.textContent = cat.name;
-                selectEl.appendChild(opt1);
-
-                const opt2 = document.createElement('option');
-                opt2.value = cat.name;
-                opt2.textContent = cat.name;
-                filterEl.appendChild(opt2);
+                const opt = document.createElement('option');
+                opt.value = cat.name;
+                opt.textContent = cat.name;
+                filterEl.appendChild(opt);
             });
 
-            if (currentSelected) selectEl.value = currentSelected;
             if (currentFilter) filterEl.value = currentFilter;
 
             renderCategorySortList();
@@ -639,60 +528,6 @@
             }
         };
 
- // Product Form Handler
-        document.getElementById('add-product-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
-
-            const rawImg = document.getElementById('prod-img').value.trim();
-            const formattedImg = formatImageUrl(rawImg);
-            const chosenCategory = document.getElementById('prod-category').value;
-
-            const existingInCategory = Object.values(inventoryCache).filter(item => (item.category || "Uncategorized") === chosenCategory);
-            const newOrder = existingInCategory.length;
-
-            const productData = {
-                name: document.getElementById('prod-name').value.trim(),
-                category: chosenCategory,
-                price: document.getElementById('prod-price').value.trim(),
-                qty: document.getElementById('prod-qty').value.trim(),
-                rating: document.getElementById('prod-rating').value,
-                img: formattedImg,
-                smallDesc: document.getElementById('prod-small-desc').value.trim(),
-                bigDesc: document.getElementById('prod-big-desc').value.trim(),
-                order: newOrder,
-                updatedAt: Date.now()
-            };
-
-            if (editingKey) {
-                update(ref(db, `inventory/${editingKey}`), productData)
-                    .then(() => {
-                        showStatusMessage("Product updated successfully!");
-                        cancelEdit();
-                    })
-                    .catch((err) => showStatusMessage("Failed to update: " + err.message, true))
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span id="submit-btn-text">Save</span>`;
-                    });
-            } else {
-                productData.createdAt = Date.now();
-                push(ref(db, 'inventory'), productData)
-                    .then(() => {
-                        showStatusMessage("Product added successfully!");
-                        document.getElementById('add-product-form').reset();
-                        document.getElementById('prod-rating').value = "5";
-                    })
-                    .catch((err) => showStatusMessage("Error saving product: " + err.message, true))
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span id="submit-btn-text">Save</span>`;
-                    });
-            }
-        });
-
         const inventoryRef = ref(db, 'inventory');
         onValue(inventoryRef, (snapshot) => {
             const data = snapshot.val();
@@ -794,46 +629,17 @@
                                         <h4 class="font-bold text-xs text-slate-900 truncate">${item.name}</h4>
                                         <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded shrink-0">${item.category || 'General'}</span>
                                     </div>
-                                    <p class="text-[11px] text-slate-500 mt-0.5">₹${item.price} &bull; <i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item.rating || '5'}/5</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">₹${item.price} &bull; <i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item.rating || '5'}/5 &bull; Qty: <strong class="text-slate-700">${item.qty || '0'}</strong></p>
                                 </div>
                             </div>
                             
-                            <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
-                                <!-- Quick Quantity Update Section -->
-                                <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Qty:</span>
-                                    <input type="text" id="qty-input-${item.key}" value="${item.qty || ''}" class="w-14 text-xs font-bold text-slate-900 bg-transparent focus:outline-none text-center">
-                                </div>
-
-                                <!-- Quick Rating Update Section -->
-                                <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner cursor-pointer">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Rate:</span>
-                                    <select id="rating-input-${item.key}" class="text-xs font-bold text-slate-900 bg-transparent focus:outline-none text-center cursor-pointer">
-                                        <option value="5" ${item.rating == '5' ? 'selected' : ''}>5</option>
-                                        <option value="4.5" ${item.rating == '4.5' ? 'selected' : ''}>4.5</option>
-                                        <option value="4" ${item.rating == '4' ? 'selected' : ''}>4</option>
-                                        <option value="3.5" ${item.rating == '3.5' ? 'selected' : ''}>3.5</option>
-                                        <option value="3" ${item.rating == '3' ? 'selected' : ''}>3</option>
-                                        <option value="2.5" ${item.rating == '2.5' ? 'selected' : ''}>2.5</option>
-                                        <option value="2" ${item.rating == '2' ? 'selected' : ''}>2</option>
-                                        <option value="1.5" ${item.rating == '1.5' ? 'selected' : ''}>1.5</option>
-                                        <option value="1" ${item.rating == '1' ? 'selected' : ''}>1</option>
-                                        <option value="0.5" ${item.rating == '0.5' ? 'selected' : ''}>0.5</option>
-                                        <option value="0" ${item.rating == '0' ? 'selected' : ''}>0</option>
-                                    </select>
-                                    <button onclick="window.updateMetrics('${item.key}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-bold px-2 py-1 rounded transition ml-0.5" title="Save Changes">
-                                        Save
-                                    </button>
-                                </div>
-
-                                <div class="flex items-center gap-1 shrink-0">
-                                    <button onclick="window.startEdit('${item.key}')" class="text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 p-2 rounded-lg transition" title="Edit Full Product">
-                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
-                                    </button>
-                                    <button onclick="window.deleteProduct('${item.key}')" class="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 p-2 rounded-lg transition" title="Delete Product">
-                                        <i class="fa-solid fa-trash text-xs"></i>
-                                    </button>
-                                </div>
+                            <div class="flex items-center justify-end gap-1.5 w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
+                                <a href="add-product.html?edit=${item.key}" class="text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5" title="Edit Full Product">
+                                    <i class="fa-solid fa-pen-to-square text-[11px]"></i> Edit
+                                </a>
+                                <button onclick="window.deleteProduct('${item.key}')" class="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5" title="Delete Product">
+                                    <i class="fa-solid fa-trash text-[11px]"></i> Delete
+                                </button>
                             </div>
                         </div>
                     `;
@@ -843,49 +649,6 @@
             });
 
             container.innerHTML = htmlOutput;
-        };
-
-        window.updateMetrics = function(key) {
-            const newQty = document.getElementById(`qty-input-${key}`).value.trim();
-            const newRating = document.getElementById(`rating-input-${key}`).value;
-            
-            update(ref(db, `inventory/${key}`), { qty: newQty, rating: newRating, updatedAt: Date.now() })
-                .then(() => showStatusMessage("Quantity and rating updated successfully!"))
-                .catch((err) => showStatusMessage("Failed to update: " + err.message, true));
-        };
-
-        window.startEdit = function(key) {
-            const item = inventoryCache[key];
-            if (!item) return;
-
-            editingKey = key;
-            document.getElementById('prod-name').value = item.name || '';
-            document.getElementById('prod-category').value = item.category || '';
-            document.getElementById('prod-price').value = item.price || '';
-            document.getElementById('prod-qty').value = item.qty || '';
-            document.getElementById('prod-rating').value = item.rating || '5';
-            document.getElementById('prod-img').value = item.img || '';
-            document.getElementById('prod-small-desc').value = item.smallDesc || '';
-            document.getElementById('prod-big-desc').value = item.bigDesc || '';
-
-            document.getElementById('form-title').textContent = "Edit Product Record";
-            document.getElementById('form-badge').textContent = "Editing Mode";
-            document.getElementById('submit-btn-text').textContent = "Save";
-            document.getElementById('cancel-edit-btn').classList.remove('hidden');
-            document.getElementById('cancel-edit-top').classList.remove('hidden');
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.cancelEdit = function() {
-            editingKey = null;
-            document.getElementById('add-product-form').reset();
-            document.getElementById('prod-rating').value = "5";
-            document.getElementById('form-title').textContent = "Add Product to Inventory";
-            document.getElementById('form-badge').textContent = "Database Entry";
-            document.getElementById('submit-btn-text').textContent = "Save";
-            document.getElementById('cancel-edit-btn').classList.add('hidden');
-            document.getElementById('cancel-edit-top').classList.add('hidden');
         };
     </script>
 </body>
