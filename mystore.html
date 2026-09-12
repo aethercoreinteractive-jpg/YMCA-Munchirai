@@ -65,7 +65,7 @@
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">Official Storefront</span>
                     <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mt-2">MY Food Product Catalog</h1>
-                    <p class="text-xs text-gray-500 mt-1">Live inventory organized by category. Exactly 3 compact cards visible per row.</p>
+                    <p class="text-xs text-gray-500 mt-1">Live inventory organized by category. Compact cards with price/qty split and full-width buttons.</p>
                 </div>
                 <div class="w-full md:w-72">
                     <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
@@ -207,39 +207,37 @@
                             <span class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                        <!-- Slider Row: Enforces exactly 3 compact cards visible at a time on desktop -->
+                        <!-- Slider Row: Enforces exactly 3 cards visible at a time -->
                         <div class="flex overflow-x-auto no-scrollbar gap-5 pb-3 pt-1 snap-x scroll-smooth">
                 `;
 
                 groupItems.forEach(item => {
+                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+
                     htmlOutput += `
-                        <div onclick="openProductPageView('${item.firebaseKey}')" class="w-[85%] sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] flex-shrink-0 snap-start border border-gray-200 hover:border-amber-400 bg-white rounded-xl p-3 shadow-sm hover:shadow transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="openProductPageView('${item.firebaseKey}')" class="w-[85%] sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] flex-shrink-0 snap-start border border-gray-200 hover:border-amber-400 bg-white rounded-xl p-2.5 shadow-sm hover:shadow transition flex flex-col justify-between cursor-pointer group">
                             <div>
-                                <!-- Compact Uncropped Image -->
-                                <div class="relative bg-slate-100 rounded-lg overflow-hidden aspect-[4/3] mb-2.5 border border-gray-100 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1.5 transition duration-300 group-hover:scale-105">
-                                    <span class="absolute top-1.5 left-1.5 bg-amber-500 text-slate-950 font-bold text-[8px] px-2 py-0.5 rounded shadow">In Stock</span>
+                                <!-- Very Small Image Sized Compact Frame -->
+                                <div class="relative bg-slate-100 rounded-lg overflow-hidden h-32 mb-2 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1 transition duration-300 group-hover:scale-105">
+                                    <span class="absolute top-1 left-1 bg-amber-500 text-slate-950 font-bold text-[8px] px-1.5 py-0.5 rounded shadow">In Stock</span>
                                 </div>
 
-                                <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
-                                    <span class="text-amber-600 font-bold truncate">${item.category || 'MY Food Store'}</span>
-                                    <span class="text-[9px] text-slate-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded shrink-0"><i class="fa-solid fa-arrow-pointer text-amber-500 mr-0.5"></i> Tap</span>
-                                </div>
+                                <h3 class="font-bold text-xs text-gray-900 line-clamp-1 mb-0.5 group-hover:text-amber-600 transition">${item.name}</h3>
 
-                                <h3 class="font-bold text-xs text-gray-900 line-clamp-1 mb-1 group-hover:text-amber-600 transition">${item.name}</h3>
-
-                                <!-- Compact Short Description -->
-                                <p class="text-[10px] text-gray-600 font-light line-clamp-2 mb-2.5">${item.smallDesc || 'No brief summary available.'}</p>
+                                <p class="text-[10px] text-gray-500 font-light line-clamp-1 mb-2">${item.smallDesc || 'No brief summary.'}</p>
                             </div>
 
-                            <!-- Price & Add to Cart -->
-                            <div class="mt-1 pt-2 border-t border-gray-100 flex items-center justify-between">
-                                <div>
-                                    <span class="font-black text-sm text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
-                                    ${item.qty ? `<span class="block text-[9px] text-slate-400 font-medium">Qty: ${item.qty}</span>` : ''}
+                            <!-- Price on one side, Quantity on the other side -->
+                            <div>
+                                <div class="flex items-center justify-between text-xs py-1 border-t border-b border-gray-100 mb-2 bg-gray-50/50 px-2 rounded">
+                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    <span class="text-[10px] text-slate-500 font-semibold">${item.qty ? item.qty : 'Standard'}</span>
                                 </div>
-                                <button onclick="event.stopPropagation(); window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-bold px-3 py-1.5 rounded-lg transition shadow flex items-center gap-1">
-                                    <i class="fa-solid fa-cart-plus text-[10px]"></i> Add
+
+                                <!-- Lengthy Full-Width Add to Cart Button -->
+                                <button onclick="event.stopPropagation(); window.addToCart('${item.firebaseKey}')" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold py-2 px-3 rounded-lg transition shadow flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-cart-plus text-xs"></i> Add to Cart
                                 </button>
                             </div>
                         </div>
