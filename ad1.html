@@ -1,125 +1,262 @@
-<!-- AD 1 BANNER PREVIEW CONTAINER -->
-<div id="ad1-container" class="w-full max-w-4xl mx-auto my-4 overflow-hidden rounded-3xl shadow-xl border border-slate-200 bg-slate-900 relative">
-    <!-- Dynamic Content Injected Here -->
-    <div id="ad1-content-wrapper" class="relative w-full aspect-[16/9] sm:aspect-[21/9] flex items-center justify-center overflow-hidden bg-slate-950">
-        <span class="text-xs text-slate-400 font-mono">Loading Ad 1...</span>
-    </div>
-</div>
-
-<!-- Firebase Preview Script Engine -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
-      authDomain: "munchirai-ymca.firebaseapp.com",
-      databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
-      projectId: "munchirai-ymca",
-      storageBucket: "munchirai-ymca.firebasestorage.app",
-      messagingSenderId: "697387132253",
-      appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
-      measurementId: "G-XRRT0Q76YK"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const wrapper = document.getElementById('ad1-content-wrapper');
-
-    // Helper to convert Google Drive sharing links to direct viewable stream/embed links
-    function formatDriveLink(url) {
-        if (!url) return '';
-        if (url.includes('drive.google.com')) {
-            const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-            if (fileIdMatch && fileIdMatch[1]) {
-                return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
-            }
-        }
-        return url;
-    }
-
-    get(ref(db, 'ads/ad1')).then((snapshot) => {
-        if (!snapshot.exists()) {
-            wrapper.innerHTML = `<span class="text-xs text-slate-500">No active advertisement configuration found.</span>`;
-            return;
-        }
-
-        const ad = snapshot.val();
-        const links = [];
-        if (ad.link) links.push(formatDriveLink(ad.link));
-        if (ad.secondaryLink && ad.mediaType === 'photo') links.push(formatDriveLink(ad.secondaryLink));
-
-        if (links.length === 0) {
-            wrapper.innerHTML = `<span class="text-xs text-slate-500">No media links provided.</span>`;
-            return;
-        }
-
-        let currentIndex = 0;
-
-        function renderAd() {
-            const currentUrl = links[currentIndex];
-            let htmlContent = '';
-
-            if (ad.mediaType === 'video') {
-                // Default unmuted as requested, with tap-to-toggle audio UX
-                const isMuted = ad.audioState === 'mute' ? 'muted' : '';
-                htmlContent = `
-                    <video id="ad-video-elem" src="${currentUrl}" autoplay loop playsinline ${isMuted} class="w-full h-full object-cover cursor-pointer"></video>
-                    <div id="audio-badge" class="absolute bottom-4 right-4 bg-slate-950/80 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-bold border border-white/10 shadow-lg flex items-center gap-1.5 pointer-events-none transition-all">
-                        <i class="fa-solid ${isMuted ? 'fa-volume-xmark text-amber-400' : 'fa-volume-high text-emerald-400'}"></i>
-                        <span>${isMuted ? 'Tap to Unmute' : 'Playing Unmuted (Tap to Mute)'}</span>
-                    </div>
-                `;
-            } else {
-                // Photo with smooth sliding transition styling
-                htmlContent = `
-                    <img src="${currentUrl}" alt="Advertisement" class="w-full h-full object-cover transition-opacity duration-700 ease-in-out opacity-0 onload" onload="this.classList.remove('opacity-0')">
-                `;
-            }
-
-            // Append Action Button if enabled
-            if (ad.showButton && ad.buttonName && ad.buttonUrl) {
-                htmlContent += `
-                    <div class="absolute bottom-4 left-4 z-10">
-                        <a href="${ad.buttonUrl}" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs shadow-xl transition active:scale-95 flex items-center gap-2 border border-amber-300">
-                            <span>${ad.buttonName}</span>
-                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </a>
-                    </div>
-                `;
-            }
-
-            wrapper.innerHTML = htmlContent;
-
-            // Bind Video Tap-to-Mute / Unmute handler if video type
-            if (ad.mediaType === 'video') {
-                const vidElem = document.getElementById('ad-video-elem');
-                const badge = document.getElementById('audio-badge');
-                if (vidElem) {
-                    vidElem.addEventListener('click', () => {
-                        vidElem.muted = !vidElem.muted;
-                        if (vidElem.muted) {
-                            badge.innerHTML = `<i class="fa-solid fa-volume-xmark text-amber-400"></i><span>Muted (Tap to Unmute)</span>`;
-                        } else {
-                            badge.innerHTML = `<i class="fa-solid fa-volume-high text-emerald-400"></i><span>Unmuted (Tap to Mute)</span>`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Munchirai YMCA | Ad 1 Configuration</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#1e293b',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
                         }
-                    });
+                    }
                 }
             }
         }
-
-        renderAd();
-
-        // If more than 1 photo link is provided, rotate automatically every 4 seconds
-        if (links.length > 1 && ad.mediaType === 'photo') {
-            setInterval(() => {
-                currentIndex = (currentIndex + 1) % links.length;
-                renderAd();
-            }, 4000);
+    </script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        /* Toggle Switch Smooth Transition */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #f59e0b;
         }
-    }).catch(err => {
-        wrapper.innerHTML = `<span class="text-xs text-red-400">Failed to load advertisement stream.</span>`;
-    });
-          </script>
-          
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #f59e0b;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+
+    <!-- ENTERPRISE NAVIGATION HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg backdrop-blur-md bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md">MY</div>
+                <div>
+                    <h1 class="text-xs font-extrabold text-white tracking-tight">MUNCHIRAI YMCA</h1>
+                    <span class="text-[10px] text-amber-400 font-mono tracking-wider block">AD_1_CONFIG</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="admanagement.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-arrow-left text-amber-400"></i>
+                    <span class="hidden xs:inline">Back</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="max-w-xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
+        
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80">
+            <div class="border-b border-slate-100 pb-3 mb-5 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/60">Slot Parameters</span>
+                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Configure Ad 1</h2>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold border border-indigo-200">
+                    <i class="fa-solid fa-rectangle-ad"></i>
+                </div>
+            </div>
+
+            <!-- Status Alert Box -->
+            <div id="status-msg" class="hidden mb-5 p-3 rounded-xl text-xs font-medium text-center shadow-sm"></div>
+
+            <form id="ad1-form" class="space-y-4">
+                
+                <!-- Google Drive Primary Link -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Google Drive Link (Primary)</label>
+                    <input type="url" id="ad-link" placeholder="https://drive.google.com/file/d/..." required 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                </div>
+
+                <!-- Media Type Selection -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Media Type</label>
+                    <select id="media-type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                        <option value="photo">Photo</option>
+                        <option value="video">Video</option>
+                    </select>
+                </div>
+
+                <!-- Secondary Photo Link Option (Shows only if Photo is selected) -->
+                <div id="secondary-photo-container" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Additional Google Drive Photo Link (For 4s Auto-Slide)</label>
+                    <input type="url" id="ad-link-secondary" placeholder="https://drive.google.com/file/d/... (Optional)" 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                    <p class="text-[10px] text-slate-400 mt-1">If multiple links are provided, the banner will automatically slide every 4 seconds in the store.</p>
+                </div>
+
+                <!-- Video Audio Setting (Shows only if Video is selected) -->
+                <div id="video-audio-container" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Video Initial Audio State</label>
+                    <select id="video-audio-state" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                        <option value="unmute" selected>Unmuted (Default)</option>
+                        <option value="mute">Muted</option>
+                    </select>
+                    <p class="text-[10px] text-slate-400 mt-1">Users can tap the video banner in the store to easily mute/unmute at any time.</p>
+                </div>
+
+                <!-- Action Button Switch & Config -->
+                <div class="pt-2 border-t border-slate-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <span class="text-xs font-bold text-slate-900 block">Action Button</span>
+                            <span class="text-[10px] text-slate-500">Show a call-to-action button over the advertisement banner</span>
+                        </div>
+                        <!-- Sliding Toggle Switch -->
+                        <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle" id="btn-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-slate-300 appearance-none cursor-pointer transition-all duration-300 right-6 checked:right-0"/>
+                            <label for="btn-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
+                        </div>
+                    </div>
+
+                    <!-- Action Button Fields (Controlled by Toggle) -->
+                    <div id="action-btn-fields" class="space-y-3 bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80 hidden">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Button Custom Name</label>
+                            <input type="text" id="btn-name" placeholder="e.g. Shop Now, Register Here" 
+                                   class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Button Target Link (URL)</label>
+                            <input type="url" id="btn-url" placeholder="https://..." 
+                                   class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-md active:scale-[0.98] mt-2">
+                    Save Ad 1 Configuration
+                </button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- ENTERPRISE FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400">
+        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
+    </footer>
+
+    <!-- Firebase Realtime Engine -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
+          authDomain: "munchirai-ymca.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca",
+          storageBucket: "munchirai-ymca.firebasestorage.app",
+          messagingSenderId: "697387132253",
+          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
+          measurementId: "G-XRRT0Q76YK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const mediaTypeSelect = document.getElementById('media-type');
+        const secondaryPhotoContainer = document.getElementById('secondary-photo-container');
+        const videoAudioContainer = document.getElementById('video-audio-container');
+        const btnToggle = document.getElementById('btn-toggle');
+        const actionBtnFields = document.getElementById('action-btn-fields');
+
+        // Toggle Dynamic UI visibility based on selections
+        mediaTypeSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'photo') {
+                secondaryPhotoContainer.classList.remove('hidden');
+                videoAudioContainer.classList.add('hidden');
+            } else {
+                secondaryPhotoContainer.classList.add('hidden');
+                videoAudioContainer.classList.remove('hidden');
+            }
+        });
+
+        btnToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                actionBtnFields.classList.remove('hidden');
+            } else {
+                actionBtnFields.classList.add('hidden');
+            }
+        });
+
+        function showStatus(message, isError = false) {
+            const msgEl = document.getElementById('status-msg');
+            if (!msgEl) return;
+            msgEl.textContent = message;
+            msgEl.className = `mb-5 p-3 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            msgEl.classList.remove('hidden');
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
+        }
+
+        // Load existing configuration on page startup
+        const adRef = ref(db, 'ads/ad1');
+        get(adRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                document.getElementById('ad-link').value = data.link || '';
+                document.getElementById('media-type').value = data.mediaType || 'photo';
+                document.getElementById('ad-link-secondary').value = data.secondaryLink || '';
+                document.getElementById('video-audio-state').value = data.audioState || 'unmute';
+                
+                if (data.mediaType === 'photo') {
+                    secondaryPhotoContainer.classList.remove('hidden');
+                    videoAudioContainer.classList.add('hidden');
+                } else {
+                    secondaryPhotoContainer.classList.add('hidden');
+                    videoAudioContainer.classList.remove('hidden');
+                }
+
+                if (data.showButton) {
+                    btnToggle.checked = true;
+                    actionBtnFields.classList.remove('hidden');
+                    document.getElementById('btn-name').value = data.buttonName || '';
+                    document.getElementById('btn-url').value = data.buttonUrl || '';
+                }
+            }
+        }).catch(err => console.error("Error loading configuration:", err));
+
+        // Save Configuration to Firebase
+        document.getElementById('ad1-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const adData = {
+                link: document.getElementById('ad-link').value.trim(),
+                mediaType: mediaTypeSelect.value,
+                secondaryLink: document.getElementById('ad-link-secondary').value.trim(),
+                audioState: document.getElementById('video-audio-state').value,
+                showButton: btnToggle.checked,
+                buttonName: document.getElementById('btn-name').value.trim(),
+                buttonUrl: document.getElementById('btn-url').value.trim(),
+                updatedAt: Date.now()
+            };
+
+            set(adRef, adData)
+                .then(() => showStatus('Ad 1 configuration saved successfully!'))
+                .catch(err => showStatus('Failed to save: ' + err.message, true));
+        });
+    </script>
+</body>
+</html>
