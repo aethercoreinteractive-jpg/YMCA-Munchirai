@@ -220,6 +220,25 @@
         </section>
     </main>
 
+    <!-- CUSTOM WEBSITE CONFIRMATION MODAL -->
+    <div id="custom-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center transform transition-all scale-95 opacity-0 duration-200" id="modal-box">
+            <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4 border border-red-100 text-lg">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-1">Delete Product?</h3>
+            <p id="confirm-modal-text" class="text-xs text-slate-500 mb-6">Are you sure you want to remove this product from inventory? This action cannot be undone.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button type="button" onclick="closeCustomConfirm(false)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition border border-slate-200">
+                    Cancel
+                </button>
+                <button type="button" id="confirm-yes-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm">
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ENTERPRISE FOOTER -->
     <footer class="bg-slate-900 border-t border-slate-800 py-4 px-4 text-center text-[10px] text-slate-400">
         Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
@@ -249,6 +268,7 @@
         let categoriesCache = [];
         let draggedCategoryKey = null;
         let draggedProductKey = null;
+        let pendingDeleteKey = null;
 
         function showStatusMessage(message, isError = false) {
             const msgEl = document.getElementById('form-status-msg');
@@ -278,6 +298,52 @@
             return url;
         }
 
+         // Custom Modal Confirm Logic
+        window.deleteProduct = function(key) {
+            const item = inventoryCache[key];
+            const itemName = item ? item.name : "this product";
+            pendingDeleteKey = key;
+
+            document.getElementById('confirm-modal-text').textContent = `Are you sure you want to remove "${itemName}" from inventory?`;
+            
+            const modal = document.getElementById('custom-confirm-modal');
+            const modalBox = document.getElementById('modal-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalBox.classList.remove('scale-95', 'opacity-0');
+                modalBox.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        window.closeCustomConfirm = function(confirmed) {
+            const modal = document.getElementById('custom-confirm-modal');
+            const modalBox = document.getElementById('modal-box');
+
+            modalBox.classList.remove('scale-100', 'opacity-100');
+            modalBox.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (confirmed && pendingDeleteKey) {
+                    executeDelete(pendingDeleteKey);
+                }
+                pendingDeleteKey = null;
+            }, 200);
+        };
+
+        document.getElementById('confirm-yes-btn').addEventListener('click', () => {
+            window.closeCustomConfirm(true);
+        });
+
+        function executeDelete(key) {
+            remove(ref(db, `inventory/${key}`))
+                .then(() => {
+                    if (editingKey === key) cancelEdit();
+                    showStatusMessage("Product removed from inventory.");
+                })
+                .catch((err) => showStatusMessage("Failed to delete: " + err.message, true));
+        }
+
         // Categories Management Engine
         document.getElementById('add-category-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -300,11 +366,9 @@
         });
 
         window.deleteCategory = function(key, name) {
-            if (confirm(`Remove category "${name}"?`)) {
-                remove(ref(db, `categories/${key}`))
-                    .then(() => showCategoryStatus(`Category "${name}" removed.`))
-                    .catch((err) => showCategoryStatus("Failed to remove: " + err.message, true));
-            }
+            remove(ref(db, `categories/${key}`))
+                .then(() => showCategoryStatus(`Category "${name}" removed.`))
+                .catch((err) => showCategoryStatus("Failed to remove: " + err.message, true));
         };
 
         // Drag and Drop Handlers for Categories Sorting
@@ -343,7 +407,7 @@
             draggedCategoryKey = null;
         };
 
-        // Touch Drag Handlers for Categories
+           // Touch Drag Handlers for Categories
         let touchCategoryKey = null;
         window.handleCategoryTouchStart = function(e, key) {
             touchCategoryKey = key;
@@ -465,7 +529,8 @@
             renderCategorySortList();
             renderInventoryList();
         });
-          // Product Drag and Drop / Touch Sorting Handlers
+
+  // Product Drag and Drop / Touch Sorting Handlers
         window.handleProductDragStart = function(e, key) {
             draggedProductKey = key;
             e.dataTransfer.effectAllowed = 'move';
@@ -486,10 +551,8 @@
 
             if (!sourceItem || !targetItem) return;
 
-            // Ensure they belong to the same category section
             if ((sourceItem.category || "Uncategorized") !== (targetItem.category || "Uncategorized")) return;
 
-            // Get all items in this category currently
             let categoryItems = Object.keys(inventoryCache)
                 .map(k => ({ key: k, ...inventoryCache[k] }))
                 .filter(item => (item.category || "Uncategorized") === (targetItem.category || "Uncategorized"));
@@ -585,7 +648,6 @@
             const formattedImg = formatImageUrl(rawImg);
             const chosenCategory = document.getElementById('prod-category').value;
 
-            // Calculate next order index for this category
             const existingInCategory = Object.values(inventoryCache).filter(item => (item.category || "Uncategorized") === chosenCategory);
             const newOrder = existingInCategory.length;
 
@@ -636,7 +698,7 @@
             renderInventoryList();
         });
 
-        window.renderInventoryList = function() {
+  window.renderInventoryList = function() {
             const container = document.getElementById('admin-inventory-list');
             const countBadge = document.getElementById('item-count');
             const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
@@ -654,12 +716,10 @@
                 ...inventoryCache[key]
             }));
 
-            // Filter by Search Query
             if (searchQuery) {
                 items = items.filter(item => item.name && item.name.toLowerCase().includes(searchQuery));
             }
 
-            // Filter by specific category selection if chosen
             if (selectedCategory !== 'ALL') {
                 items = items.filter(item => item.category === selectedCategory);
             }
@@ -671,7 +731,6 @@
                 return;
             }
 
-            // Group items by category and sort each group by its order property
             let categoryGroups = {};
             
             categoriesCache.forEach(cat => {
@@ -687,7 +746,6 @@
                 categoryGroups[cat].push(item);
             });
 
-            // Sort products inside each group by order
             Object.keys(categoryGroups).forEach(cat => {
                 categoryGroups[cat].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
             });
@@ -769,7 +827,7 @@
                                     <button onclick="window.startEdit('${item.key}')" class="text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 p-2 rounded-lg transition" title="Edit Full Product">
                                         <i class="fa-solid fa-pen-to-square text-xs"></i>
                                     </button>
-                                    <button onclick="window.deleteProduct('${item.key}', '${item.name.replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 p-2 rounded-lg transition" title="Delete Product">
+                                    <button onclick="window.deleteProduct('${item.key}')" class="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 p-2 rounded-lg transition" title="Delete Product">
                                         <i class="fa-solid fa-trash text-xs"></i>
                                     </button>
                                 </div>
@@ -816,7 +874,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-window.cancelEdit = function() {
+        window.cancelEdit = function() {
             editingKey = null;
             document.getElementById('add-product-form').reset();
             document.getElementById('prod-rating').value = "5";
@@ -826,17 +884,6 @@ window.cancelEdit = function() {
             document.getElementById('cancel-edit-btn').classList.add('hidden');
             document.getElementById('cancel-edit-top').classList.add('hidden');
         };
-
-        window.deleteProduct = function(key, name) {
-            if (confirm(`Are you sure you want to delete "${name}" from inventory?`)) {
-                remove(ref(db, `inventory/${key}`))
-                    .then(() => {
-                        if (editingKey === key) cancelEdit();
-                        showStatusMessage("Product removed from inventory.");
-                    })
-                    .catch((err) => showStatusMessage("Failed to delete: " + err.message, true));
-            }
-        };
     </script>
 </body>
-</html>        
+</html>
