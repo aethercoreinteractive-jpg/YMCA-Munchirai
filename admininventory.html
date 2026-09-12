@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | Admin Categories Manager</title>
+    <title>Munchirai YMCA | Enterprise Admin Dashboard</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -41,73 +41,108 @@
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
     <!-- ENTERPRISE NAVIGATION HEADER -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-md">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-3">
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg backdrop-blur-md bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
             <!-- Brand Mark -->
-            <div class="flex items-center gap-2.5 shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md">MY</div>
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md">MY</div>
                 <div>
-                    <h1 class="text-xs font-bold text-white tracking-tight">MUNCHIRAI</h1>
-                    <span class="text-[9px] text-amber-400 font-mono block">ADMIN_NODE</span>
+                    <h1 class="text-xs font-extrabold text-white tracking-tight">MUNCHIRAI YMCA</h1>
+                    <span class="text-[10px] text-amber-400 font-mono tracking-wider block">ADMIN_CONSOLE</span>
                 </div>
             </div>
             
             <!-- Quick Actions -->
             <div class="flex items-center gap-2">
-                <a href="add-product.html" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1.5 transition hover:bg-amber-400">
-                    <i class="fa-solid fa-plus text-[10px]"></i> Add Product
+                <a href="mystore.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-store text-amber-400"></i>
+                    <span class="hidden xs:inline">Store</span>
                 </a>
-                <a href="mystore.html" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-store text-[10px] text-amber-400"></i> MY Store
-                </a>
-                <a href="index.html" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition" title="Home">
-                    <i class="fa-solid fa-house text-[10px]"></i>
+                <a href="index.html" class="w-9 h-9 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center justify-center active:scale-95" title="Home">
+                    <i class="fa-solid fa-house"></i>
                 </a>
             </div>
         </div>
     </header>
 
     <!-- MAIN DASHBOARD CONTENT -->
-    <main class="max-w-4xl mx-auto w-full px-3 sm:px-6 py-6 sm:py-10 flex-grow grid grid-cols-1 md:grid-cols-2 gap-6">
+    <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
         
-        <!-- Categories Manager Section -->
-        <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 h-fit">
-            <div class="border-b border-slate-100 pb-3 mb-4">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Taxonomy</span>
-                <h2 class="text-base font-bold text-slate-900 mt-1">Categories Manager</h2>
+        <!-- Action Hub Links Section -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80">
+            <div class="border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Operations Hub</span>
+                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Quick Action Panels</h2>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold border border-amber-200">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
             </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <a href="addproduct.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Add Product</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Create a new inventory listing with details.</p>
+                    </div>
+                </a>
 
-            <div id="category-status-msg" class="hidden mb-3 p-2 rounded-xl text-xs font-medium text-center"></div>
-
-            <form id="add-category-form" class="flex gap-2 mb-4">
-                <input type="text" id="new-category-name" placeholder="New category name..." required class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm shrink-0">
-                    Add
-                </button>
-            </form>
-
-            <div id="categories-list" class="flex flex-wrap gap-2 max-h-60 overflow-y-auto no-scrollbar">
-                <span class="text-xs text-slate-400">Loading categories...</span>
+                <a href="productmanagement.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
+                    <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
+                        <i class="fa-solid fa-database text-amber-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Product Management</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Inspect stock, edit records, and manage lists.</p>
+                    </div>
+                </a>
             </div>
         </section>
 
-        <!-- Category Sorting Manager Section (Touch & Drag via Grip) -->
-        <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 h-fit">
-            <div class="border-b border-slate-100 pb-3 mb-4">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Layout Control</span>
-                <h2 class="text-base font-bold text-slate-900 mt-1">Category Order & Sorting</h2>
-                <p class="text-[11px] text-slate-500 mt-0.5">Use the grip handle to drag items up or down.</p>
-            </div>
+        <!-- Categories & Layout Management Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Categories Manager Section -->
+            <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 h-fit">
+                <div class="border-b border-slate-100 pb-3 mb-4">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Taxonomy</span>
+                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Categories Manager</h2>
+                </div>
 
-            <div id="category-sort-list" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
-                <span class="text-xs text-slate-400">No categories to sort.</span>
-            </div>
-        </section>
+                <div id="category-status-msg" class="hidden mb-4 p-3 rounded-xl text-xs font-medium text-center shadow-sm"></div>
+
+                <form id="add-category-form" class="flex gap-2 mb-5">
+                    <input type="text" id="new-category-name" placeholder="New category name..." required class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-md active:scale-95 shrink-0">
+                        Add
+                    </button>
+                </form>
+
+                <div id="categories-list" class="flex flex-wrap gap-2 max-h-60 overflow-y-auto no-scrollbar">
+                    <span class="text-xs text-slate-400 py-2">Loading categories...</span>
+                </div>
+            </section>
+
+            <!-- Category Sorting Manager Section (Touch & Drag via Grip) -->
+            <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 h-fit">
+                <div class="border-b border-slate-100 pb-3 mb-4">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Layout Control</span>
+                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Category Order & Sorting</h2>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Hold and drag items using the grip icon.</p>
+                </div>
+
+                <div id="category-sort-list" class="space-y-2.5 max-h-60 overflow-y-auto no-scrollbar">
+                    <span class="text-xs text-slate-400 py-2 block">No categories available to sort.</span>
+                </div>
+            </section>
+        </div>
 
     </main>
 
     <!-- ENTERPRISE FOOTER -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-4 px-4 text-center text-[10px] text-slate-400">
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400">
         Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
     </footer>
 
@@ -137,7 +172,7 @@
             const msgEl = document.getElementById('category-status-msg');
             if (!msgEl) return;
             msgEl.textContent = message;
-            msgEl.className = `mb-3 p-2 rounded-xl text-xs font-medium text-center ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            msgEl.className = `mb-4 p-3 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             msgEl.classList.remove('hidden');
             setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
         }
@@ -251,7 +286,7 @@
         function renderCategorySortList() {
             const sortContainer = document.getElementById('category-sort-list');
             if (categoriesCache.length === 0) {
-                sortContainer.innerHTML = `<span class="text-xs text-slate-400">No categories available to sort.</span>`;
+                sortContainer.innerHTML = `<span class="text-xs text-slate-400 py-2 block">No categories available to sort.</span>`;
                 return;
             }
 
@@ -262,16 +297,16 @@
                      ondragover="window.handleCategoryDragOver(event)" 
                      ondrop="window.handleCategoryDrop(event, '${cat.key}')" 
                      ondragend="window.handleCategoryDragEnd(event)"
-                     class="cat-draggable-item draggable-item flex items-center justify-between bg-slate-50 border border-slate-200 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 transition active:scale-[0.98]">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-grip-vertical text-slate-400 text-xs grip-handle cursor-grab p-1"
+                     class="cat-draggable-item draggable-item flex items-center justify-between bg-slate-50 border border-slate-200/80 px-4 py-3 rounded-xl text-xs font-bold text-slate-800 transition active:scale-[0.98] shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-grip-vertical text-slate-400 text-xs grip-handle cursor-grab p-1.5 hover:text-slate-600"
                            ontouchstart="window.handleCategoryTouchStart(event, '${cat.key}')"
                            ontouchmove="window.handleCategoryTouchMove(event)"
                            ontouchend="window.handleCategoryTouchEnd(event)"
                            title="Tap and hold to drag"></i>
                         <span>${cat.name}</span>
                     </div>
-                    <span class="text-[10px] text-slate-400 font-mono pointer-events-none">#${idx + 1}</span>
+                    <span class="text-[10px] text-slate-400 font-mono pointer-events-none bg-slate-200/50 px-2 py-0.5 rounded">#${idx + 1}</span>
                 </div>
             `).join('');
         }
@@ -283,7 +318,7 @@
 
             if (!data) {
                 categoriesCache = [];
-                listContainer.innerHTML = `<span class="text-xs text-slate-400">No categories added yet. Add one above.</span>`;
+                listContainer.innerHTML = `<span class="text-xs text-slate-400 py-2">No categories added yet. Add one above.</span>`;
                 renderCategorySortList();
                 return;
             }
@@ -292,10 +327,10 @@
             categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
             listContainer.innerHTML = categoriesCache.map(cat => `
-                <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800">
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
                     <span>${cat.name}</span>
-                    <button type="button" onclick="window.deleteCategory('${cat.key}', '${cat.name}')" class="text-slate-400 hover:text-red-600 transition ml-1" title="Remove Category">
-                        <i class="fa-solid fa-xmark text-[11px]"></i>
+                    <button type="button" onclick="window.deleteCategory('${cat.key}', '${cat.name}')" class="text-slate-400 hover:text-red-600 transition ml-1 p-1" title="Remove Category">
+                        <i class="fa-solid fa-xmark text-xs"></i>
                     </button>
                 </div>
             `).join('');
@@ -305,3 +340,4 @@
     </script>
 </body>
 </html>
+                
