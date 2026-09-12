@@ -98,11 +98,11 @@
                     </div>
                 </div>
 
-                <!-- Qty (Typing Keyboard) & Rating Grid -->
+                <!-- Unit & Rating Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Qty</label>
-                        <input type="text" id="product-qty" placeholder="e.g. 25 or In Stock" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Quantity / Unit</label>
+                        <input type="text" id="product-qty" placeholder="e.g. 1 Pc, 1 Kg, 500g, 1 Packet" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Rating</label>
@@ -260,7 +260,7 @@
                     const item = snapshot.val();
                     document.getElementById('product-name').value = item.name || '';
                     document.getElementById('product-price').value = item.price || '';
-                    document.getElementById('product-qty').value = item.qty ?? '';
+                    document.getElementById('product-qty').value = item.qty || '';
                     document.getElementById('product-rating').value = item.rating !== undefined ? String(item.rating) : '5';
                     document.getElementById('product-desc-small').value = item.descSmall || '';
                     document.getElementById('product-desc-big').value = item.descBig || '';
@@ -301,7 +301,7 @@
                 name: document.getElementById('product-name').value.trim(),
                 category: categorySelect.value,
                 price: Number(document.getElementById('product-price').value),
-                qty: document.getElementById('product-qty').value.trim(),
+                qty: document.getElementById('product-qty').value.trim(), // Stored as unit string (e.g. "1 Kg")
                 rating: Number(document.getElementById('product-rating').value),
                 descSmall: document.getElementById('product-desc-small').value.trim(),
                 descBig: document.getElementById('product-desc-big').value.trim(),
