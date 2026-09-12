@@ -64,69 +64,102 @@
     <!-- MAIN DASHBOARD CONTENT -->
     <main class="max-w-7xl mx-auto w-full px-3 sm:px-6 py-6 sm:py-10 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Add / Edit Product Form Section -->
-        <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 h-fit">
-            <div class="border-b border-slate-100 pb-3 mb-5 flex items-center justify-between">
-                <div>
-                    <span id="form-badge" class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Database Entry</span>
-                    <h2 id="form-title" class="text-base font-bold text-slate-900 mt-1">Add Product to Inventory</h2>
-                </div>
-                <button type="button" id="cancel-edit-top" onclick="cancelEdit()" class="text-[11px] text-slate-500 hover:text-amber-600 underline hidden font-medium">Cancel Edit</button>
-            </div>
-
-            <!-- Inline Notification Banner -->
-            <div id="form-status-msg" class="hidden mb-4 p-2.5 rounded-xl text-xs font-medium text-center"></div>
-
-            <form id="add-product-form" class="space-y-4">
-                <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Product Title</label>
-                    <input type="text" id="prod-name" placeholder="e.g. Pure Wild Honey 500g" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+        <!-- Left Column: Categories Manager + Product Form -->
+        <div class="space-y-6">
+            <!-- Categories Manager Section -->
+            <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200">
+                <div class="border-b border-slate-100 pb-3 mb-4">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Taxonomy</span>
+                    <h2 class="text-base font-bold text-slate-900 mt-1">Categories Manager</h2>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2">
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Price (₹)</label>
-                        <input type="number" id="prod-price" placeholder="e.g. 350" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Quantity</label>
-                        <input type="text" id="prod-qty" placeholder="e.g. 500g" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rating (/5)</label>
-                        <input type="number" id="prod-rating" step="0.1" min="0" max="5" placeholder="e.g. 4.5" value="5" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                    </div>
-                </div>
+                <div id="category-status-msg" class="hidden mb-3 p-2 rounded-xl text-xs font-medium text-center"></div>
 
-                <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Image Link (Google Drive / Direct URL)</label>
-                    <input type="text" id="prod-img" placeholder="Paste image or Google Drive link..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Small Description (1-line summary)</label>
-                    <input type="text" id="prod-small-desc" placeholder="Brief summary..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Big Description (Detailed overview)</label>
-                    <textarea id="prod-big-desc" rows="3" placeholder="Full detailed overview, origin, ingredients..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition resize-none"></textarea>
-                </div>
-
-                <div class="space-y-2 pt-2">
-                    <button type="submit" id="submit-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span id="submit-btn-text">Save</span>
+                <form id="add-category-form" class="flex gap-2 mb-4">
+                    <input type="text" id="new-category-name" placeholder="New category name..." required class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm shrink-0">
+                        Add
                     </button>
-                    <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition hidden border border-slate-200">
-                        Cancel Edit
-                    </button>
-                </div>
-            </form>
-        </section>
+                </form>
 
-        <!-- Current Inventory Real-Time List -->
-        <section class="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200">
+                <div id="categories-list" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto no-scrollbar">
+                    <span class="text-xs text-slate-400">Loading categories...</span>
+                </div>
+            </section>
+
+            <!-- Add / Edit Product Form Section -->
+            <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 h-fit">
+                <div class="border-b border-slate-100 pb-3 mb-5 flex items-center justify-between">
+                    <div>
+                        <span id="form-badge" class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Database Entry</span>
+                        <h2 id="form-title" class="text-base font-bold text-slate-900 mt-1">Add Product to Inventory</h2>
+                    </div>
+                    <button type="button" id="cancel-edit-top" onclick="cancelEdit()" class="text-[11px] text-slate-500 hover:text-amber-600 underline hidden font-medium">Cancel Edit</button>
+                </div>
+
+                <!-- Inline Notification Banner -->
+                <div id="form-status-msg" class="hidden mb-4 p-2.5 rounded-xl text-xs font-medium text-center"></div>
+
+                <form id="add-product-form" class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Product Title</label>
+                        <input type="text" id="prod-name" placeholder="e.g. Pure Wild Honey 500g" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Category</label>
+                            <select id="prod-category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                                <option value="" disabled selected>Select category...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Price (₹)</label>
+                            <input type="number" id="prod-price" placeholder="e.g. 350" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Quantity & Unit</label>
+                            <input type="text" id="prod-qty" placeholder="e.g. 500g" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rating (/5)</label>
+                            <input type="number" id="prod-rating" step="0.1" min="0" max="5" placeholder="e.g. 4.5" value="5" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Image Link (Google Drive / Direct URL)</label>
+                        <input type="text" id="prod-img" placeholder="Paste image or Google Drive link..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Small Description (1-line summary)</label>
+                        <input type="text" id="prod-small-desc" placeholder="Brief summary..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">Big Description (Detailed overview)</label>
+                        <textarea id="prod-big-desc" rows="3" placeholder="Full detailed overview, origin, ingredients..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition resize-none"></textarea>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <button type="submit" id="submit-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span id="submit-btn-text">Save</span>
+                        </button>
+                        <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition hidden border border-slate-200">
+                            Cancel Edit
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- Right Column: Current Inventory Real-Time List -->
+        <section class="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 h-fit">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Live Management</span>
@@ -167,11 +200,20 @@
 
         let editingKey = null;
         let inventoryCache = {};
+        let categoriesCache = [];
 
         function showStatusMessage(message, isError = false) {
             const msgEl = document.getElementById('form-status-msg');
             msgEl.textContent = message;
             msgEl.className = `mb-4 p-2.5 rounded-xl text-xs font-medium text-center ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            msgEl.classList.remove('hidden');
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
+        }
+
+        function showCategoryStatus(message, isError = false) {
+            const msgEl = document.getElementById('category-status-msg');
+            msgEl.textContent = message;
+            msgEl.className = `mb-3 p-2 rounded-xl text-xs font-medium text-center ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             msgEl.classList.remove('hidden');
             setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
         }
@@ -186,6 +228,68 @@
             return url;
         }
 
+        // Categories Management Engine
+        document.getElementById('add-category-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inputEl = document.getElementById('new-category-name');
+            const catName = inputEl.value.trim();
+            if (!catName) return;
+
+            push(ref(db, 'categories'), { name: catName })
+                .then(() => {
+                    showCategoryStatus(`Category "${catName}" added successfully!`);
+                    inputEl.value = '';
+                })
+                .catch((err) => showCategoryStatus("Failed to add category: " + err.message, true));
+        });
+
+        window.deleteCategory = function(key, name) {
+            if (confirm(`Remove category "${name}"?`)) {
+                remove(ref(db, `categories/${key}`))
+                    .then(() => showCategoryStatus(`Category "${name}" removed.`))
+                    .catch((err) => showCategoryStatus("Failed to remove: " + err.message, true));
+            }
+        };
+
+        const categoriesRef = ref(db, 'categories');
+        onValue(categoriesRef, (snapshot) => {
+            const data = snapshot.val();
+            const listContainer = document.getElementById('categories-list');
+            const selectEl = document.getElementById('prod-category');
+            
+            const currentSelected = selectEl.value;
+            selectEl.innerHTML = `<option value="" disabled selected>Select category...</option>`;
+
+            if (!data) {
+                categoriesCache = [];
+                listContainer.innerHTML = `<span class="text-xs text-slate-400">No categories added yet. Add one above.</span>`;
+                return;
+            }
+
+            categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
+
+            listContainer.innerHTML = categoriesCache.map(cat => `
+                <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800">
+                    <span>${cat.name}</span>
+                    <button type="button" onclick="window.deleteCategory('${cat.key}', '${cat.name}')" class="text-slate-400 hover:text-red-600 transition ml-1" title="Remove Category">
+                        <i class="fa-solid fa-xmark text-[11px]"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            categoriesCache.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.name;
+                opt.textContent = cat.name;
+                selectEl.appendChild(opt);
+            });
+
+            if (currentSelected) {
+                selectEl.value = currentSelected;
+            }
+        });
+
+        // Product Form Handler
         document.getElementById('add-product-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('submit-btn');
@@ -197,6 +301,7 @@
 
             const productData = {
                 name: document.getElementById('prod-name').value.trim(),
+                category: document.getElementById('prod-category').value,
                 price: document.getElementById('prod-price').value.trim(),
                 qty: document.getElementById('prod-qty').value.trim(),
                 rating: document.getElementById('prod-rating').value.trim() || "5",
@@ -241,7 +346,7 @@
 
             if (!data) {
                 inventoryCache = {};
-                container.innerHTML = `<p class="text-center py-10 text-xs text-slate-400">No products currently in inventory database.</p>`;
+                container.innerHTML = `<p class="text-center py-12 text-xs text-slate-400">No products currently in inventory database.</p>`;
                 countBadge.textContent = "0 Products";
                 return;
             }
@@ -259,8 +364,11 @@
                     <div class="flex items-center gap-3 overflow-hidden w-full sm:w-auto">
                         <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0">
                         <div class="truncate">
-                            <h4 class="font-bold text-xs text-slate-900 truncate">${item.name}</h4>
-                            <p class="text-[11px] text-slate-500">₹${item.price} &bull; <i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item.rating || '5'}/5</p>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-xs text-slate-900 truncate">${item.name}</h4>
+                                <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded shrink-0">${item.category || 'General'}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">₹${item.price} &bull; <i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item.rating || '5'}/5</p>
                         </div>
                     </div>
                     
@@ -309,6 +417,7 @@
 
             editingKey = key;
             document.getElementById('prod-name').value = item.name || '';
+            document.getElementById('prod-category').value = item.category || '';
             document.getElementById('prod-price').value = item.price || '';
             document.getElementById('prod-qty').value = item.qty || '';
             document.getElementById('prod-rating').value = item.rating || '5';
