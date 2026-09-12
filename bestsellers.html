@@ -130,8 +130,9 @@
         const db = getDatabase(app);
 
         let allInventory = [];
-        let currentBestSellers = {};
+        let selectedCache = {}; // Persistent state cache across filters
         let categoriesCache = [];
+        let isInitialLoad = true;
 
         const searchInput = document.getElementById('search-input');
         const filterCategory = document.getElementById('filter-category');
@@ -163,7 +164,7 @@
 
         // Fetch existing best sellers and inventory
         onValue(ref(db, 'bestsellers'), (snapshot) => {
-            currentBestSellers = snapshot.val() || {};
+            const remoteBestSellers = snapshot.val() || {};
             
             onValue(ref(db, 'inventory'), (invSnapshot) => {
                 const invData = invSnapshot.val();
@@ -174,6 +175,13 @@
                 }
 
                 allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+
+                // Populate persistent cache on initial load
+                if (isInitialLoad) {
+                    selectedCache = { ...remoteBestSellers };
+                    isInitialLoad = false;
+                }
+
                 renderGrid();
             });
         });
@@ -197,10 +205,10 @@
             }
 
             gridContainer.innerHTML = filtered.map(item => {
-                const isChecked = currentBestSellers[item.key] === true;
+                const isChecked = selectedCache[item.key] === true;
                 return `
                     <label class="group relative bg-white hover:bg-slate-50 border ${isChecked ? 'border-amber-400 shadow-sm' : 'border-slate-200'} rounded-2xl p-3.5 flex items-center gap-3.5 cursor-pointer transition">
-                        <input type="checkbox" value="${item.key}" ${isChecked ? 'checked' : ''} onchange="window.updateSelectionCount()" class="peer sr-only">
+                        <input type="checkbox" value="${item.key}" ${isChecked ? 'checked' : ''} onchange="window.handleCheckboxChange(this)" class="peer sr-only">
                         <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
                             <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
                         </div>
@@ -219,38 +227,37 @@
                 `;
             }).join('');
 
-            window.updateSelectionCount();
+            window.updateSelectionCountUI();
         }
 
-        window.updateSelectionCount = function() {
-            const checkedBoxes = gridContainer.querySelectorAll('input[type="checkbox"]:checked');
-            selectedCountEl.textContent = `${checkedBoxes.length} Selected`;
+        window.handleCheckboxChange = function(checkbox) {
+            const key = checkbox.value;
+            if (checkbox.checked) {
+                selectedCache[key] = true;
+            } else {
+                delete selectedCache[key];
+            }
+            window.updateSelectionCountUI();
 
-            // Toggle border styling dynamically without shading the card background
-            gridContainer.querySelectorAll('label').forEach(label => {
-                const checkbox = label.querySelector('input[type="checkbox"]');
-                if (checkbox.checked) {
-                    label.classList.add('border-amber-400', 'shadow-sm');
-                    label.classList.remove('border-slate-200');
-                } else {
-                    label.classList.remove('border-amber-400', 'shadow-sm');
-                    label.classList.add('border-slate-200');
-                }
-            });
+            // Instantly update border styling for the toggled card
+            const label = checkbox.closest('label');
+            if (checkbox.checked) {
+                label.classList.add('border-amber-400', 'shadow-sm');
+                label.classList.remove('border-slate-200');
+            } else {
+                label.classList.remove('border-amber-400', 'shadow-sm');
+                label.classList.add('border-slate-200');
+            }
+        };
+
+        window.updateSelectionCountUI = function() {
+            const totalSelected = Object.keys(selectedCache).filter(k => selectedCache[k] === true).length;
+            selectedCountEl.textContent = `${totalSelected} Selected`;
         };
 
         // Save selection to Firebase
         saveBtn.addEventListener('click', () => {
-            const checkedBoxes = gridContainer.querySelectorAll('input[type="checkbox"]');
-            const newBestSellers = {};
-
-            checkedBoxes.forEach(box => {
-                if (box.checked) {
-                    newBestSellers[box.value] = true;
-                }
-            });
-
-            set(ref(db, 'bestsellers'), newBestSellers)
+            set(ref(db, 'bestsellers'), selectedCache)
                 .then(() => {
                     showStatus("Best sellers updated successfully!");
                 })
