@@ -41,16 +41,16 @@
             <div>
                 <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">Official Storefront</span>
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mt-2">MY Food Product Catalog</h1>
-                <p class="text-xs text-gray-500 mt-1">Live inventory synchronized directly from your Firebase database.</p>
+                <p class="text-xs text-gray-500 mt-1">Live inventory organized by category from your Firebase database.</p>
             </div>
             <div class="w-full md:w-72">
                 <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
             </div>
         </div>
 
-        <!-- Products Grid: Exactly 3 cards per row on desktop -->
-        <div id="store-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="col-span-full text-center py-20 text-gray-400 text-xs">Loading live inventory from Firebase...</div>
+        <!-- Products Container Grouped by Category -->
+        <div id="store-categories-container" class="space-y-10">
+            <div class="text-center py-20 text-gray-400 text-xs">Loading live inventory from Firebase...</div>
         </div>
 
         <!-- Empty State Notice -->
@@ -97,8 +97,23 @@
         const db = getDatabase(app);
 
         let liveInventory = [];
+        let categoriesCache = [];
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
 
+        // Fetch Categories first to keep exact sorting order
+        const categoriesRef = ref(db, 'categories');
+        onValue(categoriesRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
+                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            } else {
+                categoriesCache = [];
+            }
+            renderCatalog(liveInventory);
+        });
+
+        // Fetch Inventory items
         const inventoryRef = ref(db, 'inventory');
         onValue(inventoryRef, (snapshot) => {
             const data = snapshot.val();
@@ -110,53 +125,107 @@
             } else {
                 liveInventory = [];
             }
-            renderStoreProducts(liveInventory);
+            renderCatalog(liveInventory);
             updateCartCount();
         });
 
-        window.renderStoreProducts = function(productsToRender) {
-            const grid = document.getElementById('store-products-grid');
+        window.renderCatalog = function(productsToRender) {
+            const container = document.getElementById('store-categories-container');
             const emptyState = document.getElementById('empty-state');
 
             if (!productsToRender || productsToRender.length === 0) {
-                grid.innerHTML = "";
+                container.innerHTML = "";
                 emptyState.classList.remove('hidden');
                 return;
             }
 
             emptyState.classList.add('hidden');
-            grid.innerHTML = productsToRender.map(item => `
-                <div onclick="openProductModal('${item.firebaseKey}')" class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between cursor-pointer group">
-                    <div>
-                        <!-- Image: Fully visible without cropping using object-contain -->
-                        <div class="relative bg-slate-100 rounded-lg overflow-hidden aspect-[4/3] mb-3 border border-gray-100 flex items-center justify-center">
-                            <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-2 transition duration-300 group-hover:scale-105">
-                            <span class="absolute top-2 left-2 bg-amber-500 text-slate-950 font-bold text-[9px] px-2 py-0.5 rounded shadow">In Stock</span>
+
+            // Group products by category
+            let categoryGroups = {};
+            categoriesCache.forEach(cat => {
+                categoryGroups[cat.name] = [];
+            });
+            categoryGroups["Uncategorized"] = [];
+
+            productsToRender.forEach(item => {
+                const cat = item.category || "Uncategorized";
+                if (!categoryGroups[cat]) {
+                    categoryGroups[cat] = [];
+                }
+                categoryGroups[cat].push(item);
+            });
+
+            // Sort products within each category row based on their saved order index
+            Object.keys(categoryGroups).forEach(cat => {
+                categoryGroups[cat].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            });
+
+            let displayCategories = categoriesCache.map(c => c.name);
+            if (!displayCategories.includes("Uncategorized") && categoryGroups["Uncategorized"].length > 0) {
+                displayCategories.push("Uncategorized");
+            }
+
+            let htmlOutput = '';
+
+            displayCategories.forEach(catName => {
+                const groupItems = categoryGroups[catName] || [];
+                if (groupItems.length === 0) return;
+
+                htmlOutput += `
+                    <div class="space-y-4">
+                        <!-- Category Section Row Header -->
+                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-2">
+                            <h2 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                                ${catName}
+                            </h2>
+                            <span class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                        <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
-                            <span class="text-amber-600 font-bold">${item.category || 'MY Food Store'}</span>
-                            <span class="text-slate-400"><i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item.rating || '5'}/5</span>
+                        <!-- 3 Cards Per Row Grid for this Category -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                `;
+
+                groupItems.forEach(item => {
+                    htmlOutput += `
+                        <div onclick="openProductModal('${item.firebaseKey}')" class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between cursor-pointer group">
+                            <div>
+                                <!-- Image: Fully visible without cropping using object-contain -->
+                                <div class="relative bg-slate-100 rounded-lg overflow-hidden aspect-[4/3] mb-3 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-2 transition duration-300 group-hover:scale-105">
+                                    <span class="absolute top-2 left-2 bg-amber-500 text-slate-950 font-bold text-[9px] px-2 py-0.5 rounded shadow">In Stock</span>
+                                </div>
+
+                                <div class="flex items-center justify-between text-[10px] font-semibold text-gray-500 mb-1">
+                                    <span class="text-amber-600 font-bold">${item.category || 'MY Food Store'}</span>
+                                    <span class="text-slate-400"><i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item.rating || '5'}/5</span>
+                                </div>
+
+                                <h3 class="font-bold text-sm text-gray-900 line-clamp-1 mb-1 group-hover:text-amber-600 transition">${item.name}</h3>
+
+                                <!-- Small Description Shown Directly on Card (No Hiding) -->
+                                <p class="text-[11px] text-gray-600 font-light line-clamp-2 mb-3">${item.smallDesc || 'No brief summary available.'}</p>
+                            </div>
+
+                            <!-- Price, Quantity, & Add to Cart Button -->
+                            <div class="mt-2 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <span class="font-black text-base text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
+                                    ${item.qty ? `<span class="block text-[10px] text-slate-400 font-medium">Qty: ${item.qty}</span>` : ''}
+                                </div>
+                                <button onclick="event.stopPropagation(); window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+                                    <i class="fa-solid fa-cart-plus text-xs"></i> Add to Cart
+                                </button>
+                            </div>
                         </div>
+                    `;
+                });
 
-                        <h3 class="font-bold text-sm text-gray-900 line-clamp-1 mb-1 group-hover:text-amber-600 transition">${item.name}</h3>
+                htmlOutput += `</div></div>`;
+            });
 
-                        <!-- Small Description Shown Directly on Card (No Hiding) -->
-                        <p class="text-[11px] text-gray-600 font-light line-clamp-2 mb-3">${item.smallDesc || 'No brief summary available.'}</p>
-                    </div>
-
-                    <!-- Price, Quantity, & Add to Cart Button -->
-                    <div class="mt-2 pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <div>
-                            <span class="font-black text-base text-gray-900">₹${typeof item.price === 'string' ? item.price.replace('₹', '') : item.price}</span>
-                            ${item.qty ? `<span class="block text-[10px] text-slate-400 font-medium">Qty: ${item.qty}</span>` : ''}
-                        </div>
-                        <button onclick="event.stopPropagation(); window.addToCart('${item.firebaseKey}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1.5">
-                            <i class="fa-solid fa-cart-plus text-xs"></i> Add to Cart
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+            container.innerHTML = htmlOutput;
         };
 
         window.openProductModal = function(firebaseKey) {
@@ -219,7 +288,7 @@
                 (item.bigDesc && item.bigDesc.toLowerCase().includes(query)) ||
                 (item.category && item.category.toLowerCase().includes(query))
             );
-            renderStoreProducts(filtered);
+            renderCatalog(filtered);
         };
 
         window.addToCart = function(firebaseKey) {
