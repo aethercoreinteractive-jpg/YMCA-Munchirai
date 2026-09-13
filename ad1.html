@@ -153,7 +153,7 @@
             <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">Live Preview</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Swipe Preview (Finger Sliding)</h2>
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Ad Rotation Preview</h2>
                 </div>
                 <div class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-[10px] font-bold border border-emerald-200">
                     <i class="fa-solid fa-eye"></i>
@@ -161,11 +161,11 @@
             </div>
 
             <!-- Preview Wrapper Container -->
-            <div id="ad1-preview-container" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner cursor-grab active:cursor-grabbing select-none touch-pan-y" title="Swipe left or right">
+            <div id="ad1-preview-container" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner cursor-grab active:cursor-grabbing select-none touch-pan-y">
                 <!-- Sliding Track -->
                 <div id="slider-track" class="flex h-full w-full transition-transform duration-500 ease-out"></div>
 
-                <!-- Very Small Dot Indicators Overlay Inside Bottom Center -->
+                <!-- Dot Indicators Overlay Inside Bottom Center -->
                 <div id="preview-dots" class="absolute bottom-2.5 left-0 right-0 z-20 flex items-center justify-center gap-1.5 pointer-events-auto"></div>
             </div>
         </section>
@@ -455,7 +455,7 @@
 
         previewContainer.addEventListener('touchend', (e) => {
             touchEndX = e.changedTouches[0].screenX;
-            handleSwipeGesture();
+            handleNavigation();
         }, { passive: true });
 
         previewContainer.addEventListener('mousedown', (e) => {
@@ -466,10 +466,10 @@
         previewContainer.addEventListener('mouseup', (e) => {
             if (e.target.closest('a') || e.target.closest('button')) return;
             touchEndX = e.clientX;
-            handleSwipeGesture();
+            handleNavigation();
         });
 
-        function handleSwipeGesture() {
+        function handleNavigation() {
             if (adsCache.length <= 1) return;
             const threshold = 40;
             if (touchStartX - touchEndX > threshold) {
