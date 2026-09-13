@@ -11,15 +11,8 @@
             theme: {
                 extend: {
                     colors: {
-                        slate: {
-                            850: '#1e293b',
-                            900: '#0f172a',
-                            950: '#090d16',
-                        },
-                        amber: {
-                            500: '#f59e0b',
-                            600: '#d97706',
-                        }
+                        slate: { 850: '#1e293b', 900: '#0f172a', 950: '#090d16' },
+                        amber: { 500: '#f59e0b', 600: '#d97706' }
                     }
                 }
             }
@@ -39,8 +32,8 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
-    <!-- MOBILE NAVIGATION HEADER -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-45 shadow-md backdrop-blur-md bg-opacity-95">
+    <!-- MOBILE NAVIGATION HEADER (z-50 ensures it stays in front of all layers) -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md backdrop-blur-md bg-opacity-95">
         <div class="max-w-2xl mx-auto px-3.5 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2.5 shrink-0">
                 <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-[11px] tracking-tighter shadow-sm">MY</div>
@@ -80,6 +73,7 @@
                 <div>
                     <label class="block text-[10px] font-bold text-slate-600 mb-1">Google Drive Link</label>
                     <input type="url" id="new-link" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" placeholder="https://drive.google.com/file/d/...">
+                    <span class="text-[9px] text-slate-400 mt-1 block">Make sure file sharing is set to <strong class="text-slate-600">"Anyone with the link can view"</strong></span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5">
@@ -134,7 +128,7 @@
             <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60">Active Playlist</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Displayed Ads (4s Rotation)</h2>
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Displayed Ads (Swipe Supported)</h2>
                 </div>
                 <div class="w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-bold border border-indigo-200">
                     <i class="fa-solid fa-list"></i>
@@ -159,23 +153,28 @@
             <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">Live Preview</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Rotation Preview</h2>
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Swipe Preview (Finger Sliding)</h2>
                 </div>
                 <div class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-[10px] font-bold border border-emerald-200">
                     <i class="fa-solid fa-eye"></i>
                 </div>
             </div>
 
-            <div id="ad1-preview-wrapper" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner flex items-center justify-center">
-                <span class="text-[11px] text-slate-400">Add ads to preview rotation...</span>
+            <!-- Preview Wrapper Container (Swipe & Touch Gesture Enabled) -->
+            <div id="ad1-preview-container" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner cursor-grab active:cursor-grabbing select-none touch-pan-y" title="Swipe left or right">
+                <!-- Sliding Track -->
+                <div id="slider-track" class="flex h-full w-full transition-transform duration-500 ease-out"></div>
+
+                <!-- Very Small Dot Indicators Overlay Inside Bottom Center -->
+                <div id="preview-dots" class="absolute bottom-2.5 left-0 right-0 z-20 flex items-center justify-center gap-1.5 pointer-events-auto"></div>
             </div>
         </section>
 
     </main>
 
     <!-- DELETE CONFIRMATION MODAL -->
-    <div id="delete-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl border border-slate-100 text-center space-y-4 animate-in fade-in zoom-in-95 duration-150">
+    <div id="delete-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-60 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl border border-slate-100 text-center space-y-4">
             <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 mx-auto flex items-center justify-center text-lg font-bold">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
@@ -217,18 +216,34 @@
         let adsCache = [];
         let deleteTargetIndex = null;
         let previewInterval = null;
+        let currentPreviewIdx = 0;
+
+        // Touch swipe tracking variables
+        let touchStartX = 0;
+        let touchEndX = 0;
 
         const adsListContainer = document.getElementById('ads-list-container');
-        const previewWrapper = document.getElementById('ad1-preview-wrapper');
+        const sliderTrack = document.getElementById('slider-track');
+        const previewDotsContainer = document.getElementById('preview-dots');
+        const previewContainer = document.getElementById('ad1-preview-container');
         const adRef = ref(db, 'ads/ad1');
 
         function formatDriveLink(url) {
             if (!url) return '';
-            if (url.includes('drive.google.com')) {
-                const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (fileIdMatch && fileIdMatch[1]) {
-                    return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+            let fileId = '';
+            
+            if (url.includes('/d/')) {
+                const parts = url.split('/d/');
+                if (parts[1]) {
+                    fileId = parts[1].split('/')[0];
                 }
+            } else if (url.includes('id=')) {
+                const urlParams = new URLSearchParams(url.split('?')[1]);
+                fileId = urlParams.get('id');
+            }
+
+            if (fileId) {
+                return `https://lh3.googleusercontent.com/d/${fileId}`;
             }
             return url;
         }
@@ -254,7 +269,19 @@
             else fields.classList.add('hidden');
         };
 
-        // Render Displayed Ads List Below
+        // Helper to instantly save to Firebase
+        function syncToFirebase(successMsg = null) {
+            const payload = {
+                slides: adsCache,
+                updatedAt: Date.now()
+            };
+            set(adRef, payload)
+                .then(() => {
+                    if (successMsg) showStatus(successMsg);
+                })
+                .catch(err => showStatus('Sync failed: ' + err.message, true));
+        }
+
         function renderAdsList() {
             if (adsCache.length === 0) {
                 adsListContainer.innerHTML = `<span class="text-xs text-slate-400 py-3 block text-center">No ads added yet. Add an ad above.</span>`;
@@ -274,7 +301,7 @@
                             <div class="w-12 h-10 rounded-lg bg-slate-900 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200">
                                 ${ad.mediaType === 'video' ? 
                                     `<video src="${directUrl}" class="w-full h-full object-cover"></video>` : 
-                                    `<img src="${directUrl}" class="w-full h-full object-cover">`}
+                                    `<img src="${directUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x80?text=Error'">`}
                             </div>
                             <div class="min-w-0">
                                 <span class="text-[10px] font-extrabold text-slate-900 block truncate">Ad #${index + 1} (${ad.mediaType.toUpperCase()})</span>
@@ -293,13 +320,10 @@
             updateLivePreview();
         }
 
-        // Tap, Hold & Drag Sorting Logic
         function initDragAndDrop() {
             const items = adsListContainer.querySelectorAll('.ad-item');
             items.forEach(item => {
-                item.addEventListener('dragstart', () => {
-                    item.classList.add('dragging');
-                });
+                item.addEventListener('dragstart', () => item.classList.add('dragging'));
                 item.addEventListener('dragend', () => {
                     item.classList.remove('dragging');
                     updateCacheOrder();
@@ -333,12 +357,9 @@
 
         function updateCacheOrder() {
             const items = [...adsListContainer.querySelectorAll('.ad-item')];
-            const newCache = items.map(item => {
-                const origIndex = parseInt(item.getAttribute('data-index'));
-                return adsCache[origIndex];
-            });
-            adsCache = newCache;
+            adsCache = items.map(item => adsCache[parseInt(item.getAttribute('data-index'))]);
             renderAdsList();
+            syncToFirebase(); // Auto-save reordered sequence
         }
 
         window.promptDelete = function(index) {
@@ -355,7 +376,7 @@
             if (deleteTargetIndex !== null) {
                 adsCache.splice(deleteTargetIndex, 1);
                 renderAdsList();
-                showStatus("Ad deleted successfully.");
+                syncToFirebase("Ad deleted and saved successfully.");
             }
             closeDeleteModal();
         });
@@ -392,7 +413,7 @@
             document.getElementById('new-btn-url').value = '';
 
             renderAdsList();
-            showStatus("Ad added below successfully!");
+            syncToFirebase("Ad added and saved successfully!");
         });
 
         window.jumpToSlide = function(index) {
@@ -515,15 +536,14 @@
             resetInterval();
         }
 
-        // Load saved slides array from Firebase on startup
+        // Load saved slides array from Firebase on startup and safely convert objects to arrays
         get(adRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                if (data.slides && Array.isArray(data.slides)) {
-                    adsCache = data.slides;
+                if (data.slides) {
+                    adsCache = Array.isArray(data.slides) ? data.slides : Object.values(data.slides);
                     renderAdsList();
                 } else if (data.link) {
-                    // Fallback support if old single-item format exists
                     adsCache = [{
                         link: data.link,
                         mediaType: data.mediaType || 'photo',
@@ -542,15 +562,7 @@
                 showStatus("Please add at least one ad before publishing.", true);
                 return;
             }
-
-            const payload = {
-                slides: adsCache,
-                updatedAt: Date.now()
-            };
-
-            set(adRef, payload)
-                .then(() => showStatus('Ads published successfully to store!'))
-                .catch(err => showStatus('Failed to publish: ' + err.message, true));
+            syncToFirebase('Ads published successfully to store!');
         });
     </script>
 </body>
