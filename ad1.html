@@ -32,7 +32,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
-    <!-- MOBILE NAVIGATION HEADER (z-50 ensures it stays in front of all layers) -->
+    <!-- MOBILE NAVIGATION HEADER -->
     <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md backdrop-blur-md bg-opacity-95">
         <div class="max-w-2xl mx-auto px-3.5 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2.5 shrink-0">
@@ -123,12 +123,12 @@
             </div>
         </section>
 
-        <!-- 2. DISPLAYED ADS LIST SECTION (Below) -->
+        <!-- 2. DISPLAYED ADS LIST SECTION -->
         <section class="bg-white rounded-2xl p-4 sm:p-6 shadow-lg shadow-slate-200/40 border border-slate-200/80">
             <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60">Active Playlist</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Displayed Ads (Swipe Supported)</h2>
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Displayed Ads</h2>
                 </div>
                 <div class="w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-bold border border-indigo-200">
                     <i class="fa-solid fa-list"></i>
@@ -160,7 +160,7 @@
                 </div>
             </div>
 
-            <!-- Preview Wrapper Container (Swipe & Touch Gesture Enabled) -->
+            <!-- Preview Wrapper Container -->
             <div id="ad1-preview-container" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner cursor-grab active:cursor-grabbing select-none touch-pan-y" title="Swipe left or right">
                 <!-- Sliding Track -->
                 <div id="slider-track" class="flex h-full w-full transition-transform duration-500 ease-out"></div>
@@ -218,7 +218,6 @@
         let previewInterval = null;
         let currentPreviewIdx = 0;
 
-        // Touch swipe tracking variables
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -269,7 +268,6 @@
             else fields.classList.add('hidden');
         };
 
-        // Helper to instantly save to Firebase
         function syncToFirebase(successMsg = null) {
             const payload = {
                 slides: adsCache,
@@ -300,7 +298,7 @@
                             </div>
                             <div class="w-12 h-10 rounded-lg bg-slate-900 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200">
                                 ${ad.mediaType === 'video' ? 
-                                    `<video src="${directUrl}" class="w-full h-full object-cover"></video>` : 
+                                    `<video src="${directUrl}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>` : 
                                     `<img src="${directUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x80?text=Error'">`}
                             </div>
                             <div class="min-w-0">
@@ -359,7 +357,7 @@
             const items = [...adsListContainer.querySelectorAll('.ad-item')];
             adsCache = items.map(item => adsCache[parseInt(item.getAttribute('data-index'))]);
             renderAdsList();
-            syncToFirebase(); // Auto-save reordered sequence
+            syncToFirebase();
         }
 
         window.promptDelete = function(index) {
@@ -451,7 +449,6 @@
             }
         }
 
-        // --- Touch Swipe / Mouse Drag Handlers for Sliding ---
         previewContainer.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
         }, { passive: true });
@@ -536,7 +533,6 @@
             resetInterval();
         }
 
-        // Load saved slides array from Firebase on startup and safely convert objects to arrays
         get(adRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
