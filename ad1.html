@@ -379,6 +379,7 @@
             closeDeleteModal();
         });
 
+        // FIXED: Now instantly saves to Firebase when clicked!
         document.getElementById('save-new-ad-btn').addEventListener('click', () => {
             const linkInput = document.getElementById('new-link');
             const mediaType = document.getElementById('new-media-type').value;
@@ -411,7 +412,7 @@
             document.getElementById('new-btn-url').value = '';
 
             renderAdsList();
-            syncToFirebase("Ad added and saved successfully!");
+            syncToFirebase("Ad added and saved to database successfully!");
         });
 
         window.jumpToSlide = function(index) {
