@@ -55,7 +55,7 @@
     <main class="max-w-2xl mx-auto w-full px-3 py-4 sm:py-6 flex-grow space-y-4">
         
         <!-- Status Alert Box -->
-        <div id="status-msg" class="hidden p-2.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
+        <div id="status-msg" class="hidden p-3 rounded-xl text-xs font-medium text-center shadow-sm"></div>
 
         <!-- 1. ADD NEW AD SECTION -->
         <section class="bg-white rounded-2xl p-4 sm:p-6 shadow-lg shadow-slate-200/40 border border-slate-200/80">
@@ -70,6 +70,11 @@
             </div>
 
             <div class="space-y-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-600 mb-1">Ad Label / Title</label>
+                    <input type="text" id="new-label" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" placeholder="e.g. Summer Festival Promo">
+                </div>
+
                 <div>
                     <label class="block text-[10px] font-bold text-slate-600 mb-1">Google Drive Link</label>
                     <input type="url" id="new-link" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" placeholder="https://drive.google.com/file/d/...">
@@ -242,7 +247,7 @@
             }
 
             if (fileId) {
-                return `https://lh3.googleusercontent.com/d/${fileId}`;
+                return `https://drive.google.com/uc?export=download&id=${fileId}`;
             }
             return url;
         }
@@ -251,9 +256,9 @@
             const msgEl = document.getElementById('status-msg');
             if (!msgEl) return;
             msgEl.textContent = message;
-            msgEl.className = `p-2.5 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            msgEl.className = `p-3 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             msgEl.classList.remove('hidden');
-            setTimeout(() => { msgEl.classList.add('hidden'); }, 3500);
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
         }
 
         window.toggleNewAudioUI = function(type) {
@@ -277,7 +282,7 @@
                 .then(() => {
                     if (successMsg) showStatus(successMsg);
                 })
-                .catch(err => showStatus('Sync failed: ' + err.message, true));
+                .catch(err => showStatus('Connection error. Please try again.', true));
         }
 
         function renderAdsList() {
@@ -302,7 +307,7 @@
                                     `<img src="${directUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x80?text=Error'">`}
                             </div>
                             <div class="min-w-0">
-                                <span class="text-[10px] font-extrabold text-slate-900 block truncate">Ad #${index + 1} (${ad.mediaType.toUpperCase()})</span>
+                                <span class="text-[10px] font-extrabold text-slate-900 block truncate">${ad.label || ('Ad #' + (index + 1))} (${ad.mediaType.toUpperCase()})</span>
                                 <span class="text-[9px] text-slate-500 font-mono block truncate">${ad.link}</span>
                                 ${ad.showButton && ad.buttonName ? `<span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold mt-0.5 inline-block">Button: ${ad.buttonName}</span>` : ''}
                             </div>
@@ -374,13 +379,13 @@
             if (deleteTargetIndex !== null) {
                 adsCache.splice(deleteTargetIndex, 1);
                 renderAdsList();
-                syncToFirebase("Ad deleted and saved successfully.");
+                syncToFirebase("Success: Ad deleted and changes saved.");
             }
             closeDeleteModal();
         });
 
-        // FIXED: Now instantly saves to Firebase when clicked!
         document.getElementById('save-new-ad-btn').addEventListener('click', () => {
+            const labelInput = document.getElementById('new-label');
             const linkInput = document.getElementById('new-link');
             const mediaType = document.getElementById('new-media-type').value;
             const audioState = document.getElementById('new-audio-state').value;
@@ -390,11 +395,14 @@
 
             const linkValue = linkInput.value.trim();
             if (!linkValue) {
-                showStatus("Please paste a valid Google Drive link.", true);
+                showStatus("Please provide a valid Google Drive link.", true);
                 return;
             }
 
+            const labelValue = labelInput.value.trim() || `Ad #${adsCache.length + 1}`;
+
             adsCache.push({
+                label: labelValue,
                 link: linkValue,
                 mediaType: mediaType,
                 audioState: audioState,
@@ -403,6 +411,7 @@
                 buttonUrl: buttonUrl
             });
 
+            labelInput.value = '';
             linkInput.value = '';
             document.getElementById('new-media-type').value = 'photo';
             document.getElementById('new-audio-box').classList.add('hidden');
@@ -412,7 +421,7 @@
             document.getElementById('new-btn-url').value = '';
 
             renderAdsList();
-            syncToFirebase("Ad added and saved to database successfully!");
+            syncToFirebase("Success: Ad saved with label successfully!");
         });
 
         window.jumpToSlide = function(index) {
@@ -534,6 +543,7 @@
             resetInterval();
         }
 
+        // Fetch stored records on refresh
         get(adRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -542,6 +552,7 @@
                     renderAdsList();
                 } else if (data.link) {
                     adsCache = [{
+                        label: data.label || 'Ad #1',
                         link: data.link,
                         mediaType: data.mediaType || 'photo',
                         audioState: data.audioState || 'unmute',
@@ -559,7 +570,7 @@
                 showStatus("Please add at least one ad before publishing.", true);
                 return;
             }
-            syncToFirebase('Ads published successfully to store!');
+            syncToFirebase('Success: All changes published to store!');
         });
     </script>
 </body>
