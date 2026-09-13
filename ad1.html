@@ -2,204 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | Ad 1 Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Manager - Munchirai YMCA</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        slate: { 850: '#1e293b', 900: '#0f172a', 950: '#090d16' },
-                        amber: { 500: '#f59e0b', 600: '#d97706' }
-                    }
-                }
-            }
-        }
-    </script>
     <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .toggle-checkbox:checked { right: 0; border-color: #f59e0b; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #f59e0b; }
-        input, select { font-size: 16px !important; }
-        .dragging { opacity: 0.4; transform: scale(0.98); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- MOBILE NAVIGATION HEADER -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md backdrop-blur-md bg-opacity-95">
-        <div class="max-w-2xl mx-auto px-3.5 h-14 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5 shrink-0">
-                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-[11px] tracking-tighter shadow-sm">MY</div>
-                <div>
-                    <h1 class="text-[11px] font-extrabold text-white tracking-tight leading-tight">MUNCHIRAI YMCA</h1>
-                    <span class="text-[9px] text-amber-400 font-mono tracking-wider block">AD_1_MANAGER</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <a href="admanagement.html" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1 transition active:scale-95">
-                    <i class="fa-solid fa-arrow-left text-amber-400 text-[10px]"></i>
-                    <span>Back</span>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN DASHBOARD CONTENT -->
-    <main class="max-w-2xl mx-auto w-full px-3 py-4 sm:py-6 flex-grow space-y-4">
+    <div class="max-w-md w-full bg-slate-800 rounded-2xl shadow-xl border border-slate-700/60 p-6 space-y-6">
         
-        <!-- Status Alert Box -->
-        <div id="status-msg" class="hidden p-3 rounded-xl text-xs font-medium text-center shadow-sm"></div>
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-lg font-bold text-white tracking-tight">Ad Manager & Preview</h1>
+            <p class="text-xs text-slate-400 mt-0.5">Manage and preview rotation ads under <span class="text-amber-400 font-mono font-bold">ad1</span></p>
+        </div>
 
-        <!-- 1. ADD NEW AD SECTION -->
-        <section class="bg-white rounded-2xl p-4 sm:p-6 shadow-lg shadow-slate-200/40 border border-slate-200/80">
-            <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
-                <div>
-                    <span class="text-[9px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">New Entry</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Add Ad</h2>
-                </div>
-                <div class="w-7 h-7 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-[10px] font-bold border border-amber-200">
-                    <i class="fa-solid fa-plus"></i>
-                </div>
-            </div>
+        <!-- Custom Notification Message -->
+        <div id="status-msg" class="hidden p-3 rounded-xl text-xs font-semibold text-center transition-all duration-300"></div>
 
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-600 mb-1">Ad Label / Title</label>
-                    <input type="text" id="new-label" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" placeholder="e.g. Summer Festival Promo">
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-600 mb-1">Google Drive Link</label>
-                    <input type="url" id="new-link" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" placeholder="https://drive.google.com/file/d/...">
-                    <span class="text-[9px] text-slate-400 mt-1 block">Make sure file sharing is set to <strong class="text-slate-600">"Anyone with the link can view"</strong></span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-600 mb-1">Media Type</label>
-                        <select id="new-media-type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" onchange="toggleNewAudioUI(this.value)">
-                            <option value="photo">Photo</option>
-                            <option value="video">Video</option>
-                        </select>
-                    </div>
-                    <div id="new-audio-box" class="hidden">
-                        <label class="block text-[10px] font-bold text-slate-600 mb-1">Video Audio</label>
-                        <select id="new-audio-state" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition">
-                            <option value="unmute">Unmuted</option>
-                            <option value="mute">Muted</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Action Button Optional Fields -->
-                <div class="pt-2 border-t border-slate-100">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-slate-700">Action Button Overlay</span>
-                        <div class="relative inline-block w-9 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" id="new-toggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 border-slate-300 appearance-none cursor-pointer transition-all duration-300 right-5 checked:right-0" onchange="toggleNewBtnFields(this.checked)">
-                            <label for="new-toggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
-                        </div>
-                    </div>
-
-                    <div id="new-btn-fields" class="space-y-2 hidden bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                        <div>
-                            <label class="block text-[9px] font-bold text-slate-500 mb-0.5">Button Name</label>
-                            <input type="text" id="new-btn-name" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500" placeholder="e.g. Shop Now">
-                        </div>
-                        <div>
-                            <label class="block text-[9px] font-bold text-slate-500 mb-0.5">Button Link URL</label>
-                            <input type="url" id="new-btn-url" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500" placeholder="https://...">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Save & Add Button -->
-                <button type="button" id="save-new-ad-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-md active:scale-[0.98] flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <span>Save & Add Ad</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- 2. DISPLAYED ADS LIST SECTION -->
-        <section class="bg-white rounded-2xl p-4 sm:p-6 shadow-lg shadow-slate-200/40 border border-slate-200/80">
-            <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
-                <div>
-                    <span class="text-[9px] font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60">Active Playlist</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Displayed Ads</h2>
-                </div>
-                <div class="w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-bold border border-indigo-200">
-                    <i class="fa-solid fa-list"></i>
-                </div>
-            </div>
-
-            <p class="text-[11px] text-slate-500 mb-3"><i class="fa-solid fa-grip-vertical text-amber-500 mr-1"></i> Tap, hold & drag items to reorder sorting.</p>
-
-            <!-- Ads List Container -->
-            <div id="ads-list-container" class="space-y-2.5 mb-4">
-                <span class="text-xs text-slate-400 py-3 block text-center">No ads added yet. Add an ad above.</span>
-            </div>
-
-            <!-- Publish Changes Button -->
-            <button type="button" id="publish-all-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-3 rounded-xl text-xs transition shadow-md active:scale-[0.98]">
-                Publish Updates to Store
-            </button>
-        </section>
-
-        <!-- 3. LIVE PREVIEW SECTION -->
-        <section class="bg-white rounded-2xl p-4 sm:p-6 shadow-lg shadow-slate-200/40 border border-slate-200/80">
-            <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
-                <div>
-                    <span class="text-[9px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">Live Preview</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Ad Rotation Preview</h2>
-                </div>
-                <div class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-[10px] font-bold border border-emerald-200">
-                    <i class="fa-solid fa-eye"></i>
-                </div>
-            </div>
-
-            <!-- Preview Wrapper Container -->
-            <div id="ad1-preview-container" class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner cursor-grab active:cursor-grabbing select-none touch-pan-y">
-                <!-- Sliding Track -->
-                <div id="slider-track" class="flex h-full w-full transition-transform duration-500 ease-out"></div>
-
-                <!-- Dot Indicators Overlay Inside Bottom Center -->
-                <div id="preview-dots" class="absolute bottom-2.5 left-0 right-0 z-20 flex items-center justify-center gap-1.5 pointer-events-auto"></div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- DELETE CONFIRMATION MODAL -->
-    <div id="delete-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-60 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl border border-slate-100 text-center space-y-4">
-            <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 mx-auto flex items-center justify-center text-lg font-bold">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
+        <!-- Input Form Section -->
+        <div class="space-y-4 bg-slate-900/50 p-4 rounded-xl border border-slate-700/40">
             <div>
-                <h3 class="text-sm font-extrabold text-slate-900">Delete This Ad?</h3>
-                <p class="text-[11px] text-slate-500 mt-1">This item will be removed from your active ad rotation.</p>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Google Drive Link (Image or Video)</label>
+                <input type="url" id="ad-link-input" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500 transition" placeholder="https://drive.google.com/file/d/...">
+                <span class="text-[10px] text-slate-400 mt-1 block">Ensure link sharing is set to <strong class="text-slate-300">"Anyone with the link can view"</strong></span>
             </div>
-            <div class="grid grid-cols-2 gap-2 pt-1">
-                <button type="button" onclick="closeDeleteModal()" class="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition">Cancel</button>
-                <button type="button" id="confirm-delete-btn" class="w-full py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white transition shadow-sm">Delete</button>
+
+            <!-- Save Button -->
+            <button type="button" id="save-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow-md active:scale-[0.98] flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Save Ad to Firebase</span>
+            </button>
+        </div>
+
+        <!-- Live Preview Screen Section -->
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Live Preview Rotation</span>
+                <span id="slide-counter" class="text-[10px] font-mono text-amber-400">0 / 0</span>
+            </div>
+            
+            <div class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-black relative shadow-inner border border-slate-700">
+                <div id="slider-track" class="flex h-full w-full transition-transform duration-700 ease-in-out">
+                    <div class="w-full h-full flex items-center justify-center shrink-0">
+                        <span class="text-xs text-slate-500">Checking Firebase for saved items...</span>
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
 
-    <!-- MOBILE FOOTER -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-4 px-3 text-center text-[10px] text-slate-400">
-        Munchirai YMCA Secure Portal &bull; Mobile Admin
-    </footer>
-
-    <!-- Firebase Realtime Engine & Logic -->
+    <!-- Firebase Engine Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -217,367 +78,146 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const ad1Ref = ref(db, 'ads/ad1');
 
-        let adsCache = [];
-        let deleteTargetIndex = null;
-        let previewInterval = null;
-        let currentPreviewIdx = 0;
+        let adsArray = [];
+        let currentIdx = 0;
+        let slideTimer = null;
 
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        const adsListContainer = document.getElementById('ads-list-container');
+        const linkInput = document.getElementById('ad-link-input');
+        const saveBtn = document.getElementById('save-btn');
         const sliderTrack = document.getElementById('slider-track');
-        const previewDotsContainer = document.getElementById('preview-dots');
-        const previewContainer = document.getElementById('ad1-preview-container');
-        const adRef = ref(db, 'ads/ad1');
+        const slideCounter = document.getElementById('slide-counter');
+        const statusMsg = document.getElementById('status-msg');
 
-        function formatDriveLink(url, mediaType = 'photo') {
-            if (!url) return '';
+        function showMessage(text, isError = false) {
+            statusMsg.textContent = text;
+            statusMsg.className = `p-3 rounded-xl text-xs font-semibold text-center ${isError ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`;
+            statusMsg.classList.remove('hidden');
+            setTimeout(() => statusMsg.classList.add('hidden'), 4000);
+        }
+
+        // Convert Google Drive link to direct playable/viewable format
+        function parseDriveLink(url) {
+            if (!url) return { url: '', type: 'photo' };
             let fileId = '';
             
             if (url.includes('/d/')) {
                 const parts = url.split('/d/');
-                if (parts[1]) {
-                    fileId = parts[1].split('/')[0];
-                }
+                if (parts[1]) fileId = parts[1].split('/')[0];
             } else if (url.includes('id=')) {
-                const urlParams = new URLSearchParams(url.split('?')[1]);
-                fileId = urlParams.get('id');
+                const params = new URLSearchParams(url.split('?')[1]);
+                fileId = params.get('id');
+            }
+
+            // Simple heuristic to differentiate video vs image extensions or default to photo
+            let type = 'photo';
+            const lower = url.toLowerCase();
+            if (lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov') || lower.includes('video')) {
+                type = 'video';
             }
 
             if (fileId) {
-                if (mediaType === 'video') {
-                    // Optimized direct stream/preview link format for Google Drive videos
-                    return `https://drive.google.com/uc?export=download&id=${fileId}`;
+                if (type === 'video') {
+                    return { url: `https://drive.google.com/uc?export=download&id=${fileId}`, type: 'video' };
                 } else {
-                    // Direct image link format
-                    return `https://lh3.googleusercontent.com/d/${fileId}`;
+                    return { url: `https://lh3.googleusercontent.com/d/${fileId}`, type: 'photo' };
                 }
             }
-            return url;
+            return { url: url, type: type };
         }
 
-        function showStatus(message, isError = false) {
-            const msgEl = document.getElementById('status-msg');
-            if (!msgEl) return;
-            msgEl.textContent = message;
-            msgEl.className = `p-3 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
-            msgEl.classList.remove('hidden');
-            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
-        }
-
-        window.toggleNewAudioUI = function(type) {
-            const audioBox = document.getElementById('new-audio-box');
-            if (type === 'video') audioBox.classList.remove('hidden');
-            else audioBox.classList.add('hidden');
-        };
-
-        window.toggleNewBtnFields = function(isChecked) {
-            const fields = document.getElementById('new-btn-fields');
-            if (isChecked) fields.classList.remove('hidden');
-            else fields.classList.add('hidden');
-        };
-
-        function syncToFirebase(successMsg = null) {
-            const payload = {
-                slides: adsCache,
-                updatedAt: Date.now()
-            };
-            set(adRef, payload)
-                .then(() => {
-                    if (successMsg) showStatus(successMsg);
-                })
-                .catch(err => showStatus('Connection error. Please try again.', true));
-        }
-
-        function renderAdsList() {
-            if (adsCache.length === 0) {
-                adsListContainer.innerHTML = `<span class="text-xs text-slate-400 py-3 block text-center">No ads added yet. Add an ad above.</span>`;
-                updateLivePreview();
+        function renderRotation() {
+            if (adsArray.length === 0) {
+                sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-500">No ads found under ad1 label.</span></div>`;
+                slideCounter.textContent = "0 / 0";
                 return;
             }
 
-            adsListContainer.innerHTML = adsCache.map((ad, index) => {
-                const directUrl = formatDriveLink(ad.link, ad.mediaType);
-                return `
-                    <div class="ad-item bg-slate-50 border border-slate-200/90 rounded-xl p-3 flex items-center justify-between gap-3 shadow-sm cursor-grab active:cursor-grabbing transition" 
-                         draggable="true" data-index="${index}">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="text-slate-400 hover:text-slate-600 px-1">
-                                <i class="fa-solid fa-grip-vertical text-xs"></i>
-                            </div>
-                            <div class="w-12 h-10 rounded-lg bg-slate-900 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200">
-                                ${ad.mediaType === 'video' ? 
-                                    `<video src="${directUrl}" muted playsinline class="w-full h-full object-cover"></video>` : 
-                                    `<img src="${directUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x80?text=Error'">`}
-                            </div>
-                            <div class="min-w-0">
-                                <span class="text-[10px] font-extrabold text-slate-900 block truncate">${ad.label || ('Ad #' + (index + 1))} (${ad.mediaType.toUpperCase()})</span>
-                                <span class="text-[9px] text-slate-500 font-mono block truncate">${ad.link}</span>
-                                ${ad.showButton && ad.buttonName ? `<span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold mt-0.5 inline-block">Button: ${ad.buttonName}</span>` : ''}
-                            </div>
-                        </div>
-                        <button type="button" onclick="window.promptDelete(${index})" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition shrink-0 shadow-sm" title="Delete Ad">
-                            <i class="fa-solid fa-trash-can text-xs"></i>
-                        </button>
-                    </div>
-                `;
+            if (currentIdx >= adsArray.length) currentIdx = 0;
+
+            sliderTrack.innerHTML = adsArray.map(ad => {
+                const parsed = parseDriveLink(ad.link);
+                if (parsed.type === 'video') {
+                    return `<div class="w-full h-full shrink-0 relative bg-black"><video src="${parsed.url}" autoplay muted loop playsinline class="w-full h-full object-cover"></video></div>`;
+                } else {
+                    return `<div class="w-full h-full shrink-0 relative bg-black"><img src="${parsed.url}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=Invalid+Image+Link'"></div>`;
+                }
             }).join('');
 
-            initDragAndDrop();
-            updateLivePreview();
+            sliderTrack.style.transform = `translateX(-${currentIdx * 100}%)`;
+            slideCounter.textContent = `${currentIdx + 1} / ${adsArray.length}`;
+
+            startAutoSlide();
         }
 
-        function initDragAndDrop() {
-            const items = adsListContainer.querySelectorAll('.ad-item');
-            items.forEach(item => {
-                item.addEventListener('dragstart', () => item.classList.add('dragging'));
-                item.addEventListener('dragend', () => {
-                    item.classList.remove('dragging');
-                    updateCacheOrder();
-                });
-            });
-
-            adsListContainer.addEventListener('dragover', e => {
-                e.preventDefault();
-                const draggingItem = document.querySelector('.dragging');
-                const afterElement = getDragAfterElement(adsListContainer, e.clientY);
-                if (afterElement == null) {
-                    adsListContainer.appendChild(draggingItem);
-                } else {
-                    adsListContainer.insertBefore(draggingItem, afterElement);
-                }
-            });
-        }
-
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.ad-item:not(.dragging)')];
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
-        }
-
-        function updateCacheOrder() {
-            const items = [...adsListContainer.querySelectorAll('.ad-item')];
-            adsCache = items.map(item => adsCache[parseInt(item.getAttribute('data-index'))]);
-            renderAdsList();
-            syncToFirebase();
-        }
-
-        window.promptDelete = function(index) {
-            deleteTargetIndex = index;
-            document.getElementById('delete-modal').classList.remove('hidden');
-        };
-
-        window.closeDeleteModal = function() {
-            deleteTargetIndex = null;
-            document.getElementById('delete-modal').classList.add('hidden');
-        };
-
-        document.getElementById('confirm-delete-btn').addEventListener('click', () => {
-            if (deleteTargetIndex !== null) {
-                adsCache.splice(deleteTargetIndex, 1);
-                renderAdsList();
-                syncToFirebase("Success: Ad deleted and changes saved.");
-            }
-            closeDeleteModal();
-        });
-
-        document.getElementById('save-new-ad-btn').addEventListener('click', () => {
-            const labelInput = document.getElementById('new-label');
-            const linkInput = document.getElementById('new-link');
-            const mediaType = document.getElementById('new-media-type').value;
-            const audioState = document.getElementById('new-audio-state').value;
-            const showButton = document.getElementById('new-toggle').checked;
-            const buttonName = document.getElementById('new-btn-name').value;
-            const buttonUrl = document.getElementById('new-btn-url').value;
-
-            const linkValue = linkInput.value.trim();
-            if (!linkValue) {
-                showStatus("Please provide a valid Google Drive link.", true);
-                return;
-            }
-
-            const labelValue = labelInput.value.trim() || `Ad #${adsCache.length + 1}`;
-
-            adsCache.push({
-                label: labelValue,
-                link: linkValue,
-                mediaType: mediaType,
-                audioState: audioState,
-                showButton: showButton,
-                buttonName: buttonName,
-                buttonUrl: buttonUrl
-            });
-
-            labelInput.value = '';
-            linkInput.value = '';
-            document.getElementById('new-media-type').value = 'photo';
-            document.getElementById('new-audio-box').classList.add('hidden');
-            document.getElementById('new-toggle').checked = false;
-            document.getElementById('new-btn-fields').classList.add('hidden');
-            document.getElementById('new-btn-name').value = '';
-            document.getElementById('new-btn-url').value = '';
-
-            renderAdsList();
-            syncToFirebase("Success: Ad saved with label successfully!");
-        });
-
-        window.jumpToSlide = function(index) {
-            currentPreviewIdx = index;
-            updateSliderPosition();
-            renderDots();
-            resetInterval();
-        };
-
-        function renderDots() {
-            if (adsCache.length <= 1) {
-                previewDotsContainer.innerHTML = '';
-                return;
-            }
-
-            previewDotsContainer.innerHTML = adsCache.map((_, i) => `
-                <button type="button" onclick="window.jumpToSlide(${i})" class="w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm ${i === currentPreviewIdx ? 'bg-amber-400 w-3' : 'bg-white/50 hover:bg-white'}" aria-label="Slide ${i + 1}"></button>
-            `).join('');
-        }
-
-        function updateSliderPosition() {
-            if (adsCache.length === 0) return;
-            if (currentPreviewIdx >= adsCache.length) currentPreviewIdx = 0;
-            sliderTrack.style.transform = `translateX(-${currentPreviewIdx * 100}%)`;
-            renderDots();
-        }
-
-        function resetInterval() {
-            if (previewInterval) clearInterval(previewInterval);
-            if (adsCache.length > 1) {
-                previewInterval = setInterval(() => {
-                    currentPreviewIdx = (currentPreviewIdx + 1) % adsCache.length;
-                    updateSliderPosition();
+        function startAutoSlide() {
+            if (slideTimer) clearInterval(slideTimer);
+            if (adsArray.length > 1) {
+                slideTimer = setInterval(() => {
+                    currentIdx = (currentIdx + 1) % adsArray.length;
+                    sliderTrack.style.transform = `translateX(-${currentIdx * 100}%)`;
+                    slideCounter.textContent = `${currentIdx + 1} / ${adsArray.length}`;
                 }, 4000);
             }
         }
 
-        previewContainer.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-
-        previewContainer.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleNavigation();
-        }, { passive: true });
-
-        previewContainer.addEventListener('mousedown', (e) => {
-            if (e.target.closest('a') || e.target.closest('button')) return;
-            touchStartX = e.clientX;
-        });
-
-        previewContainer.addEventListener('mouseup', (e) => {
-            if (e.target.closest('a') || e.target.closest('button')) return;
-            touchEndX = e.clientX;
-            handleNavigation();
-        });
-
-        function handleNavigation() {
-            if (adsCache.length <= 1) return;
-            const threshold = 40;
-            if (touchStartX - touchEndX > threshold) {
-                currentPreviewIdx = (currentPreviewIdx + 1) % adsCache.length;
-                updateSliderPosition();
-                resetInterval();
-            } else if (touchEndX - touchStartX > threshold) {
-                currentPreviewIdx = (currentPreviewIdx - 1 + adsCache.length) % adsCache.length;
-                updateSliderPosition();
-                resetInterval();
-            }
-        }
-
-        function updateLivePreview() {
-            if (previewInterval) {
-                clearInterval(previewInterval);
-                previewInterval = null;
-            }
-
-            if (adsCache.length === 0 || !adsCache[0].link) {
-                sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-[11px] text-slate-400">Add ads to preview rotation...</span></div>`;
-                previewDotsContainer.innerHTML = '';
-                return;
-            }
-
-            if (currentPreviewIdx >= adsCache.length) {
-                currentPreviewIdx = 0;
-            }
-
-            sliderTrack.innerHTML = adsCache.map((ad) => {
-                const directUrl = formatDriveLink(ad.link, ad.mediaType);
-                let slideContent = '';
-
-                if (ad.mediaType === 'video') {
-                    const isMuted = ad.audioState === 'mute' ? 'muted' : '';
-                    slideContent = `
-                        <video src="${directUrl}" autoplay loop playsinline ${isMuted} class="w-full h-full object-cover pointer-events-none"></video>
-                        <div class="absolute bottom-3 right-3 bg-slate-950/80 backdrop-blur-md text-white px-2 py-0.5 rounded-full text-[9px] font-bold border border-white/10 shadow-md">
-                            <span>${isMuted ? 'Muted' : 'Unmuted'}</span>
-                        </div>
-                    `;
+        // Always load and check Firebase automatically on page initialization/refresh under 'ad1'
+        async function fetchFromFirebase() {
+            try {
+                const snapshot = await get(ad1Ref);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data.links && Array.isArray(data.links)) {
+                        adsArray = data.links;
+                    } else if (data.link) {
+                        adsArray = [{ link: data.link }];
+                    }
+                    renderRotation();
                 } else {
-                    slideContent = `<img src="${directUrl}" alt="Preview Ad" class="w-full h-full object-cover pointer-events-none">`;
+                    sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-500">No active links found under ad1.</span></div>`;
                 }
-
-                if (ad.showButton && ad.buttonName && ad.buttonUrl) {
-                    slideContent += `
-                        <div class="absolute bottom-3 left-3 z-10">
-                            <a href="${ad.buttonUrl}" target="_blank" onclick="event.stopPropagation()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-[10px] shadow-lg transition flex items-center gap-1 border border-amber-300">
-                                <span>${ad.buttonName}</span>
-                                <i class="fa-solid fa-arrow-right text-[8px]"></i>
-                            </a>
-                        </div>
-                    `;
-                }
-
-                return `<div class="w-full h-full shrink-0 relative bg-slate-950">${slideContent}</div>`;
-            }).join('');
-
-            updateSliderPosition();
-            resetInterval();
+            } catch (error) {
+                console.error("Firebase read error:", error);
+            }
         }
 
-        // Automatic retrieval on page refresh: Checks database for labels/links and populates list & preview
-        get(adRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                if (data.slides) {
-                    adsCache = Array.isArray(data.slides) ? data.slides : Object.values(data.slides);
-                    renderAdsList();
-                } else if (data.link) {
-                    adsCache = [{
-                        label: data.label || 'Ad #1',
-                        link: data.link,
-                        mediaType: data.mediaType || 'photo',
-                        audioState: data.audioState || 'unmute',
-                        showButton: data.showButton || false,
-                        buttonName: data.buttonName || '',
-                        buttonUrl: data.buttonUrl || ''
-                    }];
-                    renderAdsList();
-                }
-            }
-        }).catch(err => console.error("Error loading stored data:", err));
-
-        document.getElementById('publish-all-btn').addEventListener('click', () => {
-            if (adsCache.length === 0) {
-                showStatus("Please add at least one ad before publishing.", true);
+        // Save link when button is pressed under label 'ad1'
+        saveBtn.addEventListener('click', async () => {
+            const val = linkInput.value.trim();
+            if (!val) {
+                showMessage("Please enter a valid Google Drive link.", true);
                 return;
             }
-            syncToFirebase('Success: All changes published to store!');
+
+            // Push to local array stack
+            adsArray.push({ link: val, timestamp: Date.now() });
+
+            const payload = {
+                links: adsArray,
+                updatedAt: Date.now()
+            };
+
+            try {
+                // Save under label 'ad1' in Firebase
+                await set(ad1Ref, payload);
+                
+                // Form becomes completely empty after saving
+                linkInput.value = '';
+                
+                // Professional confirmation message (without mentioning Firebase)
+                showMessage("Success: Ad link saved and published securely!");
+                
+                // Refresh preview instantly
+                currentIdx = adsArray.length - 1;
+                renderRotation();
+            } catch (err) {
+                showMessage("Connection failed. Please check your network.", true);
+            }
         });
+
+        // Trigger automatic check on page load
+        window.addEventListener('DOMContentLoaded', fetchFromFirebase);
     </script>
 </body>
 </html>
