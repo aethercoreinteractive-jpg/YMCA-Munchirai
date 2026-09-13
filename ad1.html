@@ -14,45 +14,45 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-white text-slate-800 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div class="max-w-md w-full bg-slate-800 rounded-2xl shadow-xl border border-slate-700/60 p-6 space-y-6">
+    <div class="max-w-md w-full bg-slate-50 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-6">
         
         <!-- Header -->
         <div class="text-center">
-            <h1 class="text-lg font-bold text-white tracking-tight">Ad Manager & Preview</h1>
-            <p class="text-xs text-slate-400 mt-0.5">Manage and preview rotation ads under <span class="text-amber-400 font-mono font-bold">ad1</span></p>
+            <h1 class="text-lg font-bold text-slate-950 tracking-tight">Ad Manager & Preview</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Manage and preview rotation ads under <span class="text-amber-600 font-mono font-bold">ad1</span></p>
         </div>
 
-        <!-- Custom Notification Message -->
+        <!-- Professional In-App Notification Message (No browser/chrome popups) -->
         <div id="status-msg" class="hidden p-3 rounded-xl text-xs font-semibold text-center transition-all duration-300"></div>
 
         <!-- Input Form Section -->
-        <div class="space-y-4 bg-slate-900/50 p-4 rounded-xl border border-slate-700/40">
+        <div class="space-y-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
             <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Google Drive Link (Image or Video)</label>
-                <input type="url" id="ad-link-input" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500 transition" placeholder="https://drive.google.com/file/d/...">
-                <span class="text-[10px] text-slate-400 mt-1 block">Ensure link sharing is set to <strong class="text-slate-300">"Anyone with the link can view"</strong></span>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Google Drive Link (Image or Video)</label>
+                <input type="url" id="ad-link-input" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" placeholder="https://drive.google.com/file/d/...">
+                <span class="text-[10px] text-slate-400 mt-1 block">Ensure link sharing is set to <strong class="text-slate-600">"Anyone with the link can view"</strong></span>
             </div>
 
             <!-- Save Button -->
             <button type="button" id="save-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow-md active:scale-[0.98] flex items-center justify-center gap-1.5">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                <span>Save Ad to Firebase</span>
+                <span>Save Ad</span>
             </button>
         </div>
 
         <!-- Live Preview Screen Section -->
         <div class="space-y-2">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Live Preview Rotation</span>
-                <span id="slide-counter" class="text-[10px] font-mono text-amber-400">0 / 0</span>
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Live Preview Rotation</span>
+                <span id="slide-counter" class="text-[10px] font-mono text-amber-600 font-bold">0 / 0</span>
             </div>
             
-            <div class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-black relative shadow-inner border border-slate-700">
+            <div class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner border border-slate-200">
                 <div id="slider-track" class="flex h-full w-full transition-transform duration-700 ease-in-out">
                     <div class="w-full h-full flex items-center justify-center shrink-0">
-                        <span class="text-xs text-slate-500">Checking Firebase for saved items...</span>
+                        <span class="text-xs text-slate-400">Checking for saved items...</span>
                     </div>
                 </div>
             </div>
@@ -92,12 +92,12 @@
 
         function showMessage(text, isError = false) {
             statusMsg.textContent = text;
-            statusMsg.className = `p-3 rounded-xl text-xs font-semibold text-center ${isError ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`;
+            statusMsg.className = `p-3 rounded-xl text-xs font-semibold text-center ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             statusMsg.classList.remove('hidden');
             setTimeout(() => statusMsg.classList.add('hidden'), 4000);
         }
 
-        // Convert Google Drive link to direct playable/viewable format
+        // Convert Google Drive link to direct playable video or viewable image format
         function parseDriveLink(url) {
             if (!url) return { url: '', type: 'photo' };
             let fileId = '';
@@ -110,10 +110,9 @@
                 fileId = params.get('id');
             }
 
-            // Simple heuristic to differentiate video vs image extensions or default to photo
             let type = 'photo';
             const lower = url.toLowerCase();
-            if (lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov') || lower.includes('video')) {
+            if (lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov') || lower.includes('video') || lower.includes('preview')) {
                 type = 'video';
             }
 
@@ -129,7 +128,7 @@
 
         function renderRotation() {
             if (adsArray.length === 0) {
-                sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-500">No ads found under ad1 label.</span></div>`;
+                sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-400">No ads found under ad1 label.</span></div>`;
                 slideCounter.textContent = "0 / 0";
                 return;
             }
@@ -162,7 +161,7 @@
             }
         }
 
-        // Always load and check Firebase automatically on page initialization/refresh under 'ad1'
+        // Always check and load from Firebase automatically under label 'ad1' on page refresh
         async function fetchFromFirebase() {
             try {
                 const snapshot = await get(ad1Ref);
@@ -175,14 +174,14 @@
                     }
                     renderRotation();
                 } else {
-                    sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-500">No active links found under ad1.</span></div>`;
+                    sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-400">No active links found under ad1.</span></div>`;
                 }
             } catch (error) {
                 console.error("Firebase read error:", error);
             }
         }
 
-        // Save link when button is pressed under label 'ad1'
+        // Save link when save button is pressed under label 'ad1'
         saveBtn.addEventListener('click', async () => {
             const val = linkInput.value.trim();
             if (!val) {
@@ -193,20 +192,21 @@
             // Push to local array stack
             adsArray.push({ link: val, timestamp: Date.now() });
 
+            // Structure to save below label ad1
             const payload = {
                 links: adsArray,
                 updatedAt: Date.now()
             };
 
             try {
-                // Save under label 'ad1' in Firebase
+                // Save under ad1 label node in Firebase
                 await set(ad1Ref, payload);
                 
-                // Form becomes completely empty after saving
+                // Form becomes completely empty after clicking save
                 linkInput.value = '';
                 
-                // Professional confirmation message (without mentioning Firebase)
-                showMessage("Success: Ad link saved and published securely!");
+                // Professional in-app message confirmation (No chrome/browser alerts)
+                showMessage("Success: Ad link successfully saved to ad1 rotation!");
                 
                 // Refresh preview instantly
                 currentIdx = adsArray.length - 1;
@@ -216,7 +216,7 @@
             }
         });
 
-        // Trigger automatic check on page load
+        // Trigger automatic check on page load/refresh
         window.addEventListener('DOMContentLoaded', fetchFromFirebase);
     </script>
 </body>
