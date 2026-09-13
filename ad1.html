@@ -52,7 +52,7 @@
             <div class="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 relative shadow-inner border border-slate-200">
                 <div id="slider-track" class="flex h-full w-full transition-transform duration-700 ease-in-out">
                     <div class="w-full h-full flex items-center justify-center shrink-0">
-                        <span class="text-xs text-slate-400">Checking for saved items...</span>
+                        <span class="text-xs text-slate-400">Connecting to Firebase...</span>
                     </div>
                 </div>
             </div>
@@ -63,7 +63,7 @@
     <!-- Firebase Engine Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
@@ -78,6 +78,8 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
+        // Exact reference path under label ad1
         const ad1Ref = ref(db, 'ads/ad1');
 
         let adsArray = [];
@@ -97,7 +99,7 @@
             setTimeout(() => statusMsg.classList.add('hidden'), 4000);
         }
 
-        // Convert Google Drive link to direct playable video or viewable image format
+        // Convert Google Drive share link into direct playable/viewable format
         function parseDriveLink(url) {
             if (!url) return { url: '', type: 'photo' };
             let fileId = '';
@@ -128,7 +130,7 @@
 
         function renderRotation() {
             if (adsArray.length === 0) {
-                sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-400">No ads found under ad1 label.</span></div>`;
+                sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-400">No ads stored under ad1 yet.</span></div>`;
                 slideCounter.textContent = "0 / 0";
                 return;
             }
@@ -136,7 +138,9 @@
             if (currentIdx >= adsArray.length) currentIdx = 0;
 
             sliderTrack.innerHTML = adsArray.map(ad => {
-                const parsed = parseDriveLink(ad.link);
+                const linkVal = typeof ad === 'string' ? ad : ad.link;
+                const parsed = parseDriveLink(linkVal);
+                
                 if (parsed.type === 'video') {
                     return `<div class="w-full h-full shrink-0 relative bg-black"><video src="${parsed.url}" autoplay muted loop playsinline class="w-full h-full object-cover"></video></div>`;
                 } else {
@@ -161,23 +165,27 @@
             }
         }
 
-        // Always check and load from Firebase automatically under label 'ad1' on page refresh
+        // Automatically fetch and load whatever is stored in Firebase under label ad1 upon refresh/page load
         async function fetchFromFirebase() {
             try {
                 const snapshot = await get(ad1Ref);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    if (data.links && Array.isArray(data.links)) {
+                    if (Array.isArray(data)) {
+                        adsArray = data;
+                    } else if (data.links && Array.isArray(data.links)) {
                         adsArray = data.links;
                     } else if (data.link) {
-                        adsArray = [{ link: data.link }];
+                        adsArray = [data.link];
                     }
                     renderRotation();
                 } else {
-                    sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-400">No active links found under ad1.</span></div>`;
+                    sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-slate-400">No data found under ad1 label.</span></div>`;
+                    slideCounter.textContent = "0 / 0";
                 }
             } catch (error) {
-                console.error("Firebase read error:", error);
+                console.error("Firebase load error:", error);
+                sliderTrack.innerHTML = `<div class="w-full h-full flex items-center justify-center shrink-0"><span class="text-xs text-red-400">Failed to load from database. Check rules.</span></div>`;
             }
         }
 
@@ -189,34 +197,29 @@
                 return;
             }
 
-            // Push to local array stack
+            // Append new link to local array
             adsArray.push({ link: val, timestamp: Date.now() });
 
-            // Structure to save below label ad1
-            const payload = {
-                links: adsArray,
-                updatedAt: Date.now()
-            };
-
             try {
-                // Save under ad1 label node in Firebase
-                await set(ad1Ref, payload);
+                // Save complete array under ad1 label path in Firebase
+                await set(ad1Ref, adsArray);
                 
-                // Form becomes completely empty after clicking save
+                // Form becomes empty completely
                 linkInput.value = '';
                 
-                // Professional in-app message confirmation (No chrome/browser alerts)
-                showMessage("Success: Ad link successfully saved to ad1 rotation!");
+                // Professional in-app confirmation notification message
+                showMessage("Success: Link saved to ad1 and published successfully!");
                 
-                // Refresh preview instantly
+                // Instantly update preview screen
                 currentIdx = adsArray.length - 1;
                 renderRotation();
             } catch (err) {
-                showMessage("Connection failed. Please check your network.", true);
+                console.error("Firebase save error:", err);
+                showMessage("Failed to save. Verify Firebase Realtime Database rules.", true);
             }
         });
 
-        // Trigger automatic check on page load/refresh
+        // Trigger automatic check on page load / refresh
         window.addEventListener('DOMContentLoaded', fetchFromFirebase);
     </script>
 </body>
