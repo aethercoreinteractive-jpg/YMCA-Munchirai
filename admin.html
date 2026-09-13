@@ -79,47 +79,6 @@
         </div>
     </div>
 
-    <!-- SECURITY SETTINGS MODAL -->
-    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md hidden">
-        <div class="light-card rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
-            <button onclick="toggleSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1.5">
-                <i class="fa-solid fa-xmark text-sm"></i>
-            </button>
-            <div class="flex items-center gap-2 mb-4">
-                <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-xs"><i class="fa-solid fa-shield-halved"></i></div>
-                <div>
-                    <h3 class="text-sm font-bold text-slate-900">Security Settings</h3>
-                    <p class="text-[10px] text-slate-500">Update system access credentials</p>
-                </div>
-            </div>
-
-            <form onsubmit="handleChangePassword(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">New Password</label>
-                    <div class="relative">
-                        <input type="password" id="new-password" required placeholder="Enter new key" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 pr-9 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
-                        <button type="button" onclick="togglePasswordVisibility('new-password', 'new-eye-icon')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1">
-                            <i id="new-eye-icon" class="fa-solid fa-eye text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">Confirm Password</label>
-                    <div class="relative">
-                        <input type="password" id="confirm-password" required placeholder="Confirm new key" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 pr-9 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
-                        <button type="button" onclick="togglePasswordVisibility('confirm-password', 'confirm-eye-icon')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1">
-                            <i id="confirm-eye-icon" class="fa-solid fa-eye text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-                <p id="settings-msg" class="text-[11px] font-semibold text-emerald-600 hidden"><i class="fa-solid fa-check mr-1"></i> Credential successfully updated.</p>
-                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-sm">
-                    Save Changes
-                </button>
-            </form>
-        </div>
-    </div>
-
     <!-- ENTERPRISE NAVIGATION HEADER -->
     <header class="bg-slate-900 text-slate-100 border-b border-slate-800 sticky top-0 z-40 shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-3">
@@ -146,10 +105,11 @@
                 <a href="index.html" target="_blank" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 shrink-0 transition border border-slate-800" title="View Site">
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 </a>
-                <button onclick="toggleSettingsModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 shrink-0 transition border border-slate-800">
+                <!-- Settings Button redirects to settings.html -->
+                <button onclick="window.location.href='settings.html'" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 shrink-0 transition border border-slate-800" title="Settings">
                     <i class="fa-solid fa-gear text-[10px]"></i>
                 </button>
-                <button onclick="handleLogout()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-950/40 shrink-0 transition border border-red-900/30">
+                <button onclick="handleLogout()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-950/40 shrink-0 transition border border-red-900/30" title="Logout">
                     <i class="fa-solid fa-power-off text-[10px]"></i>
                 </button>
             </div>
@@ -256,27 +216,6 @@
         window.handleLogout = function() {
             sessionStorage.removeItem("admin_authenticated");
             window.location.reload();
-        };
-
-        window.toggleSettingsModal = function() {
-            document.getElementById('settings-modal').classList.toggle('hidden');
-        };
-
-        window.handleChangePassword = function(event) {
-            event.preventDefault();
-            const p1 = document.getElementById('new-password').value;
-            const p2 = document.getElementById('confirm-password').value;
-            const msg = document.getElementById('settings-msg');
-
-            if (p1 !== p2) { alert("Credential mismatch. Verify inputs."); return; }
-            localStorage.setItem("admin_password", p1);
-            msg.classList.remove('hidden');
-            setTimeout(() => { 
-                msg.classList.add('hidden'); 
-                toggleSettingsModal(); 
-                document.getElementById('new-password').value = "";
-                document.getElementById('confirm-password').value = "";
-            }, 1500);
         };
 
         function loadCMSValues() {
