@@ -232,7 +232,7 @@
         const previewContainer = document.getElementById('ad1-preview-container');
         const adRef = ref(db, 'ads/ad1');
 
-        function formatDriveLink(url) {
+        function formatDriveLink(url, mediaType = 'photo') {
             if (!url) return '';
             let fileId = '';
             
@@ -247,7 +247,13 @@
             }
 
             if (fileId) {
-                return `https://drive.google.com/uc?export=download&id=${fileId}`;
+                if (mediaType === 'video') {
+                    // Optimized direct stream/preview link format for Google Drive videos
+                    return `https://drive.google.com/uc?export=download&id=${fileId}`;
+                } else {
+                    // Direct image link format
+                    return `https://lh3.googleusercontent.com/d/${fileId}`;
+                }
             }
             return url;
         }
@@ -293,7 +299,7 @@
             }
 
             adsListContainer.innerHTML = adsCache.map((ad, index) => {
-                const directUrl = formatDriveLink(ad.link);
+                const directUrl = formatDriveLink(ad.link, ad.mediaType);
                 return `
                     <div class="ad-item bg-slate-50 border border-slate-200/90 rounded-xl p-3 flex items-center justify-between gap-3 shadow-sm cursor-grab active:cursor-grabbing transition" 
                          draggable="true" data-index="${index}">
@@ -303,7 +309,7 @@
                             </div>
                             <div class="w-12 h-10 rounded-lg bg-slate-900 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200">
                                 ${ad.mediaType === 'video' ? 
-                                    `<video src="${directUrl}" autoplay loop muted playsinline class="w-full h-full object-cover"></video>` : 
+                                    `<video src="${directUrl}" muted playsinline class="w-full h-full object-cover"></video>` : 
                                     `<img src="${directUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x80?text=Error'">`}
                             </div>
                             <div class="min-w-0">
@@ -510,7 +516,7 @@
             }
 
             sliderTrack.innerHTML = adsCache.map((ad) => {
-                const directUrl = formatDriveLink(ad.link);
+                const directUrl = formatDriveLink(ad.link, ad.mediaType);
                 let slideContent = '';
 
                 if (ad.mediaType === 'video') {
@@ -543,7 +549,7 @@
             resetInterval();
         }
 
-        // Fetch stored records on refresh
+        // Automatic retrieval on page refresh: Checks database for labels/links and populates list & preview
         get(adRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -563,7 +569,7 @@
                     renderAdsList();
                 }
             }
-        }).catch(err => console.error("Error loading ads:", err));
+        }).catch(err => console.error("Error loading stored data:", err));
 
         document.getElementById('publish-all-btn').addEventListener('click', () => {
             if (adsCache.length === 0) {
