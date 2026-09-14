@@ -241,8 +241,13 @@
 
             emptyState.classList.add('hidden');
 
-            // Render Best Sellers Row (Original natural order from database/array)
+            // Render Best Sellers Row (Sorted: In-stock first, Out-of-stock last)
             const bestSellersList = productsToRender.filter(item => savedBestSellers[item.firebaseKey] === true);
+            bestSellersList.sort((a, b) => {
+                const aStock = a.inStock !== false ? 1 : 0;
+                const bStock = b.inStock !== false ? 1 : 0;
+                return bStock - aStock;
+            });
 
             if (bestSellersList.length > 0) {
                 bestsellersSection.classList.remove('hidden');
@@ -282,7 +287,7 @@
                 bestsellersSection.classList.add('hidden');
             }
 
-            // Render Standard Category Groups (Original natural order within categories)
+            // Render Standard Category Groups (Sorted: In-stock first, Out-of-stock last)
             let categoryGroups = {};
             categoriesCache.forEach(cat => {
                 categoryGroups[cat.name] = [];
@@ -295,6 +300,14 @@
                     categoryGroups[cat] = [];
                 }
                 categoryGroups[cat].push(item);
+            });
+
+            Object.keys(categoryGroups).forEach(cat => {
+                categoryGroups[cat].sort((a, b) => {
+                    const aStock = a.inStock !== false ? 1 : 0;
+                    const bStock = b.inStock !== false ? 1 : 0;
+                    return bStock - aStock;
+                });
             });
 
             let displayCategories = categoriesCache.map(c => c.name);
@@ -319,7 +332,7 @@
                             <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                        <!-- Slider Row -->
+                         <!-- Slider Row -->
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
@@ -379,8 +392,14 @@
             const detailedDescription = item.descBig || item.bigDesc || item.desc || item.description || 'My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place. Freshly sourced from local farms.';
             const isInStock = item.inStock !== false;
 
+            let sortedExploreInventory = [...liveInventory].sort((a, b) => {
+                const aStock = a.inStock !== false ? 1 : 0;
+                const bStock = b.inStock !== false ? 1 : 0;
+                return bStock - aStock;
+            });
+
             let exploreGridHtml = '';
-            liveInventory.forEach(prod => {
+            sortedExploreInventory.forEach(prod => {
                 const cleanPrice = typeof prod.price === 'string' ? prod.price.replace('₹', '') : prod.price;
                 const prodActionHtml = getCartActionHTML(prod.firebaseKey);
                 const prodSmallDesc = prod.descSmall || prod.smallDesc || prod.desc || prod.description || 'Authentic organic food product.';
