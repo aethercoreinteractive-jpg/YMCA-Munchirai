@@ -165,23 +165,25 @@
         Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
     </footer>
 
-    <!-- Firebase Realtime Engine -->
+    <!-- Firebase Realtime Engine & Analytics -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
-          authDomain: "munchirai-ymca.firebaseapp.com",
-          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
-          projectId: "munchirai-ymca",
-          storageBucket: "munchirai-ymca.firebasestorage.app",
-          messagingSenderId: "697387132253",
-          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
-          measurementId: "G-XRRT0Q76YK"
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -301,7 +303,7 @@
                 name: document.getElementById('product-name').value.trim(),
                 category: categorySelect.value,
                 price: Number(document.getElementById('product-price').value),
-                qty: document.getElementById('product-qty').value.trim(), // Stored as unit string (e.g. "1 Kg")
+                qty: document.getElementById('product-qty').value.trim(),
                 rating: Number(document.getElementById('product-rating').value),
                 descSmall: document.getElementById('product-desc-small').value.trim(),
                 descBig: document.getElementById('product-desc-big').value.trim(),
