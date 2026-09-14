@@ -332,7 +332,7 @@
                             <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                          <!-- Slider Row -->
+                         <!-- Slider Row -->
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
@@ -552,8 +552,10 @@
 
             const newActionHtml = getCartActionHTML(firebaseKey);
             
-            const containerElem = document.getElementById(`action-container-${firebaseKey}`);
-            if (containerElem) containerElem.innerHTML = newActionHtml;
+            // Update all potential DOM locations for this product's action container across the page
+            document.querySelectorAll(`[id="action-container-${firebaseKey}"]`).forEach(el => {
+                el.innerHTML = newActionHtml;
+            });
 
             const mainElem = document.getElementById(`action-container-main-${firebaseKey}`);
             if (mainElem) mainElem.innerHTML = newActionHtml;
