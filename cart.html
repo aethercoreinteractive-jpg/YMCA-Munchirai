@@ -277,7 +277,6 @@
                 };
             });
 
-            // Create a structured order package strictly isolated under a separate "orders" node
             const newOrderData = {
                 items: itemsToSave,
                 totalAmount: subtotal,
@@ -285,10 +284,10 @@
                 timestamp: new Date().toISOString()
             };
 
-            // Push strictly to Firebase database under "orders" (leaves products/news untouched)
+            // Push securely to Firebase under the isolated 'orders' node (never touches products)
             db.ref('orders').push(newOrderData)
                 .then(() => {
-                    // Clear local browser cart
+                    // Clear local cart
                     cart = [];
                     localStorage.removeItem("ymca_cart");
 
