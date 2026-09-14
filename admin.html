@@ -58,7 +58,7 @@
             
             <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
                 <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Master Key / Password</label>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Master Key / Password / Company Code</label>
                     <div class="relative">
                         <input type="password" id="login-input" required placeholder="••••••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 pr-10 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition">
                         <button type="button" onclick="togglePasswordVisibility('login-input', 'login-eye-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1">
@@ -201,6 +201,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const FALLBACK_PASSWORD = "Admin@123";
+        const IMMUTABLE_COMPANY_CODE = "399812";
 
         window.togglePasswordVisibility = function(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -229,17 +230,29 @@
             const enteredVal = document.getElementById('login-input').value;
             
             try {
+                // Check password and company code from Firebase
                 const passRef = ref(db, 'settings/adminPassword');
-                const snapshot = await get(passRef);
+                const codeRef = ref(db, 'settings/companyCode');
+                
+                const [passSnap, codeSnap] = await Promise.all([get(passRef), get(codeRef)]);
                 
                 let currentPass = FALLBACK_PASSWORD;
-                if (snapshot.exists()) {
-                    currentPass = snapshot.val();
+                if (passSnap.exists()) {
+                    currentPass = passSnap.val();
                 } else {
                     await set(passRef, FALLBACK_PASSWORD);
                 }
 
-                if (enteredVal === currentPass) {
+                let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
+                if (codeSnap.exists()) {
+                    savedCompanyCode = codeSnap.val();
+                } else {
+                    // Permanently save the immutable company code to firebase so it can never be changed externally
+                    await set(codeRef, IMMUTABLE_COMPANY_CODE);
+                }
+
+                // Match against either the Admin Password or the Company Code
+                if (enteredVal === currentPass || enteredVal === savedCompanyCode) {
                     sessionStorage.setItem("admin_authenticated", "true");
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
@@ -250,7 +263,7 @@
                 }
             } catch (error) {
                 console.error("Login verification error:", error);
-                if (enteredVal === FALLBACK_PASSWORD) {
+                if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
                     sessionStorage.setItem("admin_authenticated", "true");
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
@@ -307,5 +320,4 @@
         document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 </body>
-    </html>
-    
+</html>
