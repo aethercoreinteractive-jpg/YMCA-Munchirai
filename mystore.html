@@ -394,8 +394,15 @@
             const detailedDescription = item.descBig || item.bigDesc || item.desc || item.description || 'My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place. Freshly sourced from local farms.';
             const isInStock = item.inStock !== false;
 
+            // Sort products for Explore All Grid: In Stock first, Out of Stock last
+            let sortedExploreInventory = [...liveInventory].sort((a, b) => {
+                const aStock = a.inStock !== false ? 1 : 0;
+                const bStock = b.inStock !== false ? 1 : 0;
+                return bStock - aStock;
+            });
+
             let exploreGridHtml = '';
-            liveInventory.forEach(prod => {
+            sortedExploreInventory.forEach(prod => {
                 const cleanPrice = typeof prod.price === 'string' ? prod.price.replace('₹', '') : prod.price;
                 const prodActionHtml = getCartActionHTML(prod.firebaseKey);
                 const prodSmallDesc = prod.descSmall || prod.smallDesc || prod.desc || prod.description || 'Authentic organic food product.';
