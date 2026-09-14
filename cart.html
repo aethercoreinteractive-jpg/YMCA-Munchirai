@@ -72,8 +72,8 @@
                         <span id="summary-total">₹0</span>
                     </div>
 
-                    <button onclick="checkoutOrder()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-sm"></i> Proceed to Checkout
+                    <button onclick="checkoutOrder()" id="checkout-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                        Proceed to Checkout
                     </button>
                     
                     <a href="mystore.html" class="block text-center text-xs text-gray-500 hover:text-black transition pt-1">
@@ -128,8 +128,29 @@
         </div>
     </div>
 
-    <!-- Cart Logic Script -->
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- Cart Logic & Firebase Script -->
     <script>
+        // TODO: Replace with your exact Firebase project configuration object
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase safely
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let pendingActionIndex = null;
 
@@ -239,39 +260,47 @@
                 return;
             }
 
-            const whatsappNumber = "919488820998";
-            
-            // Build strictly formatted multiline message using explicit \n escapes for clear line spacing
-            let message = "🛍️ *New Order - Munchirai YMCA*\n\n";
-            let subtotal = 0;
+            const checkoutBtn = document.getElementById('checkout-btn');
+            checkoutBtn.disabled = true;
+            checkoutBtn.textContent = "Processing Order...";
 
-            cart.forEach((item, index) => {
+            let subtotal = 0;
+            const itemsToSave = cart.map(item => {
                 const cleanPrice = parseInt(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
                 const qtyCount = item.qtyCount || 1;
-                const itemTotal = cleanPrice * qtyCount;
-                subtotal += itemTotal;
-
-                message += `${index + 1}. *${item.name}*\n`;
-                message += `   Quantity: ${qtyCount} x ₹${cleanPrice} = ₹${itemTotal}\n\n`;
+                subtotal += cleanPrice * qtyCount;
+                return {
+                    name: item.name,
+                    price: cleanPrice,
+                    qtyCount: qtyCount,
+                    img: item.img || ""
+                };
             });
 
-            message += `-------------------\n`;
-            message += `*Items Subtotal:* ₹${subtotal}\n`;
-            message += `*Delivery Fee:* FREE *(Delivery charges may vary based on your location)*\n`;
-            message += `*Total Amount:* ₹${subtotal}\n\n`;
-            message += `Please confirm my order and share the payment details.`;
+            // Create a structured order package strictly isolated under a separate "orders" node
+            const newOrderData = {
+                items: itemsToSave,
+                totalAmount: subtotal,
+                status: "Pending Confirmation",
+                timestamp: new Date().toISOString()
+            };
 
-            // Open WhatsApp in a background window/tab
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-            window.open(whatsappURL, '_blank');
+            // Push strictly to Firebase database under "orders" (leaves products/news untouched)
+            db.ref('orders').push(newOrderData)
+                .then(() => {
+                    // Clear local browser cart
+                    cart = [];
+                    localStorage.removeItem("ymca_cart");
 
-            // Clear the cart storage
-            cart = [];
-            localStorage.removeItem("ymca_cart");
-
-            // Display Google Pay style checkmark success animation modal
-            document.getElementById('success-modal').classList.remove('hidden');
+                    // Show success checkmark modal animation
+                    document.getElementById('success-modal').classList.remove('hidden');
+                })
+                .catch((error) => {
+                    console.error("Error saving order: ", error);
+                    alert("Failed to submit order. Please check your network connection and try again.");
+                    checkoutBtn.disabled = false;
+                    checkoutBtn.textContent = "Proceed to Checkout";
+                });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
