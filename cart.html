@@ -272,7 +272,6 @@
 
             const checkoutBtn = document.getElementById('checkout-btn');
             checkoutBtn.disabled = true;
-            checkoutBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Processing Order...`;
 
             let subtotal = 0;
             const itemsToSave = cart.map(item => {
@@ -300,7 +299,7 @@
                     cart = [];
                     localStorage.removeItem("ymca_cart");
                     
-                    // Maintain 3-second animated processing state before showing success modal
+                    // Wait 3 seconds, then show success modal with message and manual continue button
                     setTimeout(() => {
                         document.getElementById('success-modal').classList.remove('hidden');
                     }, 3000);
@@ -309,7 +308,6 @@
                     console.error("Error saving order: ", error);
                     alert("Failed to submit order. Please check your network connection and try again.");
                     checkoutBtn.disabled = false;
-                    checkoutBtn.textContent = "Proceed to Checkout";
                 });
         };
 
