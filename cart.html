@@ -9,48 +9,48 @@
     <!-- FontAwesome for UI icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        /* Google Pay Style Success Tick & Ripple Animation */
-        @keyframes gpayScaleUp {
-            0% { transform: scale(0.4); opacity: 0; }
-            60% { transform: scale(1.08); opacity: 1; }
+        /* Industry-Standard Checkmark & Ripple Animations */
+        @keyframes scaleUpModal {
+            0% { transform: scale(0.85); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-        @keyframes gpayRipple {
-            0% { transform: scale(0.8); opacity: 0.8; }
-            100% { transform: scale(1.6); opacity: 0; }
+        @keyframes pulseRing {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.25); opacity: 0; }
+            100% { transform: scale(0.95); opacity: 0; }
         }
-        @keyframes drawCheck {
+        @keyframes drawCheckmark {
             0% { stroke-dashoffset: 48; }
             100% { stroke-dashoffset: 0; }
         }
-        .animate-gpay-box {
-            animation: gpayScaleUp 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        .animate-modal-pop {
+            animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .animate-gpay-ripple {
-            animation: gpayRipple 1.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+        .animate-pulse-ring {
+            animation: pulseRing 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-        .animate-checkmark {
+        .animate-check-draw {
             stroke-dasharray: 48;
             stroke-dashoffset: 48;
-            animation: drawCheck 0.4s ease 0.3s forwards;
+            animation: drawCheckmark 0.5s ease-in-out 0.2s forwards;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 flex flex-col min-h-screen">
 
     <!-- Professional Fixed Header -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Cart
+                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
+                    <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span> Cart
                 </a>
             </div>
-            <a href="mystore.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 font-semibold">
+            <a href="mystore.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
                 <i class="fa-solid fa-store text-amber-400"></i> Back to Store
             </a>
         </div>
@@ -58,7 +58,7 @@
 
     <!-- Main Cart Content -->
     <main class="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
-        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 mb-6 flex items-center gap-2">
+        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 mb-5 flex items-center gap-2">
             <i class="fa-solid fa-cart-shopping text-amber-500"></i> Your Shopping Cart
         </h1>
 
@@ -70,31 +70,31 @@
 
             <!-- Order Summary Box -->
             <div class="md:col-span-1">
-                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm sticky top-20 space-y-4">
-                    <h3 class="font-bold text-xs text-gray-900 border-b pb-2.5 border-gray-100 uppercase tracking-wider">Order Summary</h3>
+                <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm sticky top-20 space-y-4">
+                    <h3 class="font-bold text-xs text-slate-900 border-b pb-2.5 border-slate-100 uppercase tracking-wider">Order Summary</h3>
                     
-                    <div class="flex justify-between text-xs text-gray-600">
+                    <div class="flex justify-between text-xs text-slate-600">
                         <span>Items Subtotal</span>
-                        <span id="summary-subtotal" class="font-bold text-gray-900">₹0</span>
+                        <span id="summary-subtotal" class="font-bold text-slate-900">₹0</span>
                     </div>
                     <div>
-                        <div class="flex justify-between text-xs text-gray-600">
+                        <div class="flex justify-between text-xs text-slate-600">
                             <span>Delivery Fee</span>
                             <span class="font-bold text-emerald-600">FREE</span>
                         </div>
-                        <p class="text-[10px] text-gray-400 mt-0.5 leading-tight">Delivery charges may vary based on your location.</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 leading-tight">Delivery charges may vary based on your location.</p>
                     </div>
                     
-                    <div class="border-t pt-3 flex justify-between text-sm font-black text-gray-900">
+                    <div class="border-t pt-3 flex justify-between text-sm font-black text-slate-900">
                         <span>Total Amount:</span>
                         <span id="summary-total" class="text-slate-900">₹0</span>
                     </div>
 
-                    <button onclick="checkoutOrder()" id="checkout-btn" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5">
+                    <button onclick="checkoutOrder()" id="checkout-btn" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5 active:scale-95">
                         Proceed to Checkout
                     </button>
                     
-                    <a href="mystore.html" class="block text-center text-xs text-gray-500 hover:text-black transition pt-1">
+                    <a href="mystore.html" class="block text-center text-xs text-slate-500 hover:text-slate-900 transition pt-1 font-medium">
                         Continue Shopping
                     </a>
                 </div>
@@ -102,46 +102,52 @@
         </div>
     </main>
 
-    <!-- Google Pay Style Success Animation Modal -->
-    <div id="success-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-white border border-gray-100 rounded-3xl max-w-xs w-full p-8 shadow-2xl text-center space-y-5 animate-gpay-box">
+    <!-- Industry Standard Success Animation Modal -->
+    <div id="success-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center space-y-5 animate-modal-pop">
             
-            <!-- Google Pay Style Checkmark & Pulsing Ripple Container -->
+            <!-- Industry-Standard Animated Success Checkmark -->
             <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
-                <!-- Background Pulse Ripple -->
-                <div class="absolute inset-0 bg-emerald-100 rounded-full animate-gpay-ripple"></div>
-                <!-- Main Green Circle -->
+                <!-- Pulsing Background Ripple Ring -->
+                <div class="absolute inset-0 bg-emerald-100 rounded-full animate-pulse-ring"></div>
+                <!-- Core Green Circle Icon -->
                 <div class="relative w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg">
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24">
-                        <path class="animate-checkmark" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                        <path class="animate-check-draw" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
             </div>
             
-            <div class="space-y-1.5">
-                <h3 class="font-black text-slate-900 text-base">Order Placed Successfully!</h3>
-                <p class="text-[11px] text-gray-500 leading-relaxed px-1">
-                    Redirecting to store... Our sales executive will reach you soon.
+            <div class="space-y-2">
+                <h3 class="font-extrabold text-slate-900 text-base">Order Placed Successfully!</h3>
+                <p class="text-xs text-slate-600 leading-relaxed px-1">
+                    Your order has been received. Our executive will contact you soon for confirmation and payment process.
                 </p>
+            </div>
+            
+            <div class="pt-2">
+                <span class="inline-block text-[11px] font-bold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200/60">
+                    <i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Returning to store...
+                </span>
             </div>
         </div>
     </div>
 
     <!-- Confirmation Modal for Removing Items -->
-    <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
-            <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto text-base shadow-inner">
+    <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <h3 class="font-black text-slate-900 text-sm" id="modal-title">Remove Item?</h3>
-                <p class="text-xs text-gray-500 mt-1" id="modal-desc">Are you sure you want to remove this product?</p>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="modal-title">Remove Item?</h3>
+                <p class="text-xs text-slate-500 mt-1" id="modal-desc">Are you sure you want to remove this product?</p>
             </div>
-            <div class="grid grid-cols-2 gap-2 pt-2">
-                <button onclick="closeConfirmationModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button onclick="closeConfirmationModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
                     Cancel
                 </button>
-                <button id="modal-confirm-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+                <button id="modal-confirm-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
                     Remove
                 </button>
             </div>
@@ -175,13 +181,13 @@
 
             if (cart.length === 0) {
                 container.innerHTML = `
-                    <div class="bg-white border border-gray-200 rounded-2xl p-12 text-center shadow-sm">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-3 text-lg">
+                    <div class="bg-white border border-slate-200/80 rounded-3xl p-12 text-center shadow-sm">
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-lg border border-amber-100 shadow-inner">
                             <i class="fa-solid fa-cart-shopping"></i>
                         </div>
-                        <h3 class="font-bold text-xs text-gray-900">Your cart is empty</h3>
-                        <p class="text-[11px] text-gray-500 mt-1 mb-4">Explore our inventory catalog and add items to your cart.</p>
-                        <a href="mystore.html" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-5 py-2.5 rounded-xl shadow transition">
+                        <h3 class="font-extrabold text-xs text-slate-900">Your cart is empty</h3>
+                        <p class="text-[11px] text-slate-500 mt-1 mb-4">Explore our inventory catalog and add items to your cart.</p>
+                        <a href="mystore.html" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition active:scale-95">
                             Browse Storefront
                         </a>
                     </div>
@@ -199,19 +205,19 @@
                 subtotal += cleanPrice * qtyCount;
 
                 return `
-                    <div class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 shadow-sm flex items-center gap-3 sm:gap-4">
-                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=400'}" alt="${item.name}" class="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-lg border border-gray-100 bg-slate-50 shrink-0 p-1">
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 transition">
+                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=400'}" alt="${item.name}" class="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-xl border border-slate-100 bg-slate-50 shrink-0 p-1 shadow-xs">
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-xs text-gray-900 truncate">${item.name}</h4>
+                            <h4 class="font-bold text-xs text-slate-900 truncate">${item.name}</h4>
                             <p class="text-xs font-black text-slate-900 mt-0.5">₹${cleanPrice}</p>
                             
                             <div class="flex items-center gap-2 mt-2">
-                                <button onclick="window.updateCartQty(${index}, -1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">-</button>
-                                <span class="text-xs font-bold px-1">${qtyCount}</span>
-                                <button onclick="window.updateCartQty(${index}, 1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">+</button>
+                                <button onclick="window.updateCartQty(${index}, -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs transition active:scale-95">-</button>
+                                <span class="text-xs font-bold px-1.5">${qtyCount}</span>
+                                <button onclick="window.updateCartQty(${index}, 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs transition active:scale-95">+</button>
                             </div>
                         </div>
-                        <button onclick="window.confirmRemoveItem(${index})" class="text-red-400 hover:text-red-600 p-2 transition">
+                        <button onclick="window.confirmRemoveItem(${index})" class="text-slate-400 hover:text-rose-600 p-2 transition rounded-xl hover:bg-rose-50" title="Remove item">
                             <i class="fa-solid fa-trash text-xs"></i>
                         </button>
                     </div>
@@ -296,13 +302,13 @@
                     cart = [];
                     localStorage.removeItem("ymca_cart");
                     
-                    // Show Google Pay style checkmark success animation modal
+                    // Show industry-standard success animation modal
                     document.getElementById('success-modal').classList.remove('hidden');
 
-                    // Automatically redirect back to store catalog after 2.2 seconds
+                    // Automatically redirect back to store catalog after 3.2 seconds
                     setTimeout(() => {
                         window.location.href = "mystore.html";
-                    }, 2200);
+                    }, 3200);
                 })
                 .catch((error) => {
                     console.error("Error saving order: ", error);
