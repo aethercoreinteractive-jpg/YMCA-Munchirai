@@ -303,7 +303,7 @@
                 categoryGroups[cat].push(item);
             });
 
-            // Sort products within each category: In Stock first, Out of Stock last
+             // Sort products within each category: In Stock first, Out of Stock last
             Object.keys(categoryGroups).forEach(cat => {
                 categoryGroups[cat].sort((a, b) => {
                     const aStock = a.inStock !== false ? 1 : 0;
@@ -337,7 +337,7 @@
                             <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                         <!-- Slider Row -->
+                        <!-- Slider Row -->
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
@@ -388,6 +388,9 @@
         window.openProductPageView = function(firebaseKey) {
             const item = liveInventory.find(p => p.firebaseKey === firebaseKey);
             if (!item) return;
+
+            // Push history state so mobile back button closes the view instead of exiting page
+            history.pushState({ view: 'product', key: firebaseKey }, "", "");
 
             const starsDisplay = generateStarRatingHTML(item.rating || 5, "text-sm");
             const pageContent = document.getElementById('product-page-content');
@@ -496,6 +499,17 @@
             document.getElementById('catalog-main-wrapper').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
+        // Listen to browser back/forward buttons (popstate) to seamlessly close the product page view
+        window.addEventListener('popstate', (event) => {
+            const productPageView = document.getElementById('product-page-view');
+            if (productPageView && !productPageView.classList.contains('hidden')) {
+                // If product page is open, close it without triggering another history shift
+                productPageView.classList.add('hidden');
+                document.getElementById('catalog-main-wrapper').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
 
         window.filterProducts = function() {
             const query = document.getElementById('search-bar').value.toLowerCase();
