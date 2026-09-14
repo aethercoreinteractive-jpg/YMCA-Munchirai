@@ -189,11 +189,11 @@
             updateCartCount();
         });
 
-        // Helper to generate Add to Cart, quantity stepper, or Grayscale Out of Stock label
+        // Helper to generate Add to Cart, quantity stepper, or Out of Stock label
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             
-            // Handle Out of Stock status with professional industry grayscale styling
+            // Handle Out of Stock status with a clear label
             if (product && product.inStock === false) {
                 return `
                     <div class="w-full bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-bold py-1 px-1 rounded text-center">
@@ -303,7 +303,7 @@
                 categoryGroups[cat].push(item);
             });
 
-             // Sort products within each category: In Stock first, Out of Stock last
+            // Sort products within each category: In Stock first, Out of Stock last
             Object.keys(categoryGroups).forEach(cat => {
                 categoryGroups[cat].sort((a, b) => {
                     const aStock = a.inStock !== false ? 1 : 0;
