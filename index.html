@@ -137,7 +137,7 @@
             </div>
         </div>
 
-        <div id="inventory-slider" class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pb-4">
+        <div id="inventory-slider" class="flex gap-3 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pb-4">
             <div class="w-full py-10 text-center text-gray-400 text-xs bg-white rounded-2xl border border-gray-200 shadow-sm">Loading featured products...</div>
         </div>
     </section>
@@ -154,10 +154,10 @@
 
     <!-- 16:9 Ratio Automatic & Swipable Heroic Banners Section -->
     <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-lg bg-slate-900 group">
-            <div id="heroic-slider-track" class="flex h-full transition-transform duration-500 ease-out cursor-grab active:cursor-grabbing">
+        <div id="heroic-slider-wrapper" class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-lg bg-slate-900 group touch-pan-y">
+            <div id="heroic-slider-track" class="flex h-full transition-transform duration-300 ease-out cursor-grab active:cursor-grabbing">
                 <div class="min-w-full h-full relative shrink-0">
-                    <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600" alt="Banner 1" class="w-full h-full object-cover">
+                    <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600" alt="Banner 1" class="w-full h-full object-cover pointer-events-none">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
                         <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">Featured Initiative</span>
                         <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">Empowering Youth Through Community Sports</h3>
@@ -165,7 +165,7 @@
                     </div>
                 </div>
                 <div class="min-w-full h-full relative shrink-0">
-                    <img src="https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=1600" alt="Banner 2" class="w-full h-full object-cover">
+                    <img src="https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=1600" alt="Banner 2" class="w-full h-full object-cover pointer-events-none">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
                         <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">MY Store Special</span>
                         <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">100% Pure Organic Self-Help Products</h3>
@@ -173,7 +173,7 @@
                     </div>
                 </div>
                 <div class="min-w-full h-full relative shrink-0">
-                    <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1600" alt="Banner 3" class="w-full h-full object-cover">
+                    <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1600" alt="Banner 3" class="w-full h-full object-cover pointer-events-none">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
                         <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">Community Welfare</span>
                         <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">Building Stronger Families Together</h3>
@@ -207,42 +207,6 @@
     </section>
 
     <!-- Professional Industry-Standard Card News Section (Fixed Single Line with Ellipsis) -->
-    <section id="updates" class="bg-white w-full py-12">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 border-b border-gray-100 pb-4 gap-4">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Updates & Media</span>
-                    <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 mt-1">Latest News & Announcements</h2>
-                </div>
-                <a href="news.html" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition shadow-sm shrink-0">
-                    <span>View All News</span>
-                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </a>
-            </div>
-
-            <!-- Single rotating news display item container -->
-            <div id="homepage-news-container">
-                <div class="text-center py-10 text-xs text-gray-500">Loading latest announcement...</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="bg-white border-t border-gray-200 py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-            <div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">About Munchirai YMCA</span>
-                <h2 class="text-2xl font-bold tracking-tight mt-2 mb-3 text-gray-900">Serving Community & Fostering Growth</h2>
-                <p class="text-gray-600 font-light text-xs sm:text-sm leading-relaxed mb-3">Munchirai YMCA is dedicated to empowering local youth, encouraging active sports participation, facilitating organic self-help group programs, and supporting sustainable economic enterprises like MY Store.</p>
-                <p class="text-gray-600 font-light text-xs sm:text-sm leading-relaxed">Our mission is anchored in building strong community standards through unity, spiritual wellness, and collaborative social welfare.</p>
-            </div>
-            <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-gray-100 border border-gray-200 shadow-sm">
-                <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1000" alt="Community Activity" class="w-full h-full object-cover">
-            </div>
-        </div>
-    </section>
-
-      <!-- Professional Industry-Standard Card News Section (Fixed Single Line with Ellipsis) -->
     <section id="updates" class="bg-white w-full py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 border-b border-gray-100 pb-4 gap-4">
@@ -346,6 +310,32 @@
             return url;
         }
 
+        // ==================== GLOBAL CART HELPER ====================
+        window.addToCartDirect = function(itemKey, itemName, itemPrice, itemImg, itemCategory) {
+            let cart = JSON.parse(localStorage.getItem('ymca_cart')) || [];
+            const existingIndex = cart.findIndex(i => i.key === itemKey);
+            if (existingIndex > -1) {
+                cart[existingIndex].qty = (cart[existingIndex].qty || 1) + 1;
+            } else {
+                cart.push({
+                    key: itemKey,
+                    name: itemName,
+                    price: Number(itemPrice),
+                    img: itemImg,
+                    category: itemCategory,
+                    qty: 1
+                });
+            }
+            localStorage.setItem('ymca_cart', JSON.stringify(cart));
+            
+            // Visual feedback alert/toast
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 z-50 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 news-animate-fade';
+            toast.innerHTML = `<i class="fa-solid fa-check text-amber-400"></i> Added <strong>${itemName}</strong> to cart!`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        };
+
         // ==================== DYNAMIC BEST SELLERS / INVENTORY SLIDER ====================
         const sliderContainer = document.getElementById('inventory-slider');
 
@@ -391,35 +381,37 @@
                 return;
             }
 
+            // Exactly 2 cards fit per view on mobile screens using calc width (calc(50% - 6px))
             let html = items.map(item => `
-                <div class="snap-start shrink-0 w-48 sm:w-56 bg-white rounded-2xl p-3.5 border border-gray-200 shadow-sm flex flex-col justify-between transition hover:border-amber-400">
+                <div class="snap-start shrink-0 w-[calc(50%-6px)] sm:w-56 bg-white rounded-xl p-2.5 sm:p-3.5 border border-gray-200 shadow-sm flex flex-col justify-between transition hover:border-amber-400">
                     <div>
-                        <div class="w-full h-36 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center mb-3">
+                        <div class="w-full h-28 sm:h-36 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center mb-2 sm:mb-3">
                             <img src="${formatImageURL(item.img) || ''}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200?text=IMG'">
                         </div>
-                        <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">${item.category || 'General'}</span>
-                        <h4 class="font-bold text-gray-900 text-xs mt-2 truncate">${item.name}</h4>
+                        <span class="text-[9px] sm:text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">${item.category || 'General'}</span>
+                        <h4 class="font-bold text-gray-900 text-xs mt-1.5 sm:mt-2 truncate">${item.name}</h4>
+                        <div class="text-xs font-black text-gray-900 mt-1">₹${Number(item.price || 0).toFixed(2)}</div>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <span class="text-xs font-black text-gray-900">₹${Number(item.price || 0).toFixed(2)}</span>
-                        <a href="mystore.html" class="w-7 h-7 rounded-lg bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white flex items-center justify-center text-xs transition shadow-sm">
-                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </a>
+                    <div class="mt-3 pt-2.5 border-t border-gray-100">
+                        <button onclick="window.addToCartDirect('${item.key}', '${item.name.replace(/'/g, "\\'")}', ${item.price || 0}, '${item.img || ''}', '${item.category || ''}')" class="w-full bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-bold text-[11px] py-2 px-2 rounded-lg transition shadow-sm flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-cart-plus text-[10px]"></i>
+                            <span>Add to Cart</span>
+                        </button>
                     </div>
                 </div>
             `).join('');
 
             // Append the "View More" card as the last slide element redirecting to mystore.html
             html += `
-                <a href="mystore.html" class="snap-start shrink-0 w-48 sm:w-56 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 border border-slate-800 shadow-lg flex flex-col items-center justify-center text-center gap-3 transition hover:scale-[1.02] active:scale-95 group">
-                    <div class="w-12 h-12 rounded-xl bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-base shadow-md group-hover:rotate-12 transition">
+                <a href="mystore.html" class="snap-start shrink-0 w-[calc(50%-6px)] sm:w-56 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl p-4 sm:p-6 border border-slate-800 shadow-lg flex flex-col items-center justify-center text-center gap-2.5 transition hover:scale-[1.02] active:scale-95 group">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-sm sm:text-base shadow-md group-hover:rotate-12 transition">
                         <i class="fa-solid fa-store"></i>
                     </div>
                     <div>
                         <h4 class="font-extrabold text-xs tracking-tight text-white">View More</h4>
-                        <p class="text-[10px] text-slate-400 mt-1">Explore all products in complete catalog</p>
+                        <p class="text-[9px] sm:text-[10px] text-slate-400 mt-0.5">Explore full catalog</p>
                     </div>
-                    <span class="mt-2 text-[11px] font-bold text-amber-400 flex items-center gap-1">
+                    <span class="mt-1 text-[10px] sm:text-[11px] font-bold text-amber-400 flex items-center gap-1">
                         <span>Open Store</span>
                         <i class="fa-solid fa-arrow-right text-[9px]"></i>
                     </span>
@@ -531,7 +523,7 @@
         document.addEventListener('DOMContentLoaded', initRealtimeNews);
     </script>
 
-    <!-- General Application Logic & Hero Banner Slider -->
+    <!-- General Application Logic & Hero Banner Slider with Touch Swipe Support -->
     <script>
         function applyLiveIndexSettings() {
             const savedSettings = JSON.parse(localStorage.getItem("ymca_index_settings")) || {};
@@ -572,15 +564,71 @@
             updateBannerSlider();
         }
 
+        function prevBannerSlide() {
+            currentBannerIndex = (currentBannerIndex - 1 + totalBanners) % totalBanners;
+            updateBannerSlider();
+        }
+
         function resetBannerTimer() {
             clearInterval(bannerInterval);
             bannerInterval = setInterval(nextBannerSlide, 4000);
         }
 
+        // Enable Finger Swipe Support for Heroic Slider
         document.addEventListener('DOMContentLoaded', () => {
             applyLiveIndexSettings();
             updateBannerSlider();
             resetBannerTimer();
+
+            const sliderWrapper = document.getElementById('heroic-slider-wrapper');
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            if (sliderWrapper) {
+                sliderWrapper.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                    clearInterval(bannerInterval);
+                }, { passive: true });
+
+                sliderWrapper.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipeGesture();
+                    resetBannerTimer();
+                }, { passive: true });
+
+                // Mouse support for desktop dragging
+                let isDragging = false;
+                let startPos = 0;
+
+                sliderWrapper.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startPos = e.clientX;
+                    clearInterval(bannerInterval);
+                });
+
+                window.addEventListener('mouseup', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    let diff = e.clientX - startPos;
+                    if (diff > 50) {
+                        prevBannerSlide();
+                    } else if (diff < -50) {
+                        nextBannerSlide();
+                    }
+                    resetBannerTimer();
+                });
+            }
+
+            function handleSwipeGesture() {
+                let threshold = 40;
+                if (touchEndX < touchStartX - threshold) {
+                    // Swiped Left -> Next slide
+                    nextBannerSlide();
+                } else if (touchEndX > touchStartX + threshold) {
+                    // Swiped Right -> Previous slide
+                    prevBannerSlide();
+                }
+            }
         });
     </script>
 </body>
