@@ -1,0 +1,20 @@
+{
+  "name": "Munchirai YMCA",
+  "short_name": "YMCA",
+  "start_url": "./productmanagement.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192/f59e0b/0f172a?text=MY",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://placehold.co/512x512/f59e0b/0f172a?text=MY",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
