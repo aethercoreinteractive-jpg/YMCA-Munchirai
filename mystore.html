@@ -189,14 +189,14 @@
             updateCartCount();
         });
 
-        // Helper to generate Add to Cart, quantity stepper, or Out of Stock label
+        // Helper to generate Add to Cart, quantity stepper, or Out of Stock label (Dark Black styling for button)
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             
-            // Handle Out of Stock status with a clear label
+            // Handle Out of Stock status with a bold dark black banner/button look
             if (product && product.inStock === false) {
                 return `
-                    <div class="w-full bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-bold py-1 px-1 rounded text-center">
+                    <div class="w-full bg-slate-900 text-white border border-slate-900 text-[9px] font-black py-1 px-1 rounded text-center tracking-wider uppercase shadow-sm">
                         Out of Stock
                     </div>
                 `;
@@ -262,11 +262,11 @@
                     const isInStock = item.inStock !== false;
 
                     bsHtml += `
-                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-200 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-200 text-slate-700'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? '<i class="fa-solid fa-star text-[6px]"></i> Top' : 'Out'}</span>
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? '<i class="fa-solid fa-star text-[6px]"></i> Top' : 'Out'}</span>
                                 </div>
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
@@ -303,100 +303,6 @@
                 categoryGroups[cat].push(item);
             });
 
-            // Sort products within each category: In Stock first, Out of Stock last
-            Object.keys(categoryGroups).forEach(cat => {
-                categoryGroups[cat].sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    if (aStock !== bStock) {
-                        return bStock - aStock; // In stock items first
-                    }
-                    return (a.order ?? 0) - (b.order ?? 0); // Secondary sort by custom order if available
-                });
-            });
-
-            let displayCategories = categoriesCache.map(c => c.name);
-            if (!displayCategories.includes("Uncategorized") && categoryGroups["Uncategorized"].length > 0) {
-                displayCategories.push("Uncategorized");
-            }
-
-            let htmlOutput = '';
-
-            displayCategories.forEach(catName => {
-                const groupItems = categoryGroups[catName] || [];
-                if (groupItems.length === 0) return;
-
-                htmlOutput += `
-                    <div class="space-y-2.5">
-                        <!-- Category Section Row Header -->
-                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
-                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                                ${catName}
-                            </h2>
-                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
-                        </div>
-
-                        <!-- Slider Row -->
-                        <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
-                `;
-
-                groupItems.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
-                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
-                    const isInStock = item.inStock !== false;
-
-                    htmlOutput += `
-                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-200 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
-                            <div>
-                                <!-- Micro Image Frame -->
-                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-200 text-slate-700'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Stock' : 'Out'}</span>
-                                </div>
-
-                                <!-- Full Title without truncation -->
-                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
-
-                                <!-- Description Fallback support -->
-                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
-                            </div>
-
-                              <!-- Price on left, Quantity on right -->
-                            <div>
-                                <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
-                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
-                                </div>
-
-                               <!-- Dynamic Cart Action Control -->
-                                <div id="action-container-${item.firebaseKey}">
-                                    ${actionButtonHtml}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                htmlOutput += `</div></div>`;
-            });
-
-            container.innerHTML = htmlOutput;
-        };
-
-        window.openProductPageView = function(firebaseKey) {
-            const item = liveInventory.find(p => p.firebaseKey === firebaseKey);
-            if (!item) return;
-
-            // Push history state so mobile back button closes the view instead of exiting page
-            history.pushState({ view: 'product', key: firebaseKey }, "", "");
-
-            const starsDisplay = generateStarRatingHTML(item.rating || 5, "text-sm");
-            const pageContent = document.getElementById('product-page-content');
-            const detailedDescription = item.descBig || item.bigDesc || item.desc || item.description || 'My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place. Freshly sourced from local farms.';
-            const isInStock = item.inStock !== false;
-
             // Sort products for Explore All Grid: In Stock first, Out of Stock last
             let sortedExploreInventory = [...liveInventory].sort((a, b) => {
                 const aStock = a.inStock !== false ? 1 : 0;
@@ -412,7 +318,7 @@
                 const prodInStock = prod.inStock !== false;
 
                 exploreGridHtml += `
-                    <div onclick="openProductPageView('${prod.firebaseKey}')" class="border ${prodInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-200 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                    <div onclick="openProductPageView('${prod.firebaseKey}')" class="border ${prodInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                         <div>
                             <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                 <img src="${prod.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${prod.name}" class="w-full h-full object-contain p-1">
@@ -440,7 +346,7 @@
                     <!-- Image Showcase -->
                     <div class="relative bg-slate-100 rounded-xl overflow-hidden aspect-[4/3] border border-slate-200 flex items-center justify-center shadow-inner ${isInStock ? '' : 'grayscale opacity-80'}">
                         <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-3">
-                        <span class="absolute top-2.5 left-2.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-200 text-slate-700'} font-bold text-[10px] px-2.5 py-0.5 rounded shadow">${isInStock ? 'In Stock' : 'Out of Stock'}</span>
+                        <span class="absolute top-2.5 left-2.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[10px] px-2.5 py-0.5 rounded shadow">${isInStock ? 'In Stock' : 'Out of Stock'}</span>
                     </div>
 
                     <!-- Product Full Info Details -->
