@@ -99,7 +99,7 @@
                 </div>
             </div>
             
-            <!-- Navigation Links Row (Fully Wrapped for Mobile) -->
+            <!-- Navigation Links Row -->
             <div class="w-full sm:w-auto grid grid-cols-4 sm:flex items-center gap-1.5 text-center">
                 <a href="admin.html" class="py-2 px-2.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1">
                     <i class="fa-solid fa-house text-xs"></i> <span>Home</span>
@@ -182,11 +182,27 @@
         Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
     </footer>
 
-    <!-- CORE SCRIPT -->
-    <script>
+    <!-- CORE FIREBASE & AUTH SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
         const FALLBACK_PASSWORD = "Admin@123";
 
-        function togglePasswordVisibility(inputId, iconId) {
+        window.togglePasswordVisibility = function(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
             if (input.type === "password") {
@@ -198,9 +214,9 @@
                 icon.classList.remove("fa-eye-slash");
                 icon.classList.add("fa-eye");
             }
-        }
+        };
 
-        function checkAuth() {
+        async function checkAuth() {
             if (!sessionStorage.getItem("admin_authenticated")) {
                 document.getElementById('login-modal').classList.remove('hidden');
             } else {
@@ -208,19 +224,40 @@
             }
         }
 
-        window.handleLogin = function(event) {
+        window.handleLogin = async function(event) {
             event.preventDefault();
-            const val = document.getElementById('login-input').value;
-            const currentPass = localStorage.getItem("admin_password") || FALLBACK_PASSWORD;
+            const enteredVal = document.getElementById('login-input').value;
+            
+            try {
+                const passRef = ref(db, 'settings/adminPassword');
+                const snapshot = await get(passRef);
+                
+                let currentPass = FALLBACK_PASSWORD;
+                if (snapshot.exists()) {
+                    currentPass = snapshot.val();
+                } else {
+                    await set(passRef, FALLBACK_PASSWORD);
+                }
 
-            if (val === currentPass) {
-                sessionStorage.setItem("admin_authenticated", "true");
-                document.getElementById('login-modal').classList.add('hidden');
-                document.getElementById('login-error').classList.add('hidden');
-                document.getElementById('login-input').value = "";
-                loadCMSValues();
-            } else {
-                document.getElementById('login-error').classList.remove('hidden');
+                if (enteredVal === currentPass) {
+                    sessionStorage.setItem("admin_authenticated", "true");
+                    document.getElementById('login-modal').classList.add('hidden');
+                    document.getElementById('login-error').classList.add('hidden');
+                    document.getElementById('login-input').value = "";
+                    loadCMSValues();
+                } else {
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Login verification error:", error);
+                if (enteredVal === FALLBACK_PASSWORD) {
+                    sessionStorage.setItem("admin_authenticated", "true");
+                    document.getElementById('login-modal').classList.add('hidden');
+                    document.getElementById('login-error').classList.add('hidden');
+                    loadCMSValues();
+                } else {
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
             }
         };
 
@@ -270,4 +307,5 @@
         document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 </body>
-</html>
+    </html>
+    
