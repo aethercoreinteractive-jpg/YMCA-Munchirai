@@ -189,14 +189,14 @@
             updateCartCount();
         });
 
-        // Helper to generate Add to Cart, quantity stepper, or Out of Stock label
+        // Helper to generate Add to Cart, quantity stepper, or Grayscale Out of Stock label
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             
-            // Handle Out of Stock status
+            // Handle Out of Stock status with professional industry grayscale styling
             if (product && product.inStock === false) {
                 return `
-                    <div class="w-full bg-red-50 text-red-600 border border-red-200 text-[9px] font-bold py-1 px-1 rounded text-center">
+                    <div class="w-full bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-bold py-1 px-1 rounded text-center">
                         Out of Stock
                     </div>
                 `;
@@ -262,11 +262,11 @@
                     const isInStock = item.inStock !== false;
 
                     bsHtml += `
-                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-red-200 opacity-75'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-200 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-red-500 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? '<i class="fa-solid fa-star text-[6px]"></i> Top' : 'Out'}</span>
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-200 text-slate-700'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? '<i class="fa-solid fa-star text-[6px]"></i> Top' : 'Out'}</span>
                                 </div>
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
@@ -337,7 +337,7 @@
                             <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                        <!-- Slider Row -->
+                         <!-- Slider Row -->
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
@@ -348,12 +348,12 @@
                     const isInStock = item.inStock !== false;
 
                     htmlOutput += `
-                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-red-200 opacity-75'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-200 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                             <div>
                                 <!-- Micro Image Frame -->
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-red-500 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Stock' : 'Out'}</span>
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-200 text-slate-700'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Stock' : 'Out'}</span>
                                 </div>
 
                                 <!-- Full Title without truncation -->
@@ -402,7 +402,7 @@
                 const prodInStock = prod.inStock !== false;
 
                 exploreGridHtml += `
-                    <div onclick="openProductPageView('${prod.firebaseKey}')" class="border ${prodInStock ? 'border-gray-200 active:border-amber-500' : 'border-red-200 opacity-75'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                    <div onclick="openProductPageView('${prod.firebaseKey}')" class="border ${prodInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-200 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                         <div>
                             <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                 <img src="${prod.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${prod.name}" class="w-full h-full object-contain p-1">
@@ -428,9 +428,9 @@
             pageContent.innerHTML = `
                 <div class="grid grid-cols-1 gap-4 items-start">
                     <!-- Image Showcase -->
-                    <div class="relative bg-slate-100 rounded-xl overflow-hidden aspect-[4/3] border border-slate-200 flex items-center justify-center shadow-inner">
+                    <div class="relative bg-slate-100 rounded-xl overflow-hidden aspect-[4/3] border border-slate-200 flex items-center justify-center shadow-inner ${isInStock ? '' : 'grayscale opacity-80'}">
                         <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-3">
-                        <span class="absolute top-2.5 left-2.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-red-500 text-white'} font-bold text-[10px] px-2.5 py-0.5 rounded shadow">${isInStock ? 'In Stock' : 'Out of Stock'}</span>
+                        <span class="absolute top-2.5 left-2.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-200 text-slate-700'} font-bold text-[10px] px-2.5 py-0.5 rounded shadow">${isInStock ? 'In Stock' : 'Out of Stock'}</span>
                     </div>
 
                     <!-- Product Full Info Details -->
@@ -558,4 +558,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
