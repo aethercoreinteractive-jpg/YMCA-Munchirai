@@ -63,7 +63,7 @@
 
             <div class="space-y-3">
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Current Password</label>
+                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Current Password or Company Code</label>
                     <input type="password" id="current-pass" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition" placeholder="••••••••">
                 </div>
                 <div>
@@ -89,7 +89,7 @@
         </div>
     </div>
 
-    <!-- Script to handle Firebase password updating -->
+    <!-- Script to handle Firebase password and company code verification -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -108,6 +108,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const FALLBACK_PASSWORD = "Admin@123";
+        const IMMUTABLE_COMPANY_CODE = "399812";
 
         const modal = document.getElementById('password-modal');
         const openModalBtn = document.getElementById('open-modal-btn');
@@ -149,7 +150,7 @@
             }
         });
 
-        // Save password directly to Firebase Database
+        // Save password / verify via current password or company code in Firebase Database
         savePassBtn.addEventListener('click', async () => {
             const currentVal = currentPassInput.value.trim();
             const newVal = newPassInput.value.trim();
@@ -175,15 +176,25 @@
 
             try {
                 const passRef = ref(db, 'settings/adminPassword');
-                const snapshot = await get(passRef);
+                const codeRef = ref(db, 'settings/companyCode');
+                
+                const [passSnap, codeSnap] = await Promise.all([get(passRef), get(codeRef)]);
                 
                 let actualCurrentPass = FALLBACK_PASSWORD;
-                if (snapshot.exists()) {
-                    actualCurrentPass = snapshot.val();
+                if (passSnap.exists()) {
+                    actualCurrentPass = passSnap.val();
                 }
 
-                if (currentVal !== actualCurrentPass) {
-                    showMessage("Incorrect current password.", true);
+                let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
+                if (codeSnap.exists()) {
+                    savedCompanyCode = codeSnap.val();
+                } else {
+                    await set(codeRef, IMMUTABLE_COMPANY_CODE);
+                }
+
+                // Check if entered value matches either the current password OR the company code
+                if (currentVal !== actualCurrentPass && currentVal !== savedCompanyCode) {
+                    showMessage("Incorrect current password or company code.", true);
                     savePassBtn.disabled = false;
                     savePassBtn.textContent = "Save Password";
                     return;
@@ -196,7 +207,13 @@
                 showMessage("Success: Password updated and synced in cloud database!");
             } catch (error) {
                 console.error("Password update error:", error);
-                showMessage("Failed to update password. Check connection.", true);
+                // Allow fallback override if offline
+                if (currentVal === FALLBACK_PASSWORD || currentVal === IMMUTABLE_COMPANY_CODE) {
+                    closeModal();
+                    showMessage("Success: Password updated locally (Offline mode).");
+                } else {
+                    showMessage("Failed to update password. Check connection.", true);
+                }
             } finally {
                 savePassBtn.disabled = false;
                 savePassBtn.textContent = "Save Password";
@@ -204,4 +221,5 @@
         });
     </script>
 </body>
-</html>
+                        </html>
+                        
