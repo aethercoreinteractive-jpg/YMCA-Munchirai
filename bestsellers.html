@@ -107,14 +107,14 @@
         import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
-          authDomain: "munchirai-ymca.firebaseapp.com",
-          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
-          projectId: "munchirai-ymca",
-          storageBucket: "munchirai-ymca.firebasestorage.app",
-          messagingSenderId: "697387132253",
-          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
-          measurementId: "G-XRRT0Q76YK"
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -149,6 +149,21 @@
                 renderSavedBestSellers();
             });
         });
+
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
 
         function renderSavedBestSellers() {
             const savedItems = allInventory.filter(item => savedBestSellers[item.key] === true);
@@ -193,7 +208,7 @@
                                 <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-slate-300 transition">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
-                                            <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                                            <img src="${formatImageURL(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
                                         </div>
                                         <div class="min-w-0">
                                             <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
