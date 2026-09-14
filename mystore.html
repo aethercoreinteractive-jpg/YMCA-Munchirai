@@ -189,8 +189,19 @@
             updateCartCount();
         });
 
-        // Helper to generate either Add to Cart button or (- qty +) stepper widget
+        // Helper to generate Add to Cart, quantity stepper, or Out of Stock label
         function getCartActionHTML(firebaseKey) {
+            const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
+            
+            // Handle Out of Stock status
+            if (product && product.inStock === false) {
+                return `
+                    <div class="w-full bg-red-50 text-red-600 border border-red-200 text-[9px] font-bold py-1 px-1 rounded text-center">
+                        Out of Stock
+                    </div>
+                `;
+            }
+
             const cartItem = cart.find(item => item.firebaseKey === firebaseKey);
             const count = cartItem ? (cartItem.qtyCount || 1) : 0;
 
@@ -231,8 +242,14 @@
 
             emptyState.classList.add('hidden');
 
-            // Render Best Sellers Row
+            // Render Best Sellers Row (Sorted: In-Stock first, Out-of-Stock last)
             const bestSellersList = productsToRender.filter(item => savedBestSellers[item.firebaseKey] === true);
+            bestSellersList.sort((a, b) => {
+                const aStock = a.inStock !== false ? 1 : 0;
+                const bStock = b.inStock !== false ? 1 : 0;
+                return bStock - aStock; // In-stock (1) comes before out-of-stock (0)
+            });
+
             if (bestSellersList.length > 0) {
                 bestsellersSection.classList.remove('hidden');
                 bestsellersBadgeCount.textContent = `${bestSellersList.length} item${bestSellersList.length > 1 ? 's' : ''}`;
@@ -241,15 +258,15 @@
                 bestSellersList.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    // Mapped to descSmall as saved in addproduct.html
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
 
                     bsHtml += `
-                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border border-gray-200 active:border-amber-500 bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-red-200 opacity-75'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-0.5 left-0.5 bg-amber-500 text-slate-950 font-bold text-[7px] px-1 py-0.2 rounded shadow"><i class="fa-solid fa-star text-[6px]"></i> Top</span>
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-red-500 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? '<i class="fa-solid fa-star text-[6px]"></i> Top' : 'Out'}</span>
                                 </div>
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
@@ -286,8 +303,16 @@
                 categoryGroups[cat].push(item);
             });
 
+            // Sort products within each category: In Stock first, Out of Stock last
             Object.keys(categoryGroups).forEach(cat => {
-                categoryGroups[cat].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                categoryGroups[cat].sort((a, b) => {
+                    const aStock = a.inStock !== false ? 1 : 0;
+                    const bStock = b.inStock !== false ? 1 : 0;
+                    if (aStock !== bStock) {
+                        return bStock - aStock; // In stock items first
+                    }
+                    return (a.order ?? 0) - (b.order ?? 0); // Secondary sort by custom order if available
+                });
             });
 
             let displayCategories = categoriesCache.map(c => c.name);
@@ -319,16 +344,16 @@
                 groupItems.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    // Mapped to descSmall as saved in addproduct.html
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
 
                     htmlOutput += `
-                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border border-gray-200 active:border-amber-500 bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-red-200 opacity-75'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                             <div>
                                 <!-- Micro Image Frame -->
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-0.5 left-0.5 bg-amber-500 text-slate-950 font-bold text-[7px] px-1 py-0.2 rounded shadow">Stock</span>
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-red-500 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Stock' : 'Out'}</span>
                                 </div>
 
                                 <!-- Full Title without truncation -->
@@ -366,17 +391,18 @@
 
             const starsDisplay = generateStarRatingHTML(item.rating || 5, "text-sm");
             const pageContent = document.getElementById('product-page-content');
-            // Mapped to descBig as saved in addproduct.html
             const detailedDescription = item.descBig || item.bigDesc || item.desc || item.description || 'My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place. Freshly sourced from local farms.';
+            const isInStock = item.inStock !== false;
 
             let exploreGridHtml = '';
             liveInventory.forEach(prod => {
                 const cleanPrice = typeof prod.price === 'string' ? prod.price.replace('₹', '') : prod.price;
                 const prodActionHtml = getCartActionHTML(prod.firebaseKey);
                 const prodSmallDesc = prod.descSmall || prod.smallDesc || prod.desc || prod.description || 'Authentic organic food product.';
+                const prodInStock = prod.inStock !== false;
 
                 exploreGridHtml += `
-                    <div onclick="openProductPageView('${prod.firebaseKey}')" class="border border-gray-200 active:border-amber-500 bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                    <div onclick="openProductPageView('${prod.firebaseKey}')" class="border ${prodInStock ? 'border-gray-200 active:border-amber-500' : 'border-red-200 opacity-75'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                         <div>
                             <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                 <img src="${prod.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${prod.name}" class="w-full h-full object-contain p-1">
@@ -404,7 +430,7 @@
                     <!-- Image Showcase -->
                     <div class="relative bg-slate-100 rounded-xl overflow-hidden aspect-[4/3] border border-slate-200 flex items-center justify-center shadow-inner">
                         <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-3">
-                        <span class="absolute top-2.5 left-2.5 bg-amber-500 text-slate-950 font-bold text-[10px] px-2.5 py-0.5 rounded shadow">In Stock</span>
+                        <span class="absolute top-2.5 left-2.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-red-500 text-white'} font-bold text-[10px] px-2.5 py-0.5 rounded shadow">${isInStock ? 'In Stock' : 'Out of Stock'}</span>
                     </div>
 
                     <!-- Product Full Info Details -->
@@ -477,7 +503,7 @@
 
         window.addToCart = function(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
-            if (!product) return;
+            if (!product || product.inStock === false) return;
 
             const existing = cart.find(item => item.firebaseKey === firebaseKey);
             if (existing) {
@@ -532,4 +558,4 @@
         });
     </script>
 </body>
-</html>
+</html> 
