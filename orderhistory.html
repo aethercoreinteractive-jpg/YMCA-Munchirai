@@ -6,85 +6,109 @@
     <title>Munchirai YMCA | Order History</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#1e293b', 900: '#0f172a', 950: '#090d16' },
+                        amber: { 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- FontAwesome for UI icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 flex flex-col min-h-screen">
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16 flex flex-col min-h-screen">
 
     <!-- Professional Fixed Header -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 shrink-0">
-                <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Order History
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 shrink-0">
+                <a href="mystore.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span>
+                    <span>Order History</span>
                 </a>
             </div>
             <div class="flex items-center gap-2">
-                <a href="orders.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 font-semibold">
-                    <i class="fa-solid fa-list-check text-amber-400"></i> Live Orders
+                <a href="orders.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
+                    <i class="fa-solid fa-list-check text-amber-400"></i>
+                    <span class="hidden xs:inline">Live Orders</span>
                 </a>
-                <button onclick="openSecurityModal('clearAll')" class="text-[11px] bg-rose-900/40 hover:bg-rose-900/70 text-rose-200 px-3 py-1.5 rounded-lg transition border border-rose-800 flex items-center gap-1 font-semibold">
-                    <i class="fa-solid fa-trash-can text-rose-400"></i> Clear All
+                <button onclick="openSecurityModal('clearAll')" class="text-xs bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 px-3 py-2 rounded-xl transition border border-rose-800/80 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
+                    <i class="fa-solid fa-trash-can text-rose-400"></i>
+                    <span class="hidden xs:inline">Clear All</span>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main History Content -->
-    <main class="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl shadow-sm border border-slate-200/80">
             <div>
-                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-600 bg-slate-200 px-2 py-0.5 rounded border border-slate-300">Archived Records</span>
-                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 mt-1">Completed & Cancelled Orders</h1>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Archived Records</span>
+                <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 mt-1">Completed & Cancelled Orders</h1>
             </div>
-            <div class="flex items-center gap-2">
-                <span id="total-history-badge" class="text-xs font-bold bg-slate-200 text-slate-800 px-3 py-1.5 rounded-xl shadow-sm">0 Archived Orders</span>
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+                <span id="total-history-badge" class="text-xs font-extrabold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">0 Archived Orders</span>
             </div>
         </div>
 
         <!-- History Container -->
         <div id="history-container" class="space-y-4">
-            <div class="text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm text-gray-400 text-xs">
+            <div class="text-center py-16 bg-white rounded-3xl border border-slate-200/80 shadow-sm text-slate-400 text-xs font-medium">
                 Loading order history...
             </div>
         </div>
 
         <!-- Empty State Notice -->
-        <div id="empty-history-state" class="hidden text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm">
-            <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center mx-auto mb-3 text-lg shadow-inner">
+        <div id="empty-history-state" class="hidden text-center py-16 bg-white rounded-3xl border border-slate-200/80 shadow-sm px-4">
+            <div class="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl border border-slate-100 shadow-inner">
                 <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
-            <h3 class="font-bold text-xs text-gray-900">No history records yet</h3>
-            <p class="text-[11px] text-gray-500 mt-1">Delivered or cancelled orders will appear here automatically.</p>
+            <h3 class="font-bold text-sm text-slate-900">No history records yet</h3>
+            <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Delivered or cancelled orders will appear here automatically.</p>
         </div>
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400 mt-auto">
+        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
+    </footer>
+
     <!-- Custom In-Website Security Password Modal -->
-    <div id="security-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white border border-gray-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner">
+    <div id="security-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-amber-100 shadow-inner">
                 <i class="fa-solid fa-lock"></i>
             </div>
             <div class="text-center">
-                <h3 class="font-black text-slate-900 text-sm" id="modal-title">Authentication Required</h3>
-                <p class="text-xs text-gray-500 mt-1" id="modal-desc">Enter company key or admin password to proceed.</p>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="modal-title">Authentication Required</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed" id="modal-desc">Enter company key or admin password to proceed.</p>
             </div>
             
             <div>
-                <input type="password" id="modal-password-input" placeholder="Enter company key..." class="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium">
-                <p id="modal-error-msg" class="text-[10px] text-rose-600 font-bold mt-1.5 hidden">Incorrect company key or password.</p>
+                <input type="password" id="modal-password-input" placeholder="Enter company key..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
+                <p id="modal-error-msg" class="text-[11px] text-rose-600 font-bold mt-1.5 hidden flex items-center gap-1 justify-center">
+                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect company key or password.
+                </p>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 pt-1">
-                <button onclick="closeSecurityModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button onclick="closeSecurityModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
                     Cancel
                 </button>
-                <button onclick="verifySecurityKey()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+                <button onclick="verifySecurityKey()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
                     Confirm
                 </button>
             </div>
@@ -111,10 +135,22 @@
         const db = getDatabase(app);
 
         const ordersRef = ref(db, 'orders');
-        const CORRECT_COMPANY_KEY = "ymca2026"; // Change this password if needed
+        const CORRECT_COMPANY_KEY = "ymca2026";
         
-        let pendingActionType = null; // 'single' or 'clearAll'
-        let pendingTargetKey = null;   // firebaseKey for single delete
+        let pendingActionType = null; 
+        let pendingTargetKey = null;   
+
+        // Helper function to format any epoch/timestamp string into 12-hour AM/PM format
+        function format12HourTime(timestampInput) {
+            if (!timestampInput) return null;
+            const dateObj = new Date(timestampInput);
+            if (isNaN(dateObj.getTime())) return null;
+            return dateObj.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
 
         onValue(ordersRef, (snapshot) => {
             const data = snapshot.val();
@@ -134,7 +170,6 @@
                 ...data[key]
             })).reverse();
 
-            // Filter strictly for history records (Delivered or Cancelled)
             const historyOrders = ordersList.filter(order => {
                 const status = order.status || '';
                 return status === 'Delivered' || status === 'Cancelled';
@@ -151,60 +186,64 @@
             badge.textContent = `${historyOrders.length} Archived Order${historyOrders.length > 1 ? 's' : ''}`;
 
             container.innerHTML = historyOrders.map(order => {
-                const orderDateStr = order.timestamp ? new Date(order.timestamp).toLocaleString() : 'N/A';
-                const processingStr = order.processingTime ? new Date(order.processingTime).toLocaleTimeString() : null;
-                const readyStr = order.readyTime ? new Date(order.readyTime).toLocaleTimeString() : null;
-                const deliveredStr = order.deliveredTime ? new Date(order.deliveredTime).toLocaleTimeString() : null;
-                const cancelledStr = order.cancelledTime ? new Date(order.cancelledTime).toLocaleTimeString() : null;
+                const rawDate = order.timestamp ? new Date(order.timestamp) : null;
+                const orderDateFormatted = rawDate && !isNaN(rawDate.getTime()) 
+                    ? `${rawDate.toLocaleDateString()} at ${format12HourTime(order.timestamp)}` 
+                    : 'N/A';
+
+                const processingTime12 = format12HourTime(order.processingTime);
+                const readyTime12 = format12HourTime(order.readyTime);
+                const deliveredTime12 = format12HourTime(order.deliveredTime);
+                const cancelledTime12 = format12HourTime(order.cancelledTime);
                 
                 const status = order.status || 'Delivered';
-                let statusBadgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-                if (status === 'Cancelled') statusBadgeColor = 'bg-rose-100 text-rose-800 border-rose-200';
+                let statusBadgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                if (status === 'Cancelled') statusBadgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
 
                 const itemsHtml = (order.items || []).map(item => `
-                    <div class="flex items-center justify-between text-xs py-1 border-b border-gray-100 last:border-0">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-900">${item.qtyCount || 1}x</span>
-                            <span class="text-gray-700">${item.name}</span>
+                    <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0">
+                        <div class="flex items-center gap-2.5">
+                            <span class="font-extrabold text-slate-900 bg-slate-200/60 px-1.5 py-0.5 rounded text-[10px]">${item.qtyCount || 1}x</span>
+                            <span class="text-slate-700 font-medium">${item.name}</span>
                         </div>
-                        <span class="font-semibold text-slate-900">₹${(item.price || 0) * (item.qtyCount || 1)}</span>
+                        <span class="font-bold text-slate-900">₹${(item.price || 0) * (item.qtyCount || 1)}</span>
                     </div>
                 `).join('');
 
-                // Detailed Timestamp Flow construction
-                let timelineHtml = `<div class="text-[11px] text-gray-500 space-y-0.5"><p><i class="fa-regular fa-calendar-days text-amber-500 mr-1"></i> Ordered: ${orderDateStr}</p>`;
-                if (processingStr) timelineHtml += `<p class="text-blue-600 font-medium">⚡ Processing: ${processingStr}</p>`;
-                if (readyStr) timelineHtml += `<p class="text-indigo-600 font-medium">📦 Ready: ${readyStr}</p>`;
-                if (deliveredStr) timelineHtml += `<p class="text-emerald-600 font-medium">✅ Delivered: ${deliveredStr}</p>`;
-                if (cancelledStr) timelineHtml += `<p class="text-rose-600 font-medium">❌ Cancelled: ${cancelledStr}</p>`;
+                // Timeline details with 12-hour AM/PM format
+                let timelineHtml = `<div class="text-[11px] text-slate-500 space-y-1"><p class="font-medium"><i class="fa-regular fa-calendar-days text-amber-500 mr-1"></i> Ordered: ${orderDateFormatted}</p>`;
+                if (processingTime12) timelineHtml += `<p class="text-blue-600 font-semibold">⚡ Processing: ${processingTime12}</p>`;
+                if (readyTime12) timelineHtml += `<p class="text-indigo-600 font-semibold">📦 Ready: ${readyTime12}</p>`;
+                if (deliveredTime12) timelineHtml += `<p class="text-emerald-600 font-semibold">✅ Delivered: ${deliveredTime12}</p>`;
+                if (cancelledTime12) timelineHtml += `<p class="text-rose-600 font-semibold">❌ Cancelled: ${cancelledTime12}</p>`;
                 timelineHtml += `</div>`;
 
                 return `
-                    <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-gray-100">
+                    <div class="bg-white border border-slate-200/80 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5 transition">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 border-b border-slate-100 pb-3.5">
                             <div>
-                                <span class="text-[10px] text-gray-400 font-mono">ID: ${order.firebaseKey.slice(-6)}</span>
+                                <span class="text-[10px] text-slate-400 font-mono tracking-wider uppercase bg-slate-50 px-2 py-0.5 rounded border border-slate-200/60 mb-2 inline-block">ID: ${order.firebaseKey.slice(-6)}</span>
                                 ${timelineHtml}
                             </div>
-                            <div class="flex items-center gap-2 shrink-0">
-                                <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${statusBadgeColor}">${status}</span>
+                            <div class="flex items-center gap-2 shrink-0 self-start">
+                                <span class="text-[10px] font-extrabold px-3 py-1 rounded-xl border uppercase tracking-wider ${statusBadgeColor}">${status}</span>
                             </div>
                         </div>
 
                         <!-- Items Breakdown -->
-                        <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 space-y-1">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Purchased Items</span>
+                        <div class="bg-slate-50/80 rounded-2xl p-3.5 border border-slate-200/60 space-y-1">
+                            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Purchased Items</span>
                             ${itemsHtml}
                         </div>
 
                         <div class="flex items-center justify-between pt-1">
                             <div class="text-xs">
-                                <span class="text-gray-500">Total:</span>
-                                <span class="font-black text-slate-900 text-sm ml-1">₹${order.totalAmount || 0}</span>
+                                <span class="text-slate-500 font-medium">Total:</span>
+                                <span class="font-black text-slate-900 text-sm ml-1.5">₹${order.totalAmount || 0}</span>
                             </div>
                             
-                            <button onclick="openSecurityModal('single', '${order.firebaseKey}')" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-red-200 flex items-center gap-1">
-                                <i class="fa-solid fa-trash"></i> Delete
+                            <button onclick="openSecurityModal('single', '${order.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1.5 shadow-sm active:scale-95">
+                                <i class="fa-solid fa-trash text-[11px]"></i> Delete
                             </button>
                         </div>
                     </div>
@@ -269,5 +308,4 @@
         };
     </script>
 </body>
-                    </html>
-                    
+</html>
