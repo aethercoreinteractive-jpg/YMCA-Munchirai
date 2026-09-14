@@ -94,13 +94,13 @@
             </div>
             <div class="text-center">
                 <h3 class="font-extrabold text-slate-900 text-sm" id="modal-title">Authentication Required</h3>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed" id="modal-desc">Enter company key or admin password to proceed.</p>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed" id="modal-desc">Enter company key, admin password, or company code to proceed.</p>
             </div>
             
             <div>
-                <input type="password" id="modal-password-input" placeholder="Enter company key..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
+                <input type="password" id="modal-password-input" placeholder="Enter security key..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
                 <p id="modal-error-msg" class="text-[11px] text-rose-600 font-bold mt-1.5 hidden flex items-center gap-1 justify-center">
-                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect company key or password.
+                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect security key or password.
                 </p>
             </div>
 
@@ -108,7 +108,7 @@
                 <button onclick="closeSecurityModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
                     Cancel
                 </button>
-                <button onclick="verifySecurityKey()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
+                <button onclick="verifySecurityKey()" id="modal-confirm-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
                     Confirm
                 </button>
             </div>
@@ -118,7 +118,7 @@
     <!-- Firebase SDK Imports & History Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -136,6 +136,8 @@
 
         const ordersRef = ref(db, 'orders');
         const CORRECT_COMPANY_KEY = "ymca2026";
+        const FALLBACK_PASSWORD = "Admin@123";
+        const IMMUTABLE_COMPANY_CODE = "399812";
         
         let pendingActionType = null; 
         let pendingTargetKey = null;   
@@ -260,10 +262,10 @@
             
             if (actionType === 'clearAll') {
                 document.getElementById('modal-title').textContent = "Clear All History?";
-                document.getElementById('modal-desc').textContent = "Enter company key to wipe all archived history records.";
+                document.getElementById('modal-desc').textContent = "Enter security key to wipe all archived history records.";
             } else {
                 document.getElementById('modal-title').textContent = "Delete History Record?";
-                document.getElementById('modal-desc').textContent = "Enter company key to permanently delete this order.";
+                document.getElementById('modal-desc').textContent = "Enter security key to permanently delete this order.";
             }
 
             document.getElementById('security-modal').classList.remove('hidden');
@@ -276,34 +278,84 @@
             pendingTargetKey = null;
         };
 
-        window.verifySecurityKey = function() {
-            const enteredKey = document.getElementById('modal-password-input').value;
+        window.verifySecurityKey = async function() {
+            const enteredKey = document.getElementById('modal-password-input').value.trim();
             const errorMsg = document.getElementById('modal-error-msg');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
 
-            if (enteredKey === CORRECT_COMPANY_KEY) {
-                errorMsg.classList.add('hidden');
-                
-                if (pendingActionType === 'single' && pendingTargetKey) {
-                    remove(ref(db, `orders/${pendingTargetKey}`))
-                        .catch(err => console.error("Error deleting order:", err));
-                } else if (pendingActionType === 'clearAll') {
-                    onValue(ordersRef, (snapshot) => {
-                        const data = snapshot.val();
-                        if (!data) return;
-                        
-                        Object.keys(data).forEach(key => {
-                            const status = data[key].status || '';
-                            if (status === 'Delivered' || status === 'Cancelled') {
-                                remove(ref(db, `orders/${key}`));
-                            }
-                        });
-                    }, { onlyOnce: true });
-                }
-
-                closeSecurityModal();
-            } else {
+            if (!enteredKey) {
+                errorMsg.textContent = "Please enter a security key.";
                 errorMsg.classList.remove('hidden');
-                document.getElementById('modal-password-input').focus();
+                return;
+            }
+
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Verifying...";
+
+            try {
+                const passRef = ref(db, 'settings/adminPassword');
+                const codeRef = ref(db, 'settings/companyCode');
+                const [passSnap, codeSnap] = await Promise.all([get(passRef), get(codeRef)]);
+
+                let cloudPass = FALLBACK_PASSWORD;
+                if (passSnap.exists()) cloudPass = passSnap.val();
+
+                let cloudCode = IMMUTABLE_COMPANY_CODE;
+                if (codeSnap.exists()) cloudCode = codeSnap.val();
+
+                // Check against company key, cloud password, company code, or fallback
+                if (enteredKey === CORRECT_COMPANY_KEY || enteredKey === cloudPass || enteredKey === cloudCode || enteredKey === FALLBACK_PASSWORD) {
+                    errorMsg.classList.add('hidden');
+                    
+                    if (pendingActionType === 'single' && pendingTargetKey) {
+                        await remove(ref(db, `orders/${pendingTargetKey}`));
+                    } else if (pendingActionType === 'clearAll') {
+                        const snapshot = await get(ordersRef);
+                        const data = snapshot.val();
+                        if (data) {
+                            const deletions = Object.keys(data).map(key => {
+                                const status = data[key].status || '';
+                                if (status === 'Delivered' || status === 'Cancelled') {
+                                    return remove(ref(db, `orders/${key}`));
+                                }
+                                return Promise.resolve();
+                            });
+                            await Promise.all(deletions);
+                        }
+                    }
+
+                    closeSecurityModal();
+                } else {
+                    errorMsg.textContent = "Incorrect security key or password.";
+                    errorMsg.classList.remove('hidden');
+                    document.getElementById('modal-password-input').focus();
+                }
+            } catch (err) {
+                console.error("Verification error:", err);
+                if (enteredKey === CORRECT_COMPANY_KEY || enteredKey === FALLBACK_PASSWORD || enteredKey === IMMUTABLE_COMPANY_CODE) {
+                    errorMsg.classList.add('hidden');
+                    if (pendingActionType === 'single' && pendingTargetKey) {
+                        await remove(ref(db, `orders/${pendingTargetKey}`));
+                    } else if (pendingActionType === 'clearAll') {
+                        const snapshot = await get(ordersRef);
+                        const data = snapshot.val();
+                        if (data) {
+                            for (const key of Object.keys(data)) {
+                                const status = data[key].status || '';
+                                if (status === 'Delivered' || status === 'Cancelled') {
+                                    await remove(ref(db, `orders/${key}`));
+                                }
+                            }
+                        }
+                    }
+                    closeSecurityModal();
+                } else {
+                    errorMsg.textContent = "Verification failed. Check network connection.";
+                    errorMsg.classList.remove('hidden');
+                }
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "Confirm";
             }
         };
     </script>
