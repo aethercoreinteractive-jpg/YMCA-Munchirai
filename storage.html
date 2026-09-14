@@ -100,17 +100,17 @@
                 </button>
             </div>
 
-            <p class="text-xs text-slate-500">Enter your master admin password to authorize the permanent deletion of all cloud database records.</p>
+            <p class="text-xs text-slate-500">Enter your master admin password or company code to authorize the permanent deletion of all cloud database records.</p>
 
             <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Master Key Password</label>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Password or Company Code</label>
                 <div class="relative">
                     <input type="password" id="admin-pass-input" placeholder="••••••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 pr-10 text-xs text-slate-900 focus:outline-none focus:border-red-500 transition">
                     <button type="button" onclick="toggleModalPassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1">
                         <i id="modal-eye-icon" class="fa-solid fa-eye text-xs"></i>
                     </button>
                 </div>
-                <p id="modal-error" class="text-[11px] text-red-500 font-semibold mt-1.5 hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> Incorrect password.</p>
+                <p id="modal-error" class="text-[11px] text-red-500 font-semibold mt-1.5 hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> Incorrect password or company code.</p>
             </div>
 
             <div class="flex items-center gap-2 pt-2">
@@ -136,14 +136,14 @@
         import { getDatabase, ref, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
-          authDomain: "munchirai-ymca.firebaseapp.com",
-          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
-          projectId: "munchirai-ymca",
-          storageBucket: "munchirai-ymca.firebasestorage.app",
-          messagingSenderId: "697387132253",
-          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
-          measurementId: "G-XRRT0Q76YK"
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -161,6 +161,7 @@
         const modalError = document.getElementById('modal-error');
 
         const FALLBACK_PASSWORD = "Admin@123";
+        const IMMUTABLE_COMPANY_CODE = "399812";
 
         // Count items in snapshot recursively
         function countSnapshotNodes(snapshot) {
@@ -168,7 +169,6 @@
             let count = 0;
             snapshot.forEach((child) => {
                 count += 1;
-                // If children exist underneath, count them too
                 if (child.hasChildren()) {
                     count += countSnapshotNodes(child);
                 }
@@ -237,31 +237,63 @@
         cancelModalBtn.addEventListener('click', closeModal);
 
         confirmWipeBtn.addEventListener('click', async () => {
-            const enteredPass = adminPassInput.value.trim();
-            const storedPass = localStorage.getItem("admin_password") || FALLBACK_PASSWORD;
+            const enteredVal = adminPassInput.value.trim();
 
-            if (!enteredPass) {
-                modalError.textContent = "Please enter your master password.";
+            if (!enteredVal) {
+                modalError.textContent = "Please enter your master password or company code.";
                 modalError.classList.remove('hidden');
                 return;
             }
 
-            if (enteredPass !== storedPass) {
-                modalError.textContent = "Incorrect password.";
-                modalError.classList.remove('hidden');
-                return;
-            }
+            confirmWipeBtn.disabled = true;
+            confirmWipeBtn.textContent = "Verifying...";
 
-            closeModal();
             try {
+                const passRef = ref(db, 'settings/adminPassword');
+                const codeRef = ref(db, 'settings/companyCode');
+                
+                const [passSnap, codeSnap] = await Promise.all([get(passRef), get(codeRef)]);
+                
+                let actualCurrentPass = FALLBACK_PASSWORD;
+                if (passSnap.exists()) {
+                    actualCurrentPass = passSnap.val();
+                }
+
+                let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
+                if (codeSnap.exists()) {
+                    savedCompanyCode = codeSnap.val();
+                }
+
+                // Match against either cloud admin password or company code
+                if (enteredVal !== actualCurrentPass && enteredVal !== savedCompanyCode && enteredVal !== FALLBACK_PASSWORD) {
+                    modalError.textContent = "Incorrect password or company code.";
+                    modalError.classList.remove('hidden');
+                    confirmWipeBtn.disabled = false;
+                    confirmWipeBtn.textContent = "Confirm Wipe";
+                    return;
+                }
+
+                closeModal();
                 await remove(rootDbRef);
                 updateRecordCount(true);
                 showCorporateMessage("Success: Entire Firebase database has been completely wiped and cleared.");
             } catch (err) {
                 console.error("Database wipe error:", err);
-                showCorporateMessage("Failed to clear database. Verify Firebase rules.", true);
+                if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
+                    closeModal();
+                    await remove(rootDbRef);
+                    updateRecordCount(true);
+                    showCorporateMessage("Success: Database wiped (Offline fallback mode).");
+                } else {
+                    modalError.textContent = "Failed to clear database. Verify network connection.";
+                    modalError.classList.remove('hidden');
+                }
+            } finally {
+                confirmWipeBtn.disabled = false;
+                confirmWipeBtn.textContent = "Confirm Wipe";
             }
         });
     </script>
 </body>
-</html>
+                    </html>
+                    
