@@ -241,7 +241,8 @@
                 bestSellersList.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const cardSmallDesc = item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    // Mapped to descSmall as saved in addproduct.html
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
 
                     bsHtml += `
                         <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border border-gray-200 active:border-amber-500 bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
@@ -318,7 +319,8 @@
                 groupItems.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const cardSmallDesc = item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    // Mapped to descSmall as saved in addproduct.html
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
 
                     htmlOutput += `
                         <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border border-gray-200 active:border-amber-500 bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
@@ -364,13 +366,14 @@
 
             const starsDisplay = generateStarRatingHTML(item.rating || 5, "text-sm");
             const pageContent = document.getElementById('product-page-content');
-            const detailedDescription = item.bigDesc || item.desc || item.description || 'My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place. Freshly sourced from local farms.';
+            // Mapped to descBig as saved in addproduct.html
+            const detailedDescription = item.descBig || item.bigDesc || item.desc || item.description || 'My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place. Freshly sourced from local farms.';
 
             let exploreGridHtml = '';
             liveInventory.forEach(prod => {
                 const cleanPrice = typeof prod.price === 'string' ? prod.price.replace('₹', '') : prod.price;
                 const prodActionHtml = getCartActionHTML(prod.firebaseKey);
-                const prodSmallDesc = prod.smallDesc || prod.desc || prod.description || 'Authentic organic food product.';
+                const prodSmallDesc = prod.descSmall || prod.smallDesc || prod.desc || prod.description || 'Authentic organic food product.';
 
                 exploreGridHtml += `
                     <div onclick="openProductPageView('${prod.firebaseKey}')" class="border border-gray-200 active:border-amber-500 bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
@@ -465,9 +468,8 @@
             const query = document.getElementById('search-bar').value.toLowerCase();
             const filtered = liveInventory.filter(item => 
                 item.name.toLowerCase().includes(query) || 
-                (item.smallDesc && item.smallDesc.toLowerCase().includes(query)) ||
-                (item.desc && item.desc.toLowerCase().includes(query)) ||
-                (item.bigDesc && item.bigDesc.toLowerCase().includes(query)) ||
+                (item.descSmall && item.descSmall.toLowerCase().includes(query)) ||
+                (item.descBig && item.descBig.toLowerCase().includes(query)) ||
                 (item.category && item.category.toLowerCase().includes(query))
             );
             renderCatalog(filtered);
