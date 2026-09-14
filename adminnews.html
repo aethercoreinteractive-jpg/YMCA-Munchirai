@@ -4,24 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>News Admin Panel | YMCA Munchirai</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
     <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
-                <div class="bg-blue-600 text-white p-2 rounded-lg text-sm">
+                <div class="bg-amber-500 text-slate-950 p-2 rounded-lg text-sm font-bold">
                     <i class="fa-solid fa-gauge-high"></i>
                 </div>
                 <div>
                     <h1 class="text-sm font-bold tracking-tight">YMCA Munchirai</h1>
-                    <p class="text-[10px] text-slate-400">Admin Control Center</p>
+                    <p class="text-[10px] text-slate-400">News Admin Control Center</p>
                 </div>
             </div>
             <nav class="flex items-center space-x-2">
-                <a href="news.html" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
+                <a href="index.html" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Live Site
                 </a>
             </nav>
@@ -32,15 +39,15 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <div>
                 <h2 class="text-xl font-bold text-slate-900 tracking-tight">News Announcements</h2>
-                <p class="text-xs text-slate-500">Publish and manage updates visible to users.</p>
+                <p class="text-xs text-slate-500">Publish and manage updates visible on the live homepage ticker.</p>
             </div>
-            <button type="button" onclick="openModalForAdd()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition flex items-center justify-center gap-2 active:scale-95">
+            <button type="button" onclick="openModalForAdd()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center justify-center gap-2 active:scale-95">
                 <i class="fa-solid fa-plus"></i> Add New Post
             </button>
         </div>
 
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-600 mb-2"></i>
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-amber-500 mb-2"></i>
             <p class="text-slate-500 text-xs font-medium">Syncing database records...</p>
         </div>
 
@@ -60,28 +67,28 @@
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Post Title</label>
-                    <input type="text" id="inputTitle" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition" placeholder="e.g. Youth Leadership Meet">
+                    <input type="text" id="inputTitle" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="e.g. Youth Leadership Meet">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Date</label>
-                        <input type="date" id="inputDate" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition">
+                        <input type="date" id="inputDate" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Category</label>
-                        <input type="text" id="inputCategory" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition" placeholder="e.g. Seminar">
+                        <input type="text" id="inputCategory" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="e.g. Seminar">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Image URL (Google Drive or Direct Link)</label>
-                    <input type="url" id="inputImage" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition" placeholder="Paste Google Drive link or image URL...">
+                    <input type="url" id="inputImage" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="Paste Google Drive link or image URL...">
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Description</label>
-                    <textarea id="inputDescription" rows="3" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition" placeholder="Enter post summary..."></textarea>
+                    <textarea id="inputDescription" rows="3" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="Enter post summary..."></textarea>
                 </div>
 
                 <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
@@ -89,18 +96,18 @@
                         <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Enable Action Button</span>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="toggleButtonSwitch" class="sr-only peer" onchange="toggleActionFields()">
-                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
                         </label>
                     </div>
                     <div id="actionFieldsContainer" class="space-y-2.5 hidden pt-2 border-t border-slate-200">
-                        <input type="text" id="inputBtnText" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="Button Label (e.g. Register Now)">
-                        <input type="url" id="inputBtnLink" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="Destination Link (https://...)">
+                        <input type="text" id="inputBtnText" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="Button Label (e.g. Register Now)">
+                        <input type="url" id="inputBtnLink" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="Destination Link (https://...)">
                     </div>
                 </div>
 
                 <div class="flex items-center justify-end space-x-2.5 pt-2">
                     <button type="button" onclick="closeNewsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-200 transition">Cancel</button>
-                    <button type="submit" id="saveBtn" class="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 shadow-sm transition">Save Post</button>
+                    <button type="submit" id="saveBtn" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition">Save Post</button>
                 </div>
             </form>
         </div>
@@ -110,8 +117,25 @@
         &copy; 2026 YMCA Munchirai. System Panel v2.2
     </footer>
 
-    <script>
-        const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
+    <!-- Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, set, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const newsRef = ref(db, 'news');
 
         function formatImageURL(url) {
             if (!url) return '';
@@ -140,7 +164,7 @@
             return dateStr;
         }
 
-        function openModalForAdd() {
+        window.openModalForAdd = function() {
             document.getElementById('modalHeading').innerText = "Add New Post";
             document.getElementById('recordId').value = "";
             document.getElementById('newsForm').reset();
@@ -153,11 +177,11 @@
             document.getElementById('newsModal').classList.replace('hidden', 'flex');
         }
 
-        function closeNewsModal() {
+        window.closeNewsModal = function() {
             document.getElementById('newsModal').classList.replace('flex', 'hidden');
         }
 
-        function toggleActionFields() {
+        window.toggleActionFields = function() {
             const isChecked = document.getElementById('toggleButtonSwitch').checked;
             const container = document.getElementById('actionFieldsContainer');
             if (isChecked) {
@@ -174,8 +198,8 @@
             const adminGrid = document.getElementById('admin-grid');
 
             try {
-                const response = await fetch(DB_URL + ".json");
-                const data = await response.json();
+                const snapshot = await get(newsRef);
+                const data = snapshot.val();
                 
                 loadingBox.style.display = 'none';
                 adminGrid.classList.remove('hidden');
@@ -198,7 +222,6 @@
             const emptyState = document.getElementById('empty-state');
             if (emptyState) emptyState.remove();
 
-            // Check if card already exists (for editing) to avoid duplicates
             let existingCard = document.getElementById(`card-${id}`);
             if (existingCard) existingCard.remove();
 
@@ -221,7 +244,7 @@
                     </div>
                 </div>
                 <div class="p-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                    <button onclick="triggerEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}', ${item.showButton ? true : false}, '${encodeURIComponent(item.btnText || '')}', '${encodeURIComponent(item.btnLink || '')}')" class="text-blue-600 hover:text-blue-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-blue-50 transition">
+                    <button onclick="triggerEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}', ${item.showButton ? true : false}, '${encodeURIComponent(item.btnText || '')}', '${encodeURIComponent(item.btnLink || '')}')" class="text-amber-600 hover:text-amber-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-amber-50 transition">
                         <i class="fa-solid fa-pen-to-square"></i> Edit
                     </button>
                     <button onclick="triggerDelete('${id}')" class="text-rose-600 hover:text-rose-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-rose-50 transition">
@@ -229,7 +252,6 @@
                     </button>
                 </div>
             `;
-            // Prepend so new items show up immediately at the top
             adminGrid.prepend(card);
         }
 
@@ -253,20 +275,14 @@
 
             try {
                 if (id) {
-                    // Update existing record
-                    await fetch(`${DB_URL}/${id}.json`, { method: 'PUT', body: JSON.stringify(newsPayload) });
+                    await set(ref(db, `news/${id}`), newsPayload);
                     closeNewsModal();
-                    renderCard(id, newsPayload); // Immediate UI update without refresh
+                    renderCard(id, newsPayload);
                 } else {
-                    // Create new record
-                    const response = await fetch(DB_URL + ".json", { method: 'POST', body: JSON.stringify(newsPayload) });
-                    const resData = await response.json();
+                    const newPostRef = push(newsRef);
+                    await set(newPostRef, newsPayload);
                     closeNewsModal();
-                    if (resData && resData.name) {
-                        renderCard(resData.name, newsPayload); // Immediate UI update without refresh
-                    } else {
-                        loadAdminData(); // Fallback sync if key wasn't returned immediately
-                    }
+                    renderCard(newPostRef.key, newsPayload);
                 }
             } catch (err) {
                 alert("Operation failed: " + err.message);
@@ -279,12 +295,10 @@
         window.triggerDelete = async function(id) {
             if (confirm("Are you sure you want to remove this entry?")) {
                 try {
-                    await fetch(`${DB_URL}/${id}.json`, { method: 'DELETE' });
-                    // Immediately remove the card from the screen without reloading
+                    await remove(ref(db, `news/${id}`));
                     const card = document.getElementById(`card-${id}`);
                     if (card) card.remove();
                     
-                    // Show empty state if grid is completely empty now
                     const adminGrid = document.getElementById('admin-grid');
                     if (adminGrid.children.length === 0) {
                         adminGrid.innerHTML = `<div id="empty-state" class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No records available. Tap 'Add New Post' to start.</p></div>`;
