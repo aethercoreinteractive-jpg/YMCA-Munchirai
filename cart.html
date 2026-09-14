@@ -49,9 +49,12 @@
                         <span>Items Subtotal</span>
                         <span id="summary-subtotal" class="font-semibold text-gray-900">₹0</span>
                     </div>
-                    <div class="flex justify-between text-xs text-gray-600">
-                        <span>Delivery Fee</span>
-                        <span class="font-semibold text-green-600">FREE</span>
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-600">
+                            <span>Delivery Fee</span>
+                            <span class="font-semibold text-green-600">FREE</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Delivery charges may vary based on your location.</p>
                     </div>
                     
                     <div class="border-t pt-3 flex justify-between text-sm font-black text-gray-900">
@@ -71,9 +74,31 @@
         </div>
     </main>
 
+    <!-- Custom Website Confirmation Modal (Hidden by Default) -->
+    <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 shadow-2xl transform transition-all animate-fadeIn text-center space-y-4">
+            <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto text-lg shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-black text-slate-900 text-sm" id="modal-title">Remove Item?</h3>
+                <p class="text-xs text-gray-500 mt-1" id="modal-desc">Are you sure you want to remove this product from your cart?</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5 pt-2">
+                <button onclick="closeConfirmationModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+                    Cancel
+                </button>
+                <button id="modal-confirm-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+                    Remove
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Cart Logic Script -->
     <script>
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
+        let pendingActionIndex = null;
 
         function renderCartPage() {
             const container = document.getElementById('cart-items-container');
@@ -116,7 +141,7 @@
                                 <button onclick="updateQty(${index}, 1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">+</button>
                             </div>
                         </div>
-                        <button onclick="removeItem(${index})" class="text-red-400 hover:text-red-600 p-2 transition">
+                        <button onclick="confirmRemove(${index})" class="text-red-400 hover:text-red-600 p-2 transition">
                             <i class="fa-solid fa-trash text-xs"></i>
                         </button>
                     </div>
@@ -128,16 +153,46 @@
         }
 
         function updateQty(index, change) {
-            cart[index].qtyCount = (cart[index].qtyCount || 1) + change;
-            if (cart[index].qtyCount <= 0) {
-                cart.splice(index, 1);
+            const newQty = (cart[index].qtyCount || 1) + change;
+            
+            if (newQty <= 0) {
+                openConfirmationModal(index, 'Remove Item?', `Do you want to remove "${cart[index].name}" from your cart?`, () => {
+                    cart.splice(index, 1);
+                    saveAndRefresh();
+                });
+            } else {
+                cart[index].qtyCount = newQty;
+                saveAndRefresh();
             }
-            saveAndRefresh();
         }
 
-        function removeItem(index) {
-            cart.splice(index, 1);
-            saveAndRefresh();
+        function confirmRemove(index) {
+            openConfirmationModal(index, 'Delete Product?', `Are you sure you want to delete "${cart[index].name}" from your cart?`, () => {
+                cart.splice(index, 1);
+                saveAndRefresh();
+            });
+        }
+
+        function openConfirmationModal(index, title, description, onConfirmCallback) {
+            pendingActionIndex = index;
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-desc').textContent = description;
+            
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            
+            newConfirmBtn.addEventListener('click', () => {
+                onConfirmCallback();
+                closeConfirmationModal();
+            });
+
+            document.getElementById('confirmation-modal').classList.remove('hidden');
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmation-modal').classList.add('hidden');
+            pendingActionIndex = null;
         }
 
         function saveAndRefresh() {
@@ -160,4 +215,5 @@
         });
     </script>
 </body>
-</html>
+        </html>
+        
