@@ -242,7 +242,7 @@
         </div>
     </section>
 
-    <!-- Professional Footer -->
+         <!-- Professional Footer -->
     <footer id="contact" class="bg-slate-950 text-white pt-14 pb-10 border-t border-slate-800 text-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
@@ -310,34 +310,85 @@
             return url;
         }
 
-        // ==================== GLOBAL CART HELPER ====================
+        // ==================== CART ACTIONS & STEPPER HELPERS ====================
+        window.getCartActionHTML = function(itemKey, itemName, itemPrice, itemImg, itemCategory) {
+            let cart = JSON.parse(localStorage.getItem('ymca_cart')) || [];
+            const existingItem = cart.find(i => i.key === itemKey || i.firebaseKey === itemKey);
+            const count = existingItem ? (existingItem.qty || existingItem.qtyCount || 1) : 0;
+
+            if (count > 0) {
+                return `
+                    <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded-lg text-xs font-bold overflow-hidden shadow-sm">
+                        <button onclick="event.stopPropagation(); window.updateQuantity('${itemKey}', -1)" class="w-8 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-minus text-[10px]"></i>
+                        </button>
+                        <span class="px-2 font-black text-slate-950">${count}</span>
+                        <button onclick="event.stopPropagation(); window.updateQuantity('${itemKey}', 1)" class="w-8 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <button onclick="event.stopPropagation(); window.addToCartDirect('${itemKey}', '${itemName.replace(/'/g, "\\'")}', ${itemPrice || 0}, '${itemImg || ''}', '${itemCategory || ''}')" class="w-full bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-bold text-[11px] py-2 px-2 rounded-lg transition shadow-sm flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-cart-plus text-[10px]"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                `;
+            }
+        };
+
         window.addToCartDirect = function(itemKey, itemName, itemPrice, itemImg, itemCategory) {
             let cart = JSON.parse(localStorage.getItem('ymca_cart')) || [];
-            const existingIndex = cart.findIndex(i => i.key === itemKey);
+            const existingIndex = cart.findIndex(i => i.key === itemKey || i.firebaseKey === itemKey);
             if (existingIndex > -1) {
-                cart[existingIndex].qty = (cart[existingIndex].qty || 1) + 1;
+                cart[existingIndex].qty = (cart[existingIndex].qty || cart[existingIndex].qtyCount || 1) + 1;
+                cart[existingIndex].qtyCount = cart[existingIndex].qty;
             } else {
                 cart.push({
                     key: itemKey,
+                    firebaseKey: itemKey,
                     name: itemName,
                     price: Number(itemPrice),
                     img: itemImg,
                     category: itemCategory,
-                    qty: 1
+                    qty: 1,
+                    qtyCount: 1
                 });
             }
             localStorage.setItem('ymca_cart', JSON.stringify(cart));
-            
-            // Visual feedback alert/toast
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-5 right-5 z-50 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 news-animate-fade';
-            toast.innerHTML = `<i class="fa-solid fa-check text-amber-400"></i> Added <strong>${itemName}</strong> to cart!`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
+            refreshCardActionUI(itemKey);
         };
+
+        window.updateQuantity = function(itemKey, change) {
+            let cart = JSON.parse(localStorage.getItem('ymca_cart')) || [];
+            const existingIndex = cart.findIndex(i => i.key === itemKey || i.firebaseKey === itemKey);
+            if (existingIndex > -1) {
+                let currentQty = (cart[existingIndex].qty || cart[existingIndex].qtyCount || 1) + change;
+                if (currentQty <= 0) {
+                    cart.splice(existingIndex, 1);
+                } else {
+                    cart[existingIndex].qty = currentQty;
+                    cart[existingIndex].qtyCount = currentQty;
+                }
+                localStorage.setItem('ymca_cart', JSON.stringify(cart));
+            }
+            refreshCardActionUI(itemKey);
+        };
+
+        function refreshCardActionUI(itemKey) {
+            const container = document.getElementById(`action-container-${itemKey}`);
+            if (container && window.globalInventoryData) {
+                const item = window.globalInventoryData.find(i => i.key === itemKey);
+                if (item) {
+                    container.innerHTML = window.getCartActionHTML(item.key, item.name, item.price, item.img, item.category);
+                }
+            }
+        }
 
         // ==================== DYNAMIC BEST SELLERS / INVENTORY SLIDER ====================
         const sliderContainer = document.getElementById('inventory-slider');
+        window.globalInventoryData = [];
 
         onValue(ref(db, 'bestsellers'), (bSnapshot) => {
             const bestSellersData = bSnapshot.val() || {};
@@ -353,15 +404,22 @@
                     return;
                 }
 
-                const allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+                // Map inventory and filter out Out of Stock items
+                const allInventory = Object.keys(invData)
+                    .map(key => ({ key, ...invData[key] }))
+                    .filter(item => item.inStock !== false);
+
+                window.globalInventoryData = allInventory;
                 
-                // Filter items marked as best sellers
+                // Select items marked as best sellers
                 let displayItems = allInventory.filter(item => bestSellersData[item.key] === true);
 
-                // Fallback: If no best sellers exist, pick randomly from inventory
-                if (displayItems.length === 0) {
-                    const shuffled = [...allInventory].sort(() => 0.5 - Math.random());
-                    displayItems = shuffled;
+                // If best sellers are fewer than 6, fill remaining slots randomly from other in-stock items
+                if (displayItems.length < 6) {
+                    const remainingItems = allInventory.filter(item => !bestSellersData[item.key]);
+                    const shuffledRemaining = [...remainingItems].sort(() => 0.5 - Math.random());
+                    const neededCount = 6 - displayItems.length;
+                    displayItems = [...displayItems, ...shuffledRemaining.slice(0, neededCount)];
                 }
 
                 // Limit strictly to a maximum of 6 items
@@ -382,24 +440,24 @@
             }
 
             // Exactly 2 cards fit per view on mobile screens using calc width (calc(50% - 6px))
-            let html = items.map(item => `
-                <div class="snap-start shrink-0 w-[calc(50%-6px)] sm:w-56 bg-white rounded-xl p-2.5 sm:p-3.5 border border-gray-200 shadow-sm flex flex-col justify-between transition hover:border-amber-400">
-                    <div>
-                        <div class="w-full h-28 sm:h-36 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center mb-2 sm:mb-3">
-                            <img src="${formatImageURL(item.img) || ''}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200?text=IMG'">
+            let html = items.map(item => {
+                const actionHtml = window.getCartActionHTML(item.key, item.name, item.price, item.img, item.category);
+                return `
+                    <div class="snap-start shrink-0 w-[calc(50%-6px)] sm:w-56 bg-white rounded-xl p-2.5 sm:p-3.5 border border-gray-200 shadow-sm flex flex-col justify-between transition hover:border-amber-400">
+                        <div>
+                            <div class="w-full h-28 sm:h-36 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center mb-2 sm:mb-3">
+                                <img src="${formatImageURL(item.img) || ''}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200?text=IMG'">
+                            </div>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">${item.category || 'General'}</span>
+                            <h4 class="font-bold text-gray-900 text-xs mt-1.5 sm:mt-2 truncate">${item.name}</h4>
+                            <div class="text-xs font-black text-gray-900 mt-1">₹${Number(item.price || 0).toFixed(2)}</div>
                         </div>
-                        <span class="text-[9px] sm:text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">${item.category || 'General'}</span>
-                        <h4 class="font-bold text-gray-900 text-xs mt-1.5 sm:mt-2 truncate">${item.name}</h4>
-                        <div class="text-xs font-black text-gray-900 mt-1">₹${Number(item.price || 0).toFixed(2)}</div>
+                        <div class="mt-3 pt-2.5 border-t border-gray-100" id="action-container-${item.key}">
+                            ${actionHtml}
+                        </div>
                     </div>
-                    <div class="mt-3 pt-2.5 border-t border-gray-100">
-                        <button onclick="window.addToCartDirect('${item.key}', '${item.name.replace(/'/g, "\\'")}', ${item.price || 0}, '${item.img || ''}', '${item.category || ''}')" class="w-full bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-bold text-[11px] py-2 px-2 rounded-lg transition shadow-sm flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-cart-plus text-[10px]"></i>
-                            <span>Add to Cart</span>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             // Append the "View More" card as the last slide element redirecting to mystore.html
             html += `
@@ -579,6 +637,15 @@
             applyLiveIndexSettings();
             updateBannerSlider();
             resetBannerTimer();
+
+            // Listen for storage changes so quantity updates sync if cart is changed in another tab or page
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'ymca_cart' && window.globalInventoryData) {
+                    window.globalInventoryData.forEach(item => {
+                        refreshCardActionUI(item.key);
+                    });
+                }
+            });
 
             const sliderWrapper = document.getElementById('heroic-slider-wrapper');
             let touchStartX = 0;
