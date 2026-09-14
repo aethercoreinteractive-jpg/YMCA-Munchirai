@@ -99,9 +99,9 @@
             let subtotal = 0;
 
             container.innerHTML = cart.map((item, index) => {
-                const cleanPrice = parseInt(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price);
-                const qty = item.qty || 1;
-                subtotal += cleanPrice * qty;
+                const cleanPrice = parseInt(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
+                const qtyCount = item.qtyCount || 1;
+                subtotal += cleanPrice * qtyCount;
 
                 return `
                     <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex items-center gap-4">
@@ -112,7 +112,7 @@
                             
                             <div class="flex items-center gap-2 mt-2">
                                 <button onclick="updateQty(${index}, -1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">-</button>
-                                <span class="text-xs font-bold px-1">${qty}</span>
+                                <span class="text-xs font-bold px-1">${qtyCount}</span>
                                 <button onclick="updateQty(${index}, 1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">+</button>
                             </div>
                         </div>
@@ -128,8 +128,8 @@
         }
 
         function updateQty(index, change) {
-            cart[index].qty = (cart[index].qty || 1) + change;
-            if (cart[index].qty <= 0) {
+            cart[index].qtyCount = (cart[index].qtyCount || 1) + change;
+            if (cart[index].qtyCount <= 0) {
                 cart.splice(index, 1);
             }
             saveAndRefresh();
