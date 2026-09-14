@@ -28,7 +28,7 @@
                 <a href="orders.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 font-semibold">
                     <i class="fa-solid fa-list-check text-amber-400"></i> Live Orders
                 </a>
-                <button onclick="promptClearHistory()" class="text-[11px] bg-rose-900/40 hover:bg-rose-900/70 text-rose-200 px-3 py-1.5 rounded-lg transition border border-rose-800 flex items-center gap-1 font-semibold">
+                <button onclick="openSecurityModal('clearAll')" class="text-[11px] bg-rose-900/40 hover:bg-rose-900/70 text-rose-200 px-3 py-1.5 rounded-lg transition border border-rose-800 flex items-center gap-1 font-semibold">
                     <i class="fa-solid fa-trash-can text-rose-400"></i> Clear All
                 </button>
             </div>
@@ -60,9 +60,36 @@
                 <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
             <h3 class="font-bold text-xs text-gray-900">No history records yet</h3>
-            <p class="text-[11px] text-gray-500 mt-1">Completed or cancelled orders will appear here automatically.</p>
+            <p class="text-[11px] text-gray-500 mt-1">Delivered or cancelled orders will appear here automatically.</p>
         </div>
     </main>
+
+    <!-- Custom In-Website Security Password Modal -->
+    <div id="security-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-gray-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="font-black text-slate-900 text-sm" id="modal-title">Authentication Required</h3>
+                <p class="text-xs text-gray-500 mt-1" id="modal-desc">Enter company key or admin password to proceed.</p>
+            </div>
+            
+            <div>
+                <input type="password" id="modal-password-input" placeholder="Enter company key..." class="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium">
+                <p id="modal-error-msg" class="text-[10px] text-rose-600 font-bold mt-1.5 hidden">Incorrect company key or password.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="closeSecurityModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+                    Cancel
+                </button>
+                <button onclick="verifySecurityKey()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Firebase SDK Imports & History Script -->
     <script type="module">
@@ -84,6 +111,10 @@
         const db = getDatabase(app);
 
         const ordersRef = ref(db, 'orders');
+        const CORRECT_COMPANY_KEY = "ymca2026"; // Change this password if needed
+        
+        let pendingActionType = null; // 'single' or 'clearAll'
+        let pendingTargetKey = null;   // firebaseKey for single delete
 
         onValue(ordersRef, (snapshot) => {
             const data = snapshot.val();
@@ -103,10 +134,10 @@
                 ...data[key]
             })).reverse();
 
-            // Filter strictly for history records (Completed or Cancelled)
+            // Filter strictly for history records (Delivered or Cancelled)
             const historyOrders = ordersList.filter(order => {
                 const status = order.status || '';
-                return status === 'Completed' || status === 'Cancelled' || status === 'Delivered';
+                return status === 'Delivered' || status === 'Cancelled';
             });
 
             if (historyOrders.length === 0) {
@@ -121,8 +152,12 @@
 
             container.innerHTML = historyOrders.map(order => {
                 const orderDateStr = order.timestamp ? new Date(order.timestamp).toLocaleString() : 'N/A';
-                const status = order.status || 'Completed';
+                const processingStr = order.processingTime ? new Date(order.processingTime).toLocaleTimeString() : null;
+                const readyStr = order.readyTime ? new Date(order.readyTime).toLocaleTimeString() : null;
+                const deliveredStr = order.deliveredTime ? new Date(order.deliveredTime).toLocaleTimeString() : null;
+                const cancelledStr = order.cancelledTime ? new Date(order.cancelledTime).toLocaleTimeString() : null;
                 
+                const status = order.status || 'Delivered';
                 let statusBadgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
                 if (status === 'Cancelled') statusBadgeColor = 'bg-rose-100 text-rose-800 border-rose-200';
 
@@ -136,14 +171,22 @@
                     </div>
                 `).join('');
 
+                // Detailed Timestamp Flow construction
+                let timelineHtml = `<div class="text-[11px] text-gray-500 space-y-0.5"><p><i class="fa-regular fa-calendar-days text-amber-500 mr-1"></i> Ordered: ${orderDateStr}</p>`;
+                if (processingStr) timelineHtml += `<p class="text-blue-600 font-medium">⚡ Processing: ${processingStr}</p>`;
+                if (readyStr) timelineHtml += `<p class="text-indigo-600 font-medium">📦 Ready: ${readyStr}</p>`;
+                if (deliveredStr) timelineHtml += `<p class="text-emerald-600 font-medium">✅ Delivered: ${deliveredStr}</p>`;
+                if (cancelledStr) timelineHtml += `<p class="text-rose-600 font-medium">❌ Cancelled: ${cancelledStr}</p>`;
+                timelineHtml += `</div>`;
+
                 return `
                     <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-gray-100">
                             <div>
                                 <span class="text-[10px] text-gray-400 font-mono">ID: ${order.firebaseKey.slice(-6)}</span>
-                                <p class="text-[11px] text-gray-500 font-medium"><i class="fa-regular fa-calendar-days text-amber-500 mr-1"></i> Ordered: ${orderDateStr}</p>
+                                ${timelineHtml}
                             </div>
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 shrink-0">
                                 <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${statusBadgeColor}">${status}</span>
                             </div>
                         </div>
@@ -160,7 +203,7 @@
                                 <span class="font-black text-slate-900 text-sm ml-1">₹${order.totalAmount || 0}</span>
                             </div>
                             
-                            <button onclick="window.deleteSingleHistory('${order.firebaseKey}')" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-red-200 flex items-center gap-1">
+                            <button onclick="openSecurityModal('single', '${order.firebaseKey}')" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-red-200 flex items-center gap-1">
                                 <i class="fa-solid fa-trash"></i> Delete
                             </button>
                         </div>
@@ -169,38 +212,62 @@
             }).join('');
         });
 
-        window.deleteSingleHistory = function(firebaseKey) {
-            if (confirm("Are you sure you want to permanently delete this order record?")) {
-                remove(ref(db, `orders/${firebaseKey}`))
-                    .catch(err => {
-                        console.error("Error deleting order:", err);
-                        alert("Failed to delete record.");
-                    });
+        window.openSecurityModal = function(actionType, targetKey = null) {
+            pendingActionType = actionType;
+            pendingTargetKey = targetKey;
+            
+            document.getElementById('modal-password-input').value = "";
+            document.getElementById('modal-error-msg').classList.add('hidden');
+            
+            if (actionType === 'clearAll') {
+                document.getElementById('modal-title').textContent = "Clear All History?";
+                document.getElementById('modal-desc').textContent = "Enter company key to wipe all archived history records.";
+            } else {
+                document.getElementById('modal-title').textContent = "Delete History Record?";
+                document.getElementById('modal-desc').textContent = "Enter company key to permanently delete this order.";
             }
+
+            document.getElementById('security-modal').classList.remove('hidden');
+            document.getElementById('modal-password-input').focus();
         };
 
-        window.promptClearHistory = function() {
-            const companyKey = prompt("Enter company key or admin password to clear all history:");
-            // Change 'ymca2026' to whatever secure password or company key you prefer
-            if (companyKey === "ymca2026") {
-                if (confirm("WARNING: This will wipe all archived history records. Proceed?")) {
-                    // Fetch all orders and remove completed/cancelled ones
+        window.closeSecurityModal = function() {
+            document.getElementById('security-modal').classList.add('hidden');
+            pendingActionType = null;
+            pendingTargetKey = null;
+        };
+
+        window.verifySecurityKey = function() {
+            const enteredKey = document.getElementById('modal-password-input').value;
+            const errorMsg = document.getElementById('modal-error-msg');
+
+            if (enteredKey === CORRECT_COMPANY_KEY) {
+                errorMsg.classList.add('hidden');
+                
+                if (pendingActionType === 'single' && pendingTargetKey) {
+                    remove(ref(db, `orders/${pendingTargetKey}`))
+                        .catch(err => console.error("Error deleting order:", err));
+                } else if (pendingActionType === 'clearAll') {
                     onValue(ordersRef, (snapshot) => {
                         const data = snapshot.val();
                         if (!data) return;
                         
                         Object.keys(data).forEach(key => {
                             const status = data[key].status || '';
-                            if (status === 'Completed' || status === 'Cancelled' || status === 'Delivered') {
+                            if (status === 'Delivered' || status === 'Cancelled') {
                                 remove(ref(db, `orders/${key}`));
                             }
                         });
                     }, { onlyOnce: true });
                 }
-            } else if (companyKey !== null) {
-                alert("Incorrect company key / password.");
+
+                closeSecurityModal();
+            } else {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('modal-password-input').focus();
             }
         };
     </script>
 </body>
-</html>
+                    </html>
+                    
