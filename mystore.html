@@ -73,7 +73,7 @@
                 <div>
                     <span class="text-[9px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Official Storefront</span>
                     <h1 class="text-lg sm:text-3xl font-extrabold tracking-tight text-gray-900 mt-1">MY Food Product Catalog</h1>
-                    <p class="text-[11px] text-gray-500">Explore our delicious food products below.</p>
+                    <p class="text-[11px] text-gray-500">My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place.</p>
                 </div>
                 <div class="w-full md:w-72">
                     <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
@@ -241,6 +241,7 @@
                 bestSellersList.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const cardSmallDesc = item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
 
                     bsHtml += `
                         <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border border-gray-200 active:border-amber-500 bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
@@ -250,7 +251,7 @@
                                     <span class="absolute top-0.5 left-0.5 bg-amber-500 text-slate-950 font-bold text-[7px] px-1 py-0.2 rounded shadow"><i class="fa-solid fa-star text-[6px]"></i> Top</span>
                                 </div>
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
-                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${item.smallDesc || 'No summary.'}</p>
+                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
@@ -317,6 +318,7 @@
                 groupItems.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const cardSmallDesc = item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
 
                     htmlOutput += `
                         <div onclick="openProductPageView('${item.firebaseKey}')" class="mobile-triple-card flex-shrink-0 snap-start border border-gray-200 active:border-amber-500 bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
@@ -330,8 +332,8 @@
                                 <!-- Full Title without truncation -->
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
 
-                                <!-- Full description without truncation -->
-                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${item.smallDesc || 'No summary.'}</p>
+                                <!-- Description Fallback support -->
+                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
                             </div>
 
                               <!-- Price on left, Quantity on right -->
@@ -362,11 +364,13 @@
 
             const starsDisplay = generateStarRatingHTML(item.rating || 5, "text-sm");
             const pageContent = document.getElementById('product-page-content');
+            const detailedDescription = item.bigDesc || item.desc || item.description || 'My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place. Freshly sourced from local farms.';
 
             let exploreGridHtml = '';
             liveInventory.forEach(prod => {
                 const cleanPrice = typeof prod.price === 'string' ? prod.price.replace('₹', '') : prod.price;
                 const prodActionHtml = getCartActionHTML(prod.firebaseKey);
+                const prodSmallDesc = prod.smallDesc || prod.desc || prod.description || 'Authentic organic food product.';
 
                 exploreGridHtml += `
                     <div onclick="openProductPageView('${prod.firebaseKey}')" class="border border-gray-200 active:border-amber-500 bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
@@ -375,7 +379,7 @@
                                 <img src="${prod.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${prod.name}" class="w-full h-full object-contain p-1">
                             </div>
                             <h4 class="font-bold text-[9.5px] text-gray-900 leading-tight mb-0.5" style="word-break: break-word;">${prod.name}</h4>
-                            <p class="text-gray-500 font-light leading-tight mb-1.5" style="font-size: 7.5px; word-break: break-word;">${prod.smallDesc || 'No summary.'}</p>
+                            <p class="text-gray-500 font-light leading-tight mb-1.5" style="font-size: 7.5px; word-break: break-word;">${prodSmallDesc}</p>
                         </div>
                         <div>
                             <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
@@ -420,7 +424,7 @@
                         <!-- Full Detailed Specifications Box -->
                         <div class="bg-amber-50/60 border border-amber-200/80 p-3 rounded-xl text-xs text-slate-700 font-light leading-relaxed">
                             <strong class="block text-slate-900 font-bold mb-1 text-[11px] uppercase tracking-wider text-amber-800"><i class="fa-solid fa-circle-info text-amber-600 mr-1"></i> Detailed Overview & Specifications</strong>
-                            ${item.bigDesc || item.desc || 'No detailed specifications provided for this product.'}
+                            ${detailedDescription}
                         </div>
 
                         <!-- Main Page Action Button -->
@@ -462,6 +466,7 @@
             const filtered = liveInventory.filter(item => 
                 item.name.toLowerCase().includes(query) || 
                 (item.smallDesc && item.smallDesc.toLowerCase().includes(query)) ||
+                (item.desc && item.desc.toLowerCase().includes(query)) ||
                 (item.bigDesc && item.bigDesc.toLowerCase().includes(query)) ||
                 (item.category && item.category.toLowerCase().includes(query))
             );
