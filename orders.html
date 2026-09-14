@@ -60,7 +60,7 @@
                 <i class="fa-solid fa-clipboard-check"></i>
             </div>
             <h3 class="font-bold text-xs text-gray-900">No active orders</h3>
-            <p class="text-[11px] text-gray-500 mt-1">All customer checkouts have been completed or archived.</p>
+            <p class="text-[11px] text-gray-500 mt-1">All customer checkouts have been processed or archived.</p>
         </div>
     </main>
 
@@ -103,10 +103,10 @@
                 ...data[key]
             })).reverse();
 
-            // Filter out completed or cancelled orders so they only show in history
+            // Filter out delivered or cancelled orders so they move to history
             const liveOrders = ordersList.filter(order => {
-                const status = order.status || 'Active';
-                return status !== 'Completed' && status !== 'Cancelled';
+                const status = order.status || 'Pending Confirmation';
+                return status !== 'Delivered' && status !== 'Cancelled';
             });
 
             if (liveOrders.length === 0) {
@@ -121,6 +121,11 @@
 
             container.innerHTML = liveOrders.map(order => {
                 const dateStr = order.timestamp ? new Date(order.timestamp).toLocaleString() : 'Recent';
+                const status = order.status || 'Pending Confirmation';
+                
+                let statusBadgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
+                if (status === 'Processing') statusBadgeColor = 'bg-blue-100 text-blue-800 border-blue-200';
+                if (status === 'Ready') statusBadgeColor = 'bg-indigo-100 text-indigo-800 border-indigo-200';
 
                 const itemsHtml = (order.items || []).map(item => `
                     <div class="flex items-center justify-between text-xs py-1 border-b border-gray-100 last:border-0">
@@ -132,6 +137,28 @@
                     </div>
                 `).join('');
 
+                // Multi-step progression buttons based on status
+                let actionButtonHtml = '';
+                if (status === 'Pending Confirmation' || !order.status) {
+                    actionButtonHtml = `
+                        <button onclick="window.advanceOrderStatus('${order.firebaseKey}', 'Processing')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-spinner"></i> Processing
+                        </button>
+                    `;
+                } else if (status === 'Processing') {
+                    actionButtonHtml = `
+                        <button onclick="window.advanceOrderStatus('${order.firebaseKey}', 'Ready')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-box-open"></i> Mark Ready
+                        </button>
+                    `;
+                } else if (status === 'Ready') {
+                    actionButtonHtml = `
+                        <button onclick="window.advanceOrderStatus('${order.firebaseKey}', 'Delivered')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-check-double"></i> Delivered
+                        </button>
+                    `;
+                }
+
                 return `
                     <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-gray-100">
@@ -140,7 +167,7 @@
                                 <p class="text-[11px] text-gray-500 font-medium">${dateStr}</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-lg border uppercase tracking-wider bg-amber-100 text-amber-800 border-amber-200">Active Order</span>
+                                <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${statusBadgeColor}">${status}</span>
                             </div>
                         </div>
 
@@ -157,12 +184,10 @@
                             </div>
                             
                             <div class="flex items-center gap-2">
-                                <button onclick="window.updateOrderStatus('${order.firebaseKey}', 'Cancelled')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1">
+                                <button onclick="window.advanceOrderStatus('${order.firebaseKey}', 'Cancelled')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1">
                                     <i class="fa-solid fa-xmark"></i> Cancel
                                 </button>
-                                <button onclick="window.updateOrderStatus('${order.firebaseKey}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                                    <i class="fa-solid fa-check"></i> Complete
-                                </button>
+                                ${actionButtonHtml}
                             </div>
                         </div>
                     </div>
@@ -170,8 +195,17 @@
             }).join('');
         });
 
-        window.updateOrderStatus = function(firebaseKey, newStatus) {
-            update(ref(db, `orders/${firebaseKey}`), { status: newStatus })
+        window.advanceOrderStatus = function(firebaseKey, newStatus) {
+            const updatePayload = { status: newStatus };
+            
+            // Capture specific step timestamps for analytics/history tracking
+            const nowIso = new Date().toISOString();
+            if (newStatus === 'Processing') updatePayload.processingTime = nowIso;
+            if (newStatus === 'Ready') updatePayload.readyTime = nowIso;
+            if (newStatus === 'Delivered') updatePayload.deliveredTime = nowIso;
+            if (newStatus === 'Cancelled') updatePayload.cancelledTime = nowIso;
+
+            update(ref(db, `orders/${firebaseKey}`), updatePayload)
                 .catch(err => {
                     console.error("Error updating status:", err);
                     alert("Failed to update status.");
