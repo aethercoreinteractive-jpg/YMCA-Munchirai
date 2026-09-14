@@ -10,7 +10,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @keyframes scaleUp {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-scale-up {
+            animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased selection:bg-black selection:text-white min-h-screen flex flex-col">
 
@@ -62,8 +72,8 @@
                         <span id="summary-total">₹0</span>
                     </div>
 
-                    <button onclick="checkoutOrder()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow">
-                        Proceed to Checkout
+                    <button onclick="checkoutOrder()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Proceed to Checkout
                     </button>
                     
                     <a href="mystore.html" class="block text-center text-xs text-gray-500 hover:text-black transition pt-1">
@@ -73,6 +83,29 @@
             </div>
         </div>
     </main>
+
+    <!-- Google Pay Style Professional Transaction Success Animation Modal -->
+    <div id="success-modal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white border border-gray-200 rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center space-y-5 animate-scale-up">
+            <!-- Animated Green Tick Circle -->
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            
+            <div class="space-y-1.5">
+                <h3 class="font-black text-slate-900 text-lg">Order Placed Successfully!</h3>
+                <p class="text-xs text-gray-600 leading-relaxed px-2">
+                    Our sales executive will reach you soon for order confirmation and the payment process.
+                </p>
+            </div>
+
+            <div class="pt-2">
+                <a href="mystore.html" class="block w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition shadow">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Custom Website Confirmation Modal (Hidden by Default) -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -205,9 +238,40 @@
                 alert("Your cart is empty!");
                 return;
             }
-            alert("Order placed successfully! Thank you for supporting Munchirai YMCA and MY Food.");
+
+            const whatsappNumber = "919488820998";
+            
+            // Build strictly formatted multiline message using explicit \n escapes for clear line spacing
+            let message = "🛍️ *New Order - Munchirai YMCA*\n\n";
+            let subtotal = 0;
+
+            cart.forEach((item, index) => {
+                const cleanPrice = parseInt(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
+                const qtyCount = item.qtyCount || 1;
+                const itemTotal = cleanPrice * qtyCount;
+                subtotal += itemTotal;
+
+                message += `${index + 1}. *${item.name}*\n`;
+                message += `   Quantity: ${qtyCount} x ₹${cleanPrice} = ₹${itemTotal}\n\n`;
+            });
+
+            message += `-------------------\n`;
+            message += `*Items Subtotal:* ₹${subtotal}\n`;
+            message += `*Delivery Fee:* FREE *(Delivery charges may vary based on your location)*\n`;
+            message += `*Total Amount:* ₹${subtotal}\n\n`;
+            message += `Please confirm my order and share the payment details.`;
+
+            // Open WhatsApp in a background window/tab
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            window.open(whatsappURL, '_blank');
+
+            // Clear the cart storage
             cart = [];
-            saveAndRefresh();
+            localStorage.removeItem("ymca_cart");
+
+            // Display Google Pay style checkmark success animation modal
+            document.getElementById('success-modal').classList.remove('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -215,5 +279,4 @@
         });
     </script>
 </body>
-        </html>
-        
+</html>
