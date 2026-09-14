@@ -117,19 +117,21 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDKGABXSD7YAulfGJp890fmOxdSAQKpBwg",
-          authDomain: "munchirai-ymca.firebaseapp.com",
-          databaseURL: "https://munchirai-ymca-default-rtdb.firebaseio.com",
-          projectId: "munchirai-ymca",
-          storageBucket: "munchirai-ymca.firebasestorage.app",
-          messagingSenderId: "697387132253",
-          appId: "1:697387132253:web:00bdeb04c36763c8c3f4b4",
-          measurementId: "G-XRRT0Q76YK"
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
         let liveInventory = [];
@@ -332,14 +334,14 @@
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${item.smallDesc || 'No summary.'}</p>
                             </div>
 
-                            <!-- Price on left, Quantity on right -->
+                              <!-- Price on left, Quantity on right -->
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
                                     <span class="font-black text-slate-900">₹${cleanPrice}</span>
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
 
-                                <!-- Dynamic Cart Action Control -->
+                               <!-- Dynamic Cart Action Control -->
                                 <div id="action-container-${item.firebaseKey}">
                                     ${actionButtonHtml}
                                 </div>
