@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>News & Announcements | YMCA Munchirai</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
     <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
-                <div class="bg-blue-600 text-white p-2 rounded-lg text-sm">
+                <div class="bg-amber-500 text-slate-950 p-2 rounded-lg text-sm font-bold">
                     <i class="fa-solid fa-bullhorn"></i>
                 </div>
                 <div>
@@ -20,6 +27,11 @@
                     <p class="text-[10px] text-slate-400">Community News & Events</p>
                 </div>
             </div>
+            <nav class="flex items-center space-x-2">
+                <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-house text-[10px]"></i> Home
+                </a>
+            </nav>
         </div>
     </header>
 
@@ -37,7 +49,7 @@
         </div>
 
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-600 mb-2"></i>
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-amber-500 mb-2"></i>
             <p class="text-slate-500 text-xs font-medium">Loading announcements...</p>
         </div>
 
@@ -48,8 +60,25 @@
         &copy; 2026 YMCA Munchirai. All Rights Reserved.
     </footer>
 
-    <script>
-        const DB_URL = "https://munchirai-ymca-12de8-default-rtdb.firebaseio.com/news";
+    <!-- Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const newsRef = ref(db, 'news');
 
         function formatImageURL(url) {
             if (!url) return '';
@@ -78,39 +107,14 @@
             return dateStr;
         }
 
-        // Real-time listener using Firebase EventSource stream
+        // Real-time listener using Firebase SDK onValue
         function initRealtimeNews() {
-            const loadingBox = document.getElementById('loading-box');
-            const newsGrid = document.getElementById('news-grid');
-
-            // Firebase EventSource supports text/event-stream for real-time updates
-            const eventSource = new EventSource(DB_URL + ".json");
-
-            eventSource.addEventListener('put', function(e) {
-                handleDatabaseUpdate(JSON.parse(e.data));
-            });
-
-            eventSource.addEventListener('patch', function(e) {
-                handleDatabaseUpdate(JSON.parse(e.data));
-            });
-
-            eventSource.onerror = function() {
-                // Fallback standard fetch if stream connection drops temporarily
-                fetchNewsOnce();
-            };
-
-            // Initial fetch to load data immediately on open
-            fetchNewsOnce();
-        }
-
-        async function fetchNewsOnce() {
-            try {
-                const response = await fetch(DB_URL + ".json");
-                const data = await response.json();
+            onValue(newsRef, (snapshot) => {
+                const data = snapshot.val();
                 handleDatabaseUpdate(data);
-            } catch (err) {
+            }, (error) => {
                 document.getElementById('loading-box').innerHTML = `<p class="text-rose-500 text-xs font-medium">Failed to load news feed. Please check your connection.</p>`;
-            }
+            });
         }
 
         function handleDatabaseUpdate(data) {
@@ -122,9 +126,7 @@
             newsGrid.innerHTML = '';
 
             if (data && typeof data === 'object') {
-                // If data format from a patch event is nested under a path
                 let records = data.data || data;
-                
                 const keys = Object.keys(records).filter(k => records[k] !== null);
 
                 if (keys.length > 0) {
@@ -139,7 +141,7 @@
                         if (item.showButton && item.btnText && item.btnLink) {
                             actionButtonHTML = `
                                 <div class="mt-4 pt-3 border-t border-slate-100">
-                                    <a href="${item.btnLink}" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 px-4 rounded-xl shadow-xs transition">
+                                    <a href="${item.btnLink}" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold py-2 px-4 rounded-xl shadow-xs transition">
                                         ${item.btnText} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                                     </a>
                                 </div>
