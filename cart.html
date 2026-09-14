@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Munchirai YMCA | Shopping Cart</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         @keyframes scaleUp {
             0% { transform: scale(0.5); opacity: 0; }
             70% { transform: scale(1.1); opacity: 1; }
@@ -22,57 +22,57 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased selection:bg-black selection:text-white min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 flex flex-col min-h-screen">
 
-    <!-- Header -->
-    <header class="bg-slate-900 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <a href="index.html" class="text-xl font-black tracking-tighter uppercase text-white flex items-center gap-2">
-                    <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-lg font-bold">MY</span> Cart
+    <!-- Professional Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Cart
                 </a>
             </div>
-            <a href="mystore.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg transition border border-slate-700 flex items-center gap-1.5">
+            <a href="mystore.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 font-semibold">
                 <i class="fa-solid fa-store text-amber-400"></i> Back to Store
             </a>
         </div>
     </header>
 
     <!-- Main Cart Content -->
-    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 mb-6 flex items-center gap-2">
+    <main class="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
+        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 mb-6 flex items-center gap-2">
             <i class="fa-solid fa-cart-shopping text-amber-500"></i> Your Shopping Cart
         </h1>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Items List -->
-            <div class="md:col-span-2 space-y-4" id="cart-items-container">
-                <!-- Injected via script -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Items List Container -->
+            <div class="md:col-span-2 space-y-3" id="cart-items-container">
+                <!-- Injected via JavaScript -->
             </div>
 
-            <!-- Summary Box -->
+            <!-- Order Summary Box -->
             <div class="md:col-span-1">
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm sticky top-24 space-y-4">
-                    <h3 class="font-bold text-sm text-gray-900 border-b pb-3 border-gray-100">Order Summary</h3>
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm sticky top-20 space-y-4">
+                    <h3 class="font-bold text-xs text-gray-900 border-b pb-2.5 border-gray-100 uppercase tracking-wider">Order Summary</h3>
                     
                     <div class="flex justify-between text-xs text-gray-600">
                         <span>Items Subtotal</span>
-                        <span id="summary-subtotal" class="font-semibold text-gray-900">₹0</span>
+                        <span id="summary-subtotal" class="font-bold text-gray-900">₹0</span>
                     </div>
                     <div>
                         <div class="flex justify-between text-xs text-gray-600">
                             <span>Delivery Fee</span>
-                            <span class="font-semibold text-green-600">FREE</span>
+                            <span class="font-bold text-emerald-600">FREE</span>
                         </div>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Delivery charges may vary based on your location.</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5 leading-tight">Delivery charges may vary based on your location.</p>
                     </div>
                     
                     <div class="border-t pt-3 flex justify-between text-sm font-black text-gray-900">
                         <span>Total Amount:</span>
-                        <span id="summary-total">₹0</span>
+                        <span id="summary-total" class="text-slate-900">₹0</span>
                     </div>
 
-                    <button onclick="checkoutOrder()" id="checkout-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                    <button onclick="checkoutOrder()" id="checkout-btn" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5">
                         Proceed to Checkout
                     </button>
                     
@@ -84,7 +84,7 @@
         </div>
     </main>
 
-    <!-- Google Pay Style Professional Transaction Success Animation Modal -->
+    <!-- Google Pay Style Transaction Success Animation Modal -->
     <div id="success-modal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-white border border-gray-200 rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center space-y-5 animate-scale-up">
             <!-- Animated Green Tick Circle -->
@@ -107,17 +107,17 @@
         </div>
     </div>
 
-    <!-- Custom Website Confirmation Modal (Hidden by Default) -->
+    <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 shadow-2xl transform transition-all animate-fadeIn text-center space-y-4">
-            <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto text-lg shadow-inner">
+        <div class="bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto text-base shadow-inner">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
                 <h3 class="font-black text-slate-900 text-sm" id="modal-title">Remove Item?</h3>
-                <p class="text-xs text-gray-500 mt-1" id="modal-desc">Are you sure you want to remove this product from your cart?</p>
+                <p class="text-xs text-gray-500 mt-1" id="modal-desc">Are you sure you want to remove this product?</p>
             </div>
-            <div class="grid grid-cols-2 gap-2.5 pt-2">
+            <div class="grid grid-cols-2 gap-2 pt-2">
                 <button onclick="closeConfirmationModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
                     Cancel
                 </button>
@@ -128,28 +128,24 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Firebase SDK Imports & Cart Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    <!-- Cart Logic & Firebase Script -->
-    <script>
-        // TODO: Replace with your exact Firebase project configuration object
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
         };
 
-        // Initialize Firebase safely
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let pendingActionIndex = null;
@@ -163,8 +159,8 @@
                         <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-3 text-lg">
                             <i class="fa-solid fa-cart-shopping"></i>
                         </div>
-                        <h3 class="font-bold text-sm text-gray-900">Your cart is empty</h3>
-                        <p class="text-xs text-gray-500 mt-1 mb-4">Explore our inventory catalog and add items to your cart.</p>
+                        <h3 class="font-bold text-xs text-gray-900">Your cart is empty</h3>
+                        <p class="text-[11px] text-gray-500 mt-1 mb-4">Explore our inventory catalog and add items to your cart.</p>
                         <a href="mystore.html" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-5 py-2.5 rounded-xl shadow transition">
                             Browse Storefront
                         </a>
@@ -183,19 +179,19 @@
                 subtotal += cleanPrice * qtyCount;
 
                 return `
-                    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex items-center gap-4">
-                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg border border-gray-100 shrink-0">
+                    <div class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 shadow-sm flex items-center gap-3 sm:gap-4">
+                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=400'}" alt="${item.name}" class="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-lg border border-gray-100 bg-slate-50 shrink-0 p-1">
                         <div class="flex-1 min-w-0">
                             <h4 class="font-bold text-xs text-gray-900 truncate">${item.name}</h4>
-                            <p class="text-xs font-black text-gray-900 mt-0.5">₹${cleanPrice}</p>
+                            <p class="text-xs font-black text-slate-900 mt-0.5">₹${cleanPrice}</p>
                             
                             <div class="flex items-center gap-2 mt-2">
-                                <button onclick="updateQty(${index}, -1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">-</button>
+                                <button onclick="window.updateCartQty(${index}, -1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">-</button>
                                 <span class="text-xs font-bold px-1">${qtyCount}</span>
-                                <button onclick="updateQty(${index}, 1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">+</button>
+                                <button onclick="window.updateCartQty(${index}, 1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs transition">+</button>
                             </div>
                         </div>
-                        <button onclick="confirmRemove(${index})" class="text-red-400 hover:text-red-600 p-2 transition">
+                        <button onclick="window.confirmRemoveItem(${index})" class="text-red-400 hover:text-red-600 p-2 transition">
                             <i class="fa-solid fa-trash text-xs"></i>
                         </button>
                     </div>
@@ -206,55 +202,45 @@
             document.getElementById('summary-total').textContent = `₹${subtotal}`;
         }
 
-        function updateQty(index, change) {
+        window.updateCartQty = function(index, change) {
             const newQty = (cart[index].qtyCount || 1) + change;
-            
             if (newQty <= 0) {
-                openConfirmationModal(index, 'Remove Item?', `Do you want to remove "${cart[index].name}" from your cart?`, () => {
-                    cart.splice(index, 1);
-                    saveAndRefresh();
-                });
+                window.confirmRemoveItem(index);
             } else {
                 cart[index].qtyCount = newQty;
                 saveAndRefresh();
             }
-        }
+        };
 
-        function confirmRemove(index) {
-            openConfirmationModal(index, 'Delete Product?', `Are you sure you want to delete "${cart[index].name}" from your cart?`, () => {
-                cart.splice(index, 1);
-                saveAndRefresh();
-            });
-        }
-
-        function openConfirmationModal(index, title, description, onConfirmCallback) {
+        window.confirmRemoveItem = function(index) {
             pendingActionIndex = index;
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-desc').textContent = description;
+            document.getElementById('modal-title').textContent = "Remove Item?";
+            document.getElementById('modal-desc').textContent = `Do you want to remove "${cart[index].name}" from your cart?`;
             
             const confirmBtn = document.getElementById('modal-confirm-btn');
             const newConfirmBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
             
             newConfirmBtn.addEventListener('click', () => {
-                onConfirmCallback();
+                cart.splice(pendingActionIndex, 1);
+                saveAndRefresh();
                 closeConfirmationModal();
             });
 
             document.getElementById('confirmation-modal').classList.remove('hidden');
-        }
+        };
 
-        function closeConfirmationModal() {
+        window.closeConfirmationModal = function() {
             document.getElementById('confirmation-modal').classList.add('hidden');
             pendingActionIndex = null;
-        }
+        };
 
         function saveAndRefresh() {
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             renderCartPage();
         }
 
-        function checkoutOrder() {
+        window.checkoutOrder = function() {
             if (cart.length === 0) {
                 alert("Your cart is empty!");
                 return;
@@ -284,14 +270,11 @@
                 timestamp: new Date().toISOString()
             };
 
-            // Push securely to Firebase under the isolated 'orders' node (never touches products)
-            db.ref('orders').push(newOrderData)
+            // Push directly to Firebase under "orders" (leaving products, categories & news completely untouched)
+            push(ref(db, 'orders'), newOrderData)
                 .then(() => {
-                    // Clear local cart
                     cart = [];
                     localStorage.removeItem("ymca_cart");
-
-                    // Show success checkmark modal animation
                     document.getElementById('success-modal').classList.remove('hidden');
                 })
                 .catch((error) => {
@@ -300,11 +283,9 @@
                     checkoutBtn.disabled = false;
                     checkoutBtn.textContent = "Proceed to Checkout";
                 });
-        }
+        };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCartPage();
-        });
+        renderCartPage();
     </script>
 </body>
 </html>
