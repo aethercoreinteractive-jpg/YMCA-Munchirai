@@ -54,6 +54,13 @@
             
             <!-- Quick Actions -->
             <div class="flex items-center gap-2">
+                <!-- Live Orders Direct Button -->
+                <a href="orders.html" class="relative px-3 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md flex items-center gap-1.5 transition active:scale-95 shrink-0">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span class="hidden xs:inline">Live Orders</span>
+                    <span id="nav-orders-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-black items-center justify-center border-2 border-slate-900 shadow">0</span>
+                </a>
+
                 <a href="mystore.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
                     <i class="fa-solid fa-store text-amber-400"></i>
                     <span class="hidden xs:inline">Store</span>
@@ -189,6 +196,28 @@
 
         let categoriesCache = [];
         let draggedCategoryKey = null;
+
+        // Real-time live orders badge counter integration
+        onValue(ref(db, 'orders'), (snapshot) => {
+            const data = snapshot.val();
+            const badge = document.getElementById('nav-orders-badge');
+            if (!data) {
+                badge.classList.add('hidden');
+                badge.textContent = "0";
+                return;
+            }
+            const activeOrders = Object.values(data).filter(order => {
+                const status = order.status || 'Pending Confirmation';
+                return status !== 'Delivered' && status !== 'Cancelled';
+            });
+            if (activeOrders.length > 0) {
+                badge.textContent = activeOrders.length;
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
 
         function showCategoryStatus(message, isError = false) {
             const msgEl = document.getElementById('category-status-msg');
@@ -361,5 +390,4 @@
         });
     </script>
 </body>
-    </html>
-    
+</html>
