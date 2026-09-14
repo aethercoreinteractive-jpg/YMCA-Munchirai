@@ -89,8 +89,26 @@
         </div>
     </div>
 
-    <!-- Script to handle modal interaction and validation messages -->
-    <script>
+    <!-- Script to handle Firebase password updating -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const FALLBACK_PASSWORD = "Admin@123";
+
         const modal = document.getElementById('password-modal');
         const openModalBtn = document.getElementById('open-modal-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
@@ -109,7 +127,6 @@
             setTimeout(() => statusMsg.classList.add('hidden'), 4000);
         }
 
-        // Open modal
         openModalBtn.addEventListener('click', () => {
             currentPassInput.value = '';
             newPassInput.value = '';
@@ -118,7 +135,6 @@
             modal.classList.add('flex');
         });
 
-        // Close modal functions
         function closeModal() {
             modal.classList.remove('flex');
             modal.classList.add('hidden');
@@ -127,15 +143,14 @@
         closeModalBtn.addEventListener('click', closeModal);
         cancelModalBtn.addEventListener('click', closeModal);
 
-        // Close when clicking outside modal content window
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeModal();
             }
         });
 
-        // Save password validation and logic
-        savePassBtn.addEventListener('click', () => {
+        // Save password directly to Firebase Database
+        savePassBtn.addEventListener('click', async () => {
             const currentVal = currentPassInput.value.trim();
             const newVal = newPassInput.value.trim();
             const confirmVal = confirmPassInput.value.trim();
@@ -155,11 +170,38 @@
                 return;
             }
 
-            // Success action simulation / local update
-            closeModal();
-            showMessage("Success: Password updated successfully.");
+            savePassBtn.disabled = true;
+            savePassBtn.textContent = "Updating...";
+
+            try {
+                const passRef = ref(db, 'settings/adminPassword');
+                const snapshot = await get(passRef);
+                
+                let actualCurrentPass = FALLBACK_PASSWORD;
+                if (snapshot.exists()) {
+                    actualCurrentPass = snapshot.val();
+                }
+
+                if (currentVal !== actualCurrentPass) {
+                    showMessage("Incorrect current password.", true);
+                    savePassBtn.disabled = false;
+                    savePassBtn.textContent = "Save Password";
+                    return;
+                }
+
+                // Update password in Firebase Cloud
+                await set(passRef, newVal);
+
+                closeModal();
+                showMessage("Success: Password updated and synced in cloud database!");
+            } catch (error) {
+                console.error("Password update error:", error);
+                showMessage("Failed to update password. Check connection.", true);
+            } finally {
+                savePassBtn.disabled = false;
+                savePassBtn.textContent = "Save Password";
+            }
         });
     </script>
 </body>
 </html>
-                                                                                                                                   
