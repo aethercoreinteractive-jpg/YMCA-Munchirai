@@ -202,6 +202,14 @@
                 let statusBadgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                 if (status === 'Cancelled') statusBadgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
 
+                // Customer Data fallback if older orders didn't include it
+                const customer = order.customer || {
+                    name: "N/A",
+                    phone: "N/A",
+                    email: "N/A",
+                    address: "N/A"
+                };
+
                 const itemsHtml = (order.items || []).map(item => `
                     <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0">
                         <div class="flex items-center gap-2.5">
@@ -229,6 +237,20 @@
                             </div>
                             <div class="flex items-center gap-2 shrink-0 self-start">
                                 <span class="text-[10px] font-extrabold px-3 py-1 rounded-xl border uppercase tracking-wider ${statusBadgeColor}">${status}</span>
+                            </div>
+                        </div>
+
+                        <!-- Customer Details Section -->
+                        <div class="bg-amber-50/50 rounded-2xl p-3 border border-amber-100/60 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block mb-0.5"><i class="fa-solid fa-user mr-1"></i> Customer Info</span>
+                                <p class="font-extrabold text-slate-900">${customer.name}</p>
+                                <p class="text-slate-600 font-medium"><i class="fa-solid fa-phone text-[10px] mr-1 text-slate-400"></i> <a href="tel:${customer.phone}" class="hover:underline">${customer.phone}</a></p>
+                                ${customer.email && customer.email !== 'N/A' ? `<p class="text-slate-500 text-[11px] truncate"><i class="fa-solid fa-envelope text-[10px] mr-1 text-slate-400"></i> ${customer.email}</p>` : ''}
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block mb-0.5"><i class="fa-solid fa-location-dot mr-1"></i> Delivery Address</span>
+                                <p class="text-slate-700 leading-relaxed font-medium">${customer.address}</p>
                             </div>
                         </div>
 
