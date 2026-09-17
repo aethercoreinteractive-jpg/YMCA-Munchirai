@@ -23,6 +23,14 @@
             width: calc(33.333% - 6px);
             max-width: calc(33.333% - 6px);
         }
+
+        /* Ad Preview & Sound Badge Styles */
+        .speaker-badge-container {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
+        }
+        .icon-morph {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14">
@@ -142,6 +150,11 @@
         let savedBestSellers = {};
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
 
+        // Ad Management Variables
+        let currentAds = [];
+        let autoSlideInterval = null;
+        let currentSlideIndex = 0;
+
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
             const data = snapshot.val();
@@ -173,6 +186,21 @@
             }
             renderCatalog(liveInventory);
             updateCartCount();
+        });
+
+        // Fetch Live Ads from Database
+        const adsReference = ref(db, 'ads');
+        onValue(adsReference, (snapshot) => {
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) {
+                currentAds = data;
+            } else if (data && typeof data === 'object') {
+                currentAds = Object.values(data);
+            } else {
+                currentAds = [];
+            }
+            renderPreviewSlider();
+            setupAutoSlide();
         });
 
         // Helper to generate Add to Cart, quantity stepper, or Out of Stock label
@@ -317,7 +345,7 @@
                 recommendedSection.classList.add('hidden');
             }
 
-              // Render Standard Category Groups (Sorted: In-stock first, Out-of-stock last)
+            // Render Standard Category Groups (Sorted: In-stock first, Out-of-stock last)
             let categoryGroups = {};
             categoriesCache.forEach(cat => {
                 categoryGroups[cat.name] = [];
@@ -346,6 +374,7 @@
             }
 
             let htmlOutput = '';
+            let flourSectionRendered = false;
 
             displayCategories.forEach(catName => {
                 const groupItems = categoryGroups[catName] || [];
@@ -405,10 +434,149 @@
                 });
 
                 htmlOutput += `</div></div>`;
+
+                // Check if this category is the flour section (matches 'flour' case-insensitively)
+                if (catName.toLowerCase().includes('flour') && !flourSectionRendered) {
+                    flourSectionRendered = true;
+                    // Inject the exact Ad Preview Screen section right below the flour section
+                    htmlOutput += `
+                        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-3 my-6">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                    Live Preview Screen
+                                </h2>
+                            </div>
+
+                            <!-- Preview Viewport Frame -->
+                            <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group">
+                                <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
+                                    <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
+                                        Loading ads...
+                                    </div>
+                                </div>
+
+                                <!-- Slide Indicators (Dots) -->
+                                <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
+                            </div>
+                            <p class="text-[11px] text-gray-500 text-center">Tap video ads to toggle sound. Swipe horizontally to browse ads.</p>
+                        </section>
+                    `;
+                }
             });
 
             container.innerHTML = htmlOutput;
         };
+
+        // Render Preview Slider Logic from ad1.html
+        function renderPreviewSlider() {
+            const slider = document.getElementById('ad-preview-slider');
+            const indicators = document.getElementById('ad-indicators');
+            if (!slider || !indicators) return;
+
+            if (currentAds.length === 0) {
+                slider.innerHTML = `<div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">No active ads selected.</div>`;
+                indicators.innerHTML = '';
+                return;
+            }
+
+            slider.innerHTML = '';
+            let dotsHtml = '';
+
+            currentAds.forEach((ad, idx) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = "w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center bg-black overflow-hidden cursor-pointer";
+
+                if (ad.type === 'video') {
+                    const videoEl = document.createElement('video');
+                    videoEl.src = ad.link;
+                    videoEl.autoplay = true;
+                    videoEl.muted = true;
+                    videoEl.playsInline = true;
+                    videoEl.loop = true;
+                    videoEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
+
+                    const badge = document.createElement('div');
+                    badge.className = "absolute inset-0 flex items-center justify-center pointer-events-none z-10 speaker-badge-container";
+                    badge.innerHTML = `
+                        <div class="w-14 h-14 rounded-full bg-slate-950/70 backdrop-blur-xl flex items-center justify-center text-white shadow-2xl border border-white/25 icon-morph">
+                            <i class="fa-solid fa-volume-xmark text-lg text-amber-400"></i>
+                        </div>
+                    `;
+
+                    slideDiv.addEventListener('click', () => {
+                        videoEl.muted = !videoEl.muted;
+                        const iconBox = badge.firstElementChild;
+                        const icon = iconBox.querySelector('i');
+
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'scale(1)';
+
+                        if (videoEl.muted) {
+                            icon.className = "fa-solid fa-volume-xmark text-lg text-amber-400 icon-morph";
+                        } else {
+                            icon.className = "fa-solid fa-volume-high text-lg text-amber-400 icon-morph";
+                            
+                            setTimeout(() => {
+                                badge.style.transform = 'scale(0.85)';
+                                badge.style.opacity = '0';
+                            }, 50);
+                        }
+
+                        iconBox.style.transform = 'scale(1.15)';
+                        setTimeout(() => {
+                            if (!videoEl.muted) return;
+                            iconBox.style.transform = 'scale(1)';
+                        }, 200);
+                    });
+
+                    slideDiv.appendChild(videoEl);
+                    slideDiv.appendChild(badge);
+                } else {
+                    const imgEl = document.createElement('img');
+                    imgEl.src = ad.link;
+                    imgEl.alt = `Ad ${idx + 1}`;
+                    imgEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
+                    slideDiv.appendChild(imgEl);
+                }
+
+                slider.appendChild(slideDiv);
+                dotsHtml += `<span class="w-2 h-2 rounded-full ${idx === 0 ? 'bg-amber-500 w-4' : 'bg-white/50'} transition-all duration-300 inline-block"></span>`;
+            });
+
+            indicators.innerHTML = dotsHtml;
+        }
+
+        function setupAutoSlide() {
+            if (autoSlideInterval) {
+                clearInterval(autoSlideInterval);
+                autoSlideInterval = null;
+            }
+
+            if (currentAds.length <= 1) return;
+
+            const slider = document.getElementById('ad-preview-slider');
+            if (!slider) return;
+
+            autoSlideInterval = setInterval(() => {
+                if (currentAds.length <= 1) return;
+                currentSlideIndex = (currentSlideIndex + 1) % currentAds.length;
+                const scrollAmount = slider.clientWidth * currentSlideIndex;
+                slider.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+                updateDots(currentSlideIndex);
+            }, 4000);
+        }
+
+        function updateDots(activeIdx) {
+            const dots = document.querySelectorAll('#ad-indicators span');
+            dots.forEach((dot, idx) => {
+                if (idx === activeIdx) {
+                    dot.className = "w-4 h-2 rounded-full bg-amber-500 transition-all duration-300 inline-block";
+                } else {
+                    dot.className = "w-2 h-2 rounded-full bg-white/50 transition-all duration-300 inline-block";
+                }
+            });
+        }
 
         window.filterProducts = function() {
             const query = document.getElementById('search-bar').value.toLowerCase();
@@ -473,6 +641,18 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             updateCartCount();
+            
+            const slider = document.getElementById('ad-preview-slider');
+            if (slider) {
+                slider.addEventListener('scroll', () => {
+                    if (currentAds.length <= 1) return;
+                    const index = Math.round(slider.scrollLeft / slider.clientWidth);
+                    if (index !== currentSlideIndex && index >= 0 && index < currentAds.length) {
+                        currentSlideIndex = index;
+                        updateDots(currentSlideIndex);
+                    }
+                }, { passive: true });
+            }
         });
     </script>
 </body>
