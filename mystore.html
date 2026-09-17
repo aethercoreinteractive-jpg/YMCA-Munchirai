@@ -45,7 +45,7 @@
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
                 <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Store
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> My Store
                 </a>
             </div>
 
@@ -326,7 +326,7 @@
 
             emptyState.classList.add('hidden');
 
-            // Handle Category Selection or Search Results View Pushed to Top
+               // Handle Category Selection or Search Results View Pushed to Top
             if (selectedCategoryFilter !== null) {
                 searchResultsSection.classList.remove('hidden');
                 searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
@@ -568,10 +568,11 @@
                 return recHtml;
             };
 
-             // Helper for the Dark Box section with 8 small cards (4 cards in a row) and View All button
+            // Helper for the Dark Box section with initially 8 small cards (4 cards in a row) and View All button triggering category view
             const generateDark8CardSectionHTML = (catName) => {
-                const groupItems = (categoryGroups[catName] || []).slice(0, 8);
-                if (groupItems.length === 0) return '';
+                const fullGroupItems = categoryGroups[catName] || [];
+                const displayGroupItems = fullGroupItems.slice(0, 8);
+                if (displayGroupItems.length === 0) return '';
 
                 let darkHtml = `
                     <div class="bg-slate-900 rounded-xl p-3 sm:p-4 shadow-xl border border-slate-800 my-4 space-y-3">
@@ -587,7 +588,7 @@
                         <div class="grid grid-cols-4 gap-2">
                 `;
 
-                groupItems.forEach(item => {
+                displayGroupItems.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -641,7 +642,7 @@
             // 5. Ad
             // 6. Next section (validCategories[2])
             // 7. Next section (validCategories[3])
-            // 8. Next section inside a dark box with 8 small cards (4 cards in a row) + View All button
+            // 8. Next section inside a dark box with initially 8 small cards (4 cards in a row) + View All button triggering category view
 
             htmlOutput += generateBestSellersHTML();
             htmlOutput += generateRecommendedHTML();
