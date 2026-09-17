@@ -15,9 +15,9 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* High-budget silky smooth transition for the mute badge */
+        /* High-end fluid transition for the speaker badge */
         .mute-badge {
-            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
     </style>
 </head>
@@ -125,7 +125,7 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Formats Google Drive sharing link into direct streamable video format
+        // Formats Google Drive sharing link into robust direct streamable endpoints
         function formatGoogleDriveUrl(url, type) {
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -224,7 +224,7 @@
             }
         };
 
-        // Render Preview Carousel Slider with Looping Video & High-Budget Speaker Animation
+        // Render Preview Slider with Looping Video & Interactive Mute/Unmute Speaker Icon Morph
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -251,35 +251,41 @@
                     videoEl.autoplay = true;
                     videoEl.muted = true; // Default muted
                     videoEl.playsInline = true;
-                    videoEl.loop = true; // Ensures continuous looping
+                    videoEl.loop = true; // Continuous loop
                     videoEl.className = "w-full h-full object-contain pointer-events-none";
 
-                    // High-end animated speaker badge overlay
+                    // Fallback notice if video stream takes a moment or fails network check
+                    videoEl.onerror = function() {
+                        slideDiv.innerHTML = `<div class="w-full h-full flex items-center justify-center text-rose-400 text-xs text-center p-4">Unable to load video. Ensure link is public ("Anyone with the link can view").</div>`;
+                    };
+
+                    // Interactive animated speaker badge container
                     const badge = document.createElement('div');
-                    badge.className = "mute-badge absolute inset-0 flex items-center justify-center pointer-events-none opacity-100 scale-100";
+                    badge.className = "mute-badge absolute inset-0 flex items-center justify-center pointer-events-none";
                     badge.innerHTML = `
-                        <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-xl border border-white/20">
+                        <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-2xl border border-white/20 transform scale-100 transition-transform duration-200">
                             <i class="fa-solid fa-volume-xmark text-base"></i>
                         </div>
                     `;
 
-                    // Handle tap to toggle mute with smooth fluid animation
+                    // Handle tap to toggle audio state and switch between struck (muted) & active speaker icons
                     slideDiv.addEventListener('click', () => {
                         videoEl.muted = !videoEl.muted;
+                        const iconContainer = badge.firstElementChild;
+                        
                         if (videoEl.muted) {
-                            // Show crossed speaker when muted
-                            badge.style.opacity = '1';
-                            badge.style.transform = 'scale(1)';
-                            badge.innerHTML = `
-                                <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-xl border border-white/20">
-                                    <i class="fa-solid fa-volume-xmark text-base"></i>
-                                </div>
-                            `;
+                            // Show speaker with strike/slash line
+                            iconContainer.innerHTML = `<i class="fa-solid fa-volume-xmark text-base"></i>`;
                         } else {
-                            // Hide badge completely when unmuted
-                            badge.style.opacity = '0';
-                            badge.style.transform = 'scale(0.85)';
+                            // Show active unmuted speaker with sound waves
+                            iconContainer.innerHTML = `<i class="fa-solid fa-volume-high text-base"></i>`;
                         }
+                        
+                        // High-budget pulse animation effect on tap
+                        iconContainer.style.transform = 'scale(1.2)';
+                        setTimeout(() => {
+                            iconContainer.style.transform = 'scale(1)';
+                        }, 150);
                     });
 
                     slideDiv.appendChild(videoEl);
