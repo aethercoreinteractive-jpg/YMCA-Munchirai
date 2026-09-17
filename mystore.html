@@ -272,6 +272,12 @@
             selectedCategoryFilter = catName;
             toggleCategoryDrawer();
             renderCatalog(liveInventory);
+            
+            // Smoothly scroll to the top to show the filtered category products section
+            const searchSection = document.getElementById('search-results-section');
+            if (searchSection) {
+                searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         };
 
         // Helper to generate Add to Cart / Stepper / Out of Stock actions
@@ -326,7 +332,7 @@
 
             emptyState.classList.add('hidden');
 
-               // Handle Category Selection or Search Results View Pushed to Top
+             // Handle Category Selection or Search Results View Pushed to Top
             if (selectedCategoryFilter !== null) {
                 searchResultsSection.classList.remove('hidden');
                 searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
@@ -568,7 +574,7 @@
                 return recHtml;
             };
 
-            // Helper for the Dark Box section with initially 8 small cards (4 cards in a row) and View All button triggering category view
+               // Helper for the Dark Box section with initially 8 small cards (4 cards in a row) and View All button
             const generateDark8CardSectionHTML = (catName) => {
                 const fullGroupItems = categoryGroups[catName] || [];
                 const displayGroupItems = fullGroupItems.slice(0, 8);
@@ -634,16 +640,6 @@
                 </div>
             `;
 
-            // Structural sequence precisely requested:
-            // 1. Best sellers
-            // 2. Recommend for you
-            // 3. Next section (validCategories[0])
-            // 4. Next section (validCategories[1])
-            // 5. Ad
-            // 6. Next section (validCategories[2])
-            // 7. Next section (validCategories[3])
-            // 8. Next section inside a dark box with initially 8 small cards (4 cards in a row) + View All button triggering category view
-
             htmlOutput += generateBestSellersHTML();
             htmlOutput += generateRecommendedHTML();
             if (validCategories.length > 0) htmlOutput += generateSliderRowHTML(validCategories[0]);
@@ -657,7 +653,6 @@
             const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
             htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
 
-            // Render any remaining categories if there are more
             for (let i = 5; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
