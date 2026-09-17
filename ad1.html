@@ -16,7 +16,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .speaker-badge-container {
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
         }
         .icon-morph {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -204,7 +204,6 @@
         // GitHub Toggle Handler
         window.handleGitHubToggle = async function(index, filename, isChecked) {
             if (isChecked) {
-                // Check if already exists to prevent duplication
                 const exists = currentAds.some(ad => ad.link === filename);
                 if (!exists) {
                     currentAds.push({ link: filename, type: 'video', source: 'github', gId: index });
@@ -227,7 +226,6 @@
                 return;
             }
 
-            // Optional helper: convert standard share links if pasted directly
             if (link.includes('drive.google.com/file/d/')) {
                 const match = link.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
                 if (match && match[1]) {
@@ -297,7 +295,6 @@
             container.innerHTML = html;
         }
 
-         // Drag & Drop Handlers (Desktop & Basic HTML5)
         window.onDragStart = function(e, index) {
             draggedIndex = index;
             e.dataTransfer.effectAllowed = 'move';
@@ -317,7 +314,6 @@
             await saveAdsToDatabase();
         };
 
-        // Touch Drag Handlers (Mobile touch and hold reordering)
         let touchDragSrcIndex = null;
         window.onTouchStart = function(e, index) {
             touchDragSrcIndex = index;
@@ -366,7 +362,7 @@
                     const videoEl = document.createElement('video');
                     videoEl.src = ad.link;
                     videoEl.autoplay = true;
-                    videoEl.muted = true; // Default Muted
+                    videoEl.muted = true;
                     videoEl.playsInline = true;
                     videoEl.loop = true;
                     videoEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
@@ -374,7 +370,7 @@
                     const badge = document.createElement('div');
                     badge.className = "absolute inset-0 flex items-center justify-center pointer-events-none z-10 speaker-badge-container";
                     badge.innerHTML = `
-                        <div class="w-14 h-14 rounded-full bg-slate-950/70 backdrop-blur-xl flex items-center justify-center text-white shadow-2xl border border-white/20 icon-morph">
+                        <div class="w-14 h-14 rounded-full bg-slate-950/70 backdrop-blur-xl flex items-center justify-center text-white shadow-2xl border border-white/25 icon-morph">
                             <i class="fa-solid fa-volume-xmark text-lg text-amber-400"></i>
                         </div>
                     `;
@@ -384,14 +380,26 @@
                         const iconBox = badge.firstElementChild;
                         const icon = iconBox.querySelector('i');
 
+                        // Reset any ongoing fade out so re-tapping works properly
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'scale(1)';
+
                         if (videoEl.muted) {
                             icon.className = "fa-solid fa-volume-xmark text-lg text-amber-400 icon-morph";
                         } else {
                             icon.className = "fa-solid fa-volume-high text-lg text-amber-400 icon-morph";
+                            
+                            // Smooth professional animation sequence upon unmuting: fades out & shrinks over 2 seconds
+                            setTimeout(() => {
+                                badge.style.transform = 'scale(0.85)';
+                                badge.style.opacity = '0';
+                            }, 50);
                         }
 
-                        iconBox.style.transform = 'scale(1.2)';
+                        // Bounce spring effect on initial tap
+                        iconBox.style.transform = 'scale(1.15)';
                         setTimeout(() => {
+                            if (!videoEl.muted) return; // leave scaled down if fading out
                             iconBox.style.transform = 'scale(1)';
                         }, 200);
                     });
