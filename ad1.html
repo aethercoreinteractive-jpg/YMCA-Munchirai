@@ -14,6 +14,11 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* High-budget Instagram style transition for mute badge */
+        .mute-badge {
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14">
@@ -120,24 +125,22 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Converts Google Drive share links correctly for embedded players and image view links
+        // Formats Google Drive sharing link into direct downloadable/streamable video format
         function formatGoogleDriveUrl(url, type) {
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
             if (match && match[1]) {
                 const fileId = match[1];
                 if (type === 'video') {
-                    // Drive embedded preview URL layout guarantees successful playback without CORS blocks
-                    return `https://drive.google.com/file/d/${fileId}/preview`;
+                    return `https://docs.google.com/uc?export=download&id=${fileId}`;
                 } else {
-                    // Direct image view link
                     return `https://lh3.googleusercontent.com/d/${fileId}`;
                 }
             }
             return url;
         }
 
-        // Fetch ads strictly from the 'ads' node in Firebase (Ensures zero conflict with store data)
+        // Fetch ads strictly from the 'ads' node in Firebase
         const adsRef = ref(db, 'ads');
         onValue(adsRef, (snapshot) => {
             const data = snapshot.val();
@@ -221,7 +224,7 @@
             }
         };
 
-        // Render Preview Carousel Slider with native Google Drive Iframe player for reliable video playback
+        // Render Preview Carousel Slider with Professional Instagram Video Experience
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -240,15 +243,46 @@
             validAds.forEach((ad, idx) => {
                 const formattedUrl = formatGoogleDriveUrl(ad.link, ad.type);
                 const slideDiv = document.createElement('div');
-                slideDiv.className = "w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-black relative";
+                slideDiv.className = "w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-black relative overflow-hidden group cursor-pointer";
 
                 if (ad.type === 'video') {
-                    const iframeEl = document.createElement('iframe');
-                    iframeEl.src = formattedUrl;
-                    iframeEl.className = "w-full h-full border-0 pointer-events-auto";
-                    iframeEl.allow = "autoplay; encrypted-media";
-                    iframeEl.allowFullscreen = true;
-                    slideDiv.appendChild(iframeEl);
+                    const videoEl = document.createElement('video');
+                    videoEl.src = formattedUrl;
+                    videoEl.autoplay = true;
+                    videoEl.muted = true; // Default muted like Instagram
+                    videoEl.playsInline = true;
+                    videoEl.loop = true;
+                    // No controls attribute - completely hidden!
+                    videoEl.className = "w-full h-full object-contain pointer-events-none";
+
+                    // Create Instagram style center mute badge
+                    const badge = document.createElement('div');
+                    badge.className = "mute-badge absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none opacity-100";
+                    badge.innerHTML = `
+                        <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-lg border border-white/20">
+                            <i class="fa-solid fa-volume-xmark text-base"></i>
+                        </div>
+                    `;
+
+                    // Handle tap to toggle mute state
+                    slideDiv.addEventListener('click', () => {
+                        videoEl.muted = !videoEl.muted;
+                        if (videoEl.muted) {
+                            badge.style.opacity = '1';
+                            badge.style.transform = 'scale(1)';
+                            badge.innerHTML = `
+                                <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-lg border border-white/20">
+                                    <i class="fa-solid fa-volume-xmark text-base"></i>
+                                </div>
+                            `;
+                        } else {
+                            badge.style.opacity = '0';
+                            badge.style.transform = 'scale(0.8)';
+                        }
+                    });
+
+                    slideDiv.appendChild(videoEl);
+                    slideDiv.appendChild(badge);
                 } else {
                     const imgEl = document.createElement('img');
                     imgEl.src = formattedUrl;
@@ -267,7 +301,7 @@
             indicators.innerHTML = dotsHtml;
         };
 
-        // Industry standard 4-second auto-slide with manual finger swipe support
+        // Industry standard 4-second auto-slide with manual swipe support
         function setupAutoSlide() {
             if (autoSlideInterval) clearInterval(autoSlideInterval);
             
