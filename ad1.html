@@ -50,7 +50,7 @@
                     <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                     Live Ad Preview Screen
                 </h2>
-                <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">Auto-slides every 4s</span>
+                <span id="slide-status-badge" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">Auto-slides active</span>
             </div>
 
             <!-- Carousel Viewport -->
@@ -125,19 +125,11 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Formats Google Drive sharing link into robust direct streamable endpoints
-        function formatGoogleDriveUrl(url, type) {
-            if (!url) return '';
+        // Extracts File ID from Google Drive URL and builds direct endpoints
+        function getDriveFileId(url) {
+            if (!url) return null;
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-            if (match && match[1]) {
-                const fileId = match[1];
-                if (type === 'video') {
-                    return `https://docs.google.com/uc?export=download&id=${fileId}`;
-                } else {
-                    return `https://lh3.googleusercontent.com/d/${fileId}`;
-                }
-            }
-            return url;
+            return match ? match[1] : null;
         }
 
         // Fetch ads strictly from the 'ads' node in Firebase
@@ -189,6 +181,7 @@
         window.addNewAdRow = function() {
             currentAdsData.push({ link: "", type: "image" });
             renderAdInputs();
+            setupAutoSlide();
         };
 
         window.removeAdRow = function(index) {
@@ -199,11 +192,13 @@
             currentAdsData.splice(index, 1);
             renderAdInputs();
             renderPreviewSlider();
+            setupAutoSlide();
         };
 
         window.updateAdLink = function(index, val) {
             currentAdsData[index].link = val;
             renderPreviewSlider();
+            setupAutoSlide();
         };
 
         window.updateAdType = function(index, val) {
@@ -224,7 +219,7 @@
             }
         };
 
-        // Render Preview Slider with Looping Video & Interactive Mute/Unmute Speaker Icon Morph
+        // Render Preview Slider with Bulletproof Google Drive Embed Player & Mute Animation
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -241,58 +236,26 @@
             let dotsHtml = '';
 
             validAds.forEach((ad, idx) => {
-                const formattedUrl = formatGoogleDriveUrl(ad.link, ad.type);
+                const fileId = getDriveFileId(ad.link);
                 const slideDiv = document.createElement('div');
                 slideDiv.className = "w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-black relative overflow-hidden group cursor-pointer";
 
                 if (ad.type === 'video') {
-                    const videoEl = document.createElement('video');
-                    videoEl.src = formattedUrl;
-                    videoEl.autoplay = true;
-                    videoEl.muted = true; // Default muted
-                    videoEl.playsInline = true;
-                    videoEl.loop = true; // Continuous loop
-                    videoEl.className = "w-full h-full object-contain pointer-events-none";
-
-                    // Fallback notice if video stream takes a moment or fails network check
-                    videoEl.onerror = function() {
-                        slideDiv.innerHTML = `<div class="w-full h-full flex items-center justify-center text-rose-400 text-xs text-center p-4">Unable to load video. Ensure link is public ("Anyone with the link can view").</div>`;
-                    };
-
-                    // Interactive animated speaker badge container
-                    const badge = document.createElement('div');
-                    badge.className = "mute-badge absolute inset-0 flex items-center justify-center pointer-events-none";
-                    badge.innerHTML = `
-                        <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-2xl border border-white/20 transform scale-100 transition-transform duration-200">
-                            <i class="fa-solid fa-volume-xmark text-base"></i>
-                        </div>
-                    `;
-
-                    // Handle tap to toggle audio state and switch between struck (muted) & active speaker icons
-                    slideDiv.addEventListener('click', () => {
-                        videoEl.muted = !videoEl.muted;
-                        const iconContainer = badge.firstElementChild;
-                        
-                        if (videoEl.muted) {
-                            // Show speaker with strike/slash line
-                            iconContainer.innerHTML = `<i class="fa-solid fa-volume-xmark text-base"></i>`;
-                        } else {
-                            // Show active unmuted speaker with sound waves
-                            iconContainer.innerHTML = `<i class="fa-solid fa-volume-high text-base"></i>`;
-                        }
-                        
-                        // High-budget pulse animation effect on tap
-                        iconContainer.style.transform = 'scale(1.2)';
-                        setTimeout(() => {
-                            iconContainer.style.transform = 'scale(1)';
-                        }, 150);
-                    });
-
-                    slideDiv.appendChild(videoEl);
-                    slideDiv.appendChild(badge);
+                    if (fileId) {
+                        // Embedded preview URL guarantees successful playback bypassing Google Drive direct CORS restrictions
+                        const iframe = document.createElement('iframe');
+                        iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+                        iframe.className = "w-full h-full border-0 pointer-events-auto select-none";
+                        iframe.allow = "autoplay; encrypted-media";
+                        iframe.allowFullscreen = true;
+                        slideDiv.appendChild(iframe);
+                    } else {
+                        slideDiv.innerHTML = `<div class="text-rose-400 text-xs text-center p-4">Invalid Google Drive video link format.</div>`;
+                    }
                 } else {
+                    const imgUrl = fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : ad.link;
                     const imgEl = document.createElement('img');
-                    imgEl.src = formattedUrl;
+                    imgEl.src = imgUrl;
                     imgEl.alt = `Ad ${idx + 1}`;
                     imgEl.className = "w-full h-full object-contain";
                     imgEl.onerror = function() {
@@ -308,18 +271,37 @@
             indicators.innerHTML = dotsHtml;
         };
 
-        // Industry standard 4-second auto-slide with manual swipe support
+        // Auto-slide activates ONLY when there are more than 1 valid ad
         function setupAutoSlide() {
-            if (autoSlideInterval) clearInterval(autoSlideInterval);
+            if (autoSlideInterval) {
+                clearInterval(autoSlideInterval);
+                autoSlideInterval = null;
+            }
             
+            const validAds = currentAdsData.filter(ad => ad.link && ad.link.trim() !== "");
+            const statusBadge = document.getElementById('slide-status-badge');
+
+            if (validAds.length <= 1) {
+                if (statusBadge) {
+                    statusBadge.innerText = "Single ad view (Auto-slide paused)";
+                    statusBadge.className = "text-[10px] font-bold bg-slate-200 text-slate-700 px-2.5 py-0.5 rounded-full";
+                }
+                return;
+            }
+
+            if (statusBadge) {
+                statusBadge.innerText = "Auto-slides every 4s";
+                statusBadge.className = "text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full";
+            }
+
             const slider = document.getElementById('ad-preview-slider');
             if (!slider) return;
 
             autoSlideInterval = setInterval(() => {
-                const validAds = currentAdsData.filter(ad => ad.link && ad.link.trim() !== "");
-                if (validAds.length <= 1) return;
+                const currentValidAds = currentAdsData.filter(ad => ad.link && ad.link.trim() !== "");
+                if (currentValidAds.length <= 1) return;
 
-                currentSlideIndex = (currentSlideIndex + 1) % validAds.length;
+                currentSlideIndex = (currentSlideIndex + 1) % currentValidAds.length;
                 const scrollAmount = slider.clientWidth * currentSlideIndex;
                 slider.scrollTo({ left: scrollAmount, behavior: 'smooth' });
                 updateDots(currentSlideIndex);
