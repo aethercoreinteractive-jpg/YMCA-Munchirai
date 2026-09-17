@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Product Details | Munchirai YMCA Food Store</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14">
+
+    <!-- Professional Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="mystore.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Munchirai
+                </a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="mystore.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left text-amber-400"></i> Store
+                </a>
+                <a href="cart.html" class="relative bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Cart</span>
+                    <!-- Notification Badge -->
+                    <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-white">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Product Detail Section -->
+    <main class="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
+        
+        <!-- Back Navigation / Explore All Products Header -->
+        <div class="mb-4 flex items-center justify-between">
+            <a href="mystore.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 transition shadow-sm">
+                <i class="fa-solid fa-arrow-left"></i> Explore all products
+            </a>
+            <span id="product-category-tag" class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-800 px-2.5 py-1 rounded-md">Loading...</span>
+        </div>
+
+        <!-- Product Card Container -->
+        <div id="product-detail-container" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
+            <div class="text-center py-16 text-gray-400 text-xs">Loading product details...</div>
+        </div>
+
+    </main>
+
+    <!-- Firebase SDK Imports & Detail Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
+
+        let currentProduct = null;
+        let productId = null;
+        let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
+
+        // Parse product ID from URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        productId = urlParams.get('id');
+
+        function updateCartCount() {
+            const totalCount = cart.reduce((sum, item) => sum + (item.qtyCount || 1), 0);
+            const badge = document.getElementById('cart-badge');
+            if (badge) {
+                badge.textContent = totalCount;
+                if (totalCount > 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        // Fetch product details from Firebase
+        async function loadProductDetails() {
+            const container = document.getElementById('product-detail-container');
+            const categoryTag = document.getElementById('product-category-tag');
+
+            if (!productId) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mx-auto mb-2.5 text-base">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 class="font-bold text-xs text-gray-900">Product Not Found</h3>
+                        <p class="text-[11px] text-gray-500 mt-0.5 mb-4">No product ID was provided in the link.</p>
+                        <a href="mystore.html" class="bg-slate-900 text-white font-bold text-xs px-4 py-2 rounded-xl">Return to Store</a>
+                    </div>
+                `;
+                categoryTag.textContent = "Error";
+                return;
+            }
+
+            try {
+                const productRef = ref(db, 'inventory/' + productId);
+                const snapshot = await get(productRef);
+
+                if (snapshot.exists()) {
+                    currentProduct = { firebaseKey: productId, ...snapshot.val() };
+                    renderProductView(currentProduct);
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-2.5 text-base">
+                                <i class="fa-solid fa-box-open"></i>
+                            </div>
+                            <h3 class="font-bold text-xs text-gray-900">Product Does Not Exist</h3>
+                            <p class="text-[11px] text-gray-500 mt-0.5 mb-4">This item may have been removed from the catalog.</p>
+                            <a href="mystore.html" class="bg-slate-900 text-white font-bold text-xs px-4 py-2 rounded-xl">Return to Store</a>
+                        </div>
+                    `;
+                    categoryTag.textContent = "Unavailable";
+                }
+            } catch (error) {
+                console.error("Error fetching product:", error);
+                container.innerHTML = `<div class="text-center py-12 text-rose-500 text-xs font-semibold">Failed to load product details. Please check your connection.</div>`;
+            }
+        }
+
+        function renderProductView(product) {
+            const container = document.getElementById('product-detail-container');
+            const categoryTag = document.getElementById('product-category-tag');
+
+            categoryTag.textContent = product.category || "Uncategorized";
+
+            const cleanPrice = typeof product.price === 'string' ? product.price.replace('₹', '') : product.price;
+            const isInStock = product.inStock !== false;
+            const bigDesc = product.descBig || product.description || product.desc || product.descSmall || 'No detailed description available for this authentic organic food item.';
+            const smallDesc = product.descSmall || product.smallDesc || '';
+
+            const cartItem = cart.find(item => item.firebaseKey === productId);
+            const count = cartItem ? (cartItem.qtyCount || 1) : 0;
+
+            let actionHTML = '';
+            if (!isInStock) {
+                actionHTML = `
+                    <div class="w-full bg-slate-900 text-white text-xs font-black py-3 px-4 rounded-xl text-center uppercase tracking-wider shadow-sm">
+                        Out of Stock
+                    </div>
+                `;
+            } else if (count > 0) {
+                actionHTML = `
+                    <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded-xl text-sm font-bold overflow-hidden shadow-md">
+                        <button onclick="window.updateQuantity(-1)" class="w-14 py-3 bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <span class="px-4 font-black text-slate-950 text-base">${count} in cart</span>
+                        <button onclick="window.updateQuantity(1)" class="w-14 py-3 bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                actionHTML = `
+                    <button onclick="window.addToCart()" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 text-sm font-black py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                    </button>
+                `;
+            }
+
+            container.innerHTML = `
+                <!-- Scaled Up Image Preview -->
+                <div class="relative bg-slate-100 rounded-xl overflow-hiden h-64 sm:h-80 border border-gray-100 flex items-center justify-center shadow-inner">
+                    <img src="${product.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${product.name}" class="w-full h-full object-contain p-2">
+                    <span class="absolute top-3 left-3 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-xs px-2.5 py-1 rounded-lg shadow">
+                        ${isInStock ? '<i class="fa-solid fa-star mr-1"></i> In Stock' : 'Out of Stock'}
+                    </span>
+                </div>
+
+                <!-- Product Title & Quantity/Size Info -->
+                <div class="space-y-1.5 border-b border-gray-100 pb-4">
+                    <h1 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">${product.name}</h1>
+                    ${smallDesc ? `<p class="text-xs sm:text-sm font-medium text-amber-700">${smallDesc}</p>` : ''}
+                    
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="text-2xl sm:text-3xl font-black text-slate-900">₹${cleanPrice}</div>
+                        <div class="text-xs font-bold text-slate-600 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
+                            <i class="fa-solid fa-weight-scale text-amber-600 mr-1"></i> Size/Qty: <span class="text-slate-900">${product.qty || 'Standard'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Big Detailed Description Section -->
+                <div class="space-y-2 pt-1">
+                    <h2 class="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-amber-500"></i> Product Description
+                    </h2>
+                    <div class="text-xs sm:text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-line">${bigDesc}</div>
+                </div>
+
+                <!-- Action Bar Container -->
+                <div id="action-bar-wrapper" class="pt-2">
+                    ${actionHTML}
+                </div>
+
+                <!-- Bottom Explore Link -->
+                <div class="pt-4 text-center border-t border-gray-100">
+                    <a href="mystore.html" class="text-xs font-bold text-slate-600 hover:text-amber-600 transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-store"></i> Explore all products in store
+                    </a>
+                </div>
+            `;
+        }
+
+        window.addToCart = function() {
+            if (!currentProduct || currentProduct.inStock === false) return;
+
+            const existing = cart.find(item => item.firebaseKey === productId);
+            if (existing) {
+                existing.qtyCount = (existing.qtyCount || 1) + 1;
+            } else {
+                cart.push({ ...currentProduct, qtyCount: 1 });
+            }
+
+            localStorage.setItem("ymca_cart", JSON.stringify(cart));
+            updateCartCount();
+            renderProductView(currentProduct);
+        };
+
+        window.updateQuantity = function(change) {
+            const existing = cart.find(item => item.firebaseKey === productId);
+            if (!existing) return;
+
+            existing.qtyCount = (existing.qtyCount || 1) + change;
+            if (existing.qtyCount <= 0) {
+                cart = cart.filter(item => item.firebaseKey !== productId);
+            }
+
+            localStorage.setItem("ymca_cart", JSON.stringify(cart));
+            updateCartCount();
+            renderProductView(currentProduct);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            loadProductDetails();
+        });
+    </script>
+</body>
+</html>
