@@ -125,7 +125,7 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Extracts File ID from Google Drive URL and builds direct endpoints
+        // Extracts File ID from Google Drive URL
         function getDriveFileId(url) {
             if (!url) return null;
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -219,7 +219,7 @@
             }
         };
 
-        // Render Preview Slider with Bulletproof Google Drive Embed Player & Mute Animation
+        // Render Preview Slider with Bulletproof Google Drive Video Playback & Animated Mute/Unmute Badge
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -242,15 +242,53 @@
 
                 if (ad.type === 'video') {
                     if (fileId) {
-                        // Embedded preview URL guarantees successful playback bypassing Google Drive direct CORS restrictions
-                        const iframe = document.createElement('iframe');
-                        iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-                        iframe.className = "w-full h-full border-0 pointer-events-auto select-none";
-                        iframe.allow = "autoplay; encrypted-media";
-                        iframe.allowFullscreen = true;
-                        slideDiv.appendChild(iframe);
+                        // Standard HTML5 video element using direct streaming export endpoint for smooth loop playback
+                        const videoEl = document.createElement('video');
+                        videoEl.src = `https://docs.google.com/uc?export=download&id=${fileId}`;
+                        videoEl.autoplay = true;
+                        videoEl.muted = true; // Starts muted by default
+                        videoEl.playsInline = true;
+                        videoEl.loop = true; // Always plays in loop
+                        videoEl.className = "w-full h-full object-contain pointer-events-none";
+
+                        // Fallback error catcher if link permissions aren't set to public
+                        videoEl.onerror = function() {
+                            slideDiv.innerHTML = `<div class="text-rose-400 text-xs text-center p-4">Unable to load video. Ensure link sharing is set to <b>"Anyone with the link can view"</b>.</div>`;
+                        };
+
+                        // High-budget industry standard animated speaker badge container
+                        const badge = document.createElement('div');
+                        badge.className = "mute-badge absolute inset-0 flex items-center justify-center pointer-events-none";
+                        badge.innerHTML = `
+                            <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-2xl border border-white/20 transform scale-100 transition-all duration-200">
+                                <i class="fa-solid fa-volume-xmark text-base"></i>
+                            </div>
+                        `;
+
+                        // Tap event: Toggle mute and morph speaker icon between crossed (muted) and waves (unmuted)
+                        slideDiv.addEventListener('click', () => {
+                            videoEl.muted = !videoEl.muted;
+                            const iconContainer = badge.firstElementChild;
+                            
+                            if (videoEl.muted) {
+                                // Muted: Show speaker with strike/slash line
+                                iconContainer.innerHTML = `<i class="fa-solid fa-volume-xmark text-base"></i>`;
+                            } else {
+                                // Unmuted: Show active speaker with high-budget sound waves
+                                iconContainer.innerHTML = `<i class="fa-solid fa-volume-high text-base"></i>`;
+                            }
+                            
+                            // Industry-standard smooth micro-animation pop on tap
+                            iconContainer.style.transform = 'scale(1.25)';
+                            setTimeout(() => {
+                                iconContainer.style.transform = 'scale(1)';
+                            }, 150);
+                        });
+
+                        slideDiv.appendChild(videoEl);
+                        slideDiv.appendChild(badge);
                     } else {
-                        slideDiv.innerHTML = `<div class="text-rose-400 text-xs text-center p-4">Invalid Google Drive video link format.</div>`;
+                        slideDiv.innerHTML = `<div class="text-rose-400 text-xs text-center p-4">Invalid Google Drive link format.</div>`;
                     }
                 } else {
                     const imgUrl = fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : ad.link;
