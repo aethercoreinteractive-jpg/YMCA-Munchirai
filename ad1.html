@@ -51,7 +51,6 @@
             <!-- Carousel Viewport -->
             <div class="relative w-full h-48 sm:h-64 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800">
                 <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
-                    <!-- Dynamic preview slides injected here -->
                     <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
                         Loading ads from Firebase...
                     </div>
@@ -73,7 +72,7 @@
                         <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                         Manage Ad Links
                     </h2>
-                    <p class="text-[11px] text-gray-500 mt-0.5">Paste Google Drive image/video sharing links below.</p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">Paste Google Drive image or video public share links below.</p>
                 </div>
                 <button onclick="addNewAdRow()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow flex items-center gap-1.5">
                     <i class="fa-solid fa-plus text-amber-400"></i> Add Ad
@@ -121,20 +120,26 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Helper to convert Google Drive sharing links to direct embed viewable links if needed
-        function formatDriveUrl(url) {
+        // Robust Google Drive link formatter for Images & Videos
+        function formatDriveUrl(url, type) {
             if (!url) return '';
-            // If it's a standard google drive view link, transform to direct file export/preview
-            if (url.includes('drive.google.com') && url.includes('/file/d/')) {
-                const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            
+            // Extract Google Drive File ID if present
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                const fileId = match[1];
+                if (type === 'video') {
+                    // Direct stream URL for Google Drive videos
+                    return `https://docs.google.com/uc?export=download&id=${fileId}`;
+                } else {
+                    // Direct image thumbnail render
+                    return `https://lh3.googleusercontent.com/d/${fileId}`;
                 }
             }
             return url;
         }
 
-        // Fetch ads strictly from 'ads' node in Firebase (Safe from disturbing other nodes)
+        // Fetch ads strictly from 'ads' node in Firebase (Completely isolated from inventory/categories)
         const adsRef = ref(db, 'ads');
         onValue(adsRef, (snapshot) => {
             const data = snapshot.val();
@@ -152,7 +157,6 @@
             setupAutoSlide();
         });
 
-        // Render input editing rows
         window.renderAdInputs = function() {
             const container = document.getElementById('ad-inputs-container');
             let html = '';
@@ -171,7 +175,7 @@
                                 <option value="video" ${ad.type === 'video' ? 'selected' : ''}>Video</option>
                             </select>
                         </div>
-                        <input type="text" value="${ad.link || ''}" oninput="updateAdLink(${index}, this.value)" placeholder="Paste Google Drive image/video link here..." class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
+                        <input type="text" value="${ad.link || ''}" oninput="updateAdLink(${index}, this.value)" placeholder="Paste Google Drive public link here..." class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
                         <button onclick="removeAdRow(${index})" class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg text-xs shrink-0 self-end sm:self-center" title="Remove Ad">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
@@ -198,7 +202,6 @@
 
         window.updateAdLink = function(index, val) {
             currentAdsData[index].link = val;
-            // Live preview update on typing
             renderPreviewSlider();
         };
 
@@ -207,10 +210,9 @@
             renderPreviewSlider();
         };
 
-        // Save safely to Firebase (Only updates 'ads' key, leaving inventory/categories untouched)
+        // Save safely to Firebase (Only updates 'ads' key)
         window.saveAdsToFirebase = async function() {
             try {
-                // Filter out empty rows or keep them clean
                 await set(ref(db, 'ads'), currentAdsData);
                 const status = document.getElementById('save-status');
                 status.classList.remove('hidden');
@@ -221,7 +223,7 @@
             }
         };
 
-        // Render Preview Carousel Slider
+        // Render Preview Carousel Slider with active video playback support
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -238,11 +240,11 @@
             let dotsHtml = '';
 
             validAds.forEach((ad, idx) => {
-                const formattedUrl = formatDriveUrl(ad.link);
+                const formattedUrl = formatDriveUrl(ad.link, ad.type);
                 if (ad.type === 'video') {
                     slidesHtml += `
                         <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-black">
-                            <video src="${formattedUrl}" controls class="w-full h-full object-contain"></video>
+                            <video src="${formattedUrl}" autoplay muted playsinline loop class="w-full h-full object-contain"></video>
                         </div>
                     `;
                 } else {
@@ -260,7 +262,7 @@
             indicators.innerHTML = dotsHtml;
         };
 
-        // Professional Industry-Standard 4-Second Auto-Slide with Manual Swipe Support
+        // 4-Second Auto-Slide with Manual Swipe Support
         function setupAutoSlide() {
             if (autoSlideInterval) clearInterval(autoSlideInterval);
             
@@ -289,7 +291,6 @@
             });
         }
 
-        // Track manual finger swipe to update indicator dots accordingly
         document.addEventListener('DOMContentLoaded', () => {
             const slider = document.getElementById('ad-preview-slider');
             if (slider) {
