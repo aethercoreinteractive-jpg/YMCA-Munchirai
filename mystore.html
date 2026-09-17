@@ -97,6 +97,23 @@
                 </div>
             </div>
 
+            <!-- RECOMMENDED FOR YOU SECTION (2x2 grid, 4 random products on each refresh) -->
+            <div id="recommended-section" class="mb-6 hidden">
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                        <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-0.5"></i> Recommended For You
+                        </h2>
+                        <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Curated for you</span>
+                    </div>
+                    <!-- 2x2 Grid Container (4 Random Products) -->
+                    <div id="recommended-grid" class="grid grid-cols-2 gap-2.5 pt-0.5">
+                        <!-- Injected via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Products Container Grouped by Category -->
             <div id="store-categories-container" class="space-y-6">
                 <div class="text-center py-16 text-gray-400 text-xs">Loading products...</div>
@@ -231,10 +248,13 @@
             const bestsellersSection = document.getElementById('bestsellers-section');
             const bestsellersSlider = document.getElementById('bestsellers-slider');
             const bestsellersBadgeCount = document.getElementById('bestsellers-badge-count');
+            const recommendedSection = document.getElementById('recommended-section');
+            const recommendedGrid = document.getElementById('recommended-grid');
 
             if (!productsToRender || productsToRender.length === 0) {
                 container.innerHTML = "";
                 bestsellersSection.classList.add('hidden');
+                recommendedSection.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 return;
             }
@@ -287,6 +307,48 @@
                 bestsellersSection.classList.add('hidden');
             }
 
+            // Render "Recommended For You" Section (4 Random Products in 2x2 grid)
+            if (productsToRender.length > 0) {
+                recommendedSection.classList.remove('hidden');
+                
+                // Shuffle copy of products to pick 4 random ones
+                const shuffled = [...productsToRender].sort(() => 0.5 - Math.random());
+                const recommendedList = shuffled.slice(0, 4);
+
+                let recHtml = '';
+                recommendedList.forEach(item => {
+                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    recHtml += `
+                        <div onclick="openProductPageView('${item.firebaseKey}')" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                            <div>
+                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'For You' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">
+                                    ${actionButtonHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                recommendedGrid.innerHTML = recHtml;
+            } else {
+                recommendedSection.classList.add('hidden');
+            }
+
             // Render Standard Category Groups (Sorted: In-stock first, Out-of-stock last)
             let categoryGroups = {};
             categoriesCache.forEach(cat => {
@@ -332,7 +394,7 @@
                             <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
-                         <!-- Slider Row -->
+                       <!-- Slider Row -->
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
