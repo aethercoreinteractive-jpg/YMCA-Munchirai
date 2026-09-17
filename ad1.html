@@ -84,12 +84,12 @@
                     <p class="text-[10px] text-slate-500 mt-0.5">Supports MP4, MOV, PNG, JPG, WEBP</p>
                 </div>
                 
-                <label class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow transition">
+                <label id="upload-btn-label" class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow transition">
                     <i class="fa-solid fa-plus text-amber-400"></i> Choose File & Upload
                     <input type="file" id="ad-file-input" accept="image/*,video/*" class="hidden" onchange="handleFileUpload(event)">
                 </label>
 
-                <!-- Live Upload Percentage Progress Bar -->
+                <!-- Persistent Upload Percentage Progress Bar -->
                 <div id="upload-progress-container" class="space-y-1.5 hidden max-w-xs mx-auto pt-2">
                     <div class="flex justify-between text-[11px] font-bold text-slate-700">
                         <span id="upload-status-text">Uploading file...</span>
@@ -155,7 +155,7 @@
             setupAutoSlide();
         });
 
-        // Handle file upload with live percentage tracking
+        // Handle file upload with continuous percentage tracking until fully uploaded
         window.handleFileUpload = async function(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -164,13 +164,18 @@
             const progressBar = document.getElementById('upload-progress-bar');
             const percentageText = document.getElementById('upload-percentage');
             const statusText = document.getElementById('upload-status-text');
+            const uploadBtnLabel = document.getElementById('upload-btn-label');
 
+            // Lock controls & show progress container
             progressContainer.classList.remove('hidden');
+            uploadBtnLabel.style.opacity = '0.5';
+            uploadBtnLabel.style.pointerEvents = 'none';
             progressBar.style.width = '0%';
             percentageText.innerText = '0%';
+            statusText.innerText = 'Uploading file...';
 
             const fileType = file.type.startsWith('video') ? 'video' : 'image';
-            const uniqueFileName = `ads/${Date.now]_${file.name}`;
+            const uniqueFileName = `ads/${Date.now()}_${file.name}`;
             const fileReference = storageRef(storage, uniqueFileName);
 
             const uploadTask = uploadBytesResumable(fileReference, file);
@@ -180,31 +185,39 @@
                     const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
                     progressBar.style.width = progress + '%';
                     percentageText.innerText = progress + '%';
+                    
                     if (progress === 100) {
-                        statusText.innerText = 'Processing...';
+                        statusText.innerText = 'Finalizing upload...';
                     }
                 }, 
                 (error) => {
                     console.error("Upload error:", error);
                     alert("Upload failed. Please check your connection.");
                     progressContainer.classList.add('hidden');
+                    uploadBtnLabel.style.opacity = '1';
+                    uploadBtnLabel.style.pointerEvents = 'auto';
                     event.target.value = '';
                 }, 
                 async () => {
                     try {
+                        statusText.innerText = 'Saving changes...';
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         currentAds.push({ link: downloadURL, type: fileType });
                         
                         // Updates ONLY the 'ads' node in Realtime Database safely
                         await set(dbRef(db, 'ads'), currentAds);
 
+                        // Complete: hide progress bar and restore upload button
                         progressContainer.classList.add('hidden');
-                        statusText.innerText = 'Uploading file...';
+                        uploadBtnLabel.style.opacity = '1';
+                        uploadBtnLabel.style.pointerEvents = 'auto';
                         event.target.value = '';
                     } catch (err) {
                         console.error("Database save error:", err);
                         alert("Failed to save ad data.");
                         progressContainer.classList.add('hidden');
+                        uploadBtnLabel.style.opacity = '1';
+                        uploadBtnLabel.style.pointerEvents = 'auto';
                     }
                 }
             );
