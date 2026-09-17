@@ -268,7 +268,7 @@
             listContainer.innerHTML = html;
         }
 
-        window.selectCategory = function(catName) {
+                window.selectCategory = function(catName) {
             selectedCategoryFilter = catName;
             
             // Re-render the category drawer list to highlight the newly selected category tab
@@ -277,11 +277,11 @@
             // Re-render catalog view with the selected category products at the top
             renderCatalog(liveInventory);
             
-            // Smoothly scroll to the top to show the filtered category products section
-            const searchSection = document.getElementById('search-results-section');
-            if (searchSection) {
-                searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            // Smoothly scroll to the absolute top of the page (offsetting the fixed header)
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         };
 
         // Helper to generate Add to Cart / Stepper / Out of Stock actions
