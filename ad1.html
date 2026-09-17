@@ -15,9 +15,9 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* High-budget Instagram style transition for mute badge */
+        /* High-budget silky smooth transition for the mute badge */
         .mute-badge {
-            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
     </style>
 </head>
@@ -125,7 +125,7 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Formats Google Drive sharing link into direct downloadable/streamable video format
+        // Formats Google Drive sharing link into direct streamable video format
         function formatGoogleDriveUrl(url, type) {
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -224,7 +224,7 @@
             }
         };
 
-        // Render Preview Carousel Slider with Professional Instagram Video Experience
+        // Render Preview Carousel Slider with Looping Video & High-Budget Speaker Animation
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -249,35 +249,36 @@
                     const videoEl = document.createElement('video');
                     videoEl.src = formattedUrl;
                     videoEl.autoplay = true;
-                    videoEl.muted = true; // Default muted like Instagram
+                    videoEl.muted = true; // Default muted
                     videoEl.playsInline = true;
-                    videoEl.loop = true;
-                    // No controls attribute - completely hidden!
+                    videoEl.loop = true; // Ensures continuous looping
                     videoEl.className = "w-full h-full object-contain pointer-events-none";
 
-                    // Create Instagram style center mute badge
+                    // High-end animated speaker badge overlay
                     const badge = document.createElement('div');
-                    badge.className = "mute-badge absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none opacity-100";
+                    badge.className = "mute-badge absolute inset-0 flex items-center justify-center pointer-events-none opacity-100 scale-100";
                     badge.innerHTML = `
-                        <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-lg border border-white/20">
+                        <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-xl border border-white/20">
                             <i class="fa-solid fa-volume-xmark text-base"></i>
                         </div>
                     `;
 
-                    // Handle tap to toggle mute state
+                    // Handle tap to toggle mute with smooth fluid animation
                     slideDiv.addEventListener('click', () => {
                         videoEl.muted = !videoEl.muted;
                         if (videoEl.muted) {
+                            // Show crossed speaker when muted
                             badge.style.opacity = '1';
                             badge.style.transform = 'scale(1)';
                             badge.innerHTML = `
-                                <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-lg border border-white/20">
+                                <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white shadow-xl border border-white/20">
                                     <i class="fa-solid fa-volume-xmark text-base"></i>
                                 </div>
                             `;
                         } else {
+                            // Hide badge completely when unmuted
                             badge.style.opacity = '0';
-                            badge.style.transform = 'scale(0.8)';
+                            badge.style.transform = 'scale(0.85)';
                         }
                     });
 
