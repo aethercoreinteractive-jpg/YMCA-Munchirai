@@ -65,12 +65,26 @@
         <div id="catalog-main-wrapper">
             <div class="mb-4 sm:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3 border-b pb-3 border-gray-200">
                 <div>
-                    <span class="text-[9px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Official Storefront</span>
-                    <h1 class="text-lg sm:text-3xl font-extrabold tracking-tight text-gray-900 mt-1">MY Food Product Catalog</h1>
-                    <p class="text-[11px] text-gray-500">My Food Products is now open in Puthukadai! Get all your favorite authentic, organic food products in one place.</p>
+                    <h1 class="text-lg sm:text-3xl font-extrabold tracking-tight text-gray-900">My Store Healthy Living Essentials</h1>
                 </div>
                 <div class="w-full md:w-72">
                     <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
+                </div>
+            </div>
+
+            <!-- SEARCH RESULTS SECTION (Pushed to top when searching) -->
+            <div id="search-results-section" class="mb-6 hidden">
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                        <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                            <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results
+                        </h2>
+                    </div>
+                    <!-- Search Results Grid -->
+                    <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
+                        <!-- Injected via JavaScript -->
+                    </div>
                 </div>
             </div>
 
@@ -82,7 +96,6 @@
                             <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                             <i class="fa-solid fa-star text-amber-500 mr-0.5"></i> Best Sellers
                         </h2>
-                        <span id="bestsellers-badge-count" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">0 items</span>
                     </div>
                     <!-- Best Sellers Slider Row -->
                     <div id="bestsellers-slider" class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
@@ -99,7 +112,6 @@
                             <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                             <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-0.5"></i> Recommended For You
                         </h2>
-                        <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Curated for you</span>
                     </div>
                     <!-- 2x2 Grid Container (4 Random Products) -->
                     <div id="recommended-grid" class="grid grid-cols-2 gap-2.5 pt-0.5">
@@ -244,7 +256,6 @@
             const emptyState = document.getElementById('empty-state');
             const bestsellersSection = document.getElementById('bestsellers-section');
             const bestsellersSlider = document.getElementById('bestsellers-slider');
-            const bestsellersBadgeCount = document.getElementById('bestsellers-badge-count');
             const recommendedSection = document.getElementById('recommended-section');
             const recommendedGrid = document.getElementById('recommended-grid');
 
@@ -268,7 +279,6 @@
 
             if (bestSellersList.length > 0) {
                 bestsellersSection.classList.remove('hidden');
-                bestsellersBadgeCount.textContent = `${bestSellersList.length} item${bestSellersList.length > 1 ? 's' : ''}`;
                 
                 let bsHtml = '';
                 bestSellersList.forEach(item => {
@@ -304,7 +314,7 @@
                 bestsellersSection.classList.add('hidden');
             }
 
-            // Render "Recommended For You" Section (4 Random Products in 2x2 grid)
+   // Render "Recommended For You" Section (4 Random Products in 2x2 grid)
             if (productsToRender.length > 0) {
                 recommendedSection.classList.remove('hidden');
                 
@@ -438,29 +448,18 @@
                 // Check if this category is the flour section (matches 'flour' case-insensitively)
                 if (catName.toLowerCase().includes('flour') && !flourSectionRendered) {
                     flourSectionRendered = true;
-                    // Inject the exact Ad Preview Screen section right below the flour section
+                    // Inject the Ad Preview Viewport directly with minimal wrapper padding/margin
                     htmlOutput += `
-                        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-3 my-6">
-                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-                                <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                                    Live Preview Screen
-                                </h2>
-                            </div>
-
-                            <!-- Preview Viewport Frame -->
-                            <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group">
-                                <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
-                                    <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
-                                        Loading ads...
-                                    </div>
+                        <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
+                            <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
+                                <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
+                                    Loading ads...
                                 </div>
-
-                                <!-- Slide Indicators (Dots) -->
-                                <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
                             </div>
-                            <p class="text-[11px] text-gray-500 text-center">Tap video ads to toggle sound. Swipe horizontally to browse ads.</p>
-                        </section>
+
+                            <!-- Slide Indicators (Dots) -->
+                            <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
+                        </div>
                     `;
                 }
             });
@@ -579,14 +578,64 @@
         }
 
         window.filterProducts = function() {
-            const query = document.getElementById('search-bar').value.toLowerCase();
+            const query = document.getElementById('search-bar').value.toLowerCase().trim();
+            const searchResultsSection = document.getElementById('search-results-section');
+            const searchResultsGrid = document.getElementById('search-results-grid');
+
+            if (!query) {
+                searchResultsSection.classList.add('hidden');
+                searchResultsGrid.innerHTML = '';
+                renderCatalog(liveInventory);
+                return;
+            }
+
             const filtered = liveInventory.filter(item => 
                 item.name.toLowerCase().includes(query) || 
                 (item.descSmall && item.descSmall.toLowerCase().includes(query)) ||
                 (item.descBig && item.descBig.toLowerCase().includes(query)) ||
                 (item.category && item.category.toLowerCase().includes(query))
             );
-            renderCatalog(filtered);
+
+            // Show Search Results Section at the top
+            searchResultsSection.classList.remove('hidden');
+            
+            if (filtered.length === 0) {
+                searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No matching products found.</div>`;
+            } else {
+                let resHtml = '';
+                filtered.forEach(item => {
+                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    resHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                            <div>
+                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Result' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">
+                                    ${actionButtonHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                searchResultsGrid.innerHTML = resHtml;
+            }
+
+            // Also update the rest of the catalog view
+            renderCatalog(liveInventory);
         };
 
         window.addToCart = function(firebaseKey) {
