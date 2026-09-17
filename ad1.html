@@ -139,7 +139,7 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Fetch ads strictly from the 'ads' node, keeping other database properties completely untouched
+        // Fetch ads strictly from the 'ads' node without modifying other nodes
         const adsReference = dbRef(db, 'ads');
         onValue(adsReference, (snapshot) => {
             const data = snapshot.val();
@@ -155,7 +155,7 @@
             setupAutoSlide();
         });
 
-        // Handle file upload with continuous percentage tracking until fully uploaded
+        // Handle file upload with active progress tracking
         window.handleFileUpload = async function(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -166,7 +166,6 @@
             const statusText = document.getElementById('upload-status-text');
             const uploadBtnLabel = document.getElementById('upload-btn-label');
 
-            // Lock controls & show progress container
             progressContainer.classList.remove('hidden');
             uploadBtnLabel.style.opacity = '0.5';
             uploadBtnLabel.style.pointerEvents = 'none';
@@ -192,7 +191,7 @@
                 }, 
                 (error) => {
                     console.error("Upload error:", error);
-                    alert("Upload failed. Please check your connection.");
+                    alert("Upload failed. Please check your connection or storage rules.");
                     progressContainer.classList.add('hidden');
                     uploadBtnLabel.style.opacity = '1';
                     uploadBtnLabel.style.pointerEvents = 'auto';
@@ -204,10 +203,9 @@
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         currentAds.push({ link: downloadURL, type: fileType });
                         
-                        // Updates ONLY the 'ads' node in Realtime Database safely
+                        // Updates ONLY the 'ads' node safely
                         await set(dbRef(db, 'ads'), currentAds);
 
-                        // Complete: hide progress bar and restore upload button
                         progressContainer.classList.add('hidden');
                         uploadBtnLabel.style.opacity = '1';
                         uploadBtnLabel.style.pointerEvents = 'auto';
@@ -285,7 +283,6 @@
                     videoEl.loop = true;
                     videoEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
 
-                    // Professional speaker-striked default badge
                     const badge = document.createElement('div');
                     badge.className = "absolute inset-0 flex items-center justify-center pointer-events-none z-10 speaker-badge-container";
                     badge.innerHTML = `
@@ -294,7 +291,6 @@
                         </div>
                     `;
 
-                    // Tap to unmute / mute with high-budget spring bounce animation
                     slideDiv.addEventListener('click', () => {
                         videoEl.muted = !videoEl.muted;
                         const iconBox = badge.firstElementChild;
