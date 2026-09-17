@@ -57,7 +57,7 @@
                 </div>
 
                 <!-- Slide Indicators / Dots -->
-                <div id="ad-indicators" class="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1.5 z-10">
+                <div id="ad-indicators" class="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1.5 z-10 pointer-events-none">
                     <!-- Dots injected via JS -->
                 </div>
             </div>
@@ -120,24 +120,24 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Converts Google Drive share links into direct viewable image/video stream links
+        // Converts Google Drive share links correctly for embedded players and image view links
         function formatGoogleDriveUrl(url, type) {
             if (!url) return '';
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
             if (match && match[1]) {
                 const fileId = match[1];
                 if (type === 'video') {
-                    // Direct stream URL for Google Drive videos
-                    return `https://docs.google.com/uc?export=download&id=${fileId}`;
+                    // Drive embedded preview URL layout guarantees successful playback without CORS blocks
+                    return `https://drive.google.com/file/d/${fileId}/preview`;
                 } else {
-                    // Direct image link
+                    // Direct image view link
                     return `https://lh3.googleusercontent.com/d/${fileId}`;
                 }
             }
             return url;
         }
 
-        // Fetch ads strictly from the 'ads' node in Firebase (Ensures zero conflict with other datas)
+        // Fetch ads strictly from the 'ads' node in Firebase (Ensures zero conflict with store data)
         const adsRef = ref(db, 'ads');
         onValue(adsRef, (snapshot) => {
             const data = snapshot.val();
@@ -221,7 +221,7 @@
             }
         };
 
-        // Render Preview Carousel Slider with active Google Drive video playback support
+        // Render Preview Carousel Slider with native Google Drive Iframe player for reliable video playback
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -243,15 +243,12 @@
                 slideDiv.className = "w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-black relative";
 
                 if (ad.type === 'video') {
-                    const videoEl = document.createElement('video');
-                    videoEl.src = formattedUrl;
-                    videoEl.autoplay = true;
-                    videoEl.muted = true;
-                    videoEl.playsInline = true;
-                    videoEl.loop = true;
-                    videoEl.controls = true;
-                    videoEl.className = "w-full h-full object-contain";
-                    slideDiv.appendChild(videoEl);
+                    const iframeEl = document.createElement('iframe');
+                    iframeEl.src = formattedUrl;
+                    iframeEl.className = "w-full h-full border-0 pointer-events-auto";
+                    iframeEl.allow = "autoplay; encrypted-media";
+                    iframeEl.allowFullscreen = true;
+                    slideDiv.appendChild(iframeEl);
                 } else {
                     const imgEl = document.createElement('img');
                     imgEl.src = formattedUrl;
