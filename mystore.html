@@ -45,7 +45,7 @@
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
                 <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Store
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Munchirai
                 </a>
             </div>
 
@@ -87,7 +87,7 @@
         <div id="catalog-main-wrapper">
             <div class="mb-4 sm:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3 border-b pb-3 border-gray-200">
                 <div>
-                    <h1 class="text-lg sm:text-3xl font-extrabold tracking-tight text-gray-900">Healthy Living Essentials</h1>
+                    <h1 class="text-lg sm:text-3xl font-extrabold tracking-tight text-gray-900">My Store Healthy Living Essentials</h1>
                 </div>
                 <div class="w-full md:w-72">
                     <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
@@ -200,6 +200,7 @@
         let savedBestSellers = {};
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let selectedCategoryFilter = null;
+        let specialSectionCategories = []; // Track categories designated to render below ad sections
 
         // Ad Management Variables
         let currentAds = [];
@@ -249,7 +250,6 @@
                 if (Array.isArray(data)) {
                     currentAds = data.filter(ad => ad && ad.link);
                 } else if (typeof data === 'object') {
-                    // Check if it's a single ad object with a link property directly
                     if (data.link) {
                         currentAds = [data];
                     } else {
@@ -382,7 +382,7 @@
 
             emptyState.classList.add('hidden');
 
-            // Handle Chosen Category View (Appears on top when a category is selected, without show-all button)
+            // Handle Chosen Category View (Appears on top when a category is selected)
             if (selectedCategoryFilter !== null) {
                 chosenCategorySection.classList.remove('hidden');
                 chosenCategoryTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
@@ -518,7 +518,7 @@
                 recommendedSection.classList.add('hidden');
             }
 
-            // Render Standard Category Groups
+            // Standard Category Groups preparation
             let categoryGroups = {};
             categoriesCache.forEach(cat => {
                 categoryGroups[cat.name] = [];
@@ -546,24 +546,36 @@
                 displayCategories.push("Uncategorized");
             }
 
-            let htmlOutput = '';
-            let flourSectionRendered = false;
+            // Identify categories for standard display vs the 2 special sections below the ad
+            let standardCategories = [];
+            specialSectionCategories = [];
 
             displayCategories.forEach(catName => {
-                const groupItems = categoryGroups[catName] || [];
-                if (groupItems.length === 0) return;
+                if ((categoryGroups[catName] || []).length > 0) {
+                    if (specialSectionCategories.length < 2) {
+                        specialSectionCategories.push(catName);
+                    } else {
+                        standardCategories.push(catName);
+                    }
+                }
+            });
 
-                htmlOutput += `
+            let htmlOutput = '';
+            let adAndSpecialRendered = false;
+
+            // Helper function to generate standard horizontal slider rows
+            const generateSliderRowHTML = (catName) => {
+                const groupItems = categoryGroups[catName] || [];
+                if (groupItems.length === 0) return '';
+
+                let rowHtml = `
                     <div class="space-y-2.5">
-                        <!-- Category Section Row Header -->
                         <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
                             <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                                 ${catName}
                             </h2>
                         </div>
-
-                       <!-- Slider Row -->
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
@@ -573,30 +585,21 @@
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
-                    htmlOutput += `
+                    rowHtml += `
                         <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                             <div>
-                                <!-- Micro Image Frame -->
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
                                     <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Stock' : 'Out'}</span>
                                 </div>
-
-                                <!-- Full Title without truncation -->
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
-
-                                <!-- Description Fallback support -->
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
                             </div>
-
-                              <!-- Price on left, Quantity on right -->
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
                                     <span class="font-black text-slate-900">₹${cleanPrice}</span>
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
-
-                               <!-- Dynamic Cart Action Control -->
                                 <div id="action-container-${item.firebaseKey}">
                                     ${actionButtonHtml}
                                 </div>
@@ -605,28 +608,86 @@
                     `;
                 });
 
-                htmlOutput += `</div></div>`;
- // Check if this category is the flour section (matches 'flour' case-insensitively)
-                if (catName.toLowerCase().includes('flour') && !flourSectionRendered) {
-                    flourSectionRendered = true;
-                    // Inject the Ad Preview Viewport directly
-                    htmlOutput += `
-                        <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
-                            <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
-                                <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
-                                    Loading ads...
+                rowHtml += `</div></div>`;
+                return rowHtml;
+            };
+
+                // Helper function to generate the 8-card dark section with 2 rows of 4 and a View All button nearby
+            const generateSpecialDarkSectionHTML = (catName) => {
+                const groupItems = (categoryGroups[catName] || []).slice(0, 8);
+                if (groupItems.length === 0) return '';
+
+                let darkHtml = `
+                    <div class="bg-slate-900 rounded-xl p-3 sm:p-4 shadow-xl border border-slate-800 my-4 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <h2 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                ${catName}
+                            </h2>
+                            <button onclick="window.selectCategory('${catName}')" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
+                                <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2">
+                `;
+
+                groupItems.forEach(item => {
+                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    darkHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group">
+                            <div>
+                                <div class="relative bg-slate-900 rounded-md overflow-hidden h-16 mb-1 border border-slate-800 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white'} font-bold text-[6px] px-1 py-0.2 rounded shadow">${isInStock ? 'Top' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-white leading-tight mb-0.5 truncate" style="font-size: 8px;">${item.name}</h3>
+                                <p class="text-slate-400 font-light leading-tight mb-1 truncate" style="font-size: 6.5px;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[9px] py-0.5 border-t border-b border-slate-800 mb-1 bg-slate-900 px-1 rounded">
+                                    <span class="font-black text-amber-400">₹${cleanPrice}</span>
+                                    <span class="text-[8px] text-slate-400 font-semibold truncate max-w-[35px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">
+                                    ${actionButtonHtml}
                                 </div>
                             </div>
-
-                            <!-- Slide Indicators (Dots) -->
-                            <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
                         </div>
                     `;
-                }
+                });
+
+                darkHtml += `</div></div>`;
+                return darkHtml;
+            };
+
+            // Render standard categories up to the ad insertion point
+            standardCategories.forEach(catName => {
+                htmlOutput += generateSliderRowHTML(catName);
+            });
+
+            // Inject Ad Preview Viewport
+            htmlOutput += `
+                <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
+                    <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
+                        <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
+                            Loading ads...
+                        </div>
+                    </div>
+                    <!-- Slide Indicators (Dots) -->
+                    <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
+                </div>
+            `;
+
+            // Inject the 2 special dark sections below the ad
+            specialSectionCategories.forEach(catName => {
+                htmlOutput += generateSpecialDarkSectionHTML(catName);
             });
 
             container.innerHTML = htmlOutput;
-            // Re-render ads after injecting HTML elements into the DOM
             renderPreviewSlider();
             setupAutoSlide();
         };
@@ -815,7 +876,7 @@
         };
 
         window.updateQuantity = function(firebaseKey, change) {
-            const existing = cart.find(item => item.firebaseKey === firebaseKey);
+            const existing = cart.Item ? cart.find(item => item.firebaseKey === firebaseKey) : cart.find(item => item.firebaseKey === firebaseKey);
             if (!existing) return;
 
             existing.qtyCount = (existing.qtyCount || 1) + change;
