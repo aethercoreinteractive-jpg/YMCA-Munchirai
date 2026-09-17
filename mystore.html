@@ -31,6 +31,11 @@
         .icon-morph {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        /* Category Drawer Slide Transition */
+        #category-drawer {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14">
@@ -45,9 +50,10 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <a href="index.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1">
-                    <i class="fa-solid fa-house text-amber-400"></i> Home
-                </a>
+                <!-- Category Drawer Toggle Button -->
+                <button onclick="toggleCategoryDrawer()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-bars text-amber-400"></i> Category
+                </button>
                 <a href="cart.html" class="relative bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span>Cart</span>
@@ -57,6 +63,22 @@
             </div>
         </div>
     </header>
+
+    <!-- Slide-in Category Drawer (Left Side) -->
+    <div id="category-drawer-backdrop" class="fixed inset-0 bg-black/50 z-50 hidden transition-opacity opacity-0" onclick="toggleCategoryDrawer()"></div>
+    <div id="category-drawer" class="fixed top-0 left-0 bottom-0 w-64 sm:w-72 bg-slate-900 text-white z-50 shadow-2xl transform -translate-x-full flex flex-col border-r border-slate-800">
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+            <h3 class="font-black text-xs uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                <i class="fa-solid fa-list"></i> Select Category
+            </h3>
+            <button onclick="toggleCategoryDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+        <div id="category-drawer-list" class="flex-1 overflow-y-auto p-3 space-y-1.5">
+            <!-- Injected via JavaScript -->
+        </div>
+    </div>
 
     <!-- Main Store Catalog Section -->
     <main class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-8">
@@ -83,6 +105,25 @@
                     </div>
                     <!-- Search Results Grid -->
                     <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
+                        <!-- Injected via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHOSEN CATEGORY BANNER/SECTION (Appears at top when a category is selected) -->
+            <div id="chosen-category-section" class="mb-6 hidden">
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                        <h2 id="chosen-category-title" class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                            <span>Category Name</span>
+                        </h2>
+                        <button onclick="clearChosenCategory()" class="text-[10px] font-bold bg-slate-200 hover:bg-slate-300 text-slate-800 px-2.5 py-0.5 rounded-full transition flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Show All
+                        </button>
+                    </div>
+                    <!-- Chosen Category Grid -->
+                    <div id="chosen-category-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
                         <!-- Injected via JavaScript -->
                     </div>
                 </div>
@@ -161,6 +202,7 @@
         let categoriesCache = [];
         let savedBestSellers = {};
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
+        let selectedCategoryFilter = null;
 
         // Ad Management Variables
         let currentAds = [];
@@ -176,6 +218,7 @@
             } else {
                 categoriesCache = [];
             }
+            renderCategoryDrawer();
             renderCatalog(liveInventory);
         });
 
@@ -196,6 +239,7 @@
             } else {
                 liveInventory = [];
             }
+            renderCategoryDrawer();
             renderCatalog(liveInventory);
             updateCartCount();
         });
@@ -214,6 +258,72 @@
             renderPreviewSlider();
             setupAutoSlide();
         });
+
+        // Toggle Category Drawer Animation & Visibility
+        window.toggleCategoryDrawer = function() {
+            const drawer = document.getElementById('category-drawer');
+            const backdrop = document.getElementById('category-drawer-backdrop');
+            
+            const isOpen = !drawer.classList.contains('-translate-x-full');
+            if (isOpen) {
+                drawer.classList.add('-translate-x-full');
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => backdrop.classList.add('hidden'), 300);
+            } else {
+                backdrop.classList.remove('hidden');
+                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+                drawer.classList.remove('-translate-x-full');
+            }
+        };
+
+        // Render Category Drawer List
+        function renderCategoryDrawer() {
+            const listContainer = document.getElementById('category-drawer-list');
+            if (!listContainer) return;
+
+            let catNames = categoriesCache.map(c => c.name);
+            // Include uncategorized if there are any products without category
+            const hasUncategorized = liveInventory.some(item => !item.category || !catNames.includes(item.category));
+            if (hasUncategorized && !catNames.includes("Uncategorized")) {
+                catNames.push("Uncategorized");
+            }
+
+            if (catNames.length === 0) {
+                listContainer.innerHTML = `<div class="text-slate-400 text-xs text-center py-4">No categories available</div>`;
+                return;
+            }
+
+            let html = `
+                <button onclick="window.selectCategory(null)" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-between ${selectedCategoryFilter === null ? 'bg-amber-500 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}">
+                    <span><i class="fa-solid fa-border-all mr-2"></i> All Products</span>
+                </button>
+            `;
+
+            catNames.forEach(cat => {
+                const isSelected = selectedCategoryFilter === cat;
+                html += `
+                    <button onclick="window.selectCategory('${cat}')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-between ${isSelected ? 'bg-amber-500 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}">
+                        <span><i class="fa-solid fa-tag mr-2 text-amber-400"></i> ${cat}</span>
+                        <i class="fa-solid fa-chevron-right text-[10px] opacity-60"></i>
+                    </button>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+        }
+
+        window.selectCategory = function(catName) {
+            selectedCategoryFilter = catName;
+            toggleCategoryDrawer();
+            renderCategoryDrawer();
+            renderCatalog(liveInventory);
+        };
+
+        window.clearChosenCategory = function() {
+            selectedCategoryFilter = null;
+            renderCategoryDrawer();
+            renderCatalog(liveInventory);
+        };
 
         // Helper to generate Add to Cart, quantity stepper, or Out of Stock label
         function getCartActionHTML(firebaseKey) {
@@ -258,16 +368,70 @@
             const bestsellersSlider = document.getElementById('bestsellers-slider');
             const recommendedSection = document.getElementById('recommended-section');
             const recommendedGrid = document.getElementById('recommended-grid');
+            const chosenCategorySection = document.getElementById('chosen-category-section');
+            const chosenCategoryGrid = document.getElementById('chosen-category-grid');
+            const chosenCategoryTitle = document.getElementById('chosen-category-title');
 
             if (!productsToRender || productsToRender.length === 0) {
                 container.innerHTML = "";
                 bestsellersSection.classList.add('hidden');
                 recommendedSection.classList.add('hidden');
+                chosenCategorySection.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 return;
             }
 
             emptyState.classList.add('hidden');
+
+            // Handle Chosen Category View (Appears on top if a category is selected)
+            if (selectedCategoryFilter !== null) {
+                chosenCategorySection.classList.remove('hidden');
+                chosenCategoryTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
+
+                const chosenItems = productsToRender.filter(item => (item.category || "Uncategorized") === selectedCategoryFilter);
+                chosenItems.sort((a, b) => {
+                    const aStock = a.inStock !== false ? 1 : 0;
+                    const bStock = b.inStock !== false ? 1 : 0;
+                    return bStock - aStock;
+                });
+
+                if (chosenItems.length === 0) {
+                    chosenCategoryGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No products found in this category.</div>`;
+                } else {
+                    let chosenHtml = '';
+                    chosenItems.forEach(item => {
+                        const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                        const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                        const isInStock = item.inStock !== false;
+
+                        chosenHtml += `
+                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                                <div>
+                                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Selected' : 'Out'}</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                    </div>
+                                    <div id="action-container-${item.firebaseKey}">
+                                        ${actionButtonHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    chosenCategoryGrid.innerHTML = chosenHtml;
+                }
+            } else {
+                chosenCategorySection.classList.add('hidden');
+            }
 
             // Render Best Sellers Row (Sorted: In-stock first, Out-of-stock last)
             const bestSellersList = productsToRender.filter(item => savedBestSellers[item.firebaseKey] === true);
@@ -313,8 +477,7 @@
             } else {
                 bestsellersSection.classList.add('hidden');
             }
-
-   // Render "Recommended For You" Section (4 Random Products in 2x2 grid)
+              // Render "Recommended For You" Section (4 Random Products in 2x2 grid)
             if (productsToRender.length > 0) {
                 recommendedSection.classList.remove('hidden');
                 
@@ -398,7 +561,6 @@
                                 <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                                 ${catName}
                             </h2>
-                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
 
                        <!-- Slider Row -->
@@ -444,8 +606,7 @@
                 });
 
                 htmlOutput += `</div></div>`;
-
-                // Check if this category is the flour section (matches 'flour' case-insensitively)
+          // Check if this category is the flour section (matches 'flour' case-insensitively)
                 if (catName.toLowerCase().includes('flour') && !flourSectionRendered) {
                     flourSectionRendered = true;
                     // Inject the Ad Preview Viewport directly with minimal wrapper padding/margin
