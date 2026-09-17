@@ -64,18 +64,18 @@
         </div>
     </header>
 
-    <!-- Slide-in Category Drawer (Left Side) -->
-    <div id="category-drawer-backdrop" class="fixed inset-0 bg-black/50 z-50 hidden transition-opacity opacity-0" onclick="toggleCategoryDrawer()"></div>
-    <div id="category-drawer" class="fixed top-0 left-0 bottom-0 w-64 sm:w-72 bg-slate-900 text-white z-50 shadow-2xl transform -translate-x-full flex flex-col border-r border-slate-800">
-        <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-            <h3 class="font-black text-xs uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                <i class="fa-solid fa-list"></i> Select Category
+    <!-- Slide-in Category Drawer (Left Side - half in size/very little background) -->
+    <div id="category-drawer-backdrop" class="fixed inset-0 bg-black/30 z-50 hidden transition-opacity opacity-0" onclick="toggleCategoryDrawer()"></div>
+    <div id="category-drawer" class="fixed top-0 left-0 bottom-0 w-48 sm:w-60 bg-slate-900 text-white z-50 shadow-2xl transform -translate-x-full flex flex-col border-r border-slate-800">
+        <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+            <h3 class="font-black text-[11px] uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-list"></i> Categories
             </h3>
             <button onclick="toggleCategoryDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg">
-                <i class="fa-solid fa-xmark text-sm"></i>
+                <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
-        <div id="category-drawer-list" class="flex-1 overflow-y-auto p-3 space-y-1.5">
+        <div id="category-drawer-list" class="flex-1 overflow-y-auto p-2 space-y-1">
             <!-- Injected via JavaScript -->
         </div>
     </div>
@@ -110,7 +110,7 @@
                 </div>
             </div>
 
-            <!-- CHOSEN CATEGORY BANNER/SECTION (Appears at top when a category is selected) -->
+            <!-- CHOSEN CATEGORY SECTION (Appears above everything when a category is selected) -->
             <div id="chosen-category-section" class="mb-6 hidden">
                 <div class="space-y-2.5">
                     <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
@@ -118,9 +118,6 @@
                             <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                             <span>Category Name</span>
                         </h2>
-                        <button onclick="clearChosenCategory()" class="text-[10px] font-bold bg-slate-200 hover:bg-slate-300 text-slate-800 px-2.5 py-0.5 rounded-full transition flex items-center gap-1">
-                            <i class="fa-solid fa-arrow-rotate-left"></i> Show All
-                        </button>
                     </div>
                     <!-- Chosen Category Grid -->
                     <div id="chosen-category-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
@@ -244,14 +241,23 @@
             updateCartCount();
         });
 
-        // Fetch Live Ads from Database
+        // Fetch Live Ads from Database (handles array, object, or single objects)
         const adsReference = ref(db, 'ads');
         onValue(adsReference, (snapshot) => {
             const data = snapshot.val();
-            if (data && Array.isArray(data)) {
-                currentAds = data;
-            } else if (data && typeof data === 'object') {
-                currentAds = Object.values(data);
+            if (data) {
+                if (Array.isArray(data)) {
+                    currentAds = data.filter(ad => ad && ad.link);
+                } else if (typeof data === 'object') {
+                    // Check if it's a single ad object with a link property directly
+                    if (data.link) {
+                        currentAds = [data];
+                    } else {
+                        currentAds = Object.values(data).filter(ad => ad && ad.link);
+                    }
+                } else {
+                    currentAds = [];
+                }
             } else {
                 currentAds = [];
             }
@@ -282,29 +288,28 @@
             if (!listContainer) return;
 
             let catNames = categoriesCache.map(c => c.name);
-            // Include uncategorized if there are any products without category
             const hasUncategorized = liveInventory.some(item => !item.category || !catNames.includes(item.category));
             if (hasUncategorized && !catNames.includes("Uncategorized")) {
                 catNames.push("Uncategorized");
             }
 
             if (catNames.length === 0) {
-                listContainer.innerHTML = `<div class="text-slate-400 text-xs text-center py-4">No categories available</div>`;
+                listContainer.innerHTML = `<div class="text-slate-400 text-[11px] text-center py-4">No categories</div>`;
                 return;
             }
 
             let html = `
-                <button onclick="window.selectCategory(null)" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-between ${selectedCategoryFilter === null ? 'bg-amber-500 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}">
-                    <span><i class="fa-solid fa-border-all mr-2"></i> All Products</span>
+                <button onclick="window.selectCategory(null)" class="w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-bold transition flex items-center justify-between ${selectedCategoryFilter === null ? 'bg-amber-500 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}">
+                    <span><i class="fa-solid fa-border-all mr-1.5"></i> All Products</span>
                 </button>
             `;
 
             catNames.forEach(cat => {
                 const isSelected = selectedCategoryFilter === cat;
                 html += `
-                    <button onclick="window.selectCategory('${cat}')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-between ${isSelected ? 'bg-amber-500 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}">
-                        <span><i class="fa-solid fa-tag mr-2 text-amber-400"></i> ${cat}</span>
-                        <i class="fa-solid fa-chevron-right text-[10px] opacity-60"></i>
+                    <button onclick="window.selectCategory('${cat}')" class="w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-bold transition flex items-center justify-between ${isSelected ? 'bg-amber-500 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}">
+                        <span><i class="fa-solid fa-tag mr-1.5 text-amber-400"></i> ${cat}</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] opacity-60"></i>
                     </button>
                 `;
             });
@@ -314,13 +319,7 @@
 
         window.selectCategory = function(catName) {
             selectedCategoryFilter = catName;
-            toggleCategoryDrawer();
-            renderCategoryDrawer();
-            renderCatalog(liveInventory);
-        };
-
-        window.clearChosenCategory = function() {
-            selectedCategoryFilter = null;
+            toggleCategoryDrawer(); // Slide out drawer on selection
             renderCategoryDrawer();
             renderCatalog(liveInventory);
         };
@@ -383,7 +382,7 @@
 
             emptyState.classList.add('hidden');
 
-            // Handle Chosen Category View (Appears on top if a category is selected)
+            // Handle Chosen Category View (Appears on top when a category is selected, without show-all button)
             if (selectedCategoryFilter !== null) {
                 chosenCategorySection.classList.remove('hidden');
                 chosenCategoryTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
@@ -410,7 +409,7 @@
                                 <div>
                                     <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                         <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Selected' : 'Out'}</span>
+                                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Category' : 'Out'}</span>
                                     </div>
                                     <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
                                     <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
@@ -433,7 +432,7 @@
                 chosenCategorySection.classList.add('hidden');
             }
 
-            // Render Best Sellers Row (Sorted: In-stock first, Out-of-stock last)
+            // Render Best Sellers Row
             const bestSellersList = productsToRender.filter(item => savedBestSellers[item.firebaseKey] === true);
             bestSellersList.sort((a, b) => {
                 const aStock = a.inStock !== false ? 1 : 0;
@@ -477,7 +476,8 @@
             } else {
                 bestsellersSection.classList.add('hidden');
             }
-              // Render "Recommended For You" Section (4 Random Products in 2x2 grid)
+
+            // Render "Recommended For You" Section (4 Random Products in 2x2 grid)
             if (productsToRender.length > 0) {
                 recommendedSection.classList.remove('hidden');
                 
@@ -518,7 +518,7 @@
                 recommendedSection.classList.add('hidden');
             }
 
-            // Render Standard Category Groups (Sorted: In-stock first, Out-of-stock last)
+            // Render Standard Category Groups
             let categoryGroups = {};
             categoriesCache.forEach(cat => {
                 categoryGroups[cat.name] = [];
@@ -606,10 +606,10 @@
                 });
 
                 htmlOutput += `</div></div>`;
-          // Check if this category is the flour section (matches 'flour' case-insensitively)
+ // Check if this category is the flour section (matches 'flour' case-insensitively)
                 if (catName.toLowerCase().includes('flour') && !flourSectionRendered) {
                     flourSectionRendered = true;
-                    // Inject the Ad Preview Viewport directly with minimal wrapper padding/margin
+                    // Inject the Ad Preview Viewport directly
                     htmlOutput += `
                         <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
                             <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
@@ -626,16 +626,19 @@
             });
 
             container.innerHTML = htmlOutput;
+            // Re-render ads after injecting HTML elements into the DOM
+            renderPreviewSlider();
+            setupAutoSlide();
         };
 
-        // Render Preview Slider Logic from ad1.html
+        // Render Preview Slider Logic
         function renderPreviewSlider() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
             if (!slider || !indicators) return;
 
-            if (currentAds.length === 0) {
-                slider.innerHTML = `<div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">No active ads selected.</div>`;
+            if (!currentAds || currentAds.length === 0) {
+                slider.innerHTML = `<div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">No active ads.</div>`;
                 indicators.innerHTML = '';
                 return;
             }
@@ -757,7 +760,6 @@
                 (item.category && item.category.toLowerCase().includes(query))
             );
 
-            // Show Search Results Section at the top
             searchResultsSection.classList.remove('hidden');
             
             if (filtered.length === 0) {
@@ -795,7 +797,6 @@
                 searchResultsGrid.innerHTML = resHtml;
             }
 
-            // Also update the rest of the catalog view
             renderCatalog(liveInventory);
         };
 
