@@ -21,6 +21,13 @@
         .icon-morph {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .draggable-item {
+            cursor: grab;
+            touch-action: none;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased pt-16 pb-12">
@@ -45,9 +52,8 @@
             <div class="flex items-center justify-between border-b border-gray-100 pb-2">
                 <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                    Live Ad Preview Screen
+                    Live Preview Screen
                 </h2>
-                <span id="slide-status-badge" class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2.5 py-0.5 rounded-full">Loading status...</span>
             </div>
 
             <!-- Preview Viewport Frame -->
@@ -64,49 +70,88 @@
             <p class="text-[11px] text-gray-500 text-center">Tap video ads to toggle sound. Swipe horizontally to browse ads.</p>
         </section>
 
-        <!-- SECTION 2: UPLOAD & MANAGE ADS -->
-        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-5">
+        <!-- SECTION 2: GITHUB VIDEO SWITCHES -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
             <div class="border-b border-gray-100 pb-2">
                 <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                    Upload & Manage Ads
+                    GitHub Video Switches
                 </h2>
-                <p class="text-[11px] text-gray-500 mt-0.5">Upload images or videos to display on your store.</p>
+                <p class="text-[11px] text-gray-500 mt-0.5">Toggle your repository videos on or off instantly.</p>
             </div>
 
-            <!-- Upload Control Card -->
-            <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-5 text-center space-y-3">
-                <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto text-lg shadow-inner">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Switch 1 -->
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-800">Ad Video 1 (ad1i.mp4)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-video-0" class="sr-only peer" onchange="handleGitHubToggle(0, 'ad1i.mp4', this.checked)">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
                 </div>
-                <div>
-                    <p class="text-xs font-bold text-slate-800">Select Image or Video File</p>
-                    <p class="text-[10px] text-slate-500 mt-0.5">Supports MP4, MOV, PNG, JPG, WEBP</p>
+                <!-- Switch 2 -->
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-800">Ad Video 2 (ad1ii.mp4)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-video-1" class="sr-only peer" onchange="handleGitHubToggle(1, 'ad1ii.mp4', this.checked)">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
                 </div>
-                
-                <label id="upload-btn-label" class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow transition">
-                    <i class="fa-solid fa-plus text-amber-400"></i> Choose File & Upload
-                    <input type="file" id="ad-file-input" accept="image/*,video/*" class="hidden" onchange="handleFileUpload(event)">
-                </label>
-
-                <!-- Persistent Upload Percentage Progress Bar -->
-                <div id="upload-progress-container" class="space-y-1.5 hidden max-w-xs mx-auto pt-2">
-                    <div class="flex justify-between text-[11px] font-bold text-slate-700">
-                        <span id="upload-status-text">Uploading file...</span>
-                        <span id="upload-percentage">0%</span>
-                    </div>
-                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                        <div id="upload-progress-bar" class="bg-amber-500 h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
-                    </div>
+                <!-- Switch 3 -->
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-800">Ad Video 3 (ad1iii.mp4)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-video-2" class="sr-only peer" onchange="handleGitHubToggle(2, 'ad1iii.mp4', this.checked)">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                </div>
+                <!-- Switch 4 -->
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-800">Ad Video 4 (ad1iv.mp4)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-video-3" class="sr-only peer" onchange="handleGitHubToggle(3, 'ad1iv.mp4', this.checked)">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
                 </div>
             </div>
+        </section>
 
-            <!-- Active Ads List Manager -->
-            <div class="space-y-3">
-                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Active Uploaded Ads</h3>
-                <div id="ads-list-container" class="space-y-2">
-                    <div class="text-xs text-gray-400 italic">No ads found.</div>
+        <!-- SECTION 3: ADD LINK (GOOGLE DRIVE / DIRECT LINKS) -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
+            <div class="border-b border-gray-100 pb-2">
+                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    Add Link (Google Drive / Direct)
+                </h2>
+                <p class="text-[11px] text-gray-500 mt-0.5">Paste a direct media link or converted Google Drive stream link.</p>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <select id="link-type-select" class="bg-white border border-slate-300 text-slate-800 text-xs font-bold rounded-xl px-3 py-2.5 outline-none focus:border-amber-500">
+                        <option value="image">Image Link</option>
+                        <option value="video">Video Link</option>
+                    </select>
+                    <input type="url" id="custom-link-input" placeholder="Paste link here (e.g. Google Drive stream link)..." class="sm:col-span-3 bg-white border border-slate-300 text-slate-800 text-xs rounded-xl px-3 py-2.5 outline-none focus:border-amber-500">
                 </div>
+                <button onclick="handleAddCustomLink()" class="w-full bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-xs font-bold py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus text-amber-400"></i> Add Link to Store
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION 4: SORTABLE ACTIVE ADS MANAGER -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-3">
+            <div class="border-b border-gray-100 pb-2">
+                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    Manage & Sort Active Ads
+                </h2>
+                <p class="text-[11px] text-gray-500 mt-0.5">Touch, hold, and drag items up or down to reorder display priority.</p>
+            </div>
+
+            <div id="sortable-ads-container" class="space-y-2">
+                <div class="text-xs text-gray-400 italic">No active ads.</div>
             </div>
         </section>
 
@@ -116,7 +161,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref as dbRef, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         const firebaseConfig = {
@@ -133,13 +177,14 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
-        const storage = getStorage(app);
 
         let currentAds = [];
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
+        let draggedIndex = null;
 
-        // Fetch ads strictly from the 'ads' node without modifying other nodes
+        const githubVideoFiles = ['ad1i.mp4', 'ad1ii.mp4', 'ad1iii.mp4', 'ad1iv.mp4'];
+
         const adsReference = dbRef(db, 'ads');
         onValue(adsReference, (snapshot) => {
             const data = snapshot.val();
@@ -150,105 +195,100 @@
             } else {
                 currentAds = [];
             }
-            renderManagementList();
+            syncGitHubToggles();
+            renderSortableList();
             renderPreviewSlider();
             setupAutoSlide();
         });
 
-        // Handle file upload with active progress tracking
-        window.handleFileUpload = async function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const progressContainer = document.getElementById('upload-progress-container');
-            const progressBar = document.getElementById('upload-progress-bar');
-            const percentageText = document.getElementById('upload-percentage');
-            const statusText = document.getElementById('upload-status-text');
-            const uploadBtnLabel = document.getElementById('upload-btn-label');
-
-            progressContainer.classList.remove('hidden');
-            uploadBtnLabel.style.opacity = '0.5';
-            uploadBtnLabel.style.pointerEvents = 'none';
-            progressBar.style.width = '0%';
-            percentageText.innerText = '0%';
-            statusText.innerText = 'Uploading file...';
-
-            const fileType = file.type.startsWith('video') ? 'video' : 'image';
-            const uniqueFileName = `ads/${Date.now()}_${file.name}`;
-            const fileReference = storageRef(storage, uniqueFileName);
-
-            const uploadTask = uploadBytesResumable(fileReference, file);
-
-            uploadTask.on('state_changed', 
-                (snapshot) => {
-                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                    progressBar.style.width = progress + '%';
-                    percentageText.innerText = progress + '%';
-                    
-                    if (progress === 100) {
-                        statusText.innerText = 'Finalizing upload...';
-                    }
-                }, 
-                (error) => {
-                    console.error("Upload error:", error);
-                    alert("Upload failed. Please check your connection or storage rules.");
-                    progressContainer.classList.add('hidden');
-                    uploadBtnLabel.style.opacity = '1';
-                    uploadBtnLabel.style.pointerEvents = 'auto';
-                    event.target.value = '';
-                }, 
-                async () => {
-                    try {
-                        statusText.innerText = 'Saving changes...';
-                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                        currentAds.push({ link: downloadURL, type: fileType });
-                        
-                        // Updates ONLY the 'ads' node safely
-                        await set(dbRef(db, 'ads'), currentAds);
-
-                        progressContainer.classList.add('hidden');
-                        uploadBtnLabel.style.opacity = '1';
-                        uploadBtnLabel.style.pointerEvents = 'auto';
-                        event.target.value = '';
-                    } catch (err) {
-                        console.error("Database save error:", err);
-                        alert("Failed to save ad data.");
-                        progressContainer.classList.add('hidden');
-                        uploadBtnLabel.style.opacity = '1';
-                        uploadBtnLabel.style.pointerEvents = 'auto';
-                    }
+        // GitHub Toggle Handler
+        window.handleGitHubToggle = async function(index, filename, isChecked) {
+            if (isChecked) {
+                // Check if already exists to prevent duplication
+                const exists = currentAds.some(ad => ad.link === filename);
+                if (!exists) {
+                    currentAds.push({ link: filename, type: 'video', source: 'github', gId: index });
                 }
-            );
+            } else {
+                currentAds = currentAds.filter(ad => ad.link !== filename);
+            }
+            await saveAdsToDatabase();
+        };
+
+        // Custom Link Handler (Google Drive / Direct)
+        window.handleAddCustomLink = async function() {
+            const input = document.getElementById('custom-link-input');
+            const typeSelect = document.getElementById('link-type-select');
+            let link = input.value.trim();
+            const type = typeSelect.value;
+
+            if (!link) {
+                alert("Please paste a valid link.");
+                return;
+            }
+
+            // Optional helper: convert standard share links if pasted directly
+            if (link.includes('drive.google.com/file/d/')) {
+                const match = link.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    link = `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+            }
+
+            currentAds.push({ link: link, type: type, source: 'custom' });
+            input.value = '';
+            await saveAdsToDatabase();
         };
 
         window.deleteAd = async function(index) {
-            if (!confirm("Are you sure you want to delete this ad?")) return;
             currentAds.splice(index, 1);
+            await saveAdsToDatabase();
+        };
+
+        async function saveAdsToDatabase() {
             try {
                 await set(dbRef(db, 'ads'), currentAds);
             } catch (error) {
-                console.error("Delete error:", error);
-                alert("Failed to delete ad.");
+                console.error("Database save error:", error);
+                alert("Failed to update ads.");
             }
-        };
+        }
 
-        function renderManagementList() {
-            const container = document.getElementById('ads-list-container');
+        function syncGitHubToggles() {
+            githubVideoFiles.forEach((filename, idx) => {
+                const toggle = document.getElementById(`toggle-video-${idx}`);
+                if (toggle) {
+                    const found = currentAds.some(ad => ad.link === filename);
+                    toggle.checked = found;
+                }
+            });
+        }
+
+        function renderSortableList() {
+            const container = document.getElementById('sortable-ads-container');
             if (currentAds.length === 0) {
-                container.innerHTML = `<div class="text-xs text-gray-400 italic bg-gray-50 p-3 rounded-xl border border-gray-100">No ads uploaded yet. Use the upload box above.</div>`;
+                container.innerHTML = `<div class="text-xs text-gray-400 italic bg-gray-50 p-3 rounded-xl border border-gray-100">No active ads. Toggle GitHub videos or add links above.</div>`;
                 return;
             }
 
             let html = '';
             currentAds.forEach((ad, index) => {
                 html += `
-                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-200 gap-3">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <span class="text-xs font-black text-slate-700 bg-slate-200 px-2 py-1 rounded shrink-0">Ad ${index + 1}</span>
+                    <div draggable="true" 
+                         ondragstart="onDragStart(event, ${index})" 
+                         ondragover="onDragOver(event)" 
+                         ondrop="onDrop(event, ${index})" 
+                         ontouchstart="onTouchStart(event, ${index})"
+                         ontouchmove="onTouchMove(event)"
+                         ontouchend="onTouchEnd(event)"
+                         class="draggable-item flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 gap-3 select-none">
+                        <div class="flex items-center gap-3 overflow-hidden pointer-events-none">
+                            <i class="fa-solid fa-grip-vertical text-slate-400 text-sm"></i>
+                            <span class="text-xs font-black text-slate-700 bg-slate-200 px-2 py-1 rounded shrink-0">#${index + 1}</span>
                             <span class="text-xs font-semibold text-amber-700 uppercase bg-amber-50 border border-amber-200 px-2 py-0.5 rounded shrink-0">${ad.type}</span>
                             <span class="text-xs text-gray-600 truncate">${ad.link}</span>
                         </div>
-                        <button onclick="deleteAd(${index})" class="text-rose-500 hover:text-rose-700 p-2 rounded-lg text-xs shrink-0 transition" title="Delete Ad">
+                        <button onclick="deleteAd(${index})" class="text-rose-500 hover:text-rose-700 p-2 rounded-lg text-xs shrink-0 transition" title="Remove">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -257,12 +297,60 @@
             container.innerHTML = html;
         }
 
+         // Drag & Drop Handlers (Desktop & Basic HTML5)
+        window.onDragStart = function(e, index) {
+            draggedIndex = index;
+            e.dataTransfer.effectAllowed = 'move';
+        };
+
+        window.onDragOver = function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        };
+
+        window.onDrop = async function(e, targetIndex) {
+            e.preventDefault();
+            if (draggedIndex === null || draggedIndex === targetIndex) return;
+            const movedItem = currentAds.splice(draggedIndex, 1)[0];
+            currentAds.splice(targetIndex, 0, movedItem);
+            draggedIndex = null;
+            await saveAdsToDatabase();
+        };
+
+        // Touch Drag Handlers (Mobile touch and hold reordering)
+        let touchDragSrcIndex = null;
+        window.onTouchStart = function(e, index) {
+            touchDragSrcIndex = index;
+        };
+
+        window.onTouchMove = function(e) {
+            e.preventDefault();
+        };
+
+        window.onTouchEnd = async function(e) {
+            if (touchDragSrcIndex === null) return;
+            const touch = e.changedTouches[0];
+            const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+            const parentItem = targetElement ? targetElement.closest('.draggable-item') : null;
+            
+            if (parentItem) {
+                const allItems = Array.from(document.querySelectorAll('.draggable-item'));
+                const targetIndex = allItems.indexOf(parentItem);
+                if (targetIndex !== -1 && touchDragSrcIndex !== targetIndex) {
+                    const movedItem = currentAds.splice(touchDragSrcIndex, 1)[0];
+                    currentAds.splice(targetIndex, 0, movedItem);
+                    await saveAdsToDatabase();
+                }
+            }
+            touchDragSrcIndex = null;
+        };
+
         function renderPreviewSlider() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
 
             if (currentAds.length === 0) {
-                slider.innerHTML = `<div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">No active ads. Upload one below.</div>`;
+                slider.innerHTML = `<div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">No active ads selected.</div>`;
                 indicators.innerHTML = '';
                 return;
             }
@@ -331,20 +419,7 @@
                 autoSlideInterval = null;
             }
 
-            const statusBadge = document.getElementById('slide-status-badge');
-
-            if (currentAds.length <= 1) {
-                if (statusBadge) {
-                    statusBadge.innerText = "Single ad view (Auto-slide paused)";
-                    statusBadge.className = "text-[10px] font-bold bg-slate-200 text-slate-700 px-2.5 py-0.5 rounded-full";
-                }
-                return;
-            }
-
-            if (statusBadge) {
-                statusBadge.innerText = "Auto-slides every 4s";
-                statusBadge.className = "text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full";
-            }
+            if (currentAds.length <= 1) return;
 
             const slider = document.getElementById('ad-preview-slider');
             if (!slider) return;
