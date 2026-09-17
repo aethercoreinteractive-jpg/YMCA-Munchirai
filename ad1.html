@@ -14,11 +14,6 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* High-end fluid transition for the speaker badge */
-        .mute-badge {
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14">
@@ -219,7 +214,7 @@
             }
         };
 
-        // Render Preview Slider using secure Google Drive embedded preview player iframe
+        // Render Preview Slider with strict frame-fitting container layout
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -238,13 +233,15 @@
             validAds.forEach((ad, idx) => {
                 const fileId = getDriveFileId(ad.link);
                 const slideDiv = document.createElement('div');
-                slideDiv.className = "w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-black relative overflow-hidden group";
+                // w-full h-full flex-shrink-0 snap-center ensures exact sizing per slide
+                slideDiv.className = "w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center bg-black overflow-hidden";
 
                 if (ad.type === 'video') {
                     if (fileId) {
                         const iframe = document.createElement('iframe');
                         iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-                        iframe.className = "w-full h-full border-0 pointer-events-auto select-none";
+                        // absolute inset-0 w-full h-full ensures the iframe fills the container completely without breaking bounds
+                        iframe.className = "absolute inset-0 w-full h-full border-0 pointer-events-auto";
                         iframe.allow = "autoplay; encrypted-media";
                         iframe.allowFullscreen = true;
                         slideDiv.appendChild(iframe);
@@ -256,7 +253,8 @@
                     const imgEl = document.createElement('img');
                     imgEl.src = imgUrl;
                     imgEl.alt = `Ad ${idx + 1}`;
-                    imgEl.className = "w-full h-full object-contain";
+                    // object-contain ensures images scale correctly to fit entirely inside the frame without cropping
+                    imgEl.className = "w-full h-full object-contain pointer-events-none";
                     imgEl.onerror = function() {
                         this.src = 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600';
                     };
