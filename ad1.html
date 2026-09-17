@@ -72,7 +72,7 @@
                         <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                         Manage Ad Links
                     </h2>
-                    <p class="text-[11px] text-gray-500 mt-0.5">Paste Google Drive image or video public share links below.</p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">Paste Google Drive public link (Image or Video) below.</p>
                 </div>
                 <button onclick="addNewAdRow()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow flex items-center gap-1.5">
                     <i class="fa-solid fa-plus text-amber-400"></i> Add Ad
@@ -120,11 +120,9 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Robust Google Drive link formatter for Images & Videos
-        function formatDriveUrl(url, type) {
+        // Converts Google Drive share links into direct viewable image/video stream links
+        function formatGoogleDriveUrl(url, type) {
             if (!url) return '';
-            
-            // Extract Google Drive File ID if present
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
             if (match && match[1]) {
                 const fileId = match[1];
@@ -132,14 +130,14 @@
                     // Direct stream URL for Google Drive videos
                     return `https://docs.google.com/uc?export=download&id=${fileId}`;
                 } else {
-                    // Direct image thumbnail render
+                    // Direct image link
                     return `https://lh3.googleusercontent.com/d/${fileId}`;
                 }
             }
             return url;
         }
 
-        // Fetch ads strictly from 'ads' node in Firebase (Completely isolated from inventory/categories)
+        // Fetch ads strictly from the 'ads' node in Firebase (Ensures zero conflict with other datas)
         const adsRef = ref(db, 'ads');
         onValue(adsRef, (snapshot) => {
             const data = snapshot.val();
@@ -223,7 +221,7 @@
             }
         };
 
-        // Render Preview Carousel Slider with active video playback support
+        // Render Preview Carousel Slider with active Google Drive video playback support
         window.renderPreviewSlider = function() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -236,33 +234,43 @@
                 return;
             }
 
-            let slidesHtml = '';
+            slider.innerHTML = '';
             let dotsHtml = '';
 
             validAds.forEach((ad, idx) => {
-                const formattedUrl = formatDriveUrl(ad.link, ad.type);
+                const formattedUrl = formatGoogleDriveUrl(ad.link, ad.type);
+                const slideDiv = document.createElement('div');
+                slideDiv.className = "w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-black relative";
+
                 if (ad.type === 'video') {
-                    slidesHtml += `
-                        <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-black">
-                            <video src="${formattedUrl}" autoplay muted playsinline loop class="w-full h-full object-contain"></video>
-                        </div>
-                    `;
+                    const videoEl = document.createElement('video');
+                    videoEl.src = formattedUrl;
+                    videoEl.autoplay = true;
+                    videoEl.muted = true;
+                    videoEl.playsInline = true;
+                    videoEl.loop = true;
+                    videoEl.controls = true;
+                    videoEl.className = "w-full h-full object-contain";
+                    slideDiv.appendChild(videoEl);
                 } else {
-                    slidesHtml += `
-                        <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center bg-slate-950">
-                            <img src="${formattedUrl}" alt="Ad ${idx + 1}" class="w-full h-full object-contain" onerror="this.src='https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'">
-                        </div>
-                    `;
+                    const imgEl = document.createElement('img');
+                    imgEl.src = formattedUrl;
+                    imgEl.alt = `Ad ${idx + 1}`;
+                    imgEl.className = "w-full h-full object-contain";
+                    imgEl.onerror = function() {
+                        this.src = 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600';
+                    };
+                    slideDiv.appendChild(imgEl);
                 }
 
+                slider.appendChild(slideDiv);
                 dotsHtml += `<span class="w-2 h-2 rounded-full ${idx === 0 ? 'bg-amber-500 w-4' : 'bg-white/50'} transition-all duration-300 inline-block"></span>`;
             });
 
-            slider.innerHTML = slidesHtml;
             indicators.innerHTML = dotsHtml;
         };
 
-        // 4-Second Auto-Slide with Manual Swipe Support
+        // Industry standard 4-second auto-slide with manual finger swipe support
         function setupAutoSlide() {
             if (autoSlideInterval) clearInterval(autoSlideInterval);
             
