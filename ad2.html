@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | Ad2 Control Center</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://tailwindcss.com"></script>
-    <!-- FontAwesome for UI icons -->
+    <title>Ad2 Management Panel | Munchirai YMCA Food Store</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,117 +14,162 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .speaker-badge-container { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease; }
-        .icon-morph { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .speaker-badge-container {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
+        }
+        .icon-morph {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .draggable-item {
+            cursor: grab;
+            touch-action: none;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 antialiased min-h-screen pb-12 flex justify-center">
+<body class="bg-gray-50 text-gray-900 antialiased pt-16 pb-12">
 
-    <!-- Mobile Frame Container -->
-    <div class="w-full max-w-md bg-white min-h-screen shadow-2xl flex flex-col border-x border-gray-200">
-
-        <!-- Header -->
-        <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 h-14 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-2">
-                <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-xs font-black">AD2</span>
-                <h1 class="text-xs font-extrabold tracking-tight uppercase text-gray-900">Repository Ad Manager</h1>
-            </div>
-            <a href="index.html" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition border border-gray-200 flex items-center gap-1.5 font-bold">
-                <i class="fa-solid fa-store text-amber-500"></i> Store
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="mystore.html" class="text-lg font-black tracking-tighter uppercase flex items-center gap-1.5">
+                <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-sm font-bold shadow">AD2</span> Manager
             </a>
-        </header>
+            <a href="mystore.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-store text-amber-400"></i> Store
+            </a>
+        </div>
+    </header>
 
-        <!-- Main Content Area -->
-        <main class="flex-1 p-4 space-y-5">
-            
-            <!-- PREVIEW SCREEN SECTION -->
-            <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-black uppercase tracking-wider text-gray-900 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Live Preview Screen
-                    </h2>
-                    <span class="text-[10px] text-gray-400 font-medium">Auto-sliding</span>
-                </div>
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-4 space-y-6">
 
-                <!-- Preview Viewport Carousel -->
-                <div class="relative w-full h-64 bg-slate-950 rounded-2xl overflow-hidden shadow-inner border border-gray-200 group">
-                    <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
-                        <div class="w-full h-full flex-shrink-0 snap-center flex flex-col items-center justify-center text-gray-400 text-xs p-4 text-center">
-                            <i class="fa-solid fa-video-slash text-2xl mb-2 text-gray-500"></i>
-                            No ad videos are currently turned ON. Enable at least one switch below.
-                        </div>
-                    </div>
-                    <!-- Slide Indicators (Dots) -->
-                    <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
-                </div>
+        <!-- ISOLATION NOTICE -->
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-amber-900">
+            <i class="fa-solid fa-shield-halved text-amber-600 text-base"></i>
+            <div>
+                <strong class="text-amber-950">Isolated Safe Database:</strong> This panel exclusively manages the <code class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-mono font-bold">ads2</code> Firebase node. It will never touch or disturb your primary store inventory, categories, or `ads` data.
+            </div>
+        </div>
+
+        <!-- SECTION 1: LIVE PREVIEW SCREEN -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-3">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    Live Preview Screen (Ad2)
+                </h2>
             </div>
 
-            <!-- AD SWITCHES CONTROLS SECTION -->
-            <div class="space-y-3 pt-2">
-                <div class="border-b border-gray-200 pb-2">
-                    <h2 class="text-xs font-black uppercase tracking-wider text-gray-900 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Video Switchboard
-                    </h2>
-                    <p class="text-[10px] text-gray-500 mt-0.5">Toggle ON to load <code class="text-amber-600 bg-gray-100 px-1 py-0.5 rounded font-mono">ad2i.mp4</code> thru <code class="text-amber-600 bg-gray-100 px-1 py-0.5 rounded font-mono">ad2iv.mp4</code> from your repo.</p>
+            <!-- Preview Viewport Frame -->
+            <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group">
+                <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
+                    <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
+                        Loading secondary ads...
+                    </div>
                 </div>
 
-                <div class="space-y-2.5">
-                    <!-- Ad 1 Switch -->
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between shadow-sm">
-                        <div>
-                            <span class="font-bold text-xs text-gray-900 block">Ad Video 1</span>
-                            <span class="text-[10px] text-gray-500 font-mono">ad2i.mp4</span>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="toggle-ad1" onchange="window.updateAdState()" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        </label>
-                    </div>
+                <!-- Slide Indicators (Dots) -->
+                <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
+            </div>
+            <p class="text-[11px] text-gray-500 text-center">Tap video ads to toggle sound. Swipe horizontally to browse ads.</p>
+        </section>
 
-                    <!-- Ad 2 Switch -->
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between shadow-sm">
-                        <div>
-                            <span class="font-bold text-xs text-gray-900 block">Ad Video 2</span>
-                            <span class="text-[10px] text-gray-500 font-mono">ad2ii.mp4</span>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="toggle-ad2" onchange="window.updateAdState()" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        </label>
-                    </div>
+        <!-- SECTION 2: GITHUB VIDEO SWITCHES -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
+            <div class="border-b border-gray-100 pb-2">
+                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    GitHub Video Switches (Ad2)
+                </h2>
+                <p class="text-[11px] text-gray-500 mt-0.5">Toggle your repository video files (ad2i - ad2iv) on or off instantly.</p>
+            </div>
 
-                    <!-- Ad 3 Switch -->
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between shadow-sm">
-                        <div>
-                            <span class="font-bold text-xs text-gray-900 block">Ad Video 3</span>
-                            <span class="text-[10px] text-gray-500 font-mono">ad2iii.mp4</span>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="toggle-ad3" onchange="window.updateAdState()" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        </label>
-                    </div>
-
-                    <!-- Ad 4 Switch -->
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between shadow-sm">
-                        <div>
-                            <span class="font-bold text-xs text-gray-900 block">Ad Video 4</span>
-                            <span class="text-[10px] text-gray-500 font-mono">ad2iv.mp4</span>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="toggle-ad4" onchange="window.updateAdState()" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        </label>
-                    </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Switch 1 -->
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-800">Ad Video 1 (ad2i.mp4)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-video-0" class="sr-only peer" onchange="handleGitHubToggle(0, 'ad2i.mp4', this.checked)">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                </div>
+                <!-- Switch 2 -->
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-800">Ad Video 2 (ad2ii.mp4)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-video-1" class="sr-only peer" onchange="handleGitHubToggle(1, 'ad2ii.mp4', this.checked)">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                </div>
+                <!-- Switch 3 -->
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-800">Ad Video 3 (ad2iii.mp4)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-video-2" class="sr-only peer" onchange="handleGitHubToggle(2, 'ad2iii.mp4', this.checked)">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                </div>
+                <!-- Switch 4 -->
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-800">Ad Video 4 (ad2iv.mp4)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-video-3" class="sr-only peer" onchange="handleGitHubToggle(3, 'ad2iv.mp4', this.checked)">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
                 </div>
             </div>
-        </main>
-    </div>
+        </section>
 
-    <!-- Firebase SDK & Toggle Management Script -->
+        <!-- SECTION 3: ADD LINK (GOOGLE DRIVE / DIRECT LINKS) -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
+            <div class="border-b border-gray-100 pb-2">
+                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    Add Link (Google Drive / Direct)
+                </h2>
+                <p class="text-[11px] text-gray-500 mt-0.5">Paste a direct media link or converted Google Drive stream link.</p>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <select id="link-type-select" class="bg-white border border-slate-300 text-slate-800 text-xs font-bold rounded-xl px-3 py-2.5 outline-none focus:border-amber-500">
+                        <option value="image">Image Link</option>
+                        <option value="video">Video Link</option>
+                    </select>
+                    <input type="url" id="custom-link-input" placeholder="Paste link here (e.g. Google Drive stream link)..." class="sm:col-span-3 bg-white border border-slate-300 text-slate-800 text-xs rounded-xl px-3 py-2.5 outline-none focus:border-amber-500">
+                </div>
+                <button onclick="handleAddCustomLink()" class="w-full bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-xs font-bold py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus text-amber-400"></i> Add Link to Ad2
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION 4: SORTABLE ACTIVE ADS MANAGER -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-3">
+            <div class="border-b border-gray-100 pb-2">
+                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    Manage & Sort Active Ad2 Items
+                </h2>
+                <p class="text-[11px] text-gray-500 mt-0.5">Touch, hold, and drag items up or down to reorder display priority.</p>
+            </div>
+
+            <div id="sortable-ads-container" class="space-y-2">
+                <div class="text-xs text-gray-400 italic">No active ads.</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Firebase SDK & Logic (Using 'ads2' Node for Safe Isolation) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref as dbRef, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -138,143 +183,264 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
-        // Isolated node for ad2 toggles
-        const ad2TogglesRef = ref(db, 'ads2_toggles');
+        let currentAds = [];
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
+        let draggedIndex = null;
 
-        // Map files to toggle names
-        const videoFiles = {
-            ad1: { name: "Ad Video 1", file: "ad2i.mp4" },
-            ad2: { name: "Ad Video 2", file: "ad2ii.mp4" },
-            ad3: { name: "Ad Video 3", file: "ad2iii.mp4" },
-            ad4: { name: "Ad Video 4", file: "ad2iv.mp4" }
-        };
+        const githubVideoFiles = ['ad2i.mp4', 'ad2ii.mp4', 'ad2iii.mp4', 'ad2iv.mp4'];
 
-        // Listen for Firebase state changes
-        onValue(ad2TogglesRef, (snapshot) => {
-            const data = snapshot.val() || {};
-            
-            document.getElementById('toggle-ad1').checked = !!data.ad1;
-            document.getElementById('toggle-ad2').checked = !!data.ad2;
-            document.getElementById('toggle-ad3').checked = !!data.ad3;
-            document.getElementById('toggle-ad4').checked = !!data.ad4;
-
-            renderPreviewPlayer(data);
+        // STRICT ISOLATION: Pointing exclusively to 'ads2' node in Firebase
+        const adsReference = dbRef(db, 'ads2');
+        onValue(adsReference, (snapshot) => {
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) {
+                currentAds = data;
+            } else if (data && typeof data === 'object') {
+                currentAds = Object.values(data);
+            } else {
+                currentAds = [];
+            }
+            syncGitHubToggles();
+            renderSortableList();
+            renderPreviewSlider();
+            setupAutoSlide();
         });
 
-        window.updateAdState = function() {
-            const state = {
-                ad1: document.getElementById('toggle-ad1').checked,
-                ad2: document.getElementById('toggle-ad2').checked,
-                ad3: document.getElementById('toggle-ad3').checked,
-                ad4: document.getElementById('toggle-ad4').checked,
-                updatedAt: Date.now()
-            };
-
-            set(ad2TogglesRef, state).catch(error => {
-                alert('Failed to update toggle state: ' + error.message);
-            });
+        // GitHub Toggle Handler
+        window.handleGitHubToggle = async function(index, filename, isChecked) {
+            if (isChecked) {
+                const exists = currentAds.some(ad => ad.link === filename);
+                if (!exists) {
+                    currentAds.push({ link: filename, type: 'video', source: 'github', gId: index });
+                }
+            } else {
+                currentAds = currentAds.filter(ad => ad.link !== filename);
+            }
+            await saveAdsToDatabase();
         };
 
-        function renderPreviewPlayer(state) {
-            const slider = document.getElementById('ad-preview-slider');
-            const indicators = document.getElementById('ad-indicators');
-            if (!slider || !indicators) return;
+        // Custom Link Handler (Google Drive / Direct)
+        window.handleAddCustomLink = async function() {
+            const input = document.getElementById('custom-link-input');
+            const typeSelect = document.getElementById('link-type-select');
+            let link = input.value.trim();
+            const type = typeSelect.value;
 
-            let activeAds = [];
-            Object.keys(videoFiles).forEach(key => {
-                if (state[key]) {
-                    activeAds.push(videoFiles[key]);
+            if (!link) {
+                alert("Please paste a valid link.");
+                return;
+            }
+
+            if (link.includes('drive.google.com/file/d/')) {
+                const match = link.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    link = `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+            }
+
+            currentAds.push({ link: link, type: type, source: 'custom' });
+            input.value = '';
+            await saveAdsToDatabase();
+        };
+
+        window.deleteAd = async function(index) {
+            currentAds.splice(index, 1);
+            await saveAdsToDatabase();
+        };
+
+        async function saveAdsToDatabase() {
+            try {
+                await set(dbRef(db, 'ads2'), currentAds);
+            } catch (error) {
+                console.error("Database save error:", error);
+                alert("Failed to update ads2.");
+            }
+        }
+
+        function syncGitHubToggles() {
+            githubVideoFiles.forEach((filename, idx) => {
+                const toggle = document.getElementById(`toggle-video-${idx}`);
+                if (toggle) {
+                    const found = currentAds.some(ad => ad.link === filename);
+                    toggle.checked = found;
                 }
             });
+        }
 
-            if (activeAds.length === 0) {
-                slider.innerHTML = `
-                    <div class="w-full h-full flex-shrink-0 snap-center flex flex-col items-center justify-center text-gray-400 text-xs p-4 text-center bg-slate-950">
-                        <i class="fa-solid fa-video-slash text-2xl mb-2 text-gray-500"></i>
-                        No ad videos are currently turned ON. Enable at least one switch above.
+        function renderSortableList() {
+            const container = document.getElementById('sortable-ads-container');
+            if (currentAds.length === 0) {
+                container.innerHTML = `<div class="text-xs text-gray-400 italic bg-gray-50 p-3 rounded-xl border border-gray-100">No active ads. Toggle GitHub videos or add links above.</div>`;
+                return;
+            }
+
+            let html = '';
+            currentAds.forEach((ad, index) => {
+                html += `
+                    <div draggable="true" 
+                         ondragstart="onDragStart(event, ${index})" 
+                         ondragover="onDragOver(event)" 
+                         ondrop="onDrop(event, ${index})" 
+                         ontouchstart="onTouchStart(event, ${index})"
+                         ontouchmove="onTouchMove(event)"
+                         ontouchend="onTouchEnd(event)"
+                         class="draggable-item flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 gap-3 select-none">
+                        <div class="flex items-center gap-3 overflow-hidden pointer-events-none">
+                            <i class="fa-solid fa-grip-vertical text-slate-400 text-sm"></i>
+                            <span class="text-xs font-black text-slate-700 bg-slate-200 px-2 py-1 rounded shrink-0">#${index + 1}</span>
+                            <span class="text-xs font-semibold text-amber-700 uppercase bg-amber-50 border border-amber-200 px-2 py-0.5 rounded shrink-0">${ad.type}</span>
+                            <span class="text-xs text-gray-600 truncate">${ad.link}</span>
+                        </div>
+                        <button onclick="deleteAd(${index})" class="text-rose-500 hover:text-rose-700 p-2 rounded-lg text-xs shrink-0 transition" title="Remove">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
                     </div>
                 `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.onDragStart = function(e, index) {
+            draggedIndex = index;
+            e.dataTransfer.effectAllowed = 'move';
+        };
+
+        window.onDragOver = function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        };
+
+        window.onDrop = async function(e, targetIndex) {
+            e.preventDefault();
+            if (draggedIndex === null || draggedIndex === targetIndex) return;
+            const movedItem = currentAds.splice(draggedIndex, 1)[0];
+            currentAds.splice(targetIndex, 0, movedItem);
+            draggedIndex = null;
+            await saveAdsToDatabase();
+        };
+
+        let touchDragSrcIndex = null;
+        window.onTouchStart = function(e, index) {
+            touchDragSrcIndex = index;
+        };
+
+        window.onTouchMove = function(e) {
+            e.preventDefault();
+        };
+
+        window.onTouchEnd = async function(e) {
+            if (touchDragSrcIndex === null) return;
+            const touch = e.changedTouches[0];
+            const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+            const parentItem = targetElement ? targetElement.closest('.draggable-item') : null;
+            
+            if (parentItem) {
+                const allItems = Array.from(document.querySelectorAll('.draggable-item'));
+                const targetIndex = allItems.indexOf(parentItem);
+                if (targetIndex !== -1 && touchDragSrcIndex !== targetIndex) {
+                    const movedItem = currentAds.splice(touchDragSrcIndex, 1)[0];
+                    currentAds.splice(targetIndex, 0, movedItem);
+                    await saveAdsToDatabase();
+                }
+            }
+            touchDragSrcIndex = null;
+        };
+
+        function renderPreviewSlider() {
+            const slider = document.getElementById('ad-preview-slider');
+            const indicators = document.getElementById('ad-indicators');
+
+            if (currentAds.length === 0) {
+                slider.innerHTML = `<div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">No active ads selected.</div>`;
                 indicators.innerHTML = '';
-                if (autoSlideInterval) clearInterval(autoSlideInterval);
                 return;
             }
 
             slider.innerHTML = '';
             let dotsHtml = '';
 
-            activeAds.forEach((ad, idx) => {
+            currentAds.forEach((ad, idx) => {
                 const slideDiv = document.createElement('div');
                 slideDiv.className = "w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center bg-black overflow-hidden cursor-pointer";
 
-                const videoEl = document.createElement('video');
-                videoEl.src = ad.file;
-                videoEl.autoplay = true;
-                videoEl.muted = true;
-                videoEl.playsInline = true;
-                videoEl.loop = true;
-                videoEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
+                if (ad.type === 'video') {
+                    const videoEl = document.createElement('video');
+                    videoEl.src = ad.link;
+                    videoEl.autoplay = true;
+                    videoEl.muted = true;
+                    videoEl.playsInline = true;
+                    videoEl.loop = true;
+                    videoEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
 
-                const badge = document.createElement('div');
-                badge.className = "absolute inset-0 flex items-center justify-center pointer-events-none z-10 speaker-badge-container";
-                badge.innerHTML = `
-                    <div class="w-12 h-12 rounded-full bg-slate-950/70 backdrop-blur-xl flex items-center justify-center text-white shadow-xl border border-white/25 icon-morph">
-                        <i class="fa-solid fa-volume-xmark text-sm text-amber-400"></i>
-                    </div>
-                `;
+                    const badge = document.createElement('div');
+                    badge.className = "absolute inset-0 flex items-center justify-center pointer-events-none z-10 speaker-badge-container";
+                    badge.innerHTML = `
+                        <div class="w-14 h-14 rounded-full bg-slate-950/70 backdrop-blur-xl flex items-center justify-center text-white shadow-2xl border border-white/25 icon-morph">
+                            <i class="fa-solid fa-volume-xmark text-lg text-amber-400"></i>
+                        </div>
+                    `;
 
-                slideDiv.addEventListener('click', () => {
-                    videoEl.muted = !videoEl.muted;
-                    const iconBox = badge.firstElementChild;
-                    const icon = iconBox.querySelector('i');
+                    slideDiv.addEventListener('click', () => {
+                        videoEl.muted = !videoEl.muted;
+                        const iconBox = badge.firstElementChild;
+                        const icon = iconBox.querySelector('i');
 
-                    badge.style.opacity = '1';
-                    badge.style.transform = 'scale(1)';
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'scale(1)';
 
-                    if (videoEl.muted) {
-                        icon.className = "fa-solid fa-volume-xmark text-sm text-amber-400 icon-morph";
-                    } else {
-                        icon.className = "fa-solid fa-volume-high text-sm text-amber-400 icon-morph";
+                        if (videoEl.muted) {
+                            icon.className = "fa-solid fa-volume-xmark text-lg text-amber-400 icon-morph";
+                        } else {
+                            icon.className = "fa-solid fa-volume-high text-lg text-amber-400 icon-morph";
+                            
+                            setTimeout(() => {
+                                badge.style.transform = 'scale(0.85)';
+                                badge.style.opacity = '0';
+                            }, 50);
+                        }
+
+                        iconBox.style.transform = 'scale(1.15)';
                         setTimeout(() => {
-                            badge.style.transform = 'scale(0.85)';
-                            badge.style.opacity = '0';
-                        }, 50);
-                    }
+                            if (!videoEl.muted) return;
+                            iconBox.style.transform = 'scale(1)';
+                        }, 200);
+                    });
 
-                    iconBox.style.transform = 'scale(1.15)';
-                    setTimeout(() => {
-                        if (!videoEl.muted) return;
-                        iconBox.style.transform = 'scale(1)';
-                    }, 200);
-                });
+                    slideDiv.appendChild(videoEl);
+                    slideDiv.appendChild(badge);
+                } else {
+                    const imgEl = document.createElement('img');
+                    imgEl.src = ad.link;
+                    imgEl.alt = `Ad ${idx + 1}`;
+                    imgEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
+                    slideDiv.appendChild(imgEl);
+                }
 
-                slideDiv.appendChild(videoEl);
-                slideDiv.appendChild(badge);
                 slider.appendChild(slideDiv);
-
                 dotsHtml += `<span class="w-2 h-2 rounded-full ${idx === 0 ? 'bg-amber-500 w-4' : 'bg-white/50'} transition-all duration-300 inline-block"></span>`;
             });
 
             indicators.innerHTML = dotsHtml;
-            setupAutoSlide(activeAds.length);
         }
 
-        function setupAutoSlide(totalSlides) {
+        function setupAutoSlide() {
             if (autoSlideInterval) {
                 clearInterval(autoSlideInterval);
                 autoSlideInterval = null;
             }
 
-            if (totalSlides <= 1) return;
+            if (currentAds.length <= 1) return;
 
             const slider = document.getElementById('ad-preview-slider');
             if (!slider) return;
 
             autoSlideInterval = setInterval(() => {
-                currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
+                if (currentAds.length <= 1) return;
+                currentSlideIndex = (currentSlideIndex + 1) % currentAds.length;
                 const scrollAmount = slider.clientWidth * currentSlideIndex;
                 slider.scrollTo({ left: scrollAmount, behavior: 'smooth' });
                 updateDots(currentSlideIndex);
@@ -291,6 +457,20 @@
                 }
             });
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('ad-preview-slider');
+            if (slider) {
+                slider.addEventListener('scroll', () => {
+                    if (currentAds.length <= 1) return;
+                    const index = Math.round(slider.scrollLeft / slider.clientWidth);
+                    if (index !== currentSlideIndex && index >= 0 && index < currentAds.length) {
+                        currentSlideIndex = index;
+                        updateDots(currentSlideIndex);
+                    }
+                }, { passive: true });
+            }
+        });
     </script>
 </body>
 </html>
