@@ -12,19 +12,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        /* Custom styling for clean horizontal scrollbar */
         .no-scrollbar::-webkit-scrollbar { height: 3px; }
         .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
         .no-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
         
-        /* Forces exactly 3 items visible simultaneously in catalog slider */
         .mobile-triple-card {
             flex: 0 0 calc(33.333% - 6px);
             width: calc(33.333% - 6px);
             max-width: calc(33.333% - 6px);
         }
 
-        /* Ad Preview & Sound Badge Styles */
         .speaker-badge-container {
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
         }
@@ -32,7 +29,6 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Category Drawer Slide Transition */
         #category-drawer {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -50,14 +46,12 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <!-- Category Drawer Toggle Button -->
                 <button onclick="toggleCategoryDrawer()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 cursor-pointer">
                     <i class="fa-solid fa-bars text-amber-400"></i> Category
                 </button>
                 <a href="cart.html" class="relative bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span>Cart</span>
-                    <!-- Notification Badge -->
                     <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-white">0</span>
                 </a>
             </div>
@@ -75,15 +69,11 @@
                 <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
-        <div id="category-drawer-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-            <!-- Injected via JavaScript -->
-        </div>
+        <div id="category-drawer-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
     </div>
 
     <!-- Main Store Catalog Section -->
     <main class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-8">
-        
-        <!-- REGULAR CATALOG WRAPPER -->
         <div id="catalog-main-wrapper">
             <div class="mb-4 sm:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3 border-b pb-3 border-gray-200">
                 <div>
@@ -94,7 +84,7 @@
                 </div>
             </div>
 
-            <!-- SEARCH RESULTS SECTION (Pushed to top when searching or viewing category) -->
+            <!-- SEARCH RESULTS SECTION -->
             <div id="search-results-section" class="mb-6 hidden">
                 <div class="space-y-2.5">
                     <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
@@ -103,10 +93,7 @@
                             <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results
                         </h2>
                     </div>
-                    <!-- Search Results Grid -->
-                    <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
-                        <!-- Injected via JavaScript -->
-                    </div>
+                    <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5"></div>
                 </div>
             </div>
 
@@ -115,7 +102,6 @@
                 <div class="text-center py-16 text-gray-400 text-xs">Loading products...</div>
             </div>
 
-            <!-- Empty State Notice -->
             <div id="empty-state" class="hidden text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm mt-4">
                 <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-2.5 text-base">
                     <i class="fa-solid fa-box-open"></i>
@@ -154,12 +140,11 @@
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let selectedCategoryFilter = null;
 
-        // Ad Management Variables
         let currentAds = [];
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Fetch Global Offer Settings from Database
+        // Fetch Global Offer Settings
         const offerRef = ref(db, 'storeOffer');
         onValue(offerRef, (snapshot) => {
             const data = snapshot.val();
@@ -209,7 +194,6 @@
             updateCartCount();
         });
 
-        // Fetch Live Ads from Database
         const adsReference = ref(db, 'ads');
         onValue(adsReference, (snapshot) => {
             const data = snapshot.val();
@@ -232,12 +216,29 @@
             setupAutoSlide();
         });
 
-        // Helper to compute prices and offer HTML markup
-        function calculatePricingHTML(itemPrice, isCompact = false) {
-            const cleanPriceNum = parseFloat(typeof itemPrice === 'string' ? itemPrice.replace('₹', '') : itemPrice) || 0;
+        /**
+         * Calculates professional pricing supporting BOTH Individual Product Offers & Global Store Offers.
+         * Priority: Individual Product Offer (if enabled) -> Global Store Offer (if enabled) -> Standard Price.
+         */
+        function calculatePricingHTML(item, isCompact = false) {
+            const cleanPriceNum = parseFloat(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
             
-            if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
-                const discountRate = globalOfferSettings.percentage / 100;
+            let activeOfferPercentage = 0;
+            let hasActiveOffer = false;
+
+            // Check if individual product offer is enabled and valid in product management
+            if (item.offerEnabled && parseFloat(item.offerPercentage) > 0) {
+                activeOfferPercentage = parseFloat(item.offerPercentage);
+                hasActiveOffer = true;
+            } 
+            // Fallback to global store-wide offer if individual offer is inactive
+            else if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
+                activeOfferPercentage = globalOfferSettings.percentage;
+                hasActiveOffer = true;
+            }
+
+            if (hasActiveOffer) {
+                const discountRate = activeOfferPercentage / 100;
                 const discountedPrice = Math.round(cleanPriceNum * (1 - discountRate));
                 
                 if (isCompact) {
@@ -245,7 +246,7 @@
                         <div class="flex flex-col">
                             <div class="flex items-center gap-1">
                                 <span class="font-black text-slate-900 text-[10px]">₹${discountedPrice}</span>
-                                <span class="text-[8px] text-rose-600 font-bold bg-rose-50 px-1 py-0.2 rounded border border-rose-100">${globalOfferSettings.percentage}% OFF</span>
+                                <span class="text-[8px] text-rose-600 font-bold bg-rose-50 px-1 py-0.2 rounded border border-rose-100">${activeOfferPercentage}% OFF</span>
                             </div>
                             <span class="text-[7.5px] text-gray-400 line-through">₹${cleanPriceNum}</span>
                         </div>
@@ -255,7 +256,7 @@
                         <div class="flex flex-col">
                             <div class="flex items-center gap-1.5">
                                 <span class="font-black text-slate-900 text-xs">₹${discountedPrice}</span>
-                                <span class="text-[9px] text-rose-600 font-extrabold bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 tracking-wide">${globalOfferSettings.percentage}% OFF</span>
+                                <span class="text-[9px] text-rose-600 font-extrabold bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 tracking-wide">${activeOfferPercentage}% OFF</span>
                             </div>
                             <span class="text-[9px] text-gray-400 line-through">₹${cleanPriceNum}</span>
                         </div>
@@ -270,7 +271,6 @@
             }
         }
 
-        // Toggle Category Drawer Animation & Visibility
         window.toggleCategoryDrawer = function() {
             const drawer = document.getElementById('category-drawer');
             const backdrop = document.getElementById('category-drawer-backdrop');
@@ -287,7 +287,6 @@
             }
         };
 
-        // Render Category Drawer List
         function renderCategoryDrawer() {
             const listContainer = document.getElementById('category-drawer-list');
             if (!listContainer) return;
@@ -324,21 +323,11 @@
 
         window.selectCategory = function(catName) {
             selectedCategoryFilter = catName;
-            
-            // Re-render the category drawer list to highlight the newly selected category tab
             renderCategoryDrawer();
-            
-            // Re-render catalog view with the selected category products at the top
             renderCatalog(liveInventory);
-            
-            // Smoothly scroll to the absolute top of the page (offsetting the fixed header)
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // Helper to generate Add to Cart / Stepper / Out of Stock actions
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             
@@ -390,7 +379,6 @@
 
             emptyState.classList.add('hidden');
 
-             // Handle Category Selection or Search Results View Pushed to Top
             if (selectedCategoryFilter !== null) {
                 searchResultsSection.classList.remove('hidden');
                 searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
@@ -407,7 +395,7 @@
                 } else {
                     let chosenHtml = '';
                     chosenItems.forEach(item => {
-                        const priceMarkup = calculatePricingHTML(item.price, false);
+                        const priceMarkup = calculatePricingHTML(item, false);
                         const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                         const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                         const isInStock = item.inStock !== false;
@@ -437,14 +425,12 @@
                     searchResultsGrid.innerHTML = chosenHtml;
                 }
             } else {
-                // If search bar is empty and no category selected, hide search results section
                 const query = document.getElementById('search-bar').value.toLowerCase().trim();
                 if (!query) {
                     searchResultsSection.classList.add('hidden');
                 }
             }
 
-            // Group inventory by category
             let categoryGroups = {};
             categoriesCache.forEach(cat => {
                 categoryGroups[cat.name] = [];
@@ -476,7 +462,6 @@
 
             let htmlOutput = '';
 
-            // Helper for Best Sellers section
             const generateBestSellersHTML = () => {
                 let bsList = [];
                 const bsKeys = Object.keys(savedBestSellers).filter(k => savedBestSellers[k] === true);
@@ -501,7 +486,7 @@
                 `;
 
                 bsList.forEach(item => {
-                    const priceMarkup = calculatePricingHTML(item.price, true);
+                    const priceMarkup = calculatePricingHTML(item, true);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -533,7 +518,6 @@
                 return bsHtml;
             };
 
-            // Helper for slider rows
             const generateSliderRowHTML = (catName) => {
                 const groupItems = categoryGroups[catName] || [];
                 if (groupItems.length === 0) return '';
@@ -550,7 +534,7 @@
                 `;
 
                 groupItems.forEach(item => {
-                    const priceMarkup = calculatePricingHTML(item.price, true);
+                    const priceMarkup = calculatePricingHTML(item, true);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -582,7 +566,6 @@
                 return rowHtml;
             };
 
-            // Helper for Recommended For You section
             const generateRecommendedHTML = () => {
                 const shuffled = [...productsToRender].sort(() => 0.5 - Math.random());
                 const recommendedList = shuffled.slice(0, 4);
@@ -600,7 +583,7 @@
                 `;
 
                 recommendedList.forEach(item => {
-                    const priceMarkup = calculatePricingHTML(item.price, false);
+                    const priceMarkup = calculatePricingHTML(item, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -632,7 +615,6 @@
                 return recHtml;
             };
 
-            // Helper for the Dark Box section with initially 8 small cards (4 cards in a row) and View All button
             const generateDark8CardSectionHTML = (catName) => {
                 const fullGroupItems = categoryGroups[catName] || [];
                 const displayGroupItems = fullGroupItems.slice(0, 8);
@@ -653,7 +635,7 @@
                 `;
 
                 displayGroupItems.forEach(item => {
-                    const priceMarkup = calculatePricingHTML(item.price, true);
+                    const priceMarkup = calculatePricingHTML(item, true);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -685,7 +667,6 @@
                 return darkHtml;
             };
 
-            // Ad banner HTML snippet
             const adViewportHTML = `
                 <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
                     <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
@@ -693,7 +674,6 @@
                             Loading ads...
                         </div>
                     </div>
-                    <!-- Slide Indicators (Dots) -->
                     <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
                 </div>
             `;
@@ -720,7 +700,6 @@
             setupAutoSlide();
         };
 
-        // Render Preview Slider Logic
         function renderPreviewSlider() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -768,7 +747,6 @@
                             icon.className = "fa-solid fa-volume-xmark text-lg text-amber-400 icon-morph";
                         } else {
                             icon.className = "fa-solid fa-volume-high text-lg text-amber-400 icon-morph";
-                            
                             setTimeout(() => {
                                 badge.style.transform = 'scale(0.85)';
                                 badge.style.opacity = '0';
@@ -861,7 +839,7 @@
             } else {
                 let resHtml = '';
                 filtered.forEach(item => {
-                    const priceMarkup = calculatePricingHTML(item.price, false);
+                    const priceMarkup = calculatePricingHTML(item, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -896,11 +874,21 @@
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             if (!product || product.inStock === false) return;
 
-            // If global offer is active, store the discounted price for checkout accuracy
             let finalPrice = product.price;
             const cleanPriceNum = parseFloat(typeof product.price === 'string' ? product.price.replace('₹', '') : product.price) || 0;
-            if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
-                finalPrice = Math.round(cleanPriceNum * (1 - (globalOfferSettings.percentage / 100)));
+            
+            let activeOfferPercentage = 0;
+            let hasActiveOffer = false;
+            if (product.offerEnabled && parseFloat(product.offerPercentage) > 0) {
+                activeOfferPercentage = parseFloat(product.offerPercentage);
+                hasActiveOffer = true;
+            } else if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
+                activeOfferPercentage = globalOfferSettings.percentage;
+                hasActiveOffer = true;
+            }
+
+            if (hasActiveOffer) {
+                finalPrice = Math.round(cleanPriceNum * (1 - (activeOfferPercentage / 100)));
             }
 
             const existing = cart.find(item => item.firebaseKey === firebaseKey);
@@ -931,7 +919,6 @@
             updateCartCount();
 
             const newActionHtml = getCartActionHTML(firebaseKey);
-            
             document.querySelectorAll(`[id="action-container-${firebaseKey}"]`).forEach(el => {
                 el.innerHTML = newActionHtml;
             });
