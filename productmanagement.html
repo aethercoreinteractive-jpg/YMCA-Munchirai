@@ -16,19 +16,19 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16">
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16">
 
     <!-- Professional Admin Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md text-slate-900 shadow-sm border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="mystore.html" class="text-xs sm:text-base font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs font-bold shadow">MY</span> Admin Panel
+                <a href="mystore.html" class="text-xs sm:text-base font-black tracking-tighter uppercase text-slate-900 flex items-center gap-1.5">
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs font-bold shadow-sm">MY</span> Admin Panel
                 </a>
             </div>
             <div class="flex items-center gap-2">
-                <a href="mystore.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-slate-700 flex items-center gap-1.5">
-                    <i class="fa-solid fa-store text-amber-400"></i> View Store
+                <a href="mystore.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-slate-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-store text-amber-600"></i> View Store
                 </a>
             </div>
         </div>
@@ -38,36 +38,36 @@
     <main class="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6">
         
         <!-- Page Title & Status -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
             <div>
-                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">Product Inventory Management</h1>
-                <p class="text-xs text-slate-400 mt-0.5">Add, edit items, control stock status, and set individual promotional offers.</p>
+                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900">Product Inventory Management</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Add, edit items, control stock status, and set individual promotional offers.</p>
             </div>
         </div>
 
         <!-- Global Store Offer Control Panel -->
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-800 shadow-xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h2 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 class="text-xs sm:text-sm font-black text-amber-600 uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-percent text-amber-500"></i> Global Store-Wide Offer Banner
                 </h2>
-                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">Applies everywhere if active</span>
+                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">Applies everywhere if active</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Global Offer Switch</label>
+                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Global Offer Switch</label>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="global-offer-switch" class="sr-only peer">
-                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        <span class="ml-3 text-xs font-bold text-slate-200" id="global-offer-status-label">Inactive</span>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                        <span class="ml-3 text-xs font-bold text-slate-700" id="global-offer-status-label">Inactive</span>
                     </label>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Discount Percentage (%)</label>
-                    <input type="number" id="global-offer-percentage" placeholder="e.g., 15" min="0" max="100" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Discount Percentage (%)</label>
+                    <input type="number" id="global-offer-percentage" placeholder="e.g., 15" min="0" max="100" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <button onclick="saveGlobalOffer()" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs py-2 px-4 rounded-xl transition shadow">
+                    <button onclick="saveGlobalOffer()" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs py-2 px-4 rounded-xl transition shadow-sm">
                         Save Global Offer
                     </button>
                 </div>
@@ -75,12 +75,12 @@
         </div>
 
         <!-- Add / Edit Product Form Container -->
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-800 shadow-xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h2 id="form-title" class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 id="form-title" class="text-xs sm:text-sm font-black text-amber-600 uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-square-plus text-amber-500"></i> Add New Product
                 </h2>
-                <button id="cancel-edit-btn" onclick="resetForm()" class="hidden text-xs text-slate-400 hover:text-white underline">Cancel Edit</button>
+                <button id="cancel-edit-btn" onclick="resetForm()" class="hidden text-xs text-slate-500 hover:text-slate-900 underline">Cancel Edit</button>
             </div>
 
             <form id="product-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
@@ -88,12 +88,12 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Product Name *</label>
-                        <input type="text" id="prod-name" required placeholder="e.g. Organic Multigrain Flour" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Product Name *</label>
+                        <input type="text" id="prod-name" required placeholder="e.g. Organic Multigrain Flour" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Category *</label>
-                        <select id="prod-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Category *</label>
+                        <select id="prod-category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                             <option value="">Select Category...</option>
                         </select>
                     </div>
@@ -101,16 +101,16 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Price (₹) *</label>
-                        <input type="number" id="prod-price" required placeholder="e.g. 250" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Price (₹) *</label>
+                        <input type="number" id="prod-price" required placeholder="e.g. 250" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Quantity / Unit Size</label>
-                        <input type="text" id="prod-qty" placeholder="e.g. 500g or 1 Litre" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Quantity / Unit Size</label>
+                        <input type="text" id="prod-qty" placeholder="e.g. 500g or 1 Litre" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Stock Status</label>
-                        <select id="prod-instock" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Stock Status</label>
+                        <select id="prod-instock" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                             <option value="true">In Stock</option>
                             <option value="false">Out of Stock</option>
                         </select>
@@ -118,42 +118,42 @@
                 </div>
 
                 <!-- Individual Product Offer Configuration Panel -->
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-3">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
                     <div class="flex items-center justify-between">
                         <div>
-                            <span class="block text-[11px] font-bold text-amber-400 uppercase tracking-wide">Individual Product Offer</span>
-                            <span class="text-[10px] text-slate-400">Override global store discount for this specific item</span>
+                            <span class="block text-[11px] font-bold text-amber-600 uppercase tracking-wide">Individual Product Offer</span>
+                            <span class="text-[10px] text-slate-500">Override global store discount for this specific item</span>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="prod-offer-switch" class="sr-only peer">
-                            <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                            <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
                         </label>
                     </div>
                     <div id="prod-offer-percentage-container" class="hidden">
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Product Offer Discount Percentage (%)</label>
-                        <input type="number" id="prod-offer-percentage" placeholder="e.g. 20" min="0" max="100" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Product Offer Discount Percentage (%)</label>
+                        <input type="number" id="prod-offer-percentage" placeholder="e.g. 20" min="0" max="100" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Google Drive Image Link *</label>
-                    <input type="url" id="prod-img" required placeholder="Paste direct Google Drive shared view/image link here" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    <span class="text-[10px] text-slate-400 mt-1 block">Tip: Make sure your Google Drive image sharing permissions are set to "Anyone with the link can view".</span>
+                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Google Drive Image Link *</label>
+                    <input type="url" id="prod-img" required placeholder="Paste direct Google Drive shared view/image link here" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                    <span class="text-[10px] text-slate-500 mt-1 block">Tip: Make sure your Google Drive image sharing permissions are set to "Anyone with the link can view".</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Short Description (Card Subtitle)</label>
-                        <input type="text" id="prod-desc-small" placeholder="Brief tagline shown on product card" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Short Description (Card Subtitle)</label>
+                        <input type="text" id="prod-desc-small" placeholder="Brief tagline shown on product card" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Full Description (Detail View)</label>
-                        <input type="text" id="prod-desc-big" placeholder="Detailed product specifications or benefits" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Full Description (Detail View)</label>
+                        <input type="text" id="prod-desc-big" placeholder="Detailed product specifications or benefits" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                     </div>
                 </div>
 
                 <div class="pt-2 flex justify-end gap-2">
-                    <button type="submit" id="submit-btn" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs py-2.5 px-6 rounded-xl transition shadow">
+                    <button type="submit" id="submit-btn" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs py-2.5 px-6 rounded-xl transition shadow-sm">
                         Add Product to Inventory
                     </button>
                 </div>
@@ -161,18 +161,18 @@
         </div>
 
         <!-- Inventory Catalog Table / List -->
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-800 shadow-xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h2 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 class="text-xs sm:text-sm font-black text-amber-600 uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-boxes-stacked text-amber-500"></i> Current Inventory List (<span id="inventory-count">0</span>)
                 </h2>
                 <div class="w-48 sm:w-64">
-                    <input type="text" id="admin-search" onkeyup="filterAdminInventory()" placeholder="Filter inventory..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <input type="text" id="admin-search" onkeyup="filterAdminInventory()" placeholder="Filter inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                 </div>
             </div>
 
             <div id="inventory-list-container" class="space-y-2.5">
-                <div class="text-center py-10 text-slate-500 text-xs">Loading inventory items...</div>
+                <div class="text-center py-10 text-slate-400 text-xs">Loading inventory items...</div>
             </div>
         </div>
 
@@ -312,13 +312,11 @@
             };
 
             if (editKey) {
-                // Update existing item
                 update(ref(db, `inventory/${editKey}`), productData).then(() => {
                     alert('Product updated successfully!');
                     resetForm();
                 }).catch(err => alert('Error updating product: ' + err.message));
             } else {
-                 // Push new item
                 push(ref(db, 'inventory'), productData).then(() => {
                     alert('Product added successfully!');
                     resetForm();
@@ -331,40 +329,40 @@
             document.getElementById('inventory-count').textContent = items.length;
 
             if (!items || items.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs">No inventory items found.</div>`;
+                container.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs">No inventory items found.</div>`;
                 return;
             }
 
             let html = '';
             items.forEach(item => {
                 const stockBadge = item.inStock !== false 
-                    ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">In Stock</span>`
-                    : `<span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Out of Stock</span>`;
+                    ? `<span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold">In Stock</span>`
+                    : `<span class="bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded text-[10px] font-bold">Out of Stock</span>`;
 
                 const offerBadge = item.offerEnabled && item.offerPercentage > 0
-                    ? `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded text-[10px] font-bold">${item.offerPercentage}% Offer Active</span>`
-                    : `<span class="text-slate-500 text-[10px]">No individual offer</span>`;
+                    ? `<span class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">${item.offerPercentage}% Offer Active</span>`
+                    : `<span class="text-slate-400 text-[10px]">No individual offer</span>`;
 
                 html += `
-                    <div class="bg-slate-950 rounded-xl p-3 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-slate-900 rounded-lg overflow-hidden border border-slate-800 shrink-0 flex items-center justify-center">
+                            <div class="w-12 h-12 bg-white rounded-lg overflow-hidden border border-slate-200 shrink-0 flex items-center justify-center">
                                 <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=200'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
                             </div>
                             <div>
-                                <h3 class="font-bold text-white text-xs sm:text-sm">${item.name}</h3>
-                                <p class="text-[10px] text-slate-400">Category: <span class="text-amber-400">${item.category || 'Uncategorized'}</span> | Price: <strong class="text-white">₹${item.price}</strong> (${item.qty || 'Std'})</p>
+                                <h3 class="font-bold text-slate-900 text-xs sm:text-sm">${item.name}</h3>
+                                <p class="text-[10px] text-slate-500">Category: <span class="text-amber-600 font-medium">${item.category || 'Uncategorized'}</span> | Price: <strong class="text-slate-900">₹${item.price}</strong> (${item.qty || 'Std'})</p>
                                 <div class="flex items-center gap-2 mt-1">
                                     ${stockBadge}
                                     ${offerBadge}
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
-                            <button onclick="window.editProduct('${item.firebaseKey}')" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-slate-700 flex items-center gap-1">
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
+                            <button onclick="window.editProduct('${item.firebaseKey}')" class="bg-white hover:bg-slate-100 text-amber-600 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-slate-200 flex items-center gap-1 shadow-sm">
                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                             </button>
-                            <button onclick="window.deleteProduct('${item.firebaseKey}')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-rose-500/20 flex items-center gap-1">
+                            <button onclick="window.deleteProduct('${item.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-rose-200 flex items-center gap-1 shadow-sm">
                                 <i class="fa-solid fa-trash"></i> Delete
                             </button>
                         </div>
