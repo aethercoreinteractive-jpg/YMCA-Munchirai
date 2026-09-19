@@ -150,6 +150,7 @@
         let liveInventory = [];
         let categoriesCache = [];
         let savedBestSellers = {};
+        let globalOfferSettings = { enabled: false, percentage: 0 };
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let selectedCategoryFilter = null;
 
@@ -157,6 +158,21 @@
         let currentAds = [];
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
+
+        // Fetch Global Offer Settings from Database
+        const offerRef = ref(db, 'storeOffer');
+        onValue(offerRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                globalOfferSettings = {
+                    enabled: !!data.enabled,
+                    percentage: parseFloat(data.percentage) || 0
+                };
+            } else {
+                globalOfferSettings = { enabled: false, percentage: 0 };
+            }
+            renderCatalog(liveInventory);
+        });
 
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
@@ -216,6 +232,44 @@
             setupAutoSlide();
         });
 
+        // Helper to compute prices and offer HTML markup
+        function calculatePricingHTML(itemPrice, isCompact = false) {
+            const cleanPriceNum = parseFloat(typeof itemPrice === 'string' ? itemPrice.replace('₹', '') : itemPrice) || 0;
+            
+            if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
+                const discountRate = globalOfferSettings.percentage / 100;
+                const discountedPrice = Math.round(cleanPriceNum * (1 - discountRate));
+                
+                if (isCompact) {
+                    return `
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1">
+                                <span class="font-black text-slate-900 text-[10px]">₹${discountedPrice}</span>
+                                <span class="text-[8px] text-rose-600 font-bold bg-rose-50 px-1 py-0.2 rounded border border-rose-100">${globalOfferSettings.percentage}% OFF</span>
+                            </div>
+                            <span class="text-[7.5px] text-gray-400 line-through">₹${cleanPriceNum}</span>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-black text-slate-900 text-xs">₹${discountedPrice}</span>
+                                <span class="text-[9px] text-rose-600 font-extrabold bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 tracking-wide">${globalOfferSettings.percentage}% OFF</span>
+                            </div>
+                            <span class="text-[9px] text-gray-400 line-through">₹${cleanPriceNum}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                if (isCompact) {
+                    return `<span class="font-black text-slate-900 text-[10px]">₹${cleanPriceNum}</span>`;
+                } else {
+                    return `<span class="font-black text-slate-900 text-[11px]">₹${cleanPriceNum}</span>`;
+                }
+            }
+        }
+
         // Toggle Category Drawer Animation & Visibility
         window.toggleCategoryDrawer = function() {
             const drawer = document.getElementById('category-drawer');
@@ -268,7 +322,7 @@
             listContainer.innerHTML = html;
         }
 
-                window.selectCategory = function(catName) {
+        window.selectCategory = function(catName) {
             selectedCategoryFilter = catName;
             
             // Re-render the category drawer list to highlight the newly selected category tab
@@ -336,7 +390,7 @@
 
             emptyState.classList.add('hidden');
 
-// Handle Category Selection or Search Results View Pushed to Top
+             // Handle Category Selection or Search Results View Pushed to Top
             if (selectedCategoryFilter !== null) {
                 searchResultsSection.classList.remove('hidden');
                 searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
@@ -353,7 +407,7 @@
                 } else {
                     let chosenHtml = '';
                     chosenItems.forEach(item => {
-                        const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                        const priceMarkup = calculatePricingHTML(item.price, false);
                         const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                         const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                         const isInStock = item.inStock !== false;
@@ -370,7 +424,7 @@
                                 </div>
                                 <div>
                                     <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                        ${priceMarkup}
                                         <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                     </div>
                                     <div id="action-container-${item.firebaseKey}">
@@ -447,7 +501,7 @@
                 `;
 
                 bsList.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceMarkup = calculatePricingHTML(item.price, true);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -464,7 +518,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    ${priceMarkup}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -496,7 +550,7 @@
                 `;
 
                 groupItems.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceMarkup = calculatePricingHTML(item.price, true);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -513,7 +567,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    ${priceMarkup}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -546,7 +600,7 @@
                 `;
 
                 recommendedList.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceMarkup = calculatePricingHTML(item.price, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -563,7 +617,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    ${priceMarkup}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -599,7 +653,7 @@
                 `;
 
                 displayGroupItems.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceMarkup = calculatePricingHTML(item.price, true);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -616,7 +670,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[9px] py-0.5 border-t border-b border-slate-800 mb-1 bg-slate-900 px-1 rounded">
-                                    <span class="font-black text-amber-400">₹${cleanPrice}</span>
+                                    ${priceMarkup}
                                     <span class="text-[8px] text-slate-400 font-semibold truncate max-w-[35px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -807,7 +861,7 @@
             } else {
                 let resHtml = '';
                 filtered.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceMarkup = calculatePricingHTML(item.price, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
@@ -824,7 +878,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    ${priceMarkup}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -842,11 +896,19 @@
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             if (!product || product.inStock === false) return;
 
+            // If global offer is active, store the discounted price for checkout accuracy
+            let finalPrice = product.price;
+            const cleanPriceNum = parseFloat(typeof product.price === 'string' ? product.price.replace('₹', '') : product.price) || 0;
+            if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
+                finalPrice = Math.round(cleanPriceNum * (1 - (globalOfferSettings.percentage / 100)));
+            }
+
             const existing = cart.find(item => item.firebaseKey === firebaseKey);
             if (existing) {
                 existing.qtyCount = (existing.qtyCount || 1) + 1;
+                existing.price = finalPrice;
             } else {
-                cart.push({ ...product, qtyCount: 1 });
+                cart.push({ ...product, price: finalPrice, qtyCount: 1 });
             }
 
             saveAndRefreshUI(firebaseKey);
