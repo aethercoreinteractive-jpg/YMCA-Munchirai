@@ -84,7 +84,6 @@
                 </div>
             </div>
 
-            <!-- SEARCH RESULTS SECTION -->
             <div id="search-results-section" class="mb-6 hidden">
                 <div class="space-y-2.5">
                     <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
@@ -97,7 +96,6 @@
                 </div>
             </div>
 
-            <!-- DYNAMIC CATALOG CONTAINER -->
             <div id="store-categories-container" class="space-y-6">
                 <div class="text-center py-16 text-gray-400 text-xs">Loading products...</div>
             </div>
@@ -216,28 +214,20 @@
             setupAutoSlide();
         });
 
-        /**
-         * Calculates professional pricing supporting BOTH Individual Product Offers & Global Store Offers.
-         * Priority: Individual Product Offer (if enabled) -> Global Store Offer (if enabled) -> Standard Price.
-         */
+        // Helper to compute prices supporting BOTH Individual Product Offers and Global Store Offers
         function calculatePricingHTML(item, isCompact = false) {
             const cleanPriceNum = parseFloat(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
             
+            // Check if product has its own individual offer enabled
             let activeOfferPercentage = 0;
-            let hasActiveOffer = false;
-
-            // Check if individual product offer is enabled and valid in product management
-            if (item.offerEnabled && parseFloat(item.offerPercentage) > 0) {
-                activeOfferPercentage = parseFloat(item.offerPercentage);
-                hasActiveOffer = true;
-            } 
-            // Fallback to global store-wide offer if individual offer is inactive
-            else if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
+            if (item.offerEnabled && item.offerPercentage > 0) {
+                activeOfferPercentage = parseFloat(item.offerPercentage) || 0;
+            } else if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
+                // Fallback to global store offer if active
                 activeOfferPercentage = globalOfferSettings.percentage;
-                hasActiveOffer = true;
             }
 
-            if (hasActiveOffer) {
+            if (activeOfferPercentage > 0) {
                 const discountRate = activeOfferPercentage / 100;
                 const discountedPrice = Math.round(cleanPriceNum * (1 - discountRate));
                 
@@ -384,11 +374,7 @@
                 searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
 
                 const chosenItems = productsToRender.filter(item => (item.category || "Uncategorized") === selectedCategoryFilter);
-                chosenItems.sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
+                chosenItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
                 if (chosenItems.length === 0) {
                     searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No products found in this category.</div>`;
@@ -432,25 +418,17 @@
             }
 
             let categoryGroups = {};
-            categoriesCache.forEach(cat => {
-                categoryGroups[cat.name] = [];
-            });
+            categoriesCache.forEach(cat => { categoryGroups[cat.name] = []; });
             categoryGroups["Uncategorized"] = [];
 
             productsToRender.forEach(item => {
                 const cat = item.category || "Uncategorized";
-                if (!categoryGroups[cat]) {
-                    categoryGroups[cat] = [];
-                }
+                if (!categoryGroups[cat]) categoryGroups[cat] = [];
                 categoryGroups[cat].push(item);
             });
 
             Object.keys(categoryGroups).forEach(cat => {
-                categoryGroups[cat].sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
+                categoryGroups[cat].sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
             });
 
             let displayCategories = categoriesCache.map(c => c.name);
@@ -459,19 +437,13 @@
             }
 
             let validCategories = displayCategories.filter(cat => (categoryGroups[cat] || []).length > 0);
-
             let htmlOutput = '';
 
             const generateBestSellersHTML = () => {
                 let bsList = [];
                 const bsKeys = Object.keys(savedBestSellers).filter(k => savedBestSellers[k] === true);
-                if (bsKeys.length > 0) {
-                    bsList = productsToRender.filter(item => bsKeys.includes(item.firebaseKey));
-                }
-                if (bsList.length === 0) {
-                    bsList = [...productsToRender].slice(0, 6);
-                }
-
+                if (bsKeys.length > 0) bsList = productsToRender.filter(item => bsKeys.includes(item.firebaseKey));
+                if (bsList.length === 0) bsList = [...productsToRender].slice(0, 6);
                 if (bsList.length === 0) return '';
 
                 let bsHtml = `
@@ -513,7 +485,6 @@
                         </div>
                     `;
                 });
-
                 bsHtml += `</div></div>`;
                 return bsHtml;
             };
@@ -561,7 +532,6 @@
                         </div>
                     `;
                 });
-
                 rowHtml += `</div></div>`;
                 return rowHtml;
             };
@@ -610,7 +580,6 @@
                         </div>
                     `;
                 });
-
                 recHtml += `</div></div>`;
                 return recHtml;
             };
@@ -635,210 +604,6 @@
                 `;
 
                 displayGroupItems.forEach(item => {
-                    const priceMarkup = calculatePricingHTML(item, true);
-                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
-                    const isInStock = item.inStock !== false;
-
-                    darkHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group">
-                            <div>
-                                <div class="relative bg-slate-900 rounded-md overflow-hidden h-16 mb-1 border border-slate-800 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white'} font-bold text-[6px] px-1 py-0.2 rounded shadow">${isInStock ? 'Top' : 'Out'}</span>
-                                </div>
-                                <h3 class="font-bold text-white leading-tight mb-0.5 truncate" style="font-size: 8px;">${item.name}</h3>
-                                <p class="text-slate-400 font-light leading-tight mb-1 truncate" style="font-size: 6.5px;">${cardSmallDesc}</p>
-                            </div>
-                            <div>
-                                <div class="flex items-center justify-between text-[9px] py-0.5 border-t border-b border-slate-800 mb-1 bg-slate-900 px-1 rounded">
-                                    ${priceMarkup}
-                                    <span class="text-[8px] text-slate-400 font-semibold truncate max-w-[35px]">${item.qty ? item.qty : 'Std'}</span>
-                                </div>
-                                <div id="action-container-${item.firebaseKey}">
-                                    ${actionButtonHtml}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                darkHtml += `</div></div>`;
-                return darkHtml;
-            };
-
-            const adViewportHTML = `
-                <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
-                    <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
-                        <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
-                            Loading ads...
-                        </div>
-                    </div>
-                    <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
-                </div>
-            `;
-
-            htmlOutput += generateBestSellersHTML();
-            htmlOutput += generateRecommendedHTML();
-            if (validCategories.length > 0) htmlOutput += generateSliderRowHTML(validCategories[0]);
-            if (validCategories.length > 1) htmlOutput += generateSliderRowHTML(validCategories[1]);
-            
-            htmlOutput += adViewportHTML;
-
-            if (validCategories.length > 2) htmlOutput += generateSliderRowHTML(validCategories[2]);
-            if (validCategories.length > 3) htmlOutput += generateSliderRowHTML(validCategories[3]);
-            
-            const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
-            htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
-
-            for (let i = 5; i < validCategories.length; i++) {
-                htmlOutput += generateSliderRowHTML(validCategories[i]);
-            }
-
-            container.innerHTML = htmlOutput;
-            renderPreviewSlider();
-            setupAutoSlide();
-        };
-
-        function renderPreviewSlider() {
-            const slider = document.getElementById('ad-preview-slider');
-            const indicators = document.getElementById('ad-indicators');
-            if (!slider || !indicators) return;
-
-            if (!currentAds || currentAds.length === 0) {
-                slider.innerHTML = `<div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">No active ads.</div>`;
-                indicators.innerHTML = '';
-                return;
-            }
-
-            slider.innerHTML = '';
-            let dotsHtml = '';
-
-            currentAds.forEach((ad, idx) => {
-                const slideDiv = document.createElement('div');
-                slideDiv.className = "w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center bg-black overflow-hidden cursor-pointer";
-
-                if (ad.type === 'video') {
-                    const videoEl = document.createElement('video');
-                    videoEl.src = ad.link;
-                    videoEl.autoplay = true;
-                    videoEl.muted = true;
-                    videoEl.playsInline = true;
-                    videoEl.loop = true;
-                    videoEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
-
-                    const badge = document.createElement('div');
-                    badge.className = "absolute inset-0 flex items-center justify-center pointer-events-none z-10 speaker-badge-container";
-                    badge.innerHTML = `
-                        <div class="w-14 h-14 rounded-full bg-slate-950/70 backdrop-blur-xl flex items-center justify-center text-white shadow-2xl border border-white/25 icon-morph">
-                            <i class="fa-solid fa-volume-xmark text-lg text-amber-400"></i>
-                        </div>
-                    `;
-
-                    slideDiv.addEventListener('click', () => {
-                        videoEl.muted = !videoEl.muted;
-                        const iconBox = badge.firstElementChild;
-                        const icon = iconBox.querySelector('i');
-
-                        badge.style.opacity = '1';
-                        badge.style.transform = 'scale(1)';
-
-                        if (videoEl.muted) {
-                            icon.className = "fa-solid fa-volume-xmark text-lg text-amber-400 icon-morph";
-                        } else {
-                            icon.className = "fa-solid fa-volume-high text-lg text-amber-400 icon-morph";
-                            setTimeout(() => {
-                                badge.style.transform = 'scale(0.85)';
-                                badge.style.opacity = '0';
-                            }, 50);
-                        }
-
-                        iconBox.style.transform = 'scale(1.15)';
-                        setTimeout(() => {
-                            if (!videoEl.muted) return;
-                            iconBox.style.transform = 'scale(1)';
-                        }, 200);
-                    });
-
-                    slideDiv.appendChild(videoEl);
-                    slideDiv.appendChild(badge);
-                } else {
-                    const imgEl = document.createElement('img');
-                    imgEl.src = ad.link;
-                    imgEl.alt = `Ad ${idx + 1}`;
-                    imgEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
-                    slideDiv.appendChild(imgEl);
-                }
-
-                slider.appendChild(slideDiv);
-                dotsHtml += `<span class="w-2 h-2 rounded-full ${idx === 0 ? 'bg-amber-500 w-4' : 'bg-white/50'} transition-all duration-300 inline-block"></span>`;
-            });
-
-            indicators.innerHTML = dotsHtml;
-        }
-
-        function setupAutoSlide() {
-            if (autoSlideInterval) {
-                clearInterval(autoSlideInterval);
-                autoSlideInterval = null;
-            }
-
-            if (currentAds.length <= 1) return;
-
-            const slider = document.getElementById('ad-preview-slider');
-            if (!slider) return;
-
-            autoSlideInterval = setInterval(() => {
-                if (currentAds.length <= 1) return;
-                currentSlideIndex = (currentSlideIndex + 1) % currentAds.length;
-                const scrollAmount = slider.clientWidth * currentSlideIndex;
-                slider.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-                updateDots(currentSlideIndex);
-            }, 4000);
-        }
-
-        function updateDots(activeIdx) {
-            const dots = document.querySelectorAll('#ad-indicators span');
-            dots.forEach((dot, idx) => {
-                if (idx === activeIdx) {
-                    dot.className = "w-4 h-2 rounded-full bg-amber-500 transition-all duration-300 inline-block";
-                } else {
-                    dot.className = "w-2 h-2 rounded-full bg-white/50 transition-all duration-300 inline-block";
-                }
-            });
-        }
-
-        window.filterProducts = function() {
-            const query = document.getElementById('search-bar').value.toLowerCase().trim();
-            const searchResultsSection = document.getElementById('search-results-section');
-            const searchResultsGrid = document.getElementById('search-results-grid');
-            const searchResultsTitle = document.getElementById('search-results-title');
-
-            if (!query) {
-                searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results`;
-                if (selectedCategoryFilter === null) {
-                    searchResultsSection.classList.add('hidden');
-                }
-                searchResultsGrid.innerHTML = '';
-                renderCatalog(liveInventory);
-                return;
-            }
-
-            const filtered = liveInventory.filter(item => 
-                item.name.toLowerCase().includes(query) || 
-                (item.descSmall && item.descSmall.toLowerCase().includes(query)) ||
-                (item.descBig && item.descBig.toLowerCase().includes(query)) ||
-                (item.category && item.category.toLowerCase().includes(query))
-            );
-
-            searchResultsSection.classList.remove('hidden');
-            searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results (${query})`;
-            
-            if (filtered.length === 0) {
-                searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No matching products found.</div>`;
-            } else {
-                let resHtml = '';
-                filtered.forEach(item => {
                     const priceMarkup = calculatePricingHTML(item, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -874,21 +639,16 @@
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             if (!product || product.inStock === false) return;
 
-            let finalPrice = product.price;
-            const cleanPriceNum = parseFloat(typeof product.price === 'string' ? product.price.replace('₹', '') : product.price) || 0;
-            
+            let finalPrice = parseFloat(product.price) || 0;
             let activeOfferPercentage = 0;
-            let hasActiveOffer = false;
-            if (product.offerEnabled && parseFloat(product.offerPercentage) > 0) {
-                activeOfferPercentage = parseFloat(product.offerPercentage);
-                hasActiveOffer = true;
+            if (product.offerEnabled && product.offerPercentage > 0) {
+                activeOfferPercentage = parseFloat(product.offerPercentage) || 0;
             } else if (globalOfferSettings.enabled && globalOfferSettings.percentage > 0) {
                 activeOfferPercentage = globalOfferSettings.percentage;
-                hasActiveOffer = true;
             }
 
-            if (hasActiveOffer) {
-                finalPrice = Math.round(cleanPriceNum * (1 - (activeOfferPercentage / 100)));
+            if (activeOfferPercentage > 0) {
+                finalPrice = Math.round(finalPrice * (1 - (activeOfferPercentage / 100)));
             }
 
             const existing = cart.find(item => item.firebaseKey === firebaseKey);
@@ -917,7 +677,6 @@
         function saveAndRefreshUI(firebaseKey) {
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartCount();
-
             const newActionHtml = getCartActionHTML(firebaseKey);
             document.querySelectorAll(`[id="action-container-${firebaseKey}"]`).forEach(el => {
                 el.innerHTML = newActionHtml;
@@ -929,17 +688,13 @@
             const badge = document.getElementById('cart-badge');
             if (badge) {
                 badge.textContent = totalCount;
-                if (totalCount > 0) {
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
+                if (totalCount > 0) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             updateCartCount();
-            
             const slider = document.getElementById('ad-preview-slider');
             if (slider) {
                 slider.addEventListener('scroll', () => {
