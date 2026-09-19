@@ -89,15 +89,18 @@
                 <div>
                     <h1 class="text-lg sm:text-3xl font-extrabold tracking-tight text-gray-900">Healthy Living Essentials</h1>
                 </div>
-                <div class="w-full md:w-72 flex items-center gap-3 justify-end">
-                    <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
-                    <!-- Toggle Switch Positioned Right Side -->
-                    <div class="flex items-center gap-1 shrink-0 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm" title="Toggle Switch">
-                        <span class="text-[10px] font-bold text-gray-700">Toggle</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="header-feature-toggle" class="sr-only peer">
-                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                        </label>
+                <div class="w-full md:w-auto flex flex-wrap items-center gap-2 justify-end">
+                    <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full sm:w-56 bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
+                    
+                    <!-- Professional Sort By Dropdown -->
+                    <div class="flex items-center gap-1.5 shrink-0 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
+                        <i class="fa-solid fa-arrow-down-wide-short text-amber-600 text-xs"></i>
+                        <select id="sort-select" onchange="filterProducts()" class="bg-transparent text-[11px] font-bold text-gray-700 focus:outline-none cursor-pointer">
+                            <option value="default">Sort by: Featured</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="offers">Top Offers</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -278,19 +281,25 @@
 
         window.selectCategory = function(catName) {
             selectedCategoryFilter = catName;
-            
-            // Re-render the category drawer list to highlight the newly selected category tab
             renderCategoryDrawer();
-            
-            // Re-render catalog view with the selected category products at the top
             renderCatalog(liveInventory);
-            
-            // Smoothly scroll to the absolute top of the page (offsetting the fixed header)
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
             });
         };
+
+        // Helper to generate Offer Badge HTML if enabled
+        function getOfferBadgeHTML(item) {
+            if (item.hasOffer && item.offerPercent) {
+                return `
+                    <div class="absolute top-1 right-1 bg-rose-600 text-white font-extrabold text-[8px] px-1.5 py-0.5 rounded shadow-md flex items-center gap-0.5 z-10 animate-pulse">
+                        <i class="fa-solid fa-tag text-[7px]"></i> ${item.offerPercent}% OFF
+                    </div>
+                `;
+            }
+            return '';
+        }
 
         // Helper to generate Add to Cart / Stepper / Out of Stock actions
         function getCartActionHTML(firebaseKey) {
@@ -328,6 +337,21 @@
             }
         }
 
+        // Apply sorting rules
+        function sortProductsList(list) {
+            const sortVal = document.getElementById('sort-select')?.value || 'default';
+            let sorted = [...list];
+
+            if (sortVal === 'price-low') {
+                sorted.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+            } else if (sortVal === 'price-high') {
+                sorted.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+            } else if (sortVal === 'offers') {
+                sorted.sort((a, b) => (b.hasOffer === true ? 1 : 0) - (a.hasOffer === true ? 1 : 0));
+            }
+            return sorted;
+        }
+
         window.renderCatalog = function(productsToRender) {
             const container = document.getElementById('store-categories-container');
             const emptyState = document.getElementById('empty-state');
@@ -343,13 +367,14 @@
             }
 
             emptyState.classList.add('hidden');
+            const sortedProducts = sortProductsList(productsToRender);
 
-            // Handle Category Selection or Search Results View Pushed to Top
+             // Handle Category Selection or Search Results View Pushed to Top
             if (selectedCategoryFilter !== null) {
                 searchResultsSection.classList.remove('hidden');
                 searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
 
-                const chosenItems = productsToRender.filter(item => (item.category || "Uncategorized") === selectedCategoryFilter);
+                const chosenItems = sortedProducts.filter(item => (item.category || "Uncategorized") === selectedCategoryFilter);
                 chosenItems.sort((a, b) => {
                     const aStock = a.inStock !== false ? 1 : 0;
                     const bStock = b.inStock !== false ? 1 : 0;
@@ -363,11 +388,13 @@
                     chosenItems.forEach(item => {
                         const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                         const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                        const offerBadgeHtml = getOfferBadgeHTML(item);
                         const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                         const isInStock = item.inStock !== false;
 
                         chosenHtml += `
-                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                                ${offerBadgeHtml}
                                 <div>
                                     <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                         <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
@@ -391,10 +418,47 @@
                     searchResultsGrid.innerHTML = chosenHtml;
                 }
             } else {
-                // If search bar is empty and no category selected, hide search results section
                 const query = document.getElementById('search-bar').value.toLowerCase().trim();
-                if (!query) {
+                const activeSort = document.getElementById('sort-select')?.value || 'default';
+                if (!query && activeSort === 'default') {
                     searchResultsSection.classList.add('hidden');
+                } else if (activeSort !== 'default') {
+                    // Show sorted view in search box area if user selected a sort filter without query
+                    searchResultsSection.classList.remove('hidden');
+                    searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <i class="fa-solid fa-arrow-down-wide-short text-amber-500 mr-0.5"></i> Sorted Catalog View`;
+                    
+                    let sortHtml = '';
+                    sortedProducts.slice(0, 8).forEach(item => {
+                        const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                        const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                        const offerBadgeHtml = getOfferBadgeHTML(item);
+                        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                        const isInStock = item.inStock !== false;
+
+                        sortHtml += `
+                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                                ${offerBadgeHtml}
+                                <div>
+                                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Sorted' : 'Out'}</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                    </div>
+                                    <div id="action-container-${item.firebaseKey}">
+                                        ${actionButtonHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    searchResultsGrid.innerHTML = sortHtml;
                 }
             }
 
@@ -405,20 +469,12 @@
             });
             categoryGroups["Uncategorized"] = [];
 
-            productsToRender.forEach(item => {
+            sortedProducts.forEach(item => {
                 const cat = item.category || "Uncategorized";
                 if (!categoryGroups[cat]) {
                     categoryGroups[cat] = [];
                 }
                 categoryGroups[cat].push(item);
-            });
-
-            Object.keys(categoryGroups).forEach(cat => {
-                categoryGroups[cat].sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
             });
 
             let displayCategories = categoriesCache.map(c => c.name);
@@ -430,15 +486,14 @@
 
             let htmlOutput = '';
 
-            // Helper for Best Sellers section
             const generateBestSellersHTML = () => {
                 let bsList = [];
                 const bsKeys = Object.keys(savedBestSellers).filter(k => savedBestSellers[k] === true);
                 if (bsKeys.length > 0) {
-                    bsList = productsToRender.filter(item => bsKeys.includes(item.firebaseKey));
+                    bsList = sortedProducts.filter(item => bsKeys.includes(item.firebaseKey));
                 }
                 if (bsList.length === 0) {
-                    bsList = [...productsToRender].slice(0, 6);
+                    bsList = [...sortedProducts].slice(0, 6);
                 }
 
                 if (bsList.length === 0) return '';
@@ -457,11 +512,13 @@
                 bsList.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
                     bsHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                            ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
@@ -487,7 +544,6 @@
                 return bsHtml;
             };
 
-            // Helper for slider rows
             const generateSliderRowHTML = (catName) => {
                 const groupItems = categoryGroups[catName] || [];
                 if (groupItems.length === 0) return '';
@@ -506,11 +562,13 @@
                 groupItems.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
                     rowHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                            ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
@@ -536,9 +594,8 @@
                 return rowHtml;
             };
 
-            // Helper for Recommended For You section
             const generateRecommendedHTML = () => {
-                const shuffled = [...productsToRender].sort(() => 0.5 - Math.random());
+                const shuffled = [...sortedProducts].sort(() => 0.5 - Math.random());
                 const recommendedList = shuffled.slice(0, 4);
                 if (recommendedList.length === 0) return '';
 
@@ -554,13 +611,15 @@
                 `;
 
                 recommendedList.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
                     recHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                            ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
@@ -586,7 +645,6 @@
                 return recHtml;
             };
 
-            // Helper for the Dark Box section with initially 8 small cards (4 cards in a row) and View All button
             const generateDark8CardSectionHTML = (catName) => {
                 const fullGroupItems = categoryGroups[catName] || [];
                 const displayGroupItems = fullGroupItems.slice(0, 8);
@@ -609,11 +667,13 @@
                 displayGroupItems.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
                     darkHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group relative">
+                            ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-900 rounded-md overflow-hidden h-16 mb-1 border border-slate-800 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
@@ -639,7 +699,6 @@
                 return darkHtml;
             };
 
-            // Ad banner HTML snippet
             const adViewportHTML = `
                 <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
                     <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
@@ -647,7 +706,6 @@
                             Loading ads...
                         </div>
                     </div>
-                    <!-- Slide Indicators (Dots) -->
                     <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
                 </div>
             `;
@@ -674,7 +732,6 @@
             setupAutoSlide();
         };
 
-        // Render Preview Slider Logic
         function renderPreviewSlider() {
             const slider = document.getElementById('ad-preview-slider');
             const indicators = document.getElementById('ad-indicators');
@@ -722,7 +779,6 @@
                             icon.className = "fa-solid fa-volume-xmark text-lg text-amber-400 icon-morph";
                         } else {
                             icon.className = "fa-solid fa-volume-high text-lg text-amber-400 icon-morph";
-                            
                             setTimeout(() => {
                                 badge.style.transform = 'scale(0.85)';
                                 badge.style.opacity = '0';
@@ -789,26 +845,31 @@
             const searchResultsSection = document.getElementById('search-results-section');
             const searchResultsGrid = document.getElementById('search-results-grid');
             const searchResultsTitle = document.getElementById('search-results-title');
+            const sortVal = document.getElementById('sort-select')?.value || 'default';
 
-            if (!query) {
-                searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results`;
-                if (selectedCategoryFilter === null) {
-                    searchResultsSection.classList.add('hidden');
-                }
+            if (!query && sortVal === 'default' && selectedCategoryFilter === null) {
+                searchResultsSection.classList.add('hidden');
                 searchResultsGrid.innerHTML = '';
                 renderCatalog(liveInventory);
                 return;
             }
 
-            const filtered = liveInventory.filter(item => 
-                item.name.toLowerCase().includes(query) || 
-                (item.descSmall && item.descSmall.toLowerCase().includes(query)) ||
-                (item.descBig && item.descBig.toLowerCase().includes(query)) ||
-                (item.category && item.category.toLowerCase().includes(query))
-            );
+            let filtered = liveInventory.filter(item => {
+                const matchesQuery = !query || (
+                    item.name.toLowerCase().includes(query) || 
+                    (item.descSmall && item.descSmall.toLowerCase().includes(query)) ||
+                    (item.descBig && item.descBig.toLowerCase().includes(query)) ||
+                    (item.category && item.category.toLowerCase().includes(query))
+                );
+                const matchesCat = selectedCategoryFilter === null || (item.category || "Uncategorized") === selectedCategoryFilter;
+                return matchesQuery && matchesCat;
+            });
+
+            filtered = sortProductsList(filtered);
 
             searchResultsSection.classList.remove('hidden');
-            searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results (${query})`;
+            let titleText = selectedCategoryFilter || (query ? `Search Results (${query})` : `Sorted Catalog View`);
+            searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${titleText}</span>`;
             
             if (filtered.length === 0) {
                 searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No matching products found.</div>`;
@@ -817,11 +878,13 @@
                 filtered.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
                     resHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                            ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
@@ -844,6 +907,9 @@
                 });
                 searchResultsGrid.innerHTML = resHtml;
             }
+
+            // Also update regular catalog layout
+            renderCatalog(liveInventory);
         };
 
         window.addToCart = function(firebaseKey) {
