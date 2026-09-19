@@ -3,185 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | Product Management Admin</title>
+    <title>Munchirai YMCA | Product Management</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for UI icons -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#1e293b',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Custom Toggle Switch Styling */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #10b981;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #10b981;
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16">
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
-    <!-- Professional Admin Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 shrink-0">
-                <a href="mystore.html" class="text-xs sm:text-base font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs font-bold shadow">MY</span> Admin Panel
-                </a>
+    <!-- ENTERPRISE NAVIGATION HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg backdrop-blur-md bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <!-- Brand Mark -->
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md">MY</div>
+                <div>
+                    <h1 class="text-xs font-extrabold text-white tracking-tight">MUNCHIRAI YMCA</h1>
+                    <span class="text-[10px] text-amber-400 font-mono tracking-wider block">DATABASE_NODE</span>
+                </div>
             </div>
+            
+            <!-- Quick Actions -->
             <div class="flex items-center gap-2">
-                <a href="mystore.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-slate-700 flex items-center gap-1.5">
-                    <i class="fa-solid fa-store text-amber-400"></i> View Store
+                <a href="addproduct.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>Add Product</span>
+                </a>
+                <a href="admin.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-arrow-left text-amber-400"></i>
+                    <span class="hidden xs:inline">Admin Hub</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Dashboard Container -->
-    <main class="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
         
-        <!-- Page Title & Status -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">Product Inventory Management</h1>
-                <p class="text-xs text-slate-400 mt-0.5">Add, edit items, control stock status, and set individual promotional offers.</p>
-            </div>
-        </div>
-
-        <!-- Global Store Offer Control Panel -->
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-800 shadow-xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h2 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-percent text-amber-500"></i> Global Store-Wide Offer Banner
-                </h2>
-                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">Applies everywhere if active</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Global Offer Switch</label>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="global-offer-switch" class="sr-only peer">
-                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        <span class="ml-3 text-xs font-bold text-slate-200" id="global-offer-status-label">Inactive</span>
-                    </label>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Discount Percentage (%)</label>
-                    <input type="number" id="global-offer-percentage" placeholder="e.g., 15" min="0" max="100" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <button onclick="saveGlobalOffer()" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs py-2 px-4 rounded-xl transition shadow">
-                        Save Global Offer
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add / Edit Product Form Container -->
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-800 shadow-xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h2 id="form-title" class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-square-plus text-amber-500"></i> Add New Product
-                </h2>
-                <button id="cancel-edit-btn" onclick="resetForm()" class="hidden text-xs text-slate-400 hover:text-white underline">Cancel Edit</button>
+        <!-- Controls Bar Section -->
+        <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="w-full sm:w-auto">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Inventory Database</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Product Management</h2>
             </div>
 
-            <form id="product-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                <input type="hidden" id="edit-firebase-key" value="">
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Product Name *</label>
-                        <input type="text" id="prod-name" required placeholder="e.g. Organic Multigrain Flour" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Category *</label>
-                        <select id="prod-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                            <option value="">Select Category...</option>
-                        </select>
-                    </div>
+            <!-- Search & Filter Controls -->
+            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                <div class="relative flex-grow sm:w-64">
+                    <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-input" placeholder="Search products..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
                 </div>
+                <select id="filter-category" class="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+        </section>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Price (₹) *</label>
-                        <input type="number" id="prod-price" required placeholder="e.g. 250" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Quantity / Unit Size</label>
-                        <input type="text" id="prod-qty" placeholder="e.g. 500g or 1 Litre" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Stock Status</label>
-                        <select id="prod-instock" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                            <option value="true">In Stock</option>
-                            <option value="false">Out of Stock</option>
-                        </select>
-                    </div>
-                </div>
+        <div id="db-status-msg" class="hidden mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
 
-                <!-- Individual Product Offer Configuration Panel -->
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="block text-[11px] font-bold text-amber-400 uppercase tracking-wide">Individual Product Offer</span>
-                            <span class="text-[10px] text-slate-400">Override global store discount for this specific item</span>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="prod-offer-switch" class="sr-only peer">
-                            <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                        </label>
-                    </div>
-                    <div id="prod-offer-percentage-container" class="hidden">
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Product Offer Discount Percentage (%)</label>
-                        <input type="number" id="prod-offer-percentage" placeholder="e.g. 20" min="0" max="100" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Google Drive Image Link *</label>
-                    <input type="url" id="prod-img" required placeholder="Paste direct Google Drive shared view/image link here" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    <span class="text-[10px] text-slate-400 mt-1 block">Tip: Make sure your Google Drive image sharing permissions are set to "Anyone with the link can view".</span>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Short Description (Card Subtitle)</label>
-                        <input type="text" id="prod-desc-small" placeholder="Brief tagline shown on product card" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Full Description (Detail View)</label>
-                        <input type="text" id="prod-desc-big" placeholder="Detailed product specifications or benefits" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                </div>
-
-                <div class="pt-2 flex justify-end gap-2">
-                    <button type="submit" id="submit-btn" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs py-2.5 px-6 rounded-xl transition shadow">
-                        Add Product to Inventory
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Inventory Catalog Table / List -->
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-800 shadow-xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h2 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-stacked text-amber-500"></i> Current Inventory List (<span id="inventory-count">0</span>)
-                </h2>
-                <div class="w-48 sm:w-64">
-                    <input type="text" id="admin-search" onkeyup="filterAdminInventory()" placeholder="Filter inventory..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                </div>
+        <!-- Inventory Container -->
+        <section class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/80 overflow-hidden">
+            <!-- Desktop Table View -->
+            <div class="hidden md:block overflow-x-auto no-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                            <th class="py-4 px-5">Product</th>
+                            <th class="py-4 px-4">Category</th>
+                            <th class="py-4 px-4">Price</th>
+                            <th class="py-4 px-4">Unit</th>
+                            <th class="py-4 px-4 text-center">Stock Status</th>
+                            <th class="py-4 px-4 text-center">Offer Control</th>
+                            <th class="py-4 px-5 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body" class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+                        <tr>
+                            <td colspan="7" class="py-10 text-center text-slate-400">Loading inventory records...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div id="inventory-list-container" class="space-y-2.5">
-                <div class="text-center py-10 text-slate-500 text-xs">Loading inventory items...</div>
+            <!-- Mobile Card View -->
+            <div id="inventory-card-container" class="md:hidden divide-y divide-slate-100 p-4 space-y-3">
+                <div class="py-8 text-center text-slate-400 text-xs">Loading inventory records...</div>
             </div>
-        </div>
+        </section>
 
     </main>
 
-    <!-- Firebase SDK Imports & Admin Script -->
+    <!-- ENTERPRISE FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400">
+        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
+    </footer>
+
+    <!-- Firebase Realtime Engine & Analytics -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -195,246 +151,259 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
-        let liveInventory = [];
+        let rawInventoryCache = [];
         let categoriesCache = [];
 
-        // Toggle individual offer percentage container visibility
-        document.getElementById('prod-offer-switch').addEventListener('change', function() {
-            const container = document.getElementById('prod-offer-percentage-container');
-            if (this.checked) {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-                document.getElementById('prod-offer-percentage').value = '';
-            }
-        });
+        const searchInput = document.getElementById('search-input');
+        const filterCategory = document.getElementById('filter-category');
+        const tableBody = document.getElementById('inventory-table-body');
+        const cardContainer = document.getElementById('inventory-card-container');
 
-        // Fetch Global Store Offer Settings
-        const offerRef = ref(db, 'storeOffer');
-        onValue(offerRef, (snapshot) => {
-            const data = snapshot.val();
-            const switchEl = document.getElementById('global-offer-switch');
-            const labelEl = document.getElementById('global-offer-status-label');
-            const inputEl = document.getElementById('global-offer-percentage');
+        function showStatus(message, isError = false) {
+            const msgEl = document.getElementById('db-status-msg');
+            msgEl.textContent = message;
+            msgEl.className = `mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            msgEl.classList.remove('hidden');
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
+        }
 
-            if (data) {
-                switchEl.checked = !!data.enabled;
-                labelEl.textContent = data.enabled ? 'Active' : 'Inactive';
-                inputEl.value = data.percentage || '';
-            } else {
-                switchEl.checked = false;
-                labelEl.textContent = 'Inactive';
-                inputEl.value = '';
-            }
-        });
-
-        document.getElementById('global-offer-switch').addEventListener('change', function() {
-            document.getElementById('global-offer-status-label').textContent = this.checked ? 'Active' : 'Inactive';
-        });
-
-        window.saveGlobalOffer = function() {
-            const enabled = document.getElementById('global-offer-switch').checked;
-            const percentage = parseFloat(document.getElementById('global-offer-percentage').value) || 0;
-
-            set(ref(db, 'storeOffer'), {
-                enabled: enabled,
-                percentage: percentage
-            }).then(() => {
-                alert('Global store offer updated successfully!');
-            }).catch((error) => {
-                alert('Error updating global offer: ' + error.message);
-            });
-        };
-
-        // Fetch Categories
-        const categoriesRef = ref(db, 'categories');
-        onValue(categoriesRef, (snapshot) => {
-            const data = snapshot.val();
-            const selectEl = document.getElementById('prod-category');
-            if (data) {
-                categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
+        // Load Categories for filtering dropdown
+        onValue(ref(db, 'categories'), (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                categoriesCache = Object.keys(data).map(k => data[k]);
                 categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
                 
-                let optionsHtml = '<option value="">Select Category...</option>';
-                categoriesCache.forEach(cat => {
-                    optionsHtml += `<option value="${cat.name}">${cat.name}</option>`;
-                });
-                selectEl.innerHTML = optionsHtml;
-            } else {
-                categoriesCache = [];
-                selectEl.innerHTML = '<option value="">No categories available</option>';
+                const currentSelection = filterCategory.value;
+                filterCategory.innerHTML = `<option value="">All Categories</option>` + categoriesCache.map(c => `
+                    <option value="${c.name}" ${currentSelection === c.name ? 'selected' : ''}>${c.name}</option>
+                `).join('');
             }
         });
 
-        // Fetch Inventory
-        const inventoryRef = ref(db, 'inventory');
-        onValue(inventoryRef, (snapshot) => {
+        // Load Inventory Data
+        onValue(ref(db, 'inventory'), (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                liveInventory = Object.keys(data).map(key => ({
-                    firebaseKey: key,
-                    ...data[key]
-                }));
-            } else {
-                liveInventory = [];
-            }
-            renderAdminInventory(liveInventory);
-        });
-
-        window.handleFormSubmit = function(event) {
-            event.preventDefault();
-
-            const editKey = document.getElementById('edit-firebase-key').value;
-            const name = document.getElementById('prod-name').value.trim();
-            const category = document.getElementById('prod-category').value;
-            const price = parseFloat(document.getElementById('prod-price').value) || 0;
-            const qty = document.getElementById('prod-qty').value.trim();
-            const inStock = document.getElementById('prod-instock').value === 'true';
-            const offerEnabled = document.getElementById('prod-offer-switch').checked;
-            const offerPercentage = parseFloat(document.getElementById('prod-offer-percentage').value) || 0;
-            const img = document.getElementById('prod-img').value.trim();
-            const descSmall = document.getElementById('prod-desc-small').value.trim();
-            const descBig = document.getElementById('prod-desc-big').value.trim();
-
-            const productData = {
-                name,
-                category,
-                price,
-                qty,
-                inStock,
-                offerEnabled,
-                offerPercentage,
-                img,
-                descSmall,
-                descBig
-            };
-
-            if (editKey) {
-                // Update existing item
-                update(ref(db, `inventory/${editKey}`), productData).then(() => {
-                    alert('Product updated successfully!');
-                    resetForm();
-                }).catch(err => alert('Error updating product: ' + err.message));
-            } else {
-                // Push new item
-                push(ref(db, 'inventory'), productData).then(() => {
-                    alert('Product added successfully!');
-                    resetForm();
-                }).catch(err => alert('Error adding product: ' + err.message));
-            }
-        };
-
-        window.renderAdminInventory = function(items) {
-            const container = document.getElementById('inventory-list-container');
-            document.getElementById('inventory-count').textContent = items.length;
-
-            if (!items || items.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs">No inventory items found.</div>`;
+            if (!data) {
+                rawInventoryCache = [];
+                tableBody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400">No products found in inventory.</td></tr>`;
+                cardContainer.innerHTML = `<div class="py-10 text-center text-slate-400 text-xs">No products found in inventory.</div>`;
                 return;
             }
 
-            let html = '';
-            items.forEach(item => {
-                const stockBadge = item.inStock !== false 
-                    ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">In Stock</span>`
-                    : `<span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Out of Stock</span>`;
+            rawInventoryCache = Object.keys(data).map(key => ({ key, ...data[key] }));
+            renderFilteredInventory();
+        });
 
-                const offerBadge = item.offerEnabled && item.offerPercentage > 0
-                    ? `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded text-[10px] font-bold">${item.offerPercentage}% Offer Active</span>`
-                    : `<span class="text-slate-500 text-[10px]">No individual offer</span>`;
+        // Event listeners for searching and filtering
+        searchInput.addEventListener('input', renderFilteredInventory);
+        filterCategory.addEventListener('change', renderFilteredInventory);
 
-                html += `
-                    <div class="bg-slate-950 rounded-xl p-3 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-slate-900 rounded-lg overflow-hidden border border-slate-800 shrink-0 flex items-center justify-center">
-                                <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=200'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+        function renderFilteredInventory() {
+            const query = searchInput.value.toLowerCase().trim();
+            const selectedCat = filterCategory.value;
+
+            const filtered = rawInventoryCache.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(query) || (item.category && item.category.toLowerCase().includes(query));
+                const matchesCat = !selectedCat || item.category === selectedCat;
+                return matchesSearch && matchesCat;
+            });
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400">No matching records found.</td></tr>`;
+                cardContainer.innerHTML = `<div class="py-10 text-center text-slate-400 text-xs">No matching records found.</div>`;
+                return;
+            }
+
+            // Render Desktop Table Rows
+            tableBody.innerHTML = filtered.map(item => {
+                const inStock = item.inStock !== false;
+                const hasOffer = item.hasOffer === true;
+                const offerPercent = item.offerPercent || '';
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3.5 px-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                    <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                                </div>
+                                <div>
+                                    <span class="font-bold text-slate-900 block">${item.name}</span>
+                                    <span class="text-[10px] text-slate-400 font-mono">ID: ${item.key.slice(-6)}</span>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-white text-xs sm:text-sm">${item.name}</h3>
-                                <p class="text-[10px] text-slate-400">Category: <span class="text-amber-400">${item.category || 'Uncategorized'}</span> | Price: <strong class="text-white">₹${item.price}</strong> (${item.qty || 'Std'})</p>
-                                <div class="flex items-center gap-2 mt-1">
-                                    ${stockBadge}
-                                    ${offerBadge}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="bg-amber-50 text-amber-800 border border-amber-200/60 px-2.5 py-1 rounded-md text-[10px] font-bold">${item.category || 'General'}</span>
+                        </td>
+                        <td class="py-3.5 px-4 font-extrabold text-slate-900">
+                            ₹${Number(item.price || 0).toFixed(2)}
+                        </td>
+                        <td class="py-3.5 px-4 font-bold text-slate-800">
+                            ${item.qty || '1 Pc'}
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" ${inStock ? 'checked' : ''} onchange="window.toggleStock('${item.key}', this.checked)">
+                                <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                                <span class="ml-2 text-[11px] font-bold ${inStock ? 'text-emerald-700' : 'text-red-600'}">${inStock ? 'In Stock' : 'Out'}</span>
+                            </label>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <div class="relative w-16">
+                                    <input type="number" id="offer-input-${item.key}" value="${offerPercent}" placeholder="%" min="1" max="100" onchange="window.updateOffer('${item.key}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-center text-slate-900 focus:outline-none focus:border-amber-500 font-bold">
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer" title="Offer Switch">
+                                    <input type="checkbox" id="offer-toggle-${item.key}" class="sr-only peer" ${hasOffer ? 'checked' : ''} onchange="window.updateOffer('${item.key}')">
+                                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                                </label>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-5 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="addproduct.html?edit=${item.key}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 border border-slate-200 flex items-center justify-center transition active:scale-95" title="Edit Product">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </a>
+                                <button onclick="window.deleteProduct('${item.key}', '${item.name}')" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 border border-slate-200 flex items-center justify-center transition active:scale-95" title="Delete Product">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Render Mobile Cards View
+            cardContainer.innerHTML = filtered.map(item => {
+                const inStock = item.inStock !== false;
+                const hasOffer = item.hasOffer === true;
+                const offerPercent = item.offerPercent || '';
+                return `
+                    <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4 space-y-3 shadow-sm">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-14 h-14 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
+                                    <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                                </div>
+                                <div>
+                                    <h3 class="font-extrabold text-slate-900 text-sm leading-snug">${item.name}</h3>
+                                    <span class="bg-amber-50 text-amber-800 border border-amber-200/60 px-2 py-0.5 rounded text-[10px] font-bold inline-block mt-1">${item.category || 'General'}</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
-                            <button onclick="window.editProduct('${item.firebaseKey}')" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-slate-700 flex items-center gap-1">
-                                <i class="fa-solid fa-pen-to-square"></i> Edit
-                            </button>
-                            <button onclick="window.deleteProduct('${item.firebaseKey}')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-1.5 rounded-lg text-xs font-bold transition border border-rose-500/20 flex items-center gap-1">
-                                <i class="fa-solid fa-trash"></i> Delete
+                        
+                        <div class="grid grid-cols-3 gap-2 bg-white p-3 rounded-xl border border-slate-200/60 text-center">
+                            <div>
+                                <span class="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Price</span>
+                                <span class="font-extrabold text-slate-900 text-xs">₹${Number(item.price || 0).toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Unit</span>
+                                <span class="font-bold text-slate-800 text-xs">${item.qty || '1 Pc'}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Status</span>
+                                <span class="font-bold text-xs ${inStock ? 'text-emerald-600' : 'text-red-600'}">${inStock ? 'Available' : 'Out of Stock'}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between bg-white px-3 py-2.5 rounded-xl border border-slate-200/60">
+                            <span class="text-xs font-bold text-slate-700">Stock Availability Toggle</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" ${inStock ? 'checked' : ''} onchange="window.toggleStock('${item.key}', this.checked)">
+                                <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between bg-white px-3 py-2.5 rounded-xl border border-slate-200/60">
+                            <span class="text-xs font-bold text-slate-700">Offer Control (%)</span>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="offer-input-m-${item.key}" value="${offerPercent}" placeholder="%" min="1" max="100" onchange="window.updateOfferMobile('${item.key}')" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-center text-slate-900 focus:outline-none focus:border-amber-500 font-bold">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="offer-toggle-m-${item.key}" class="sr-only peer" ${hasOffer ? 'checked' : ''} onchange="window.updateOfferMobile('${item.key}')">
+                                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        ${item.descSmall ? `<p class="text-[11px] text-slate-500 line-clamp-1 italic">${item.descSmall}</p>` : ''}
+
+                        <div class="flex items-center justify-end gap-2 pt-1">
+                            <a href="addproduct.html?edit=${item.key}" class="flex-grow py-2 rounded-xl bg-slate-200/70 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 text-xs font-bold text-center transition active:scale-95 flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-pen text-[10px]"></i> Edit Record
+                            </a>
+                            <button onclick="window.deleteProduct('${item.key}', '${item.name}')" class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold transition active:scale-95 flex items-center justify-center">
+                                <i class="fa-solid fa-trash text-[10px]"></i>
                             </button>
                         </div>
                     </div>
                 `;
+            }).join('');
+        }
+
+        // Toggle Stock Status Handler
+        window.toggleStock = function(key, status) {
+            update(ref(db, `inventory/${key}`), { inStock: status })
+                .then(() => {
+                    showStatus(`Stock status updated successfully.`);
+                })
+                .catch(err => {
+                    showStatus("Failed to update stock status: " + err.message, true);
+                });
+        };
+
+        // Update Offer Desktop Handler
+        window.updateOffer = function(key) {
+            const toggleEl = document.getElementById(`offer-toggle-${key}`);
+            const inputEl = document.getElementById(`offer-input-${key}`);
+            if (!toggleEl || !inputEl) return;
+
+            const hasOffer = toggleEl.checked;
+            const offerPercent = inputEl.value.trim();
+
+            update(ref(db, `inventory/${key}`), { 
+                hasOffer: hasOffer, 
+                offerPercent: offerPercent 
+            })
+            .then(() => {
+                showStatus(`Offer settings updated successfully.`);
+            })
+            .catch(err => {
+                showStatus("Failed to update offer: " + err.message, true);
             });
-
-            container.innerHTML = html;
         };
 
-        window.filterAdminInventory = function() {
-            const query = document.getElementById('admin-search').value.toLowerCase().trim();
-            if (!query) {
-                renderAdminInventory(liveInventory);
-                return;
-            }
-            const filtered = liveInventory.filter(item => 
-                item.name.toLowerCase().includes(query) || 
-                (item.category && item.category.toLowerCase().includes(query))
-            );
-            renderAdminInventory(filtered);
+        // Update Offer Mobile Handler
+        window.updateOfferMobile = function(key) {
+            const toggleEl = document.getElementById(`offer-toggle-m-${key}`);
+            const inputEl = document.getElementById(`offer-input-m-${key}`);
+            if (!toggleEl || !inputEl) return;
+
+            const hasOffer = toggleEl.checked;
+            const offerPercent = inputEl.value.trim();
+
+            update(ref(db, `inventory/${key}`), { 
+                hasOffer: hasOffer, 
+                offerPercent: offerPercent 
+            })
+            .then(() => {
+                showStatus(`Offer settings updated successfully.`);
+            })
+            .catch(err => {
+                showStatus("Failed to update offer: " + err.message, true);
+            });
         };
 
-        window.editProduct = function(firebaseKey) {
-            const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
-            if (!product) return;
-
-            document.getElementById('edit-firebase-key').value = product.firebaseKey;
-            document.getElementById('prod-name').value = product.name || '';
-            document.getElementById('prod-category').value = product.category || '';
-            document.getElementById('prod-price').value = product.price || '';
-            document.getElementById('prod-qty').value = product.qty || '';
-            document.getElementById('prod-instock').value = product.inStock !== false ? 'true' : 'false';
-            
-            const offerSwitch = document.getElementById('prod-offer-switch');
-            offerSwitch.checked = !!product.offerEnabled;
-            const offerContainer = document.getElementById('prod-offer-percentage-container');
-            if (product.offerEnabled) {
-                offerContainer.classList.remove('hidden');
-                document.getElementById('prod-offer-percentage').value = product.offerPercentage || '';
-            } else {
-                offerContainer.classList.add('hidden');
-                document.getElementById('prod-offer-percentage').value = '';
-            }
-
-            document.getElementById('prod-img').value = product.img || '';
-            document.getElementById('prod-desc-small').value = product.descSmall || '';
-            document.getElementById('prod-desc-big').value = product.descBig || '';
-
-            document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500"></i> Edit Product: ${product.name}`;
-            document.getElementById('submit-btn').textContent = 'Update Product';
-            document.getElementById('cancel-edit-btn').classList.remove('hidden');
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.resetForm = function() {
-            document.getElementById('product-form').reset();
-            document.getElementById('edit-firebase-key').value = '';
-            document.getElementById('prod-offer-percentage-container').classList.add('hidden');
-            document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-square-plus text-amber-500"></i> Add New Product`;
-            document.getElementById('submit-btn').textContent = 'Add Product to Inventory';
-            document.getElementById('cancel-edit-btn').classList.add('hidden');
-        };
-
-        window.deleteProduct = function(firebaseKey) {
-            if (confirm('Are you sure you want to delete this product from inventory?')) {
-                remove(ref(db, `inventory/${firebaseKey}`)).then(() => {
-                    alert('Product deleted successfully.');
-                }).catch(err => alert('Error deleting product: ' + err.message));
+        // Global Delete Handler
+        window.deleteProduct = function(key, name) {
+            if (confirm(`Are you sure you want to delete "${name}" from inventory?`)) {
+                remove(ref(db, `inventory/${key}`))
+                    .then(() => showStatus(`Product "${name}" deleted successfully.`))
+                    .catch(err => showStatus("Failed to delete product: " + err.message, true));
             }
         };
     </script>
