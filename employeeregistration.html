@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full w-full overflow-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,113 +11,116 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body, html { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; height: 100%; width: 100%; overflow: hidden; position: fixed; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 flex flex-col">
 
     <!-- Professional Fixed Header -->
-    <header class="sticky top-0 left-0 right-0 z-50 bg-slate-900 text-white shadow-md border-b border-slate-800 h-12 flex items-center px-4 shrink-0">
-        <div class="w-full flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-[10px] font-extrabold">MY</span>
-                <span class="text-xs font-black tracking-wider uppercase">MY STORE</span>
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800 shrink-0 h-10 flex items-center">
+        <div class="max-w-7xl mx-auto px-3 w-full flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 shrink-0">
+                <a href="#" onclick="history.back(); return false;" class="text-[11px] font-black tracking-tighter uppercase text-white flex items-center gap-1 cursor-pointer">
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-[9px] font-bold shadow">MY</span> My Store
+                </a>
             </div>
-            <button onclick="history.back()" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-3 py-1 rounded-md font-bold text-xs shadow transition flex items-center gap-1.5 cursor-pointer">
-                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+            <button onclick="history.back()" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2 py-0.5 rounded font-bold text-[10px] shadow transition flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-arrow-left text-[8px]"></i>
                 <span>Back</span>
             </button>
         </div>
     </header>
 
-    <!-- Mobile-First Natural Scrolling Layout (No computer-like screen lock) -->
-    <main class="w-full max-w-md mx-auto px-4 py-4 flex-1 flex flex-col justify-start">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 flex flex-col">
-            
-            <div id="formContainer">
-                <!-- Title Header -->
-                <div class="flex items-center gap-3 pb-3 border-b border-slate-100 mb-4">
-                    <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-sm shrink-0">
-                        <i class="fa-solid fa-user-plus text-sm"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xs font-extrabold text-slate-900 uppercase tracking-tight">New Staff Application</h1>
-                        <p class="text-[10px] text-slate-500">Fill in your professional details below</p>
+    <!-- Mobile-First Locked Edge-to-Edge Viewport Container -->
+    <main class="absolute inset-0 top-10 flex justify-center items-center px-3 py-1.5 w-full overflow-hidden">
+        <div class="bg-white w-full max-w-sm rounded-xl shadow-sm border border-slate-200 p-3 flex flex-col justify-between h-full max-h-[calc(100vh-2.75rem)]">
+            <div id="formContainer" class="flex flex-col h-full justify-between">
+                
+                <!-- Compact Title Header -->
+                <div>
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-100 mb-1">
+                        <div class="w-5 h-5 rounded bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-[10px] shadow-sm">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-[10px] font-bold text-slate-900 leading-tight">New Staff Application</h2>
+                            <p class="text-[8px] text-slate-500 leading-tight">Fill in your professional details below</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Form Content -->
-                <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-3">
+                <!-- Form Section -->
+                <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-1.5 flex flex-col justify-between my-auto">
                     
                     <!-- Full Name -->
                     <div>
-                        <label for="fullName" class="block text-[10px] font-bold text-slate-700 mb-1">Full Name</label>
+                        <label for="fullName" class="block text-[8.5px] font-bold text-slate-700 mb-0.5">Full Name</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs">
+                            <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-400 text-[10px]">
                                 <i class="fa-solid fa-user"></i>
                             </span>
-                            <input type="text" id="fullName" placeholder="Enter full name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
+                            <input type="text" id="fullName" placeholder="Enter full name" required class="w-full bg-slate-50 border border-slate-200 rounded px-6 py-1 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 transition">
                         </div>
                     </div>
 
                     <!-- Mobile Number -->
                     <div>
-                        <label for="mobile" class="block text-[10px] font-bold text-slate-700 mb-1">Mobile Number</label>
+                        <label for="mobile" class="block text-[8.5px] font-bold text-slate-700 mb-0.5">Mobile Number</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs">
+                            <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-400 text-[10px]">
                                 <i class="fa-solid fa-phone"></i>
                             </span>
-                            <input type="tel" id="mobile" placeholder="9876543210" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
+                            <input type="tel" id="mobile" placeholder="9876543210" required class="w-full bg-slate-50 border border-slate-200 rounded px-6 py-1 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 transition">
                         </div>
                     </div>
 
-                    <!-- Date of Birth & Experience Years Nearby -->
-                    <div class="grid grid-cols-2 gap-2.5">
+                    <!-- Date of Birth & Experience Years -->
+                    <div class="grid grid-cols-2 gap-1.5">
                         <div>
-                            <label for="dob" class="block text-[10px] font-bold text-slate-700 mb-1">Date of Birth</label>
-                            <input type="date" id="dob" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
+                            <label for="dob" class="block text-[8.5px] font-bold text-slate-700 mb-0.5">Date of Birth</label>
+                            <input type="date" id="dob" required class="w-full bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-[9.5px] text-slate-900 focus:outline-none focus:bg-white focus:border-amber-500 transition">
                         </div>
                         <div>
-                            <label for="experienceYears" class="block text-[10px] font-bold text-slate-700 mb-1">Experience (Years)</label>
-                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
+                            <label for="experienceYears" class="block text-[8.5px] font-bold text-slate-700 mb-0.5">Experience (Years)</label>
+                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 transition">
                         </div>
                     </div>
 
                     <!-- Work Experience Details -->
                     <div>
-                        <label for="experienceDetails" class="block text-[10px] font-bold text-slate-700 mb-1">Work Experience Details</label>
-                        <textarea id="experienceDetails" placeholder="Briefly specify your past roles..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition resize-none h-16"></textarea>
+                        <label for="experienceDetails" class="block text-[8.5px] font-bold text-slate-700 mb-0.5">Work Experience Details</label>
+                        <textarea id="experienceDetails" placeholder="Briefly specify your past roles..." required class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 transition resize-none h-8"></textarea>
                     </div>
 
                     <!-- Google Drive Link -->
                     <div>
-                        <label for="resumeLink" class="block text-[10px] font-bold text-slate-700 mb-1">Google Drive Resume Link</label>
+                        <label for="resumeLink" class="block text-[8.5px] font-bold text-slate-700 mb-0.5">Google Drive Resume Link</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs">
+                            <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-400 text-[10px]">
                                 <i class="fa-brands fa-google-drive"></i>
                             </span>
-                            <input type="url" id="resumeLink" placeholder="https://drive.google.com/..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
+                            <input type="url" id="resumeLink" placeholder="https://drive.google.com/..." required class="w-full bg-slate-50 border border-slate-200 rounded px-6 py-1 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 transition">
                         </div>
                     </div>
 
                     <!-- Permanent Instructions -->
-                    <div class="p-2.5 bg-amber-50/80 border border-amber-200/60 rounded-xl text-[9px] text-amber-900 leading-relaxed">
-                        <span class="font-bold">Instructions:</span> Upload your resume to Google Drive, change permissions to public view, copy the link, and paste it here.
+                    <div class="p-1 bg-amber-50 border border-amber-200 rounded text-[7.5px] text-amber-900 leading-tight">
+                        <span class="font-bold">Instructions:</span> Upload resume to Google Drive, set public permissions, copy link, and paste here.
                     </div>
 
                     <!-- Submit Button Right Under Instructions -->
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold text-xs py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer mt-2">
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-extrabold text-[10px] py-1.5 px-2 rounded transition shadow-sm flex items-center justify-center gap-1 cursor-pointer">
                         <span>Submit Application</span>
-                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
                     </button>
 
-                    <!-- Natural Footer Supporting Information -->
-                    <div class="pt-3 border-t border-slate-100 text-center space-y-1">
-                        <p class="text-[9px] text-slate-500 leading-tight">
-                            We value dedication, transparency, and standard service excellence. Candidate profile details are securely processed for recruitment verification.
+                    <!-- Professional Footer Text Occupying Remaining Space -->
+                    <div class="pt-1 border-t border-slate-100 text-center space-y-0.5">
+                        <p class="text-[7.5px] text-slate-600 leading-tight">
+                            We value discipline, professionalism, and high operational standards. All candidate credentials are securely processed for recruitment verification.
                         </p>
-                        <p class="text-[8.5px] text-slate-400">
-                            By submitting, you agree to our <a href="#" class="text-amber-600 underline font-medium">Terms & Conditions</a> and privacy guidelines.
+                        <p class="text-[7px] text-slate-400 leading-tight">
+                            By submitting this form, you agree to our <a href="#" class="text-amber-600 underline font-semibold">Terms & Conditions</a> and privacy terms.
                         </p>
                     </div>
 
@@ -125,12 +128,12 @@
             </div>
 
             <!-- Success Notification Card -->
-            <div id="successNotification" class="hidden text-center py-10 px-4">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-base border border-emerald-100 shadow-sm">
+            <div id="successNotification" class="hidden text-center py-6 px-3 my-auto">
+                <div class="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xs border border-emerald-100 shadow-sm">
                     <i class="fa-solid fa-check"></i>
                 </div>
-                <h3 class="text-sm font-bold text-slate-900 mb-1">Application Submitted Successfully</h3>
-                <p class="text-[11px] text-slate-500 leading-relaxed max-w-xs mx-auto">Thank you for registering. Our team will review your credentials and contact you shortly.</p>
+                <h3 class="text-xs font-bold text-slate-900 mb-1">Application Submitted Successfully</h3>
+                <p class="text-[9.5px] text-slate-500 leading-relaxed max-w-xs mx-auto">Thank you for registering. Our team will review your credentials and contact you shortly.</p>
             </div>
 
         </div>
@@ -190,4 +193,5 @@
         };
     </script>
 </body>
-</html>
+    </html>
+    
