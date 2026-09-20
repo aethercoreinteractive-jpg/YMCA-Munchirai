@@ -194,6 +194,21 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
+        // Real-time Cart Sync Listener
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ymca_cart') {
+                cart = JSON.parse(e.newValue) || [];
+                renderCatalog(liveInventory);
+                updateCartCount();
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
+            renderCatalog(liveInventory);
+            updateCartCount();
+        });
+
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
             const data = snapshot.val();
@@ -348,7 +363,38 @@
             return '';
         }
 
-// Helper to generate Add to Cart / Stepper / Out of Stock actions
+        // Helper to generate Price HTML with strike-out original price & active offer price
+        function getPriceDisplayHTML(item, isDarkTheme = false) {
+            const rawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
+            const hasOffer = item.hasOffer === true;
+            const offerPercent = Number(item.offerPercent || 0);
+
+            let displayPrice = rawPrice;
+            if (hasOffer && offerPercent > 0) {
+                displayPrice = rawPrice - (rawPrice * offerPercent / 100);
+            }
+
+            const cleanPrice = displayPrice.toFixed(2).replace(/\.00$/, '');
+            const originalPriceFormatted = rawPrice.toFixed(2).replace(/\.00$/, '');
+
+            if (isDarkTheme) {
+                return `
+                    <div class="flex items-center gap-1">
+                        <span class="font-black text-amber-400">₹${cleanPrice}</span>
+                        ${hasOffer && offerPercent > 0 ? `<span class="text-[8px] text-slate-400 line-through">₹${originalPriceFormatted}</span>` : ''}
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="flex items-center gap-1">
+                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                        ${hasOffer && offerPercent > 0 ? `<span class="text-[8px] text-slate-400 line-through">₹${originalPriceFormatted}</span>` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // Helper to generate Add to Cart / Stepper / Out of Stock actions
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             
@@ -384,7 +430,7 @@
             }
         }
 
-           // Apply sorting rules and ensure out-of-stock items are always sorted last
+        // Apply sorting rules and ensure out-of-stock items are always sorted last
         function sortProductsList(list) {
             let sorted = [...list];
 
@@ -431,7 +477,6 @@
 
                 const chosenItems = sortedProducts.filter(item => (item.category || "Uncategorized") === selectedCategoryFilter);
                 
-                // Ensure out of stock sorted last for category view as well
                 chosenItems.sort((a, b) => {
                     const aStock = a.inStock !== false ? 1 : 0;
                     const bStock = b.inStock !== false ? 1 : 0;
@@ -443,7 +488,7 @@
                 } else {
                     let chosenHtml = '';
                     chosenItems.forEach(item => {
-                        const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                        const priceDisplayHtml = getPriceDisplayHTML(item, false);
                         const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                         const offerBadgeHtml = getOfferBadgeHTML(item);
                         const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -462,7 +507,7 @@
                                 </div>
                                 <div>
                                     <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                        ${priceDisplayHtml}
                                         <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                     </div>
                                     <div id="action-container-${item.firebaseKey}">
@@ -484,7 +529,7 @@
                     
                     let sortHtml = '';
                     sortedProducts.slice(0, 8).forEach(item => {
-                        const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                        const priceDisplayHtml = getPriceDisplayHTML(item, false);
                         const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                         const offerBadgeHtml = getOfferBadgeHTML(item);
                         const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -503,7 +548,7 @@
                                 </div>
                                 <div>
                                     <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                        ${priceDisplayHtml}
                                         <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                     </div>
                                     <div id="action-container-${item.firebaseKey}">
@@ -528,11 +573,9 @@
                 if (!categoryGroups[cat]) {
                     categoryGroups[cat] = [];
                 }
-                // Ensure individual category groups also have out of stock items sorted last
                 categoryGroups[cat].push(item);
             });
 
-            // Ensure stock sorting is strictly enforced per group
             Object.keys(categoryGroups).forEach(cat => {
                 categoryGroups[cat].sort((a, b) => {
                     const aStock = a.inStock !== false ? 1 : 0;
@@ -579,7 +622,7 @@
                 `;
 
                 bsList.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -598,7 +641,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    ${priceDisplayHtml}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -635,7 +678,7 @@
                 `;
 
                 groupItems.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -654,7 +697,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    ${priceDisplayHtml}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -692,7 +735,7 @@
                 `;
 
                 recommendedList.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -711,7 +754,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    ${priceDisplayHtml}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -752,7 +795,7 @@
                 `;
 
                 displayGroupItems.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceDisplayHtml = getPriceDisplayHTML(item, true);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -771,7 +814,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[9px] py-0.5 border-t border-b border-slate-800 mb-1 bg-slate-900 px-1 rounded">
-                                    <span class="font-black text-amber-400">₹${cleanPrice}</span>
+                                    ${priceDisplayHtml}
                                     <span class="text-[8px] text-slate-400 font-semibold truncate max-w-[35px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
@@ -962,7 +1005,7 @@
             } else {
                 let resHtml = '';
                 filtered.forEach(item => {
-                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -981,7 +1024,7 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                    <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                    ${priceDisplayHtml}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
