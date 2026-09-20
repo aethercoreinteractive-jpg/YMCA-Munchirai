@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,12 +12,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        /* Ensuring browser validation popup scrolls smoothly and completely below the header */
+        input:invalid, textarea:invalid {
+            /* standard styling */
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col">
 
-    <!-- Solid Fixed Header with Safe Padding Below -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900 text-white shadow-md border-b border-slate-800 h-14 flex items-center px-4 md:px-8 shrink-0">
+    <!-- Solid Header explicitly brought to the absolute topmost layer with max z-index -->
+    <header class="fixed top-0 left-0 right-0 z-[9999] bg-slate-900 text-white shadow-lg border-b border-slate-800 h-14 flex items-center px-4 md:px-8 shrink-0">
         <div class="max-w-4xl mx-auto w-full flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-xs font-extrabold">MY</span>
@@ -30,7 +34,7 @@
         </div>
     </header>
 
-    <!-- Main Container with pt-16 to ensure content never slips behind the solid fixed header -->
+    <!-- Main Container with enough top padding so content is fully visible below header -->
     <main class="w-full max-w-lg md:max-w-xl mx-auto px-4 pt-20 pb-8 md:pt-24 md:pb-12 flex-1 flex flex-col justify-center">
         <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-slate-200/80 p-5 md:p-8 flex flex-col">
             
@@ -46,7 +50,7 @@
                     </div>
                 </div>
 
-                <!-- Form Content -->
+                <!-- Form Content with custom invalid handler for smooth scrolling below header -->
                 <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-4 md:space-y-5">
                     
                     <!-- Full Name -->
@@ -156,6 +160,25 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
+
+        // Intercept invalid fields to smoothly scroll them into clear view below the header
+        const form = document.getElementById('employeeRegForm');
+        form.addEventListener('invalid', function(event) {
+            event.preventDefault();
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) {
+                // Calculate position with offset so it stays well clear of the fixed header
+                const headerOffset = 90;
+                const elementPosition = firstInvalid.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+                firstInvalid.focus();
+            }
+        }, true);
 
         window.handleRegistration = function(event) {
             event.preventDefault();
