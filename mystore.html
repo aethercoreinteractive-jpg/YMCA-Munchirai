@@ -92,38 +92,20 @@
                 <div class="w-full md:w-auto flex flex-wrap items-center gap-2 justify-end">
                     <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full sm:w-56 bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
                     
-                    <!-- Professional Inbuilt Custom Sort Dropdown Component -->
-                    <div class="relative">
-                        <button onclick="toggleSortDropdown(event)" id="sort-menu-btn" class="flex items-center gap-1.5 shrink-0 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm text-[11px] font-bold text-gray-700 hover:border-amber-500 transition cursor-pointer">
-                            <i class="fa-solid fa-arrow-down-wide-short text-amber-600 text-xs"></i>
-                            <span id="sort-btn-label">Sort by: Featured</span>
-                            <i class="fa-solid fa-chevron-down text-[9px] text-gray-400 ml-1"></i>
-                        </button>
-                        
-                        <!-- Custom Inbuilt Popup Menu (No Chrome Default Native UI) -->
-                        <div id="sort-dropdown-menu" class="hidden absolute right-0 mt-1.5 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 py-1.5 text-[11px] font-semibold text-gray-700 animate-in fade-in zoom-in-95 duration-150">
-                            <button onclick="selectSortOption('default', 'Sort by: Featured')" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 hover:text-amber-900 flex items-center justify-between transition">
-                                <span>Featured</span>
-                                <i class="fa-solid fa-check text-amber-600 opacity-0 sort-check" data-sort="default"></i>
-                            </button>
-                            <button onclick="selectSortOption('price-low', 'Price: Low to High')" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 hover:text-amber-900 flex items-center justify-between transition">
-                                <span>Price: Low to High</span>
-                                <i class="fa-solid fa-check text-amber-600 opacity-0 sort-check" data-sort="price-low"></i>
-                            </button>
-                            <button onclick="selectSortOption('price-high', 'Price: High to Low')" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 hover:text-amber-900 flex items-center justify-between transition">
-                                <span>Price: High to Low</span>
-                                <i class="fa-solid fa-check text-amber-600 opacity-0 sort-check" data-sort="price-high"></i>
-                            </button>
-                            <button onclick="selectSortOption('offers', 'Top Offers')" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 hover:text-amber-900 flex items-center justify-between transition">
-                                <span>Top Offers</span>
-                                <i class="fa-solid fa-check text-amber-600 opacity-0 sort-check" data-sort="offers"></i>
-                            </button>
-                        </div>
+                    <!-- Professional Sort By Dropdown -->
+                    <div class="flex items-center gap-1.5 shrink-0 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
+                        <i class="fa-solid fa-arrow-down-wide-short text-amber-600 text-xs"></i>
+                        <select id="sort-select" onchange="filterProducts()" class="bg-transparent text-[11px] font-bold text-gray-700 focus:outline-none cursor-pointer">
+                            <option value="default">Sort by: Featured</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="offers">Top Offers</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
-            <!-- SEARCH RESULTS SECTION -->
+            <!-- SEARCH RESULTS SECTION (Pushed to top when searching or viewing category) -->
             <div id="search-results-section" class="mb-6 hidden">
                 <div class="space-y-2.5">
                     <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
@@ -132,6 +114,7 @@
                             <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results
                         </h2>
                     </div>
+                    <!-- Search Results Grid -->
                     <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
                         <!-- Injected via JavaScript -->
                     </div>
@@ -180,7 +163,6 @@
         let savedBestSellers = {};
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let selectedCategoryFilter = null;
-        let currentSortKey = 'default';
 
         // Ad Management Variables
         let currentAds = [];
@@ -222,6 +204,7 @@
             updateCartCount();
         });
 
+        // Fetch Live Ads from Database
         const adsReference = ref(db, 'ads');
         onValue(adsReference, (snapshot) => {
             const data = snapshot.val();
@@ -244,47 +227,7 @@
             setupAutoSlide();
         });
 
-        // Listen for cross-tab or cross-window / intra-page cart storage synchronization
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'ymca_cart') {
-                cart = JSON.parse(e.newValue) || [];
-                updateCartCount();
-                renderCatalog(liveInventory);
-            }
-        });
-
-        // Custom Inbuilt Sort Dropdown Controllers
-        window.toggleSortDropdown = function(event) {
-            event.stopPropagation();
-            const menu = document.getElementById('sort-dropdown-menu');
-            menu.classList.toggle('hidden');
-        };
-
-        window.selectSortOption = function(sortKey, labelText) {
-            currentSortKey = sortKey;
-            document.getElementById('sort-btn-label').textContent = labelText;
-            document.getElementById('sort-dropdown-menu').classList.add('hidden');
-
-            // Update active checkmarks
-            document.querySelectorAll('.sort-check').forEach(el => {
-                if (el.getAttribute('data-sort') === sortKey) {
-                    el.classList.remove('opacity-0');
-                } else {
-                    el.classList.add('opacity-0');
-                }
-            });
-
-            filterProducts();
-        };
-
-        // Close dropdown when clicking outside
-        window.addEventListener('click', () => {
-            const menu = document.getElementById('sort-dropdown-menu');
-            if (menu && !menu.classList.contains('hidden')) {
-                menu.classList.add('hidden');
-            }
-        });
-
+        // Toggle Category Drawer Animation & Visibility
         window.toggleCategoryDrawer = function() {
             const drawer = document.getElementById('category-drawer');
             const backdrop = document.getElementById('category-drawer-backdrop');
@@ -301,6 +244,7 @@
             }
         };
 
+        // Render Category Drawer List
         function renderCategoryDrawer() {
             const listContainer = document.getElementById('category-drawer-list');
             if (!listContainer) return;
@@ -339,21 +283,25 @@
             selectedCategoryFilter = catName;
             renderCategoryDrawer();
             renderCatalog(liveInventory);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         };
 
-        // Industry Standard Professional Offer Badge HTML (Cleanly anchored top-right badge)
+        // Helper to generate Offer Badge HTML if enabled
         function getOfferBadgeHTML(item) {
             if (item.hasOffer && item.offerPercent) {
                 return `
-                    <div class="absolute top-2 right-2 bg-gradient-to-r from-rose-600 to-red-600 text-white font-black text-[9px] px-2 py-0.5 rounded-md shadow-md flex items-center gap-1 z-10 tracking-wider uppercase border border-white/20">
-                        <i class="fa-solid fa-bolt text-[8px] text-amber-300"></i> ${item.offerPercent}% OFF
+                    <div class="absolute top-1 right-1 bg-rose-600 text-white font-extrabold text-[8px] px-1.5 py-0.5 rounded shadow-md flex items-center gap-0.5 z-10 animate-pulse">
+                        <i class="fa-solid fa-tag text-[7px]"></i> ${item.offerPercent}% OFF
                     </div>
                 `;
             }
             return '';
         }
 
+        // Helper to generate Add to Cart / Stepper / Out of Stock actions
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             
@@ -371,31 +319,34 @@
             if (count > 0) {
                 return `
                     <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded text-[10px] font-bold overflow-hidden shadow-sm" onclick="event.stopPropagation()">
-                        <button onclick="window.updateQuantity('${firebaseKey}', -1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition cursor-pointer">
+                        <button onclick="window.updateQuantity('${firebaseKey}', -1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
                             <i class="fa-solid fa-minus text-[9px]"></i>
                         </button>
                         <span class="px-1.5 font-black text-slate-950">${count}</span>
-                        <button onclick="window.updateQuantity('${firebaseKey}', 1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition cursor-pointer">
+                        <button onclick="window.updateQuantity('${firebaseKey}', 1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
                             <i class="fa-solid fa-plus text-[9px]"></i>
                         </button>
                     </div>
                 `;
             } else {
                 return `
-                    <button onclick="event.stopPropagation(); window.addToCart('${firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1 cursor-pointer">
+                    <button onclick="event.stopPropagation(); window.addToCart('${firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1">
                         <i class="fa-solid fa-cart-plus text-[9px]"></i> Add
                     </button>
                 `;
             }
         }
 
+        // Apply sorting rules
         function sortProductsList(list) {
+            const sortVal = document.getElementById('sort-select')?.value || 'default';
             let sorted = [...list];
-            if (currentSortKey === 'price-low') {
+
+            if (sortVal === 'price-low') {
                 sorted.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-            } else if (currentSortKey === 'price-high') {
+            } else if (sortVal === 'price-high') {
                 sorted.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-            } else if (currentSortKey === 'offers') {
+            } else if (sortVal === 'offers') {
                 sorted.sort((a, b) => (b.hasOffer === true ? 1 : 0) - (a.hasOffer === true ? 1 : 0));
             }
             return sorted;
@@ -418,13 +369,100 @@
             emptyState.classList.add('hidden');
             const sortedProducts = sortProductsList(productsToRender);
 
-            if (selectedCategoryFilter !== null || currentSortKey !== 'default' || document.getElementById('search-bar').value.trim() !== '') {
-                // Keep active filter view rendered
-                filterProducts();
+            // Handle Category Selection or Search Results View Pushed to Top
+            if (selectedCategoryFilter !== null) {
+                searchResultsSection.classList.remove('hidden');
+                searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
+
+                const chosenItems = sortedProducts.filter(item => (item.category || "Uncategorized") === selectedCategoryFilter);
+                chosenItems.sort((a, b) => {
+                    const aStock = a.inStock !== false ? 1 : 0;
+                    const bStock = b.inStock !== false ? 1 : 0;
+                    return bStock - aStock;
+                });
+
+                if (chosenItems.length === 0) {
+                    searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No products found in this category.</div>`;
+                } else {
+                    let chosenHtml = '';
+                    chosenItems.forEach(item => {
+                        const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                        const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                        const offerBadgeHtml = getOfferBadgeHTML(item);
+                        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                        const isInStock = item.inStock !== false;
+
+                        chosenHtml += `
+                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                                ${offerBadgeHtml}
+                                <div>
+                                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Category' : 'Out'}</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                    </div>
+                                    <div id="action-container-${item.firebaseKey}">
+                                        ${actionButtonHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    searchResultsGrid.innerHTML = chosenHtml;
+                }
             } else {
-                searchResultsSection.classList.add('hidden');
+                const query = document.getElementById('search-bar').value.toLowerCase().trim();
+                const activeSort = document.getElementById('sort-select')?.value || 'default';
+                if (!query && activeSort === 'default') {
+                    searchResultsSection.classList.add('hidden');
+                } else if (activeSort !== 'default') {
+                    // Show sorted view in search box area if user selected a sort filter without query
+                    searchResultsSection.classList.remove('hidden');
+                    searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <i class="fa-solid fa-arrow-down-wide-short text-amber-500 mr-0.5"></i> Sorted Catalog View`;
+                    
+                    let sortHtml = '';
+                    sortedProducts.slice(0, 8).forEach(item => {
+                        const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                        const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                        const offerBadgeHtml = getOfferBadgeHTML(item);
+                        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                        const isInStock = item.inStock !== false;
+
+                        sortHtml += `
+                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                                ${offerBadgeHtml}
+                                <div>
+                                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Sorted' : 'Out'}</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                    </div>
+                                    <div id="action-container-${item.firebaseKey}">
+                                        ${actionButtonHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    searchResultsGrid.innerHTML = sortHtml;
+                }
             }
 
+            // Group inventory by category
             let categoryGroups = {};
             categoriesCache.forEach(cat => {
                 categoryGroups[cat.name] = [];
@@ -445,6 +483,7 @@
             }
 
             let validCategories = displayCategories.filter(cat => (categoryGroups[cat] || []).length > 0);
+
             let htmlOutput = '';
 
             const generateBestSellersHTML = () => {
@@ -456,6 +495,7 @@
                 if (bsList.length === 0) {
                     bsList = [...sortedProducts].slice(0, 6);
                 }
+
                 if (bsList.length === 0) return '';
 
                 let bsHtml = `
@@ -477,12 +517,12 @@
                     const isInStock = item.inStock !== false;
 
                     bsHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
                             ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Hot' : 'Out'}</span>
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Hot' : 'Out'}</span>
                                 </div>
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
@@ -527,12 +567,12 @@
                     const isInStock = item.inStock !== false;
 
                     rowHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
                             ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Stock' : 'Out'}</span>
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Stock' : 'Out'}</span>
                                 </div>
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
@@ -605,6 +645,60 @@
                 return recHtml;
             };
 
+            const generateDark8CardSectionHTML = (catName) => {
+                const fullGroupItems = categoryGroups[catName] || [];
+                const displayGroupItems = fullGroupItems.slice(0, 8);
+                if (displayGroupItems.length === 0) return '';
+
+                let darkHtml = `
+                    <div class="bg-slate-900 rounded-xl p-3 sm:p-4 shadow-xl border border-slate-800 my-4 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <h2 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                ${catName}
+                            </h2>
+                            <button onclick="window.selectCategory('${catName}')" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
+                                <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2">
+                `;
+
+                displayGroupItems.forEach(item => {
+                    const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    darkHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group relative">
+                            ${offerBadgeHtml}
+                            <div>
+                                <div class="relative bg-slate-900 rounded-md overflow-hidden h-16 mb-1 border border-slate-800 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white'} font-bold text-[6px] px-1 py-0.2 rounded shadow">${isInStock ? 'Top' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-white leading-tight mb-0.5 truncate" style="font-size: 8px;">${item.name}</h3>
+                                <p class="text-slate-400 font-light leading-tight mb-1 truncate" style="font-size: 6.5px;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[9px] py-0.5 border-t border-b border-slate-800 mb-1 bg-slate-900 px-1 rounded">
+                                    <span class="font-black text-amber-400">₹${cleanPrice}</span>
+                                    <span class="text-[8px] text-slate-400 font-semibold truncate max-w-[35px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">
+                                    ${actionButtonHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                darkHtml += `</div></div>`;
+                return darkHtml;
+            };
+
             const adViewportHTML = `
                 <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
                     <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
@@ -626,7 +720,10 @@
             if (validCategories.length > 2) htmlOutput += generateSliderRowHTML(validCategories[2]);
             if (validCategories.length > 3) htmlOutput += generateSliderRowHTML(validCategories[3]);
             
-            for (let i = 4; i < validCategories.length; i++) {
+            const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
+            htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
+
+            for (let i = 5; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
 
@@ -748,10 +845,12 @@
             const searchResultsSection = document.getElementById('search-results-section');
             const searchResultsGrid = document.getElementById('search-results-grid');
             const searchResultsTitle = document.getElementById('search-results-title');
+            const sortVal = document.getElementById('sort-select')?.value || 'default';
 
-            if (!query && currentSortKey === 'default' && selectedCategoryFilter === null) {
+            if (!query && sortVal === 'default' && selectedCategoryFilter === null) {
                 searchResultsSection.classList.add('hidden');
                 searchResultsGrid.innerHTML = '';
+                renderCatalog(liveInventory);
                 return;
             }
 
@@ -808,6 +907,9 @@
                 });
                 searchResultsGrid.innerHTML = resHtml;
             }
+
+            // Also update regular catalog layout
+            renderCatalog(liveInventory);
         };
 
         window.addToCart = function(firebaseKey) {
@@ -821,7 +923,7 @@
                 cart.push({ ...product, qtyCount: 1 });
             }
 
-            saveAndRefreshCartState(firebaseKey);
+            saveAndRefreshUI(firebaseKey);
         };
 
         window.updateQuantity = function(firebaseKey, change) {
@@ -833,21 +935,18 @@
                 cart = cart.filter(item => item.firebaseKey !== firebaseKey);
             }
 
-            saveAndRefreshCartState(firebaseKey);
+            saveAndRefreshUI(firebaseKey);
         };
 
-        function saveAndRefreshCartState(firebaseKey) {
+        function saveAndRefreshUI(firebaseKey) {
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartCount();
 
-            // Instantly refresh button controls across all instances in the document without page refresh
             const newActionHtml = getCartActionHTML(firebaseKey);
+            
             document.querySelectorAll(`[id="action-container-${firebaseKey}"]`).forEach(el => {
                 el.innerHTML = newActionHtml;
             });
-
-            // Also re-render catalog/search view to keep quantities and states in sync
-            renderCatalog(liveInventory);
         }
 
         function updateCartCount() {
