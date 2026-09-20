@@ -24,6 +24,34 @@
             max-width: calc(33.333% - 6px);
         }
 
+        /* Professional Corner Ribbon Offer Banner */
+        .ribbon-wrap {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 75px;
+            height: 75px;
+            overflow: hidden;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .ribbon-banner {
+            position: absolute;
+            top: 12px;
+            right: -24px;
+            transform: rotate(45deg);
+            width: 90px;
+            background: linear-gradient(135deg, #e11d48, #be123c);
+            color: white;
+            text-align: center;
+            font-weight: 800;
+            font-size: 8px;
+            line-height: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
         /* Ad Preview & Sound Badge Styles */
         .speaker-badge-container {
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
@@ -105,7 +133,7 @@
                 </div>
             </div>
 
-            <!-- SEARCH RESULTS SECTION (Pushed to top when searching or viewing category) -->
+            <!-- SEARCH RESULTS SECTION -->
             <div id="search-results-section" class="mb-6 hidden">
                 <div class="space-y-2.5">
                     <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
@@ -289,12 +317,12 @@
             });
         };
 
-        // Helper to generate Offer Badge HTML if enabled
+        // Helper to generate the Ribbon Offer Badge HTML if enabled
         function getOfferBadgeHTML(item) {
             if (item.hasOffer && item.offerPercent) {
                 return `
-                    <div class="absolute top-1 right-1 bg-rose-600 text-white font-extrabold text-[8px] px-1.5 py-0.5 rounded shadow-md flex items-center gap-0.5 z-10 animate-pulse">
-                        <i class="fa-solid fa-tag text-[7px]"></i> ${item.offerPercent}% OFF
+                    <div class="ribbon-wrap">
+                        <div class="ribbon-banner">${item.offerPercent}% OFF</div>
                     </div>
                 `;
             }
@@ -369,7 +397,6 @@
             emptyState.classList.add('hidden');
             const sortedProducts = sortProductsList(productsToRender);
 
-            // Handle Category Selection or Search Results View Pushed to Top
             if (selectedCategoryFilter !== null) {
                 searchResultsSection.classList.remove('hidden');
                 searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${selectedCategoryFilter}</span>`;
@@ -393,7 +420,7 @@
                         const isInStock = item.inStock !== false;
 
                         chosenHtml += `
-                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                                 ${offerBadgeHtml}
                                 <div>
                                     <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
@@ -423,7 +450,6 @@
                 if (!query && activeSort === 'default') {
                     searchResultsSection.classList.add('hidden');
                 } else if (activeSort !== 'default') {
-                    // Show sorted view in search box area if user selected a sort filter without query
                     searchResultsSection.classList.remove('hidden');
                     searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <i class="fa-solid fa-arrow-down-wide-short text-amber-500 mr-0.5"></i> Sorted Catalog View`;
                     
@@ -436,7 +462,7 @@
                         const isInStock = item.inStock !== false;
 
                         sortHtml += `
-                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                                 ${offerBadgeHtml}
                                 <div>
                                     <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
@@ -462,7 +488,6 @@
                 }
             }
 
-            // Group inventory by category
             let categoryGroups = {};
             categoriesCache.forEach(cat => {
                 categoryGroups[cat.name] = [];
@@ -483,7 +508,6 @@
             }
 
             let validCategories = displayCategories.filter(cat => (categoryGroups[cat] || []).length > 0);
-
             let htmlOutput = '';
 
             const generateBestSellersHTML = () => {
@@ -509,7 +533,7 @@
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
-                bsList.forEach(item => {
+                 bsList.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const offerBadgeHtml = getOfferBadgeHTML(item);
@@ -517,7 +541,7 @@
                     const isInStock = item.inStock !== false;
 
                     bsHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                             ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
@@ -567,7 +591,7 @@
                     const isInStock = item.inStock !== false;
 
                     rowHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                             ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
@@ -618,7 +642,7 @@
                     const isInStock = item.inStock !== false;
 
                     recHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                             ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
@@ -672,7 +696,7 @@
                     const isInStock = item.inStock !== false;
 
                     darkHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group relative">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                             ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-900 rounded-md overflow-hidden h-16 mb-1 border border-slate-800 flex items-center justify-center">
@@ -883,7 +907,7 @@
                     const isInStock = item.inStock !== false;
 
                     resHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative">
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                             ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
@@ -908,7 +932,6 @@
                 searchResultsGrid.innerHTML = resHtml;
             }
 
-            // Also update regular catalog layout
             renderCatalog(liveInventory);
         };
 
@@ -979,4 +1002,4 @@
         });
     </script>
 </body>
-</html>
+</html>  
