@@ -3,161 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | Product Management</title>
+    <title>Product Details | Munchirai YMCA Food Store</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        slate: {
-                            850: '#1e293b',
-                            900: '#0f172a',
-                            950: '#090d16',
-                        },
-                        amber: {
-                            500: '#f59e0b',
-                            600: '#d97706',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome icons -->
+    <!-- FontAwesome for UI icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Custom styling for clean horizontal scrollbar */
+        .no-scrollbar::-webkit-scrollbar { height: 3px; }
+        .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        .no-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
         
-        /* Custom Toggle Switch Styling */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #10b981;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #10b981;
+        /* Forces exactly 3 items visible simultaneously in catalog slider */
+        .mobile-triple-card {
+            flex: 0 0 calc(33.333% - 6px);
+            width: calc(33.333% - 6px);
+            max-width: calc(33.333% - 6px);
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14">
 
-    <!-- ENTERPRISE NAVIGATION HEADER -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg backdrop-blur-md bg-opacity-95">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-            <!-- Brand Mark -->
-            <div class="flex items-center gap-3 shrink-0">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md">MY</div>
-                <div>
-                    <h1 class="text-xs font-extrabold text-white tracking-tight">MUNCHIRAI YMCA</h1>
-                    <span class="text-[10px] text-amber-400 font-mono tracking-wider block">DATABASE_NODE</span>
-                </div>
-            </div>
-            
-            <!-- Quick Actions -->
-            <div class="flex items-center gap-2">
-                <a href="addproduct.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm flex items-center gap-1.5 transition active:scale-95">
-                    <i class="fa-solid fa-plus text-[10px]"></i>
-                    <span>Add Product</span>
+    <!-- Professional Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="mystore.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Munchirai
                 </a>
-                <a href="admin.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
-                    <i class="fa-solid fa-arrow-left text-amber-400"></i>
-                    <span class="hidden xs:inline">Admin Hub</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="mystore.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1">
+                    <i class="fa-solid fa-house text-amber-400"></i> Store
+                </a>
+                <a href="cart.html" class="relative bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Cart</span>
+                    <!-- Notification Badge -->
+                    <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-white">0</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- MAIN DASHBOARD CONTENT -->
-    <main class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
+    <!-- Main Product Detail & Catalog Section -->
+    <main class="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-8">
         
-        <!-- Controls Bar Section -->
-        <section class="bg-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div class="w-full sm:w-auto">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Inventory Database</span>
-                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Product Management</h2>
+        <!-- Top Category Tag Header -->
+        <div class="flex items-center justify-between">
+            <a href="mystore.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 transition shadow-sm">
+                <i class="fa-solid fa-arrow-left"></i> Back to Store
+            </a>
+            <span id="product-category-tag" class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-800 px-2.5 py-1 rounded-md">Loading...</span>
+        </div>
+
+        <!-- Pinned / Scaled Up Product Card Container -->
+        <div id="product-detail-container" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
+            <div class="text-center py-16 text-gray-400 text-xs">Loading product details...</div>
+        </div>
+
+        <!-- Section divider & Explore All Products Label (Non-link) -->
+        <div class="pt-4 border-t border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    Explore all products
+                </h2>
+                <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Other items</span>
             </div>
 
-            <!-- Search & Filter Controls -->
-            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-                <div class="relative flex-grow sm:w-64">
-                    <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="search-input" placeholder="Search products..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
-                </div>
-                <select id="filter-category" class="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
-                    <option value="">All Categories</option>
-                </select>
+            <!-- Products Container Grouped by Category (Excluding Pinned Product) -->
+            <div id="store-categories-container" class="space-y-6">
+                <div class="text-center py-12 text-gray-400 text-xs">Loading other products...</div>
             </div>
-        </section>
-
-        <div id="db-status-msg" class="hidden mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
-
-        <!-- Inventory Container -->
-        <section class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/80 overflow-hidden">
-            <!-- Desktop Table View -->
-            <div class="hidden md:block overflow-x-auto no-scrollbar">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-                            <th class="py-4 px-5">Product</th>
-                            <th class="py-4 px-4">Category</th>
-                            <th class="py-4 px-4">Price</th>
-                            <th class="py-4 px-4">Unit</th>
-                            <th class="py-4 px-4 text-center">Stock Status</th>
-                            <th class="py-4 px-4 text-center">Offer Control</th>
-                            <th class="py-4 px-5 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-table-body" class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
-                        <tr>
-                            <td colspan="7" class="py-10 text-center text-slate-400">Loading inventory records...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Mobile Card View -->
-            <div id="inventory-card-container" class="md:hidden divide-y divide-slate-100 p-4 space-y-3">
-                <div class="py-8 text-center text-slate-400 text-xs">Loading inventory records...</div>
-            </div>
-        </section>
+        </div>
 
     </main>
 
-    <!-- Professional Inbuilt Delete Confirmation Modal -->
-    <div id="delete-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm hidden px-4">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 transform transition-all text-center space-y-4">
-            <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto text-lg border border-red-100 shadow-sm">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <div class="space-y-1">
-                <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wide">Confirm Deletion</h3>
-                <p id="delete-modal-text" class="text-xs text-slate-500 leading-relaxed">Are you sure you want to delete this product? This action cannot be undone.</p>
-            </div>
-            <div class="flex items-center gap-2.5 pt-2">
-                <button id="cancel-delete-btn" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition active:scale-95 border border-slate-200">
-                    Cancel
-                </button>
-                <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition active:scale-95 shadow-md shadow-red-600/20">
-                    Delete
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ENTERPRISE FOOTER -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400">
-        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
-    </footer>
-
-    <!-- Firebase Realtime Engine & Analytics -->
+    <!-- Firebase SDK Imports & Detail Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         const firebaseConfig = {
@@ -175,276 +105,394 @@
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
-        let rawInventoryCache = [];
+        let liveInventory = [];
         let categoriesCache = [];
+        let currentProduct = null;
+        let productId = null;
+        let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
 
-        const searchInput = document.getElementById('search-input');
-        const filterCategory = document.getElementById('filter-category');
-        const tableBody = document.getElementById('inventory-table-body');
-        const cardContainer = document.getElementById('inventory-card-container');
+        // Parse product ID from URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        productId = urlParams.get('id');
 
-        function showStatus(message, isError = false) {
-            const msgEl = document.getElementById('db-status-msg');
-            msgEl.textContent = message;
-            msgEl.className = `mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
-            msgEl.classList.remove('hidden');
-            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
+        // Fetch categories
+        const categoriesRef = ref(db, 'categories');
+        onValue(categoriesRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
+                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            } else {
+                categoriesCache = [];
+            }
+            if (liveInventory.length > 0) {
+                renderEverything();
+            }
+        });
+
+        // Fetch inventory
+        const inventoryRef = ref(db, 'inventory');
+        onValue(inventoryRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                liveInventory = Object.keys(data).map(key => ({
+                    firebaseKey: key,
+                    ...data[key]
+                }));
+            } else {
+                liveInventory = [];
+            }
+            renderEverything();
+            updateCartCount();
+        });
+
+        function updateCartCount() {
+            const totalCount = cart.reduce((sum, item) => sum + (item.qtyCount || 1), 0);
+            const badge = document.getElementById('cart-badge');
+            if (badge) {
+                badge.textContent = totalCount;
+                if (totalCount > 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
         }
 
-        // Load Categories for filtering dropdown
-        onValue(ref(db, 'categories'), (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                categoriesCache = Object.keys(data).map(k => data[k]);
-                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-                
-                const currentSelection = filterCategory.value;
-                filterCategory.innerHTML = `<option value="">All Categories</option>` + categoriesCache.map(c => `
-                    <option value="${c.name}" ${currentSelection === c.name ? 'selected' : ''}>${c.name}</option>
-                `).join('');
-            }
-        });
-
-        // Load Inventory Data
-        onValue(ref(db, 'inventory'), (snapshot) => {
-            const data = snapshot.val();
-            if (!data) {
-                rawInventoryCache = [];
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400">No products found in inventory.</td></tr>`;
-                cardContainer.innerHTML = `<div class="py-10 text-center text-slate-400 text-xs">No products found in inventory.</div>`;
-                return;
-            }
-
-            rawInventoryCache = Object.keys(data).map(key => ({ key, ...data[key] }));
-            renderFilteredInventory();
-        });
-
-        // Event listeners for searching and filtering
-        searchInput.addEventListener('input', renderFilteredInventory);
-        filterCategory.addEventListener('change', renderFilteredInventory);
-
-        function renderFilteredInventory() {
-            const query = searchInput.value.toLowerCase().trim();
-            const selectedCat = filterCategory.value;
-
-            const filtered = rawInventoryCache.filter(item => {
-                const matchesSearch = item.name.toLowerCase().includes(query) || (item.category && item.category.toLowerCase().includes(query));
-                const matchesCat = !selectedCat || item.category === selectedCat;
-                return matchesSearch && matchesCat;
-            });
-
-            if (filtered.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400">No matching records found.</td></tr>`;
-                cardContainer.innerHTML = `<div class="py-10 text-center text-slate-400 text-xs">No matching records found.</div>`;
-                return;
-            }
-
-            // Render Desktop Table Rows
-            tableBody.innerHTML = filtered.map(item => {
-                const inStock = item.inStock !== false;
-                const hasOffer = item.hasOffer === true;
-                const offerPercent = item.offerPercent || '';
+        // Helper matching mystore.html cart button logic & text format
+        function getCartActionHTML(firebaseKey) {
+            const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
+            
+            if (product && product.inStock === false) {
                 return `
-                    <tr class="hover:bg-slate-50/80 transition">
-                        <td class="py-3.5 px-5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
-                                    <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
-                                </div>
-                                <div>
-                                    <span class="font-bold text-slate-900 block">${item.name}</span>
-                                    <span class="text-[10px] text-slate-400 font-mono">ID: ${item.key.slice(-6)}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <span class="bg-amber-50 text-amber-800 border border-amber-200/60 px-2.5 py-1 rounded-md text-[10px] font-bold">${item.category || 'General'}</span>
-                        </td>
-                        <td class="py-3.5 px-4 font-extrabold text-slate-900">
-                            ₹${Number(item.price || 0).toFixed(2)}
-                        </td>
-                        <td class="py-3.5 px-4 font-bold text-slate-800">
-                            ${item.qty || '1 Pc'}
-                        </td>
-                        <td class="py-3.5 px-4 text-center">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" ${inStock ? 'checked' : ''} onchange="window.toggleStock('${item.key}', this.checked)">
-                                <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                                <span class="ml-2 text-[11px] font-bold ${inStock ? 'text-emerald-700' : 'text-red-600'}">${inStock ? 'In Stock' : 'Out'}</span>
-                            </label>
-                        </td>
-                        <td class="py-3.5 px-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <div class="relative w-16">
-                                    <input type="number" id="offer-input-${item.key}" value="${offerPercent}" placeholder="%" min="1" max="100" onchange="window.updateOffer('${item.key}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-center text-slate-900 focus:outline-none focus:border-amber-500 font-bold">
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer" title="Offer Switch">
-                                    <input type="checkbox" id="offer-toggle-${item.key}" class="sr-only peer" ${hasOffer ? 'checked' : ''} onchange="window.updateOffer('${item.key}')">
-                                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                                </label>
-                            </div>
-                        </td>
-                        <td class="py-3.5 px-5 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <a href="addproduct.html?edit=${item.key}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 border border-slate-200 flex items-center justify-center transition active:scale-95" title="Edit Product">
-                                    <i class="fa-solid fa-pen text-xs"></i>
-                                </a>
-                                <button onclick="window.deleteProduct('${item.key}', '${item.name}')" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 border border-slate-200 flex items-center justify-center transition active:scale-95" title="Delete Product">
-                                    <i class="fa-solid fa-trash text-xs"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-           // Render Mobile Cards View
-            cardContainer.innerHTML = filtered.map(item => {
-                const inStock = item.inStock !== false;
-                const hasOffer = item.hasOffer === true;
-                const offerPercent = item.offerPercent || '';
-                return `
-                    <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4 space-y-3 shadow-sm">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-14 h-14 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
-                                    <img src="${item.img || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
-                                </div>
-                                <div>
-                                    <h3 class="font-extrabold text-slate-900 text-sm leading-snug">${item.name}</h3>
-                                    <span class="bg-amber-50 text-amber-800 border border-amber-200/60 px-2 py-0.5 rounded text-[10px] font-bold inline-block mt-1">${item.category || 'General'}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-3 gap-2 bg-white p-3 rounded-xl border border-slate-200/60 text-center">
-                            <div>
-                                <span class="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Price</span>
-                                <span class="font-extrabold text-slate-900 text-xs">₹${Number(item.price || 0).toFixed(2)}</span>
-                            </div>
-                            <div>
-                                <span class="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Unit</span>
-                                <span class="font-bold text-slate-800 text-xs">${item.qty || '1 Pc'}</span>
-                            </div>
-                            <div>
-                                <span class="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Status</span>
-                                <span class="font-bold text-xs ${inStock ? 'text-emerald-600' : 'text-red-600'}">${inStock ? 'Available' : 'Out of Stock'}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between bg-white px-3 py-2.5 rounded-xl border border-slate-200/60">
-                            <span class="text-xs font-bold text-slate-700">Stock Availability Toggle</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" ${inStock ? 'checked' : ''} onchange="window.toggleStock('${item.key}', this.checked)">
-                                <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                            </label>
-                        </div>
-
-                        <div class="flex items-center justify-between bg-white px-3 py-2.5 rounded-xl border border-slate-200/60">
-                            <span class="text-xs font-bold text-slate-700">Offer Control (%)</span>
-                            <div class="flex items-center gap-2">
-                                <input type="number" id="offer-input-m-${item.key}" value="${offerPercent}" placeholder="%" min="1" max="100" onchange="window.updateOfferMobile('${item.key}')" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-center text-slate-900 focus:outline-none focus:border-amber-500 font-bold">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="offer-toggle-m-${item.key}" class="sr-only peer" ${hasOffer ? 'checked' : ''} onchange="window.updateOfferMobile('${item.key}')">
-                                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                                </label>
-                            </div>
-                        </div>
-
-                        ${item.descSmall ? `<p class="text-[11px] text-slate-500 line-clamp-1 italic">${item.descSmall}</p>` : ''}
-
-                        <div class="flex items-center justify-end gap-2 pt-1">
-                            <a href="addproduct.html?edit=${item.key}" class="flex-grow py-2 rounded-xl bg-slate-200/70 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 text-xs font-bold text-center transition active:scale-95 flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-pen text-[10px]"></i> Edit Record
-                            </a>
-                            <button onclick="window.deleteProduct('${item.key}', '${item.name}')" class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold transition active:scale-95 flex items-center justify-center">
-                                <i class="fa-solid fa-trash text-[10px]"></i>
-                            </button>
-                        </div>
+                    <div class="w-full bg-slate-900 text-white border border-slate-900 text-[9px] font-black py-1 px-1 rounded text-center tracking-wider uppercase shadow-sm">
+                        Out of Stock
                     </div>
                 `;
-            }).join('');
+            }
+
+            const cartItem = cart.find(item => item.firebaseKey === firebaseKey);
+            const count = cartItem ? (cartItem.qtyCount || 1) : 0;
+
+            if (count > 0) {
+                return `
+                    <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded text-[10px] font-bold overflow-hidden shadow-sm" onclick="event.stopPropagation()">
+                        <button onclick="window.updateQuantity('${firebaseKey}', -1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-minus text-[9px]"></i>
+                        </button>
+                        <span class="px-1.5 font-black text-slate-950">${count}</span>
+                        <button onclick="window.updateQuantity('${firebaseKey}', 1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-plus text-[9px]"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <button onclick="event.stopPropagation(); window.addToCart('${firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-cart-plus text-[9px]"></i> Add
+                    </button>
+                `;
+            }
         }
 
-        // Toggle Stock Status Handler
-        window.toggleStock = function(key, status) {
-            update(ref(db, `inventory/${key}`), { inStock: status })
-                .then(() => {
-                    showStatus(`Stock status updated successfully.`);
-                })
-                .catch(err => {
-                    showStatus("Failed to update stock status: " + err.message, true);
+        // Helper matching scaledup action button logic & text format
+        function getDetailCartActionHTML() {
+            if (!currentProduct) return '';
+            
+            if (currentProduct.inStock === false) {
+                return `
+                    <div class="w-full bg-slate-900 text-white text-xs font-black py-3 px-4 rounded-xl text-center uppercase tracking-wider shadow-sm">
+                        Out of Stock
+                    </div>
+                `;
+            }
+
+            const cartItem = cart.find(item => item.firebaseKey === productId);
+            const count = cartItem ? (cartItem.qtyCount || 1) : 0;
+
+            if (count > 0) {
+                return `
+                    <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded-xl text-sm font-bold overflow-hidden shadow-md">
+                        <button onclick="window.updateDetailQuantity(-1)" class="w-14 py-3 bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <span class="px-4 font-black text-slate-950 text-base">${count}</span>
+                        <button onclick="window.updateDetailQuantity(1)" class="w-14 py-3 bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <button onclick="window.addDetailToCart()" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 text-sm font-black py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                    </button>
+                `;
+            }
+        }
+
+        function renderStars(rating) {
+            let starsHtml = '';
+            const numRating = Number(rating) || 0;
+            for (let i = 1; i <= 5; i++) {
+                if (numRating >= i) {
+                    starsHtml += `<i class="fa-solid fa-star text-amber-400"></i>`;
+                } else if (numRating >= i - 0.5) {
+                    starsHtml += `<i class="fa-solid fa-star-half-stroke text-amber-400"></i>`;
+                } else {
+                    starsHtml += `<i class="fa-regular fa-star text-slate-300"></i>`;
+                }
+            }
+            return starsHtml;
+        }
+
+        function renderEverything() {
+            const container = document.getElementById('product-detail-container');
+            const categoryTag = document.getElementById('product-category-tag');
+            const catalogContainer = document.getElementById('store-categories-container');
+
+            if (!productId || liveInventory.length === 0) {
+                if (!productId) {
+                    container.innerHTML = `<div class="text-center py-12 text-rose-500 text-xs font-bold">No product ID specified.</div>`;
+                    categoryTag.textContent = "Error";
+                }
+                return;
+            }
+
+            currentProduct = liveInventory.find(p => p.firebaseKey === productId);
+
+            if (!currentProduct) {
+                container.innerHTML = `<div class="text-center py-12 text-amber-600 text-xs font-bold">Product not found in store database.</div>`;
+                categoryTag.textContent = "Unavailable";
+                return;
+            }
+
+            // 1. Render Scaled Up Pinned Product (Professional Offer Integration matching productmanagement.html)
+            categoryTag.textContent = currentProduct.category || "Uncategorized";
+            const rawPrice = Number(typeof currentProduct.price === 'string' ? currentProduct.price.replace('₹', '') : currentProduct.price) || 0;
+            
+            const hasOffer = currentProduct.hasOffer === true;
+            const offerPercentage = Number(currentProduct.offerPercent || 0);
+            
+            let displayPrice = rawPrice;
+            if (hasOffer && offerPercentage > 0) {
+                displayPrice = rawPrice - (rawPrice * offerPercentage / 100);
+            }
+
+            const cleanPrice = displayPrice.toFixed(2).replace(/\.00$/, '');
+            const originalPriceFormatted = rawPrice.toFixed(2).replace(/\.00$/, '');
+
+            const isInStock = currentProduct.inStock !== false;
+            const bigDesc = currentProduct.descBig || currentProduct.description || currentProduct.desc || currentProduct.descSmall || 'No detailed description available.';
+            const productRating = currentProduct.rating !== undefined ? currentProduct.rating : 5;
+
+            container.innerHTML = `
+                <div class="relative bg-slate-100 rounded-xl overflow-hidden h-64 sm:h-80 border border-gray-100 flex items-center justify-center shadow-inner">
+                    <img src="${currentProduct.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${currentProduct.name}" class="w-full h-full object-contain p-2">
+                    <span class="absolute top-3 left-3 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-xs px-2.5 py-1 rounded-lg shadow">
+                        ${isInStock ? '<i class="fa-solid fa-star mr-1"></i> In Stock' : 'Out of Stock'}
+                    </span>
+                    ${hasOffer && offerPercentage > 0 ? `<span class="absolute top-3 right-3 bg-rose-600 text-white font-black text-xs px-2.5 py-1 rounded-lg shadow">${offerPercentage}% OFF</span>` : ''}
+                </div>
+
+                <div class="space-y-2 border-b border-gray-100 pb-4">
+                    <div class="flex items-center justify-between gap-2">
+                        <h1 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">${currentProduct.name}</h1>
+                        <div class="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 shrink-0">
+                            <div class="flex items-center text-xs space-x-0.5">
+                                ${renderStars(productRating)}
+                            </div>
+                            <span class="text-xs font-bold text-slate-700 ml-1">(${Number(productRating).toFixed(1)})</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-1">
+                        <div class="flex items-baseline gap-2.5">
+                            <div class="text-2xl sm:text-3xl font-black text-slate-900">₹${cleanPrice}</div>
+                            ${hasOffer && offerPercentage > 0 ? `<div class="text-sm sm:text-base font-bold text-slate-400 line-through">₹${originalPriceFormatted}</div>` : ''}
+                        </div>
+                        <div class="text-xs font-bold text-slate-600 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
+                            <i class="fa-solid fa-weight-scale text-amber-600 mr-1"></i> Size/Qty: <span class="text-slate-900">${currentProduct.qty || 'Standard'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-1">
+                    <h2 class="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-amber-500"></i> Product Description
+                    </h2>
+                    <div class="text-xs sm:text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-line">${bigDesc}</div>
+                </div>
+
+                <div id="detail-action-wrapper" class="pt-2">
+                    ${getDetailCartActionHTML()}
+                </div>
+            `;
+
+              // 2. Render All Other Products Below (Excluding the pinned product)
+            const otherProducts = liveInventory.filter(p => p.firebaseKey !== productId);
+
+            let categoryGroups = {};
+            categoriesCache.forEach(cat => {
+                categoryGroups[cat.name] = [];
+            });
+            categoryGroups["Uncategorized"] = [];
+
+            otherProducts.forEach(item => {
+                const cat = item.category || "Uncategorized";
+                if (!categoryGroups[cat]) {
+                    categoryGroups[cat] = [];
+                }
+                categoryGroups[cat].push(item);
+            });
+
+            Object.keys(categoryGroups).forEach(cat => {
+                categoryGroups[cat].sort((a, b) => {
+                    const aStock = a.inStock !== false ? 1 : 0;
+                    const bStock = b.inStock !== false ? 1 : 0;
+                    return bStock - aStock;
                 });
-        };
-
-        // Update Offer Desktop Handler
-        window.updateOffer = function(key) {
-            const toggleEl = document.getElementById(`offer-toggle-${key}`);
-            const inputEl = document.getElementById(`offer-input-${key}`);
-            if (!toggleEl || !inputEl) return;
-
-            const hasOffer = toggleEl.checked;
-            const offerPercent = inputEl.value.trim();
-
-            update(ref(db, `inventory/${key}`), { 
-                hasOffer: hasOffer, 
-                offerPercent: offerPercent 
-            })
-            .then(() => {
-                showStatus(`Offer settings updated successfully.`);
-            })
-            .catch(err => {
-                showStatus("Failed to update offer: " + err.message, true);
             });
-        };
 
-        // Update Offer Mobile Handler
-        window.updateOfferMobile = function(key) {
-            const toggleEl = document.getElementById(`offer-toggle-m-${key}`);
-            const inputEl = document.getElementById(`offer-input-m-${key}`);
-            if (!toggleEl || !inputEl) return;
+            let displayCategories = categoriesCache.map(c => c.name);
+            if (!displayCategories.includes("Uncategorized") && categoryGroups["Uncategorized"].length > 0) {
+                displayCategories.push("Uncategorized");
+            }
 
-            const hasOffer = toggleEl.checked;
-            const offerPercent = inputEl.value.trim();
+            let htmlOutput = '';
+            displayCategories.forEach(catName => {
+                const groupItems = categoryGroups[catName] || [];
+                if (groupItems.length === 0) return;
 
-            update(ref(db, `inventory/${key}`), { 
-                hasOffer: hasOffer, 
-                offerPercent: offerPercent 
-            })
-            .then(() => {
-                showStatus(`Offer settings updated successfully.`);
-            })
-            .catch(err => {
-                showStatus("Failed to update offer: " + err.message, true);
+                htmlOutput += `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                ${catName}
+                            </h3>
+                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
+                `;
+
+                groupItems.forEach(item => {
+                    const itemRawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
+                    const itemHasOffer = item.hasOffer === true;
+                    const itemOfferPct = Number(item.offerPercent || 0);
+
+                    let itemDisplayPrice = itemRawPrice;
+                    if (itemHasOffer && itemOfferPct > 0) {
+                        itemDisplayPrice = itemRawPrice - (itemRawPrice * itemOfferPct / 100);
+                    }
+                    const itemCleanPrice = itemDisplayPrice.toFixed(2).replace(/\.00$/, '');
+                    const itemOriginalPriceFormatted = itemRawPrice.toFixed(2).replace(/\.00$/, '');
+                    
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const itemIsInStock = item.inStock !== false;
+
+                    htmlOutput += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${itemIsInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                            <div>
+                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+                                    <span class="absolute top-0.5 left-0.5 ${itemIsInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${itemIsInStock ? 'Stock' : 'Out'}</span>
+                                    ${itemHasOffer && itemOfferPct > 0 ? `<span class="absolute top-0.5 right-0.5 bg-rose-600 text-white font-black text-[6px] px-1 py-0.2 rounded shadow">${itemOfferPct}% OFF</span>` : ''}
+                                </div>
+                                <h4 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h4>
+                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
+                                    <div class="flex items-center gap-1">
+                                        <span class="font-black text-slate-900">₹${itemCleanPrice}</span>
+                                        ${itemHasOffer && itemOfferPct > 0 ? `<span class="text-[8px] text-slate-400 line-through">₹${itemOriginalPriceFormatted}</span>` : ''}
+                                    </div>
+                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">
+                                    ${actionButtonHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                htmlOutput += `</div></div>`;
             });
+
+            catalogContainer.innerHTML = htmlOutput || '<div class="text-center py-8 text-gray-400 text-xs">No other products available.</div>';
+        }
+
+        // Cart Actions for Pinned Product
+        window.addDetailToCart = function() {
+            if (!currentProduct || currentProduct.inStock === false) return;
+
+            const existing = cart.find(item => item.firebaseKey === productId);
+            if (existing) {
+                existing.qtyCount = (existing.qtyCount || 1) + 1;
+            } else {
+                cart.push({ ...currentProduct, qtyCount: 1 });
+            }
+
+            localStorage.setItem("ymca_cart", JSON.stringify(cart));
+            updateCartCount();
+            document.getElementById('detail-action-wrapper').innerHTML = getDetailCartActionHTML();
+            renderEverything();
         };
 
-        // Professional Inbuilt Delete Modal Workflow
-        let pendingDeleteKey = null;
+        window.updateDetailQuantity = function(change) {
+            const existing = cart.find(item => item.firebaseKey === productId);
+            if (!existing) return;
 
-        window.deleteProduct = function(key, name) {
-            pendingDeleteKey = key;
-            const modal = document.getElementById('delete-confirm-modal');
-            const modalText = document.getElementById('delete-modal-text');
-            modalText.textContent = `Are you sure you want to delete "${name}" from inventory? This action cannot be undone.`;
-            modal.classList.remove('hidden');
+            existing.qtyCount = (existing.qtyCount || 1) + change;
+            if (existing.qtyCount <= 0) {
+                cart = cart.filter(item => item.firebaseKey !== productId);
+            }
+
+            localStorage.setItem("ymca_cart", JSON.stringify(cart));
+            updateCartCount();
+            document.getElementById('detail-action-wrapper').innerHTML = getDetailCartActionHTML();
+            renderEverything();
         };
 
-        document.getElementById('cancel-delete-btn').addEventListener('click', () => {
-            pendingDeleteKey = null;
-            document.getElementById('delete-confirm-modal').classList.add('hidden');
-        });
+        // Cart Actions for Other Products in Sliders
+        window.addToCart = function(firebaseKey) {
+            const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
+            if (!product || product.inStock === false) return;
 
-        document.getElementById('confirm-delete-btn').addEventListener('click', () => {
-            if (!pendingDeleteKey) return;
-            const keyToDelete = pendingDeleteKey;
-            document.getElementById('delete-confirm-modal').classList.add('hidden');
-            pendingDeleteKey = null;
+            const existing = cart.find(item => item.firebaseKey === firebaseKey);
+            if (existing) {
+                existing.qtyCount = (existing.qtyCount || 1) + 1;
+            } else {
+                cart.push({ ...product, qtyCount: 1 });
+            }
 
-            remove(ref(db, `inventory/${keyToDelete}`))
-                .then(() => showStatus(`Product deleted successfully.`))
-                .catch(err => showStatus("Failed to delete product: " + err.message, true));
-        });
+            saveAndRefreshCatalogItem(firebaseKey);
+        };
+
+        window.updateQuantity = function(firebaseKey, change) {
+            const existing = cart.find(item => item.firebaseKey === firebaseKey);
+            if (!existing) return;
+
+            existing.qtyCount = (existing.qtyCount || 1) + change;
+            if (existing.qtyCount <= 0) {
+                cart = cart.filter(item => item.firebaseKey !== firebaseKey);
+            }
+
+            saveAndRefreshCatalogItem(firebaseKey);
+        };
+
+        function saveAndRefreshCatalogItem(firebaseKey) {
+            localStorage.setItem("ymca_cart", JSON.stringify(cart));
+            updateCartCount();
+
+            const newActionHtml = getCartActionHTML(firebaseKey);
+            document.querySelectorAll(`[id="action-container-${firebaseKey}"]`).forEach(el => {
+                el.innerHTML = newActionHtml;
+            });
+        }
     </script>
 </body>
 </html>
