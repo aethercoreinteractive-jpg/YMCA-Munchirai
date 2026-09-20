@@ -35,58 +35,58 @@
         </div>
     </header>
 
-    <!-- Strictly Screen-Locked Container without any outer body or window scrolling -->
-    <main class="absolute inset-0 top-11 flex justify-center items-center px-2 py-1.5 w-full overflow-hidden">
-        <div class="bg-white w-full max-w-md rounded-xl shadow-sm border border-gray-200 p-3 flex flex-col justify-center h-full max-h-[calc(100vh-3.2rem)]">
+    <!-- Strictly Screen-Locked Container without unnecessary outer margins or spacing -->
+    <main class="absolute inset-0 top-11 flex justify-center items-center px-3 py-2 w-full overflow-hidden">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col justify-between h-full max-h-[calc(100vh-3.5rem)]">
             <div id="formContainer" class="flex flex-col h-full justify-between">
-                <div class="text-center mb-0.5">
-                    <div class="w-6 h-6 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center mx-auto mb-0.5 text-xs shadow-inner border border-amber-100">
+                <div class="text-center">
+                    <div class="w-6 h-6 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center mx-auto mb-1 text-xs shadow-inner border border-amber-100">
                         <i class="fa-solid fa-user-tie"></i>
                     </div>
-                    <h1 class="text-xs font-extrabold tracking-tight text-slate-900 leading-tight">Employee Registration</h1>
-                    <p class="text-[9px] text-gray-500 leading-none mt-0.5 max-w-xs mx-auto">
+                    <h1 class="text-xs font-extrabold tracking-tight text-slate-900 leading-none mb-1">Employee Registration</h1>
+                    <p class="text-[9px] text-gray-500 leading-tight max-w-xs mx-auto">
                         Provide credentials to submit your employment profile.
                     </p>
                 </div>
 
-                <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-1.5 flex-1 flex flex-col justify-evenly my-0.5">
+                <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-2">
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label for="fullName" class="block text-[9px] font-bold text-slate-900 mb-0.5">Full Name</label>
-                            <input type="text" id="fullName" placeholder="Enter your full name" required class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
+                            <input type="text" id="fullName" placeholder="Enter your full name" required class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
                         </div>
                         <div>
                             <label for="email" class="block text-[9px] font-bold text-slate-900 mb-0.5">Email Address</label>
-                            <input type="email" id="email" placeholder="name@example.com" required class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
+                            <input type="email" id="email" placeholder="name@example.com" required class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-1.5">
+                    <div class="grid grid-cols-3 gap-2">
                         <div>
                             <label for="mobile" class="block text-[9px] font-bold text-slate-900 mb-0.5">Mobile No.</label>
-                            <input type="tel" id="mobile" placeholder="9876543210" required class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
+                            <input type="tel" id="mobile" placeholder="9876543210" required class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
                         </div>
                         <div>
                             <label for="dob" class="block text-[9px] font-bold text-slate-900 mb-0.5">Date of Birth</label>
-                            <input type="date" id="dob" required class="w-full bg-white border border-gray-200 rounded-lg px-1.5 py-1 text-[10px] focus:outline-none focus:border-amber-500 shadow-sm transition">
+                            <input type="date" id="dob" required class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-[10px] focus:outline-none focus:border-amber-500 shadow-sm transition">
                         </div>
                         <div>
                             <label for="experienceYears" class="block text-[9px] font-bold text-slate-900 mb-0.5">Exp (Years)</label>
-                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
+                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
                         </div>
                     </div>
 
                     <div>
                         <label for="experienceDetails" class="block text-[9px] font-bold text-slate-900 mb-0.5">Work Experience Detail</label>
-                        <textarea id="experienceDetails" placeholder="Briefly specify your industry background..." required class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition resize-none h-10"></textarea>
+                        <textarea id="experienceDetails" placeholder="Briefly specify your industry background..." required class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition resize-none h-12"></textarea>
                     </div>
 
                     <div>
                         <label for="resumeLink" class="block text-[9px] font-bold text-slate-900 mb-0.5">Google Drive Resume Link</label>
-                        <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
+                        <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-amber-500 shadow-sm transition">
                     </div>
 
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-extrabold text-[11px] py-1.5 px-3 rounded-lg transition shadow flex items-center justify-center gap-1 cursor-pointer">
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-extrabold text-[11px] py-2 px-3 rounded-lg transition shadow flex items-center justify-center gap-1 cursor-pointer">
                         <i class="fa-solid fa-paper-plane text-[9px]"></i> Submit Application
                     </button>
                 </form>
