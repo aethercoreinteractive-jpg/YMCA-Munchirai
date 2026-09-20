@@ -77,12 +77,22 @@
                         <span>Items Subtotal</span>
                         <span id="summary-subtotal" class="font-bold text-slate-900">₹0</span>
                     </div>
+                    
+                    <div id="summary-discount-row" class="hidden flex justify-between text-xs text-emerald-600">
+                        <span>Total Offers Savings</span>
+                        <span id="summary-discount" class="font-bold">-₹0</span>
+                    </div>
+
                     <div>
                         <div class="flex justify-between text-xs text-slate-600">
                             <span>Delivery Fee</span>
                             <span class="font-bold text-emerald-600">FREE</span>
                         </div>
                         <p class="text-[10px] text-slate-400 mt-0.5 leading-tight">Delivery charges may vary based on your location.</p>
+                    </div>
+
+                    <div id="offer-unlocked-banner" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold p-2.5 rounded-xl text-center shadow-xs">
+                        🎉 <span id="offer-unlocked-text">You unlocked ₹0 savings on this order!</span>
                     </div>
                     
                     <div class="border-t pt-3 flex justify-between text-sm font-black text-slate-900">
@@ -267,22 +277,45 @@
                 `;
                 document.getElementById('summary-subtotal').textContent = '₹0';
                 document.getElementById('summary-total').textContent = '₹0';
+                document.getElementById('summary-discount-row').classList.add('hidden');
+                document.getElementById('offer-unlocked-banner').classList.add('hidden');
                 return;
             }
 
             let subtotal = 0;
+            let totalDiscount = 0;
 
             container.innerHTML = cart.map((item, index) => {
-                const cleanPrice = parseInt(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
+                const rawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
                 const qtyCount = item.qtyCount || 1;
-                subtotal += cleanPrice * qtyCount;
+                
+                const hasOffer = item.hasOffer === true;
+                const offerPercent = Number(item.offerPercent || 0);
+
+                let itemFinalPrice = rawPrice;
+                let itemDiscountAmount = 0;
+
+                if (hasOffer && offerPercent > 0) {
+                    itemDiscountAmount = (rawPrice * offerPercent / 100);
+                    itemFinalPrice = rawPrice - itemDiscountAmount;
+                }
+
+                subtotal += rawPrice * qtyCount;
+                totalDiscount += itemDiscountAmount * qtyCount;
+
+                const cleanFinalPrice = itemFinalPrice.toFixed(2).replace(/\.00$/, '');
+                const cleanRawPrice = rawPrice.toFixed(2).replace(/\.00$/, '');
 
                 return `
                     <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 transition">
                         <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=400'}" alt="${item.name}" class="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-xl border border-slate-100 bg-slate-50 shrink-0 p-1 shadow-xs">
                         <div class="flex-1 min-w-0">
                             <h4 class="font-bold text-xs text-slate-900 truncate">${item.name}</h4>
-                            <p class="text-xs font-black text-slate-900 mt-0.5">₹${cleanPrice}</p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-xs font-black text-slate-900">₹${cleanFinalPrice}</span>
+                                ${hasOffer && offerPercent > 0 ? `<span class="text-[10px] text-slate-400 line-through">₹${cleanRawPrice}</span>` : ''}
+                                ${hasOffer && offerPercent > 0 ? `<span class="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">${offerPercent}% OFF</span>` : ''}
+                            </div>
                             
                             <div class="flex items-center gap-2 mt-2">
                                 <button onclick="window.updateCartQty(${index}, -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs transition active:scale-95">-</button>
@@ -297,8 +330,21 @@
                 `;
             }).join('');
 
-            document.getElementById('summary-subtotal').textContent = `₹${subtotal}`;
-            document.getElementById('summary-total').textContent = `₹${subtotal}`;
+            const finalTotal = Math.max(0, subtotal - totalDiscount);
+
+            document.getElementById('summary-subtotal').textContent = `₹${subtotal.toFixed(2).replace(/\.00$/, '')}`;
+            
+            if (totalDiscount > 0) {
+                document.getElementById('summary-discount').textContent = `-₹${totalDiscount.toFixed(2).replace(/\.00$/, '')}`;
+                document.getElementById('summary-discount-row').classList.remove('hidden');
+                document.getElementById('offer-unlocked-text').textContent = `You unlocked ₹${totalDiscount.toFixed(2).replace(/\.00$/, '')} savings on this order!`;
+                document.getElementById('offer-unlocked-banner').classList.remove('hidden');
+            } else {
+                document.getElementById('summary-discount-row').classList.add('hidden');
+                document.getElementById('offer-unlocked-banner').classList.add('hidden');
+            }
+
+            document.getElementById('summary-total').textContent = `₹${finalTotal.toFixed(2).replace(/\.00$/, '')}`;
         }
 
         window.updateCartQty = function(index, change) {
@@ -376,17 +422,35 @@
             document.getElementById('loading-modal').classList.remove('hidden');
 
             let subtotal = 0;
+            let totalDiscount = 0;
+
             const itemsToSave = cart.map(item => {
-                const cleanPrice = parseInt(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
+                const rawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
                 const qtyCount = item.qtyCount || 1;
-                subtotal += cleanPrice * qtyCount;
+                const hasOffer = item.hasOffer === true;
+                const offerPercent = Number(item.offerPercent || 0);
+
+                let itemFinalPrice = rawPrice;
+                let itemDiscountAmount = 0;
+
+                if (hasOffer && offerPercent > 0) {
+                    itemDiscountAmount = (rawPrice * offerPercent / 100);
+                    itemFinalPrice = rawPrice - itemDiscountAmount;
+                }
+
+                subtotal += rawPrice * qtyCount;
+                totalDiscount += itemDiscountAmount * qtyCount;
+
                 return {
                     name: item.name,
-                    price: cleanPrice,
+                    price: Number(itemFinalPrice.toFixed(2)),
+                    originalPrice: rawPrice,
                     qtyCount: qtyCount,
                     img: item.img || ""
                 };
             });
+
+            const finalTotal = Math.max(0, subtotal - totalDiscount);
 
             const newOrderData = {
                 orderNumber: uniqueOrderNo,
@@ -398,7 +462,9 @@
                     landmark: customerLandmark || "N/A"
                 },
                 items: itemsToSave,
-                totalAmount: subtotal,
+                subtotalAmount: subtotal,
+                discountAmount: totalDiscount,
+                totalAmount: finalTotal,
                 status: "Pending Confirmation",
                 timestamp: new Date().toISOString()
             };
