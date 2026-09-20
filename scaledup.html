@@ -328,7 +328,7 @@
                 </div>
             `;
 
-          // 2. Render All Other Products Below (Excluding the pinned product)
+        // 2. Render All Other Products Below (Excluding the pinned product)
             const otherProducts = liveInventory.filter(p => p.firebaseKey !== productId);
 
             let categoryGroups = {};
@@ -379,10 +379,12 @@
                     const itemRawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
                     const itemOfferPct = Number(item.offer || item.discount || 0);
                     let itemDisplayPrice = itemRawPrice;
-                    if (itemOfferPct > 0) {
+                    let itemHasOffer = itemOfferPct > 0;
+                    if (itemHasOffer) {
                         itemDisplayPrice = itemRawPrice - (itemRawPrice * itemOfferPct / 100);
                     }
                     const itemCleanPrice = itemDisplayPrice.toFixed(2).replace(/\.00$/, '');
+                    const itemOriginalPriceFormatted = itemRawPrice.toFixed(2).replace(/\.00$/, '');
                     
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
@@ -394,13 +396,17 @@
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
                                     <span class="absolute top-0.5 left-0.5 ${itemIsInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${itemIsInStock ? 'Stock' : 'Out'}</span>
+                                    ${itemHasOffer ? `<span class="absolute top-0.5 right-0.5 bg-rose-600 text-white font-black text-[6px] px-1 py-0.2 rounded shadow">${itemOfferPct}% OFF</span>` : ''}
                                 </div>
                                 <h4 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h4>
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
-                                    <span class="font-black text-slate-900">₹${itemCleanPrice}</span>
+                                    <div class="flex items-center gap-1">
+                                        <span class="font-black text-slate-900">₹${itemCleanPrice}</span>
+                                        ${itemHasOffer ? `<span class="text-[8px] text-slate-400 line-through">₹${itemOriginalPriceFormatted}</span>` : ''}
+                                    </div>
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">
