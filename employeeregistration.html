@@ -16,8 +16,8 @@
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col">
 
-    <!-- Professional Fixed Header -->
-    <header class="sticky top-0 left-0 right-0 z-50 bg-slate-900 text-white shadow-md border-b border-slate-800 h-14 flex items-center px-4 md:px-8 shrink-0">
+    <!-- Solid Fixed Header with Safe Padding Below -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900 text-white shadow-md border-b border-slate-800 h-14 flex items-center px-4 md:px-8 shrink-0">
         <div class="max-w-4xl mx-auto w-full flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-xs font-extrabold">MY</span>
@@ -30,8 +30,8 @@
         </div>
     </header>
 
-    <!-- Responsive Layout: Mobile natural flow without screen locking, PC centered card -->
-    <main class="w-full max-w-lg md:max-w-xl mx-auto px-4 py-6 md:py-10 flex-1 flex flex-col justify-center">
+    <!-- Main Container with pt-16 to ensure content never slips behind the solid fixed header -->
+    <main class="w-full max-w-lg md:max-w-xl mx-auto px-4 pt-20 pb-8 md:pt-24 md:pb-12 flex-1 flex flex-col justify-center">
         <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-slate-200/80 p-5 md:p-8 flex flex-col">
             
             <div id="formContainer">
