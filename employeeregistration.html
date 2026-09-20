@@ -3,286 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Registration - My Food</title>
+    <title>Munchirai YMCA | MY Food Employee Registration</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --nav-bg: #111827;
-            --brand-yellow: #fbbf24;
-            --btn-orange: #f97316;
-            --btn-orange-hover: #ea580c;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --focus-ring: rgba(249, 115, 22, 0.2);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: #f8fafc;
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Exact Website Header Bar Style */
-        .site-header {
-            background-color: var(--nav-bg);
-            padding: 14px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .brand-box {
-            background-color: var(--brand-yellow);
-            color: #111827;
-            font-weight: 800;
-            font-size: 0.9rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            letter-spacing: 0.05em;
-        }
-
-        .brand-text {
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 1.1rem;
-            letter-spacing: 0.05em;
-        }
-
-        .store-btn {
-            background-color: var(--brand-yellow);
-            color: #111827;
-            font-weight: 700;
-            font-size: 0.85rem;
-            padding: 8px 14px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Main Content Wrapper */
-        .main-content {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 24px 16px;
-        }
-
-        .career-card {
-            background: #ffffff;
-            width: 100%;
-            max-width: 440px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-            padding: 28px 24px;
-        }
-
-        .header-container {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        h1 {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.02em;
-            margin-bottom: 8px;
-        }
-
-        .description {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 6px;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 0.925rem;
-            color: var(--text-main);
-            background-color: #fff;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        input:focus, textarea:focus {
-            border-color: var(--btn-orange);
-            box-shadow: 0 0 0 3px var(--focus-ring);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 72px;
-            max-height: 120px;
-        }
-
-        .helper-text {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-            line-height: 1.3;
-        }
-
-        .btn-submit {
-            width: 100%;
-            background-color: var(--btn-orange);
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            padding: 13px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            margin-top: 8px;
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
-        }
-
-        .btn-submit:hover {
-            background-color: var(--btn-orange-hover);
-        }
-
-        .btn-submit:active {
-            transform: scale(0.99);
-        }
-
-        .notification {
-            display: none;
-            text-align: center;
-            padding: 32px 16px;
-        }
-
-        .notification h3 {
-            color: #166534;
-            font-size: 1.25rem;
-            margin-bottom: 8px;
-        }
-
-        .notification p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        @media (max-width: 480px) {
-            .career-card {
-                padding: 20px 16px;
-                border-radius: 16px;
-            }
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-950 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 min-h-screen flex flex-col">
 
-    <!-- Exact Header Style Matching Your Site -->
-    <header class="site-header">
-        <a href="#" class="brand-logo">
-            <span class="brand-box">MY</span>
-            <span class="brand-text">FOOD</span>
-        </a>
-        <a href="#" class="store-btn">
-            🛒 MY Store
-        </a>
+    <!-- Professional Fixed Header Matching Index Page Theme -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="#" onclick="history.back(); return false;" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5 cursor-pointer">
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> My Store
+                </a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Back Button Triggering window.history.back() -->
+                <button onclick="history.back()" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+            </div>
+        </div>
     </header>
 
-    <!-- Main Registration Section -->
-    <div class="main-content">
-        <div class="career-card">
+    <!-- Main Content Section -->
+    <main class="flex-1 flex justify-center items-center px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-8">
             <div id="formContainer">
-                <div class="header-container">
-                    <h1>Employee Registration</h1>
-                    <p class="description">
+                <div class="text-center mb-6">
+                    <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-2 text-base shadow-inner border border-amber-100">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 mb-1">Employee Registration</h1>
+                    <p class="text-xs text-gray-500 leading-relaxed max-w-sm mx-auto">
                         Please provide your professional credentials and background details to submit your employment profile.
                     </p>
                 </div>
 
-                <form id="employeeRegForm" onsubmit="handleRegistration(event)">
-                    <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" placeholder="Enter your full name" required>
+                <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-4">
+                    <div>
+                        <label for="fullName" class="block text-xs font-bold text-slate-900 mb-1.5">Full Name</label>
+                        <input type="text" id="fullName" placeholder="Enter your full name" required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="dob">Date of Birth</label>
-                            <input type="date" id="dob" required>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="dob" class="block text-xs font-bold text-slate-900 mb-1.5">Date of Birth</label>
+                            <input type="date" id="dob" required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
                         </div>
 
-                        <div class="form-group">
-                            <label for="experienceYears">Experience (Years)</label>
-                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required>
+                        <div>
+                            <label for="experienceYears" class="block text-xs font-bold text-slate-900 mb-1.5">Experience (Years)</label>
+                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="experienceDetails">Work Experience Detail</label>
-                        <textarea id="experienceDetails" placeholder="Briefly specify your industry background, past roles, and operational expertise..." required></textarea>
+                    <div>
+                        <label for="experienceDetails" class="block text-xs font-bold text-slate-900 mb-1.5">Work Experience Detail</label>
+                        <textarea id="experienceDetails" placeholder="Briefly specify your industry background, past roles, and operational expertise..." required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition resize-y min-h-[80px] max-h-[140px]"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="resumeLink">Google Drive Resume Link</label>
-                        <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required>
-                        <div class="helper-text">Upload your resume to Google Drive, ensure link sharing permissions are enabled, and paste the URL here.</div>
+                    <div>
+                        <label for="resumeLink" class="block text-xs font-bold text-slate-900 mb-1.5">Google Drive Resume Link</label>
+                        <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
+                        <p class="text-[10px] text-gray-500 mt-1 leading-relaxed">Upload your resume to Google Drive, ensure link sharing permissions are enabled, and paste the URL here.</p>
                     </div>
 
-                    <button type="submit" class="btn-submit">Submit Application</button>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-extrabold text-xs py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-1.5 mt-2 cursor-pointer">
+                        <i class="fa-solid fa-paper-plane text-[10px]"></i> Submit Application
+                    </button>
                 </form>
             </div>
 
-            <div id="successNotification" class="notification">
-                <h3>Application Received</h3>
-                <p>Thank you for registering. Our recruitment operations team will review your credentials and contact you shortly.</p>
+            <!-- Success Notification Card -->
+            <div id="successNotification" class="hidden text-center py-8 px-4">
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-lg shadow-inner border border-emerald-100">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h3 class="text-base font-extrabold text-emerald-800 mb-1">Application Received</h3>
+                <p class="text-xs text-gray-500 leading-relaxed">Thank you for registering. Our recruitment operations team will review your credentials and contact you shortly.</p>
             </div>
         </div>
-    </div>
+    </main>
 
-    <script>
-        function handleRegistration(event) {
+    <!-- Firebase SDK Imports & Form Submission Handler -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
+
+        window.handleRegistration = function(event) {
             event.preventDefault();
-            document.getElementById('formContainer').style.display = 'none';
-            document.getElementById('successNotification').style.display = 'block';
-        }
+            
+            const fullName = document.getElementById('fullName').value.trim();
+            const dob = document.getElementById('dob').value;
+            const experienceYears = document.getElementById('experienceYears').value;
+            const experienceDetails = document.getElementById('experienceDetails').value.trim();
+            const resumeLink = document.getElementById('resumeLink').value.trim();
+
+            const registrationData = {
+                fullName,
+                dob,
+                experienceYears,
+                experienceDetails,
+                resumeLink,
+                submittedAt: new Date().toISOString()
+            };
+
+            const employeesRef = ref(db, 'employees');
+            push(employeesRef, registrationData)
+                .then(() => {
+                    document.getElementById('formContainer').style.display = 'none';
+                    document.getElementById('successNotification').style.display = 'block';
+                })
+                .catch((error) => {
+                    console.error("Error saving employee registration: ", error);
+                    alert("Failed to submit registration. Please check your connection and try again.");
+                });
+        };
     </script>
 </body>
 </html>
