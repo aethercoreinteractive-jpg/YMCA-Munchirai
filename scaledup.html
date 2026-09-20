@@ -143,6 +143,21 @@
         const urlParams = new URLSearchParams(window.location.search);
         productId = urlParams.get('id');
 
+        // Real-time Cart Sync Listener
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ymca_cart') {
+                cart = JSON.parse(e.newValue) || [];
+                renderEverything();
+                updateCartCount();
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
+            renderEverything();
+            updateCartCount();
+        });
+
         // Fetch categories
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
@@ -370,7 +385,7 @@
                 </div>
             `;
 
-             // 2. Render All Other Products Below with Ribbon Offer Banners
+                // 2. Render All Other Products Below with Ribbon Offer Banners
             const otherProducts = liveInventory.filter(p => p.firebaseKey !== productId);
 
             let categoryGroups = {};
