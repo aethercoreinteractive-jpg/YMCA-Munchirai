@@ -877,3 +877,35 @@
 
             renderCatalog(liveInventory);
         }
+
+        function updateCartCount() {
+            const totalCount = cart.reduce((sum, item) => sum + (item.qtyCount || 1), 0);
+            const badge = document.getElementById('cart-badge');
+            if (badge) {
+                badge.textContent = totalCount;
+                if (totalCount > 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            
+            const slider = document.getElementById('ad-preview-slider');
+            if (slider) {
+                slider.addEventListener('scroll', () => {
+                    if (currentAds.length <= 1) return;
+                    const index = Math.round(slider.scrollLeft / slider.clientWidth);
+                    if (index !== currentSlideIndex && index >= 0 && index < currentAds.length) {
+                        currentSlideIndex = index;
+                        updateDots(currentSlideIndex);
+                    }
+                }, { passive: true });
+            }
+        });
+    </script>
+</body>
+</html>
