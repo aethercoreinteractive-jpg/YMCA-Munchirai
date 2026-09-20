@@ -120,15 +120,29 @@
                 <div class="w-full md:w-auto flex flex-wrap items-center gap-2 justify-end">
                     <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full sm:w-56 bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
                     
-                    <!-- Professional Sort By Dropdown -->
-                    <div class="flex items-center gap-1.5 shrink-0 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
-                        <i class="fa-solid fa-arrow-down-wide-short text-amber-600 text-xs"></i>
-                        <select id="sort-select" onchange="filterProducts()" class="bg-transparent text-[11px] font-bold text-gray-700 focus:outline-none cursor-pointer">
-                            <option value="default">Sort by: Featured</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                            <option value="offers">Top Offers</option>
-                        </select>
+                    <!-- Custom Inbuilt Small Sort Dropdown -->
+                    <div class="relative shrink-0">
+                        <button onclick="toggleCustomSortMenu(event)" id="custom-sort-btn" class="flex items-center gap-1.5 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm text-[11px] font-bold text-gray-700 cursor-pointer hover:border-amber-500 transition">
+                            <i class="fa-solid fa-arrow-down-wide-short text-amber-600 text-xs"></i>
+                            <span id="custom-sort-label">Sort: Featured</span>
+                            <i class="fa-solid fa-chevron-down text-[8px] text-gray-400 ml-1"></i>
+                        </button>
+                        
+                        <!-- Small Dropdown Panel -->
+                        <div id="custom-sort-dropdown" class="absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-50 hidden overflow-hidden py-1">
+                            <button onclick="selectCustomSort('default', 'Sort: Featured')" class="w-full text-left px-3 py-2 text-[11px] font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center justify-between">
+                                <span>Featured</span>
+                            </button>
+                            <button onclick="selectCustomSort('price-low', 'Price: Low to High')" class="w-full text-left px-3 py-2 text-[11px] font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center justify-between">
+                                <span>Price: Low to High</span>
+                            </button>
+                            <button onclick="selectCustomSort('price-high', 'Price: High to Low')" class="w-full text-left px-3 py-2 text-[11px] font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center justify-between">
+                                <span>Price: High to Low</span>
+                            </button>
+                            <button onclick="selectCustomSort('offers', 'Top Offers')" class="w-full text-left px-3 py-2 text-[11px] font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center justify-between">
+                                <span>Top Offers</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -191,6 +205,7 @@
         let savedBestSellers = {};
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let selectedCategoryFilter = null;
+        let currentSortValue = 'default';
 
         // Ad Management Variables
         let currentAds = [];
@@ -253,6 +268,28 @@
             }
             renderPreviewSlider();
             setupAutoSlide();
+        });
+
+        // Custom Sort Menu Functions
+        window.toggleCustomSortMenu = function(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('custom-sort-dropdown');
+            dropdown.classList.toggle('hidden');
+        };
+
+        window.selectCustomSort = function(value, labelText) {
+            currentSortValue = value;
+            document.getElementById('custom-sort-label').textContent = labelText;
+            document.getElementById('custom-sort-dropdown').classList.add('hidden');
+            filterProducts();
+        };
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('custom-sort-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
         });
 
         // Toggle Category Drawer Animation & Visibility
@@ -329,7 +366,7 @@
             return '';
         }
 
-        // Helper to generate Add to Cart / Stepper / Out of Stock actions
+// Helper to generate Add to Cart / Stepper / Out of Stock actions
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             
@@ -367,14 +404,13 @@
 
         // Apply sorting rules
         function sortProductsList(list) {
-            const sortVal = document.getElementById('sort-select')?.value || 'default';
             let sorted = [...list];
 
-            if (sortVal === 'price-low') {
+            if (currentSortValue === 'price-low') {
                 sorted.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-            } else if (sortVal === 'price-high') {
+            } else if (currentSortValue === 'price-high') {
                 sorted.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-            } else if (sortVal === 'offers') {
+            } else if (currentSortValue === 'offers') {
                 sorted.sort((a, b) => (b.hasOffer === true ? 1 : 0) - (a.hasOffer === true ? 1 : 0));
             }
             return sorted;
@@ -446,10 +482,9 @@
                 }
             } else {
                 const query = document.getElementById('search-bar').value.toLowerCase().trim();
-                const activeSort = document.getElementById('sort-select')?.value || 'default';
-                if (!query && activeSort === 'default') {
+                if (!query && currentSortValue === 'default') {
                     searchResultsSection.classList.add('hidden');
-                } else if (activeSort !== 'default') {
+                } else if (currentSortValue !== 'default') {
                     searchResultsSection.classList.remove('hidden');
                     searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <i class="fa-solid fa-arrow-down-wide-short text-amber-500 mr-0.5"></i> Sorted Catalog View`;
                     
@@ -533,7 +568,7 @@
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
 
-                 bsList.forEach(item => {
+                bsList.forEach(item => {
                     const cleanPrice = typeof item.price === 'string' ? item.price.replace('₹', '') : item.price;
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const offerBadgeHtml = getOfferBadgeHTML(item);
@@ -869,9 +904,8 @@
             const searchResultsSection = document.getElementById('search-results-section');
             const searchResultsGrid = document.getElementById('search-results-grid');
             const searchResultsTitle = document.getElementById('search-results-title');
-            const sortVal = document.getElementById('sort-select')?.value || 'default';
 
-            if (!query && sortVal === 'default' && selectedCategoryFilter === null) {
+            if (!query && currentSortValue === 'default' && selectedCategoryFilter === null) {
                 searchResultsSection.classList.add('hidden');
                 searchResultsGrid.innerHTML = '';
                 renderCatalog(liveInventory);
@@ -1002,4 +1036,4 @@
         });
     </script>
 </body>
-</html>  
+</html>
