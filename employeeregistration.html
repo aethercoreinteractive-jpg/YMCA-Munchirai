@@ -6,15 +6,12 @@
     <title>Employee Registration - My Food</title>
     <style>
         :root {
-            --bg-color: #f8fafc;
-            --surface-color: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --accent-yellow: #fef9c3;
-            --accent-yellow-border: #fef08a;
-            --accent-yellow-text: #854d0e;
+            --nav-bg: #111827;
+            --brand-yellow: #fbbf24;
             --btn-orange: #f97316;
             --btn-orange-hover: #ea580c;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --border-color: #e2e8f0;
             --focus-ring: rgba(249, 115, 22, 0.2);
         }
@@ -27,17 +24,71 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: #f8fafc;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+        }
+
+        /* Exact Website Header Bar Style */
+        .site-header {
+            background-color: var(--nav-bg);
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-box {
+            background-color: var(--brand-yellow);
+            color: #111827;
+            font-weight: 800;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+
+        .brand-text {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .store-btn {
+            background-color: var(--brand-yellow);
+            color: #111827;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Main Content Wrapper */
+        .main-content {
+            flex: 1;
+            display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            padding: 24px 16px;
         }
 
         .career-card {
-            background: var(--surface-color);
+            background: #ffffff;
             width: 100%;
             max-width: 440px;
             border-radius: 20px;
@@ -51,22 +102,8 @@
             margin-bottom: 24px;
         }
 
-        .mission-badge {
-            display: inline-block;
-            background-color: var(--accent-yellow);
-            border: 1px solid var(--accent-yellow-border);
-            color: var(--accent-yellow-text);
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 5px 14px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-        }
-
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 800;
             color: var(--text-main);
             letter-spacing: -0.02em;
@@ -169,10 +206,6 @@
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 12px;
-                align-items: flex-start;
-            }
             .career-card {
                 padding: 20px 16px;
                 border-radius: 16px;
@@ -182,52 +215,65 @@
 </head>
 <body>
 
-    <div class="career-card">
-        <div id="formContainer">
-            <div class="header-container">
-                <div class="mission-badge">Join Our Team</div>
-                <h1>Employee Registration</h1>
-                <p class="description">
-                    Please provide your professional credentials and background details to submit your employment profile.
-                </p>
+    <!-- Exact Header Style Matching Your Site -->
+    <header class="site-header">
+        <a href="#" class="brand-logo">
+            <span class="brand-box">MY</span>
+            <span class="brand-text">FOOD</span>
+        </a>
+        <a href="#" class="store-btn">
+            🛒 MY Store
+        </a>
+    </header>
+
+    <!-- Main Registration Section -->
+    <div class="main-content">
+        <div class="career-card">
+            <div id="formContainer">
+                <div class="header-container">
+                    <h1>Employee Registration</h1>
+                    <p class="description">
+                        Please provide your professional credentials and background details to submit your employment profile.
+                    </p>
+                </div>
+
+                <form id="employeeRegForm" onsubmit="handleRegistration(event)">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dob">Date of Birth</label>
+                            <input type="date" id="dob" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="experienceYears">Experience (Years)</label>
+                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experienceDetails">Work Experience Detail</label>
+                        <textarea id="experienceDetails" placeholder="Briefly specify your industry background, past roles, and operational expertise..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resumeLink">Google Drive Resume Link</label>
+                        <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required>
+                        <div class="helper-text">Upload your resume to Google Drive, ensure link sharing permissions are enabled, and paste the URL here.</div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Submit Application</button>
+                </form>
             </div>
 
-            <form id="employeeRegForm" onsubmit="handleRegistration(event)">
-                <div class="form-group">
-                    <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" placeholder="Enter your full name" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="dob">Date of Birth</label>
-                        <input type="date" id="dob" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="experienceYears">Experience (Years)</label>
-                        <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="experienceDetails">Work Experience Detail</label>
-                    <textarea id="experienceDetails" placeholder="Briefly specify your industry background, past roles, and operational expertise..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="resumeLink">Google Drive Resume Link</label>
-                    <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required>
-                    <div class="helper-text">Upload your resume to Google Drive, ensure link sharing permissions are enabled, and paste the URL here.</div>
-                </div>
-
-                <button type="submit" class="btn-submit">Submit Application</button>
-            </form>
-        </div>
-
-        <div id="successNotification" class="notification">
-            <h3>Application Received</h3>
-            <p>Thank you for registering. Our recruitment operations team will review your credentials and contact you shortly.</p>
+            <div id="successNotification" class="notification">
+                <h3>Application Received</h3>
+                <p>Thank you for registering. Our recruitment operations team will review your credentials and contact you shortly.</p>
+            </div>
         </div>
     </div>
 
