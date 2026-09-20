@@ -24,25 +24,31 @@
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        body {
+        /* Forces everything to fit within one screen with zero scrolling */
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
             background-color: var(--bg-color);
             color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
         }
 
         .container {
             width: 100%;
-            max-width: 550px;
+            max-width: 500px;
+            max-height: 96vh;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .mission-badge {
@@ -50,59 +56,73 @@
             background-color: var(--accent-yellow);
             border: 1px solid var(--accent-yellow-border);
             color: #854d0e;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             font-weight: 700;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            padding: 6px 16px;
+            padding: 4px 12px;
             border-radius: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 6px;
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 16px;
+            margin-bottom: 6px;
             letter-spacing: -0.02em;
         }
 
         .description {
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 30px;
+            line-height: 1.3;
+            margin-bottom: 12px;
         }
 
-        /* Inbuilt Custom Modal Form Styling */
-        .form-group {
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             text-align: left;
-            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--text-main);
-            margin-bottom: 6px;
+            margin-bottom: 3px;
         }
 
         .form-group input, 
-        .form-group select {
+        .form-group textarea {
             width: 100%;
-            padding: 12px 14px;
+            padding: 8px 10px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 0.95rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
             background-color: #fff;
             color: var(--text-main);
             outline: none;
             transition: border-color 0.2s;
         }
 
+        .form-group textarea {
+            resize: none;
+            height: 48px;
+        }
+
         .form-group input:focus, 
-        .form-group select:focus {
+        .form-group textarea:focus {
             border-color: var(--btn-orange);
         }
 
@@ -111,13 +131,13 @@
             background-color: var(--btn-orange);
             color: #fff;
             font-weight: 700;
-            font-size: 1rem;
-            padding: 14px;
+            font-size: 0.9rem;
+            padding: 10px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
-            margin-top: 10px;
+            margin-top: 4px;
             box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
         }
 
@@ -125,15 +145,9 @@
             background-color: var(--btn-orange-hover);
         }
 
-        .btn-submit:active {
-            transform: scale(0.98);
-        }
-
-        /* Inbuilt Custom Notification Banner instead of browser default popup */
         .notification {
             display: none;
-            margin-top: 20px;
-            padding: 12px;
+            padding: 20px;
             background-color: #dcfce7;
             border: 1px solid #bbf7d0;
             color: #166534;
@@ -146,63 +160,60 @@
 <body>
 
     <div class="container">
-        <div class="mission-badge">Join Our Team</div>
-        <h1>Employee Registration</h1>
-        <p class="description">
-            Please fill out the structural details below to submit your official application for review by our recruitment operations team.
-        </p>
+        <div>
+            <div class="mission-badge">Join Our Team</div>
+            <h1>Employee Registration</h1>
+            <p class="description">
+                Please upload your resume to Google Drive, ensure link sharing permissions are enabled, and paste the accessible link below alongside your industry profile credentials.
+            </p>
+        </div>
 
-        <!-- Inbuilt Form with zero default browser alert popups -->
         <form id="employeeRegForm" onsubmit="handleRegistration(event)">
-            <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" placeholder="Enter your full name" required>
-            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" placeholder="Enter your full name" required>
+                </div>
 
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" placeholder="name@example.com" required>
-            </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" id="dob" required>
+                </div>
 
-            <div class="form-group">
-                <label for="department">Preferred Department</label>
-                <select id="department" required>
-                    <option value="" disabled selected>Select department</option>
-                    <option value="quality">Quality Management</option>
-                    <option value="supply-chain">Supply Chain & Logistics</option>
-                    <option value="agriculture">Sustainable Agricultural Ventures</option>
-                    <option value="corporate">Corporate Operations</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="experienceYears">Experience (Years)</label>
+                    <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g., 3" required>
+                </div>
 
-            <div class="form-group">
-                <label for="resumeLink">Resume / Portfolio Link (Google Drive)</label>
-                <input type="url" id="resumeLink" placeholder="https://drive.google.com/..." required>
+                <div class="form-group full-width">
+                    <label for="experienceDetails">Work Experience Detail (Industry Background)</label>
+                    <textarea id="experienceDetails" placeholder="Briefly specify your previous food industry roles, supply chain handling, or operational background..." required></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="resumeLink">Google Drive Resume Link</label>
+                    <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required>
+                </div>
             </div>
 
             <button type="submit" class="btn-submit">Submit Application</button>
         </form>
 
-        <!-- Inbuilt confirmation box -->
         <div id="successNotification" class="notification">
-            Application submitted successfully! Our team will review your profile.
+            Application submitted successfully! Our recruitment team will review your profile credentials.
         </div>
     </div>
 
     <script>
         function handleRegistration(event) {
-            // Prevents page reload and any browser native popup behavior
             event.preventDefault();
-
-            // Hide form or show inbuilt customized UI status feedback
             const form = document.getElementById('employeeRegForm');
             const notification = document.getElementById('successNotification');
-
-            // Optional: Handle data or firebase integration hook here seamlessly
+            
             form.style.display = 'none';
             notification.style.display = 'block';
         }
     </script>
 </body>
-  </html>
-  
+    </html>
+    
