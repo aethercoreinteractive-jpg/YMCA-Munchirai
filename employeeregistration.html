@@ -46,7 +46,7 @@
                     </div>
                 </div>
 
-                <!-- Form Content with native browser validation bubble preserved -->
+                <!-- Form Content with native browser validation bubble preserved and allowed to show -->
                 <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-4 md:space-y-5">
                     
                     <!-- Full Name -->
@@ -157,24 +157,9 @@
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
-        // Custom invalid event handler that scrolls the unfilled input/textarea 
-        // into clear view below the fixed header while keeping the native validation bubble visible
-        const form = document.getElementById('employeeRegForm');
-        form.addEventListener('invalid', function(event) {
-            event.preventDefault(); // Stop default browser jump behind the header
-            const firstInvalid = form.querySelector(':invalid');
-            if (firstInvalid) {
-                const headerOffset = 90; // enough space for the header
-                const elementPosition = firstInvalid.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-                firstInvalid.focus();
-            }
-        }, true);
+        // Completely removed the `invalid` event listener override. 
+        // Now the browser handles validation natively: showing its built-in error message bubble 
+        // and automatically scrolling to the invalid element naturally below the solid header.
 
         window.handleRegistration = function(event) {
             event.preventDefault();
@@ -210,3 +195,4 @@
     </script>
 </body>
 </html>
+                    
