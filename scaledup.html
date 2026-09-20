@@ -267,14 +267,15 @@
                 return;
             }
 
-            // 1. Render Scaled Up Pinned Product (No small caption rendered here)
+            // 1. Render Scaled Up Pinned Product (Professional Offer Integration matching productmanagement.html)
             categoryTag.textContent = currentProduct.category || "Uncategorized";
             const rawPrice = Number(typeof currentProduct.price === 'string' ? currentProduct.price.replace('₹', '') : currentProduct.price) || 0;
-            const offerPercentage = Number(currentProduct.offer || currentProduct.discount || 0);
+            
+            const hasOffer = currentProduct.hasOffer === true;
+            const offerPercentage = Number(currentProduct.offerPercent || 0);
             
             let displayPrice = rawPrice;
-            let hasOffer = offerPercentage > 0;
-            if (hasOffer) {
+            if (hasOffer && offerPercentage > 0) {
                 displayPrice = rawPrice - (rawPrice * offerPercentage / 100);
             }
 
@@ -291,7 +292,7 @@
                     <span class="absolute top-3 left-3 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-xs px-2.5 py-1 rounded-lg shadow">
                         ${isInStock ? '<i class="fa-solid fa-star mr-1"></i> In Stock' : 'Out of Stock'}
                     </span>
-                    ${hasOffer ? `<span class="absolute top-3 right-3 bg-rose-600 text-white font-black text-xs px-2.5 py-1 rounded-lg shadow">${offerPercentage}% OFF</span>` : ''}
+                    ${hasOffer && offerPercentage > 0 ? `<span class="absolute top-3 right-3 bg-rose-600 text-white font-black text-xs px-2.5 py-1 rounded-lg shadow">${offerPercentage}% OFF</span>` : ''}
                 </div>
 
                 <div class="space-y-2 border-b border-gray-100 pb-4">
@@ -306,9 +307,9 @@
                     </div>
                     
                     <div class="flex items-center justify-between pt-1">
-                        <div class="flex items-baseline gap-2">
+                        <div class="flex items-baseline gap-2.5">
                             <div class="text-2xl sm:text-3xl font-black text-slate-900">₹${cleanPrice}</div>
-                            ${hasOffer ? `<div class="text-sm sm:text-base font-bold text-slate-400 line-through">₹${originalPriceFormatted}</div>` : ''}
+                            ${hasOffer && offerPercentage > 0 ? `<div class="text-sm sm:text-base font-bold text-slate-400 line-through">₹${originalPriceFormatted}</div>` : ''}
                         </div>
                         <div class="text-xs font-bold text-slate-600 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
                             <i class="fa-solid fa-weight-scale text-amber-600 mr-1"></i> Size/Qty: <span class="text-slate-900">${currentProduct.qty || 'Standard'}</span>
@@ -328,7 +329,7 @@
                 </div>
             `;
 
-        // 2. Render All Other Products Below (Excluding the pinned product)
+                // 2. Render All Other Products Below (Excluding the pinned product)
             const otherProducts = liveInventory.filter(p => p.firebaseKey !== productId);
 
             let categoryGroups = {};
@@ -377,10 +378,11 @@
 
                 groupItems.forEach(item => {
                     const itemRawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
-                    const itemOfferPct = Number(item.offer || item.discount || 0);
+                    const itemHasOffer = item.hasOffer === true;
+                    const itemOfferPct = Number(item.offerPercent || 0);
+
                     let itemDisplayPrice = itemRawPrice;
-                    let itemHasOffer = itemOfferPct > 0;
-                    if (itemHasOffer) {
+                    if (itemHasOffer && itemOfferPct > 0) {
                         itemDisplayPrice = itemRawPrice - (itemRawPrice * itemOfferPct / 100);
                     }
                     const itemCleanPrice = itemDisplayPrice.toFixed(2).replace(/\.00$/, '');
@@ -396,7 +398,7 @@
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
                                     <span class="absolute top-0.5 left-0.5 ${itemIsInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${itemIsInStock ? 'Stock' : 'Out'}</span>
-                                    ${itemHasOffer ? `<span class="absolute top-0.5 right-0.5 bg-rose-600 text-white font-black text-[6px] px-1 py-0.2 rounded shadow">${itemOfferPct}% OFF</span>` : ''}
+                                    ${itemHasOffer && itemOfferPct > 0 ? `<span class="absolute top-0.5 right-0.5 bg-rose-600 text-white font-black text-[6px] px-1 py-0.2 rounded shadow">${itemOfferPct}% OFF</span>` : ''}
                                 </div>
                                 <h4 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h4>
                                 <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
@@ -405,7 +407,7 @@
                                 <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
                                     <div class="flex items-center gap-1">
                                         <span class="font-black text-slate-900">₹${itemCleanPrice}</span>
-                                        ${itemHasOffer ? `<span class="text-[8px] text-slate-400 line-through">₹${itemOriginalPriceFormatted}</span>` : ''}
+                                        ${itemHasOffer && itemOfferPct > 0 ? `<span class="text-[8px] text-slate-400 line-through">₹${itemOriginalPriceFormatted}</span>` : ''}
                                     </div>
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
@@ -437,7 +439,6 @@
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartCount();
             document.getElementById('detail-action-wrapper').innerHTML = getDetailCartActionHTML();
-            // Refresh category list UI too in case that product appears below
             renderEverything();
         };
 
