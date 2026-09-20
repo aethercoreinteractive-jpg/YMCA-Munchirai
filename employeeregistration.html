@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Munchirai YMCA | MY Food Employee Registration</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,82 +14,81 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-950 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-950 antialiased selection:bg-amber-500 selection:text-slate-950 h-full flex flex-col overflow-hidden">
 
     <!-- Professional Fixed Header Matching Index Page Theme -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800 shrink-0">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-12 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="#" onclick="history.back(); return false;" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5 cursor-pointer">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> My Store
+                <a href="#" onclick="history.back(); return false;" class="text-xs sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-1.5 cursor-pointer">
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-[10px] sm:text-sm font-bold shadow">MY</span> My Store
                 </a>
             </div>
 
             <div class="flex items-center gap-2">
                 <!-- Back Button Triggering window.history.back() -->
-                <button onclick="history.back()" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-arrow-left"></i>
+                <button onclick="history.back()" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-lg font-bold text-[10px] shadow transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-[9px]"></i>
                     <span>Back</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Section -->
-    <main class="flex-1 flex justify-center items-center px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-8">
-            <div id="formContainer">
-                <div class="text-center mb-6">
-                    <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-2 text-base shadow-inner border border-amber-100">
+    <!-- Main Content Section Fitted strictly within screen viewport without page scrolling -->
+    <main class="flex-1 flex justify-center items-center px-3 sm:px-6 lg:px-8 pt-14 pb-2 w-full max-w-lg mx-auto overflow-hidden">
+        <div class="bg-white w-full rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 flex flex-col justify-center max-h-full">
+            <div id="formContainer" class="flex flex-col h-full justify-center">
+                <div class="text-center mb-3 sm:mb-4">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-1.5 text-xs sm:text-sm shadow-inner border border-amber-100">
                         <i class="fa-solid fa-user-tie"></i>
                     </div>
-                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 mb-1">Employee Registration</h1>
-                    <p class="text-xs text-gray-500 leading-relaxed max-w-sm mx-auto">
-                        Please provide your professional credentials and background details to submit your employment profile.
+                    <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-slate-900 mb-0.5">Employee Registration</h1>
+                    <p class="text-[11px] sm:text-xs text-gray-500 leading-tight max-w-xs mx-auto">
+                        Provide credentials to submit your employment profile.
                     </p>
                 </div>
 
-                <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-4">
+                <form id="employeeRegForm" onsubmit="handleRegistration(event)" class="space-y-2.5 sm:space-y-3">
                     <div>
-                        <label for="fullName" class="block text-xs font-bold text-slate-900 mb-1.5">Full Name</label>
-                        <input type="text" id="fullName" placeholder="Enter your full name" required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
+                        <label for="fullName" class="block text-[11px] font-bold text-slate-900 mb-1">Full Name</label>
+                        <input type="text" id="fullName" placeholder="Enter your full name" required class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-2.5">
                         <div>
-                            <label for="dob" class="block text-xs font-bold text-slate-900 mb-1.5">Date of Birth</label>
-                            <input type="date" id="dob" required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
+                            <label for="dob" class="block text-[11px] font-bold text-slate-900 mb-1">Date of Birth</label>
+                            <input type="date" id="dob" required class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
                         </div>
 
                         <div>
-                            <label for="experienceYears" class="block text-xs font-bold text-slate-900 mb-1.5">Experience (Years)</label>
-                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
+                            <label for="experienceYears" class="block text-[11px] font-bold text-slate-900 mb-1">Experience (Years)</label>
+                            <input type="number" id="experienceYears" min="0" max="50" placeholder="e.g. 3" required class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
                         </div>
                     </div>
 
                     <div>
-                        <label for="experienceDetails" class="block text-xs font-bold text-slate-900 mb-1.5">Work Experience Detail</label>
-                        <textarea id="experienceDetails" placeholder="Briefly specify your industry background, past roles, and operational expertise..." required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition resize-y min-h-[80px] max-h-[140px]"></textarea>
+                        <label for="experienceDetails" class="block text-[11px] font-bold text-slate-900 mb-1">Work Experience Detail</label>
+                        <textarea id="experienceDetails" placeholder="Briefly specify your industry background..." required class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition resize-none h-14 sm:h-16"></textarea>
                     </div>
 
                     <div>
-                        <label for="resumeLink" class="block text-xs font-bold text-slate-900 mb-1.5">Google Drive Resume Link</label>
-                        <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
-                        <p class="text-[10px] text-gray-500 mt-1 leading-relaxed">Upload your resume to Google Drive, ensure link sharing permissions are enabled, and paste the URL here.</p>
+                        <label for="resumeLink" class="block text-[11px] font-bold text-slate-900 mb-1">Google Drive Resume Link</label>
+                        <input type="url" id="resumeLink" placeholder="https://drive.google.com/file/d/..." required class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/25 shadow-sm transition">
                     </div>
 
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-extrabold text-xs py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-1.5 mt-2 cursor-pointer">
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-extrabold text-xs py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer mt-1">
                         <i class="fa-solid fa-paper-plane text-[10px]"></i> Submit Application
                     </button>
                 </form>
             </div>
 
             <!-- Success Notification Card -->
-            <div id="successNotification" class="hidden text-center py-8 px-4">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-lg shadow-inner border border-emerald-100">
+            <div id="successNotification" class="hidden text-center py-6 px-4">
+                <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2.5 text-base shadow-inner border border-emerald-100">
                     <i class="fa-solid fa-check"></i>
                 </div>
-                <h3 class="text-base font-extrabold text-emerald-800 mb-1">Application Received</h3>
+                <h3 class="text-sm font-extrabold text-emerald-800 mb-1">Application Received</h3>
                 <p class="text-xs text-gray-500 leading-relaxed">Thank you for registering. Our recruitment operations team will review your credentials and contact you shortly.</p>
             </div>
         </div>
