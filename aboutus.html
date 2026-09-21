@@ -12,107 +12,72 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 flex flex-col min-h-screen">
 
-    <!-- Enterprise Glassmorphic Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-md text-white border-b border-slate-800/80 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <a href="index.html" class="font-black tracking-tighter uppercase text-white flex items-center gap-2 group">
-                <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 flex items-center justify-center text-xs font-black shadow-md transition group-hover:scale-105">MY</span>
-                <span class="text-sm sm:text-base tracking-tight">Munchirai YMCA</span>
-            </a>
-            <a href="mystore.html" class="text-xs bg-slate-800/90 hover:bg-slate-800 text-slate-200 px-4 py-2 rounded-xl transition border border-slate-700/80 flex items-center gap-2 font-semibold shadow-xs active:scale-95">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
+                    <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span> About
+                </a>
+            </div>
+            <a href="mystore.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
                 <i class="fa-solid fa-store text-amber-400"></i> Shop on MyStore
             </a>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fade-in">
+    <!-- Main Container -->
+    <main class="flex-1 max-w-3xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-5">
         
-        <!-- Hero Section -->
-        <div class="text-center space-y-3 max-w-2xl mx-auto pt-2">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-200 text-amber-800 text-[11px] font-bold tracking-wide uppercase shadow-2xs">
-                <i class="fa-solid fa-seedling text-amber-600"></span> Social Enterprise Initiative
+        <!-- Header Banner -->
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm text-center space-y-3">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-lg border border-amber-100 shadow-inner">
+                <i class="fa-solid fa-heart-circle-heart"></i>
             </div>
-            <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-slate-900">More Than a Business</h1>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-                Uniting sustainable enterprise with community advancement and structural social welfare.
+            <div class="space-y-1">
+                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">Social Enterprise</span>
+                <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 pt-1">More Than a Business</h1>
+            </div>
+            <p class="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
+                MyFood is a social enterprise of Munchirai YMCA, created to generate sustainable income while contributing towards meaningful charitable and community initiatives.
             </p>
         </div>
 
-        <!-- Corporate Editorial Card -->
-        <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-12 shadow-sm space-y-8">
+        <!-- Content Card -->
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-8 shadow-sm space-y-5 text-slate-700 text-xs sm:text-sm leading-relaxed">
             
-            <!-- Lead Paragraph -->
-            <div class="border-b border-slate-100 pb-6">
-                <p class="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
-                    MyFood is a social enterprise of Munchirai YMCA, created to generate sustainable income while contributing towards meaningful charitable and community initiatives.
+            <div class="space-y-3">
+                <p>
+                    Through this venture, we aim to build a responsible business model where commercial activity serves a greater purpose. A portion of the proceeds from MyFood contributes towards the YMCA’s charitable activities, social development programmes, and initiatives that create positive impact in the wider community.
+                </p>
+                <p>
+                    Our work brings together business and social responsibility — creating value for our customers while helping support the purpose and ongoing work of Munchirai YMCA.
                 </p>
             </div>
 
-            <!-- Body Details -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                <div class="bg-slate-50/80 border border-slate-100 rounded-2xl p-5 space-y-3">
-                    <div class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-xs">
-                        <i class="fa-solid fa-bullseye text-xs"></i>
-                    </div>
-                    <h3 class="font-extrabold text-slate-900 text-xs uppercase tracking-wider">Responsible Model</h3>
-                    <p>
-                        Through this venture, we aim to build a responsible business model where commercial activity serves a greater purpose. A portion of the proceeds from MyFood contributes towards the YMCA’s charitable activities, social development programmes, and initiatives that create positive impact in the wider community.
-                    </p>
-                </div>
-
-                <div class="bg-slate-50/80 border border-slate-100 rounded-2xl p-5 space-y-3">
-                    <div class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-xs">
-                        <i class="fa-solid fa-handshake-angle text-xs"></i>
-                    </div>
-                    <h3 class="font-extrabold text-slate-900 text-xs uppercase tracking-wider">Shared Value</h3>
-                    <p>
-                        Our work brings together business and social responsibility — creating value for our customers while helping support the purpose and ongoing work of Munchirai YMCA.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Executive Pull Quote Banner -->
-            <div class="relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 sm:p-8 shadow-md text-center space-y-2">
-                <div class="absolute -right-6 -bottom-6 text-slate-800/40 text-8xl font-black pointer-events-none select-none">“</div>
-                <p class="text-xs sm:text-sm font-semibold tracking-wide text-amber-300 uppercase">Our Core Philosophy</p>
-                <p class="text-sm sm:text-base font-bold text-white italic tracking-tight">
-                    "Every purchase contributes to something beyond the product itself."
-                </p>
+            <!-- Highlight Callout Box -->
+            <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-center text-amber-900 font-bold text-xs shadow-inner">
+                ✨ "Every purchase contributes to something beyond the product itself."
             </div>
 
         </div>
 
-        <!-- Action Bar Footer -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs">
-            <div class="text-center sm:text-left">
-                <h4 class="font-extrabold text-xs text-slate-900">Ready to support our cause?</h4>
-                <p class="text-[11px] text-slate-500">Explore our catalog items and make a meaningful impact today.</p>
-            </div>
-            <a href="mystore.html" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95 shrink-0">
+        <!-- Call to Action -->
+        <div class="text-center pt-1 pb-4">
+            <a href="mystore.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs transition shadow-md active:scale-95">
                 <i class="fa-solid fa-store"></i> Shop on MyStore
             </a>
         </div>
 
     </main>
 
-    <!-- Professional Footer -->
-    <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 space-y-2">
-            <p class="font-bold text-slate-700">Munchirai YMCA Social Enterprise</p>
-            <p>&copy; 2026 Munchirai YMCA. All rights reserved.</p>
-        </div>
+    <!-- Footer -->
+    <footer class="py-6 text-center text-[11px] text-slate-400 border-t border-slate-200/60 mt-auto bg-white">
+        &copy; 2026 Munchirai YMCA. All rights reserved.
     </footer>
 
 </body>
