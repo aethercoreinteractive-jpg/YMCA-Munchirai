@@ -24,53 +24,65 @@
                     <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span> About
                 </a>
             </div>
-            <a href="mystore.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
-                <i class="fa-solid fa-store text-amber-400"></i> Shop on MyStore
-            </a>
+            <!-- Back Button -->
+            <button onclick="history.back()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-arrow-left text-amber-400"></i> Back
+            </button>
         </div>
     </header>
 
     <!-- Main Container -->
     <main class="flex-1 max-w-3xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-5">
         
-        <!-- Header Banner -->
-        <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm text-center space-y-3">
-            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-lg border border-amber-100 shadow-inner">
-                <i class="fa-solid fa-heart-circle-heart"></i>
+        <!-- Mobile Layout View -->
+        <div class="block sm:hidden space-y-4">
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm space-y-3">
+                <h1 class="text-lg font-extrabold tracking-tight text-slate-900">More Than a Business</h1>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    MyFood is a social enterprise of Munchirai YMCA, created to generate sustainable income while contributing towards meaningful charitable and community initiatives.
+                </p>
             </div>
-            <div class="space-y-1">
-                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">Social Enterprise</span>
-                <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 pt-1">More Than a Business</h1>
-            </div>
-            <p class="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
-                MyFood is a social enterprise of Munchirai YMCA, created to generate sustainable income while contributing towards meaningful charitable and community initiatives.
-            </p>
-        </div>
 
-        <!-- Content Card -->
-        <div class="bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-8 shadow-sm space-y-5 text-slate-700 text-xs sm:text-sm leading-relaxed">
-            
-            <div class="space-y-3">
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm space-y-4 text-slate-700 text-xs leading-relaxed">
                 <p>
                     Through this venture, we aim to build a responsible business model where commercial activity serves a greater purpose. A portion of the proceeds from MyFood contributes towards the YMCA’s charitable activities, social development programmes, and initiatives that create positive impact in the wider community.
                 </p>
                 <p>
                     Our work brings together business and social responsibility — creating value for our customers while helping support the purpose and ongoing work of Munchirai YMCA.
                 </p>
+                <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 text-center text-amber-900 font-bold text-[11px] shadow-inner">
+                    ✨ "Every purchase contributes to something beyond the product itself."
+                </div>
             </div>
-
-            <!-- Highlight Callout Box -->
-            <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-center text-amber-900 font-bold text-xs shadow-inner">
-                ✨ "Every purchase contributes to something beyond the product itself."
-            </div>
-
         </div>
 
-        <!-- Call to Action -->
+        <!-- Desktop Layout View -->
+        <div class="hidden sm:block space-y-6">
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-4">
+                <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">More Than a Business</h1>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    MyFood is a social enterprise of Munchirai YMCA, created to generate sustainable income while contributing towards meaningful charitable and community initiatives.
+                </p>
+            </div>
+
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-5 text-slate-700 text-sm leading-relaxed">
+                <p>
+                    Through this venture, we aim to build a responsible business model where commercial activity serves a greater purpose. A portion of the proceeds from MyFood contributes towards the YMCA’s charitable activities, social development programmes, and initiatives that create positive impact in the wider community.
+                </p>
+                <p>
+                    Our work brings together business and social responsibility — creating value for our customers while helping support the purpose and ongoing work of Munchirai YMCA.
+                </p>
+                <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-center text-amber-900 font-bold text-sm shadow-inner">
+                    ✨ "Every purchase contributes to something beyond the product itself."
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Action -->
         <div class="text-center pt-1 pb-4">
-            <a href="mystore.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs transition shadow-md active:scale-95">
-                <i class="fa-solid fa-store"></i> Shop on MyStore
-            </a>
+            <button onclick="history.back()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs transition shadow-md active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
         </div>
 
     </main>
