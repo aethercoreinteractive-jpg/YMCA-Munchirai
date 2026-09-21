@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bank Details & QR Payment | Munchirai YMCA</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 flex flex-col min-h-screen">
+
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
+                    <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span> Bank Details
+                </a>
+            </div>
+            <!-- Back Button -->
+            <button onclick="history.back()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-arrow-left text-amber-400"></i> Back
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-3xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-5">
+        
+        <!-- Mobile Layout View -->
+        <div class="block sm:hidden space-y-4">
+            <!-- Header Card -->
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm text-center space-y-2">
+                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-lg border border-amber-100 shadow-inner">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <h1 class="text-lg font-extrabold tracking-tight text-slate-900">Bank Details & UPI Payment</h1>
+                <p class="text-xs text-slate-500 leading-relaxed">Direct bank transfer and GPay QR code for your transactions.</p>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm text-center space-y-3">
+                <h2 class="font-bold text-slate-900 text-sm flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-qrcode text-amber-500"></i> Scan to Pay (GPay / UPI)
+                </h2>
+                <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 inline-block shadow-xs">
+                    <img src="qr.jpg" alt="GPay QR Code" class="w-48 h-48 object-contain mx-auto rounded-xl">
+                </div>
+                <p class="text-[11px] text-slate-500">Scan using Google Pay, PhonePe, or any UPI app.</p>
+            </div>
+
+            <!-- Bank Information Card -->
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm space-y-4">
+                <h2 class="font-extrabold text-slate-900 text-sm border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-amber-500"></i> Direct Bank Transfer
+                </h2>
+                <div class="space-y-3 text-xs">
+                    <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Beneficiary Name</span>
+                        <span class="font-bold text-slate-900 text-right">Munchirai YMCA Trust</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Account Number</span>
+                        <span class="font-bold font-mono text-slate-900 text-right">40154488844</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Bank & Branch</span>
+                        <span class="font-bold text-slate-900 text-right">SBI, Puthukkadai</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">IFSC Code</span>
+                        <span class="font-bold font-mono text-slate-900 text-right">SBIN0070852</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5">
+                        <span class="text-slate-500 font-medium">Account Type</span>
+                        <span class="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md">Current Account</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Layout View -->
+        <div class="hidden sm:block space-y-6">
+            <!-- Header Card -->
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm text-center space-y-2">
+                <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl border border-amber-100 shadow-inner">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Bank Details & UPI Payment</h1>
+                <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">Use the official bank account information below or scan the GPay QR code to complete payments securely.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- QR Code Section -->
+                <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm text-center flex flex-col justify-center items-center space-y-4">
+                    <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-qrcode text-amber-500"></i> Scan to Pay (GPay / UPI)
+                    </h2>
+                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 inline-block shadow-xs">
+                        <img src="qr.jpg" alt="GPay QR Code" class="w-56 h-56 object-contain mx-auto rounded-xl">
+                    </div>
+                    <p class="text-xs text-slate-500">Scan using Google Pay, PhonePe, or any UPI app.</p>
+                </div>
+
+                <!-- Bank Information Card -->
+                <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm space-y-5 flex flex-col justify-between">
+                    <h2 class="font-extrabold text-slate-900 text-sm border-b border-slate-100 pb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice-dollar text-amber-500"></i> Direct Bank Transfer
+                    </h2>
+                    <div class="space-y-3.5 text-xs">
+                        <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                            <span class="text-slate-500 font-medium">Beneficiary Name</span>
+                            <span class="font-bold text-slate-900">Munchirai YMCA Trust</span>
+                        </div>
+                        <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                            <span class="text-slate-500 font-medium">Account Number</span>
+                            <span class="font-bold font-mono text-slate-900">40154488844</span>
+                        </div>
+                        <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                            <span class="text-slate-500 font-medium">Bank & Branch</span>
+                            <span class="font-bold text-slate-900">SBI, Puthukkadai</span>
+                        </div>
+                        <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                            <span class="text-slate-500 font-medium">IFSC Code</span>
+                            <span class="font-bold font-mono text-slate-900">SBIN0070852</span>
+                        </div>
+                        <div class="flex justify-between items-center py-1.5">
+                            <span class="text-slate-500 font-medium">Account Type</span>
+                            <span class="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md">Current Account</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Action -->
+        <div class="text-center pt-1 pb-4">
+            <button onclick="history.back()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs transition shadow-md active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-[11px] text-slate-400 border-t border-slate-200/60 mt-auto bg-white">
+        &copy; 2026 Munchirai YMCA. All rights reserved.
+    </footer>
+
+</body>
+</html>
+      
