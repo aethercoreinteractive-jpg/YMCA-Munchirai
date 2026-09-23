@@ -34,7 +34,7 @@
         .enterprise-card:hover {
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
         }
-        /* Explicit toggle switch styling to guarantee visibility */
+        /* Explicit toggle switch styling */
         .switch {
             position: relative;
             display: inline-block;
@@ -110,14 +110,8 @@
                 </button>
             </div>
             
-            <div id="modal-categories-list" class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+            <div id="modal-categories-list" class="space-y-1.5 max-h-72 overflow-y-auto pr-1">
                 <!-- Dynamically populated categories -->
-            </div>
-
-            <div class="pt-2">
-                <button onclick="window.closeCategoryModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
-                    Done
-                </button>
             </div>
         </div>
     </div>
@@ -372,7 +366,7 @@
                             </div>
                         </div>
 
-                        <!-- Right: Industrial Controls (Stock Toggle, Offer Toggle/Input, Edit) -->
+                        <!-- Right: Industrial Controls -->
                         <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
                             
                                <!-- 1. Stock Availability Toggle Switch -->
