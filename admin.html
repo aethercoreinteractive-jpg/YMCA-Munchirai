@@ -88,7 +88,7 @@
         </div>
     </div>
 
-    <!-- CLEAN DESKTOP & MOBILE OPTIMIZED HEADER -->
+    <!-- HEADER NAVIGATION -->
     <header class="bg-slate-900 text-slate-100 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             
@@ -137,7 +137,7 @@
             </div>
         </div>
 
-        <!-- Mobile Secondary Navigation Row (Optimized for Small Screens) -->
+        <!-- Mobile Secondary Navigation Row -->
         <div class="md:hidden bg-slate-950/60 border-t border-slate-800 px-2 py-2 flex items-center justify-around gap-1">
             <a href="adminnews.html" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-newspaper text-amber-400 text-[10px]"></i> News
@@ -157,10 +157,10 @@
     <!-- MAIN WORKSPACE CONTAINER -->
     <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
         
-        <!-- SECTION TITLE -->
+        <!-- REVISED PROFESSIONAL SECTION TITLE -->
         <div>
-            <h2 class="text-sm sm:text-base font-extrabold text-slate-900">Website Logo Configuration</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Manage the official branding logo for MY Food using a direct Google Drive link.</p>
+            <h2 class="text-sm sm:text-base font-extrabold text-slate-900">Brand Identity & Logo Edit</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Manage your platform's primary visual identifier using a secure cloud link.</p>
         </div>
 
         <!-- GOOGLE DRIVE LOGO MANAGEMENT CARD -->
@@ -171,7 +171,7 @@
                         <i class="fa-solid fa-image"></i>
                     </div>
                     <div>
-                        <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">Store Logo Link</h3>
+                        <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">Platform Logo Source</h3>
                         <p class="text-[11px] text-slate-500">Paste your shared Google Drive image link below</p>
                     </div>
                 </div>
@@ -191,12 +191,19 @@
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Google Drive Image URL</label>
                     <div class="flex flex-col sm:flex-row gap-2.5">
                         <input type="url" id="logo-url-input" oninput="previewDriveLogo(this.value)" placeholder="https://drive.google.com/uc?export=view&id=..." class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
-                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-6 py-3.5 sm:py-3 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 flex items-center justify-center gap-2 flex-shrink-0">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span>Save Logo</span>
-                        </button>
+                        
+                        <div class="flex gap-2">
+                            <button type="submit" class="flex-grow sm:flex-grow-0 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-5 py-3.5 sm:py-3 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 flex items-center justify-center gap-2 flex-shrink-0">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Save</span>
+                            </button>
+                            <button type="button" onclick="handleDeleteLogo()" class="flex-grow sm:flex-grow-0 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold px-4 py-3.5 sm:py-3 rounded-xl text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-2 flex-shrink-0" title="Delete custom logo">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span class="sm:hidden">Delete</span>
+                            </button>
+                        </div>
                     </div>
-                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-2">Make sure the Google Drive link is set to "Anyone with the link can view".</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-2">Ensure the Google Drive link permission is set to "Anyone with the link can view".</p>
                 </div>
             </form>
         </div>
@@ -308,11 +315,13 @@
             try {
                 const logoRef = ref(db, 'settings/storeLogo');
                 const snap = await get(logoRef);
-                if (snap.exists()) {
+                if (snap.exists() && snap.val()) {
                     const val = snap.val();
                     document.getElementById('logo-url-input').value = val;
                     window.previewDriveLogo(val);
                     updateHeaderLogo(val);
+                } else {
+                    updateHeaderLogo("");
                 }
             } catch (err) {
                 console.error("Error loading logo:", err);
@@ -375,7 +384,7 @@
             window.location.reload();
         };
 
-        // Save Logo safely without disturbing other database nodes using update()
+        // Save Logo safely using update() without disturbing other database keys
         window.handleSaveLogo = async function(event) {
             event.preventDefault();
             const rawVal = document.getElementById('logo-url-input').value.trim();
@@ -388,10 +397,29 @@
                 });
 
                 updateHeaderLogo(formattedUrl);
-                window.showToast("Logo Updated", "Website logo successfully saved to Firebase!");
+                window.showToast("Logo Updated", "Brand identity successfully saved to Firebase!");
             } catch (error) {
                 console.error("Save logo error:", error);
                 window.showToast("Error", "Failed to save logo to database.", true);
+            }
+        };
+
+        // Delete Logo option to clear database field and revert header to "MY" default
+        window.handleDeleteLogo = async function() {
+            try {
+                const settingsRef = ref(db, 'settings');
+                // Set storeLogo to an empty string or null safely via update
+                await update(settingsRef, {
+                    storeLogo: ""
+                });
+
+                document.getElementById('logo-url-input').value = "";
+                window.previewDriveLogo("");
+                updateHeaderLogo("");
+                window.showToast("Logo Removed", "Default branding 'MY' restored successfully.");
+            } catch (error) {
+                console.error("Delete logo error:", error);
+                window.showToast("Error", "Failed to delete logo from database.", true);
             }
         };
 
