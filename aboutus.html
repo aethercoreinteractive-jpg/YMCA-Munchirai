@@ -20,8 +20,11 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span> About
+                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <div id="header-logo-container" class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-[10px] tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                        <span id="header-logo-fallback">MY</span>
+                    </div>
+                    <span>About</span>
                 </a>
             </div>
             <!-- Back Button -->
@@ -32,153 +35,163 @@
     </header>
 
     <!-- Main Container -->
-    <main class="flex-1 max-w-3xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-5">
+    <main class="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-8 space-y-6">
         
-        <!-- Mobile Layout View -->
-        <div class="block sm:hidden space-y-4">
-            <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm space-y-3">
-                <h1 class="text-lg font-extrabold tracking-tight text-slate-900">More Than a Business</h1>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    MyFood is a social enterprise of Munchirai YMCA, created to generate sustainable income while contributing towards meaningful charitable and community initiatives.
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden border border-slate-800">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 space-y-4 text-center sm:text-left max-w-2xl">
+                <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <i class="fa-solid fa-heart-pulse"></i> Social Enterprise
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">More Than Just a Business</h1>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">
+                    MyFood is a trusted social enterprise initiative by Munchirai YMCA, engineered to generate sustainable economic streams while fueling transformative community development and welfare programs.
                 </p>
             </div>
+        </div>
 
-            <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm space-y-4 text-slate-700 text-xs leading-relaxed">
-                <p>
-                    Through this venture, we aim to build a responsible business model where commercial activity serves a greater purpose. A portion of the proceeds from MyFood contributes towards the YMCA’s charitable activities, social development programmes, and initiatives that create positive impact in the wider community.
-                </p>
-                <p>
-                    Our work brings together business and social responsibility — creating value for our customers while helping support the purpose and ongoing work of Munchirai YMCA.
-                </p>
-                <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 text-center text-amber-900 font-bold text-[11px] shadow-inner">
-                    ✨ "Every purchase contributes to something beyond the product itself."
+        <!-- Mission & Values Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between">
+                <div class="space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-lg shadow-inner">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <h2 class="text-lg font-extrabold text-slate-900">Our Core Purpose</h2>
+                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-light">
+                        We champion a responsible commercial model where every single transaction anchors a greater humanitarian goal. Proceeds directly subsidize YMCA’s charitable undertakings, youth empowerment workshops, and socio-economic support programs across communities.
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-500">
+                    <i class="fa-solid fa-check-circle text-amber-500"></i> Sustainable Impact & Integrity
                 </div>
             </div>
 
-            <!-- Offline Stores Section (Mobile) -->
-            <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm space-y-4">
-                <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <i class="fa-solid fa-store text-amber-500"></i> Offline Stores
-                </h2>
+            <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between">
+                <div class="space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-lg shadow-inner">
+                        <i class="fa-solid fa-handshake-angle"></i>
+                    </div>
+                    <h2 class="text-lg font-extrabold text-slate-900">Community Synergy</h2>
+                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-light">
+                        Our workflow harmonizes commerce with corporate social accountability. By selecting our products, patrons directly contribute to foundational welfare projects that uplift marginalized groups and nurture regional growth.
+                    </p>
+                </div>
+                <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3 text-center text-amber-900 font-bold text-xs shadow-inner">
+                    ✨ "Every purchase contributes to something beyond the product itself."
+                </div>
+            </div>
+        </div>
 
-                <div class="space-y-4 text-xs">
-                    <!-- Store 1 -->
-                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 space-y-2">
+        <!-- Offline Stores & Retail Partners Section -->
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5 gap-3">
+                <div class="space-y-1">
+                    <h2 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-store text-amber-500"></i> Offline Stores & Retail Partners
+                    </h2>
+                    <p class="text-xs text-slate-500">Explore our accredited offline stockists and distribution centers.</p>
+                </div>
+                <div class="bg-slate-100 border border-slate-200/60 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 self-start sm:self-auto">
+                    Authorized Outlets
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Store 1 -->
+                <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-amber-300 transition shadow-2xs">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-xs font-bold">01</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-0.5 rounded-full">Active</span>
+                        </div>
                         <h3 class="font-bold text-slate-900 text-sm">Greens Organic and Herbs</h3>
-                        <p class="text-slate-600 leading-relaxed">Shop No.3, Plot No 1/56, Agaramthen Main Road Thiruvanchery Village, Mappedu Post, Tambaram East, Selaiyur, Chennai-600126</p>
-                        <div class="flex flex-col gap-1 pt-1 text-[11px]">
-                            <span class="text-slate-700"><i class="fa-solid fa-phone text-amber-500 mr-1.5"></i> <a href="tel:9791138583" class="hover:underline">9791138583</a> / <a href="tel:7339116699" class="hover:underline">7339116699</a></span>
-                            <span class="text-slate-700"><i class="fa-solid fa-envelope text-amber-500 mr-1.5"></i> <a href="mailto:GreensOrganicandherbs@gmail.com" class="hover:underline">GreensOrganicandherbs@gmail.com</a></span>
-                            <span class="text-emerald-700 font-semibold pt-0.5"><i class="fa-solid fa-clock text-emerald-600 mr-1.5"></i> Open Days : Sunday - Saturday</span>
+                        <p class="text-xs text-slate-600 leading-relaxed">Shop No.3, Plot No 1/56, Agaramthen Main Road Thiruvanchery Village, Mappedu Post, Tambaram East, Selaiyur, Chennai-600126</p>
+                    </div>
+                    <div class="space-y-2 pt-3 border-t border-slate-200/60 text-[11px]">
+                        <div class="flex items-start gap-2 text-slate-700">
+                            <i class="fa-solid fa-phone text-amber-500 mt-0.5"></i>
+                            <div>
+                                <a href="tel:9791138583" class="hover:underline font-semibold">9791138583</a> / <a href="tel:7339116699" class="hover:underline font-semibold">7339116699</a>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-700 truncate">
+                            <i class="fa-solid fa-envelope text-amber-500"></i>
+                            <a href="mailto:GreensOrganicandherbs@gmail.com" class="hover:underline truncate font-medium">GreensOrganicandherbs@gmail.com</a>
+                        </div>
+                        <div class="flex items-center gap-2 text-emerald-700 font-semibold pt-1">
+                            <i class="fa-solid fa-clock text-emerald-600"></i> Sun - Sat (All Days)
                         </div>
                     </div>
+                </div>
 
-                    <!-- Store 2 -->
-                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 space-y-2">
+                <!-- Store 2 -->
+                <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-amber-300 transition shadow-2xs">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-xs font-bold">02</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-0.5 rounded-full">Active</span>
+                        </div>
                         <h3 class="font-bold text-slate-900 text-sm">ELSI FOODS</h3>
-                        <p class="text-slate-600 leading-relaxed">Near DAV School New Panvel, Navi Mumbai, Maharashtra</p>
-                        <div class="flex flex-col gap-1 pt-1 text-[11px]">
-                            <span class="text-slate-700"><i class="fa-solid fa-phone text-amber-500 mr-1.5"></i> <a href="tel:9820723703" class="hover:underline">9820723703</a></span>
-                            <span class="text-emerald-700 font-semibold pt-0.5"><i class="fa-solid fa-clock text-emerald-600 mr-1.5"></i> Open Days : Sunday - Saturday</span>
+                        <p class="text-xs text-slate-600 leading-relaxed">Near DAV School New Panvel, Navi Mumbai, Maharashtra</p>
+                    </div>
+                    <div class="space-y-2 pt-3 border-t border-slate-200/60 text-[11px]">
+                        <div class="flex items-center gap-2 text-slate-700">
+                            <i class="fa-solid fa-phone text-amber-500"></i>
+                            <a href="tel:9820723703" class="hover:underline font-semibold">9820723703</a>
+                        </div>
+                        <div class="flex items-center gap-2 text-emerald-700 font-semibold pt-1">
+                            <i class="fa-solid fa-clock text-emerald-600"></i> Sun - Sat (All Days)
                         </div>
                     </div>
+                </div>
 
-                    <!-- Store 3 -->
-                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 space-y-2">
+                <!-- Store 3 -->
+                <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-amber-300 transition shadow-2xs">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-xs font-bold">03</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-0.5 rounded-full">Active</span>
+                        </div>
                         <h3 class="font-bold text-slate-900 text-sm">Nellai Pazhamuthirsolai</h3>
-                        <p class="text-slate-600 leading-relaxed">TH Road, Near Andhra Bank, Ponneri, Thiruvallur District</p>
-                        <div class="flex flex-col gap-1 pt-1 text-[11px]">
-                            <span class="text-slate-700"><i class="fa-solid fa-phone text-amber-500 mr-1.5"></i> <a href="tel:9445023946" class="hover:underline">9445023946</a></span>
-                            <span class="text-emerald-700 font-semibold pt-0.5"><i class="fa-solid fa-clock text-emerald-600 mr-1.5"></i> Open Days : Sunday - Saturday</span>
+                        <p class="text-xs text-slate-600 leading-relaxed">TH Road, Near Andhra Bank, Ponneri, Thiruvallur District</p>
+                    </div>
+                    <div class="space-y-2 pt-3 border-t border-slate-200/60 text-[11px]">
+                        <div class="flex items-center gap-2 text-slate-700">
+                            <i class="fa-solid fa-phone text-amber-500"></i>
+                            <a href="tel:9445023946" class="hover:underline font-semibold">9445023946</a>
+                        </div>
+                        <div class="flex items-center gap-2 text-emerald-700 font-semibold pt-1">
+                            <i class="fa-solid fa-clock text-emerald-600"></i> Sun - Sat (All Days)
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- FSSAI Badge -->
-                <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-3 text-center text-[11px] font-bold text-slate-800">
-                    <i class="fa-solid fa-shield-halved text-amber-600 mr-1"></i> FSSAI License No: <span class="text-slate-900 font-mono">12421009000220</span>
+            <!-- FSSAI Compliance Badge -->
+            <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2.5 font-bold text-slate-900">
+                    <div class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-xs">
+                        <i class="fa-solid fa-shield-halved text-sm"></i>
+                    </div>
+                    <span>Quality Compliance & Food Safety Standards</span>
+                </div>
+                <div class="text-slate-700 font-semibold">
+                    FSSAI License No: <span class="text-slate-900 font-mono bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">12421009000220</span>
                 </div>
             </div>
         </div>
 
-        <!-- Desktop Layout View -->
-        <div class="hidden sm:block space-y-6">
-            <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-4">
-                <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">More Than a Business</h1>
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    MyFood is a social enterprise of Munchirai YMCA, created to generate sustainable income while contributing towards meaningful charitable and community initiatives.
-                </p>
+        <!-- Contact Action Banner -->
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm text-center space-y-4">
+            <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Have Questions or Want to Partner with Us?</h2>
+            <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">Get in touch with our administrative office for corporate inquiries, retail partnerships, or support.</p>
+            <div class="pt-2">
+                <button onclick="window.location.href='contact.html'" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold px-8 py-3.5 rounded-xl text-xs transition shadow-md active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-paper-plane"></i> Contact Us
+                </button>
             </div>
-
-            <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-5 text-slate-700 text-sm leading-relaxed">
-                <p>
-                    Through this venture, we aim to build a responsible business model where commercial activity serves a greater purpose. A portion of the proceeds from MyFood contributes towards the YMCA’s charitable activities, social development programmes, and initiatives that create positive impact in the wider community.
-                </p>
-                <p>
-                    Our work brings together business and social responsibility — creating value for our customers while helping support the purpose and ongoing work of Munchirai YMCA.
-                </p>
-                <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-center text-amber-900 font-bold text-sm shadow-inner">
-                    ✨ "Every purchase contributes to something beyond the product itself."
-                </div>
-            </div>
-
-            <!-- Offline Stores Section (Desktop) -->
-            <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-6">
-                <h2 class="text-lg font-extrabold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4">
-                    <i class="fa-solid fa-store text-amber-500"></i> Offline Stores & Retail Partners
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
-                    <!-- Store 1 -->
-                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
-                        <div class="space-y-2">
-                            <h3 class="font-bold text-slate-900 text-sm">Greens Organic and Herbs</h3>
-                            <p class="text-slate-600 leading-relaxed">Shop No.3, Plot No 1/56, Agaramthen Main Road Thiruvanchery Village, Mappedu Post, Tambaram East, Selaiyur, Chennai-600126</p>
-                        </div>
-                        <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-200/60 text-[11px]">
-                            <span class="text-slate-700"><i class="fa-solid fa-phone text-amber-500 mr-1.5"></i> <a href="tel:9791138583" class="hover:underline">9791138583</a> / <a href="tel:7339116699" class="hover:underline">7339116699</a></span>
-                            <span class="text-slate-700 truncate"><i class="fa-solid fa-envelope text-amber-500 mr-1.5"></i> <a href="mailto:GreensOrganicandherbs@gmail.com" class="hover:underline">GreensOrganicandherbs@gmail.com</a></span>
-                            <span class="text-emerald-700 font-semibold pt-0.5"><i class="fa-solid fa-clock text-emerald-600 mr-1.5"></i> Sunday - Saturday</span>
-                        </div>
-                    </div>
-
-                    <!-- Store 2 -->
-                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
-                        <div class="space-y-2">
-                            <h3 class="font-bold text-slate-900 text-sm">ELSI FOODS</h3>
-                            <p class="text-slate-600 leading-relaxed">Near DAV School New Panvel, Navi Mumbai, Maharashtra</p>
-                        </div>
-                        <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-200/60 text-[11px]">
-                            <span class="text-slate-700"><i class="fa-solid fa-phone text-amber-500 mr-1.5"></i> <a href="tel:9820723703" class="hover:underline">9820723703</a></span>
-                            <span class="text-emerald-700 font-semibold pt-0.5"><i class="fa-solid fa-clock text-emerald-600 mr-1.5"></i> Sunday - Saturday</span>
-                        </div>
-                    </div>
-
-                    <!-- Store 3 -->
-                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
-                        <div class="space-y-2">
-                            <h3 class="font-bold text-slate-900 text-sm">Nellai Pazhamuthirsolai</h3>
-                            <p class="text-slate-600 leading-relaxed">TH Road, Near Andhra Bank, Ponneri, Thiruvallur District</p>
-                        </div>
-                        <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-200/60 text-[11px]">
-                            <span class="text-slate-700"><i class="fa-solid fa-phone text-amber-500 mr-1.5"></i> <a href="tel:9445023946" class="hover:underline">9445023946</a></span>
-                            <span class="text-emerald-700 font-semibold pt-0.5"><i class="fa-solid fa-clock text-emerald-600 mr-1.5"></i> Sunday - Saturday</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FSSAI Badge -->
-                <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-3.5 text-center text-xs font-bold text-slate-800">
-                    <i class="fa-solid fa-shield-halved text-amber-600 mr-1.5"></i> FSSAI License No: <span class="text-slate-900 font-mono">12421009000220</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact Us-->
-        <div class="text-center pt-1 pb-4">
-    <button onclick="window.location.href='contact.html'" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs transition shadow-md active:scale-95 cursor-pointer">
-        Contact Us
-    </button>
         </div>
 
     </main>
@@ -188,6 +201,59 @@
         &copy; 2026 Munchirai YMCA. All rights reserved.
     </footer>
 
+    <!-- Firebase Initialization & Logo Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
+
+        async function fetchStoreLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    const formatted = formatImageURL(snap.val());
+                    if (formatted) {
+                        const headerContainer = document.getElementById('header-logo-container');
+                        if (headerContainer) {
+                            headerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading store logo:", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchStoreLogo);
+    </script>
 </body>
-    </html>
-    
+</html>
