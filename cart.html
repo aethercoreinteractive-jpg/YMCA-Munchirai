@@ -153,22 +153,29 @@
                     <input type="text" id="cust-landmark" placeholder="e.g. Near YMCA church or school" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition font-medium">
                 </div>
 
-                <!-- Professional Payment Option Selection (No Default Choice) -->
+                <!-- Professional Payment Option Selection (Dynamic based on Firebase gateway settings) -->
                 <div class="pt-2 border-t border-slate-100">
                     <label class="block text-xs font-extrabold text-slate-900 mb-2">Select Payment Method <span class="text-rose-500">*</span></label>
                     <div class="grid grid-cols-1 gap-2.5">
-                        <label class="flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
-                            <input type="radio" name="payment-mode" value="Pay via UPI" required class="text-amber-500 focus:ring-amber-500 w-4 h-4 mt-0.5">
-                            <div>
-                                <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-mobile-screen-button text-amber-500"></i> Pay via UPI</div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">(GPay, PhonePe, Paytm, etc.)</div>
+                        <!-- UPI Option Wrapper -->
+                        <label id="upi-option-label" class="flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
+                            <input type="radio" id="upi-radio" name="payment-mode" value="Pay via UPI" required class="text-amber-500 focus:ring-amber-500 w-4 h-4 mt-0.5">
+                            <div class="flex-1">
+                                <div class="text-xs font-bold text-slate-900 flex items-center justify-between">
+                                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-mobile-screen-button text-amber-500"></i> Pay via UPI</span>
+                                </div>
+                                <div id="upi-subtext" class="text-[10px] text-slate-500 mt-0.5">(GPay, PhonePe, Paytm, etc.)</div>
                             </div>
                         </label>
-                        <label class="flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
-                            <input type="radio" name="payment-mode" value="Cash on Delivery" required class="text-amber-500 focus:ring-amber-500 w-4 h-4 mt-0.5">
-                            <div>
-                                <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Cash on Delivery</div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">(Pay cash upon order delivery)</div>
+
+                        <!-- COD Option Wrapper -->
+                        <label id="cod-option-label" class="flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
+                            <input type="radio" id="cod-radio" name="payment-mode" value="Cash on Delivery" required class="text-amber-500 focus:ring-amber-500 w-4 h-4 mt-0.5">
+                            <div class="flex-1">
+                                <div class="text-xs font-bold text-slate-900 flex items-center justify-between">
+                                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Cash on Delivery</span>
+                                </div>
+                                <div id="cod-subtext" class="text-[10px] text-slate-500 mt-0.5">(Pay cash upon order delivery)</div>
                             </div>
                         </label>
                     </div>
@@ -289,7 +296,7 @@
         </div>
     </div>
 
- <!-- Confirmation Modal for Removing Items -->
+      <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
@@ -313,7 +320,7 @@
     <!-- Firebase SDK Imports & Cart Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, get, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -334,6 +341,54 @@
         let cachedCustomerData = null;
         let cachedFinalTotal = 0;
         let selectedPaymentMode = "";
+        let paymentSettings = { codEnabled: true, upiEnabled: true };
+
+        // Listen live to payment gateway toggles from Firebase settings
+        const settingsRef = ref(db, 'settings');
+        onValue(settingsRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            paymentSettings.codEnabled = data.codEnabled !== undefined ? data.codEnabled : true;
+            paymentSettings.upiEnabled = data.upiEnabled !== undefined ? data.upiEnabled : true;
+            updatePaymentUIState();
+        });
+
+        function updatePaymentUIState() {
+            const upiLabel = document.getElementById('upi-option-label');
+            const upiRadio = document.getElementById('upi-radio');
+            const upiSubtext = document.getElementById('upi-subtext');
+
+            const codLabel = document.getElementById('cod-option-label');
+            const codRadio = document.getElementById('cod-radio');
+            const codSubtext = document.getElementById('cod-subtext');
+
+            // Handle UPI Option State
+            if (!paymentSettings.upiEnabled) {
+                upiLabel.className = "flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-200/60 opacity-60 cursor-not-allowed";
+                upiRadio.disabled = true;
+                upiRadio.checked = false;
+                upiSubtext.textContent = "(This feature is currently unavailable)";
+                upiSubtext.className = "text-[10px] text-rose-600 font-bold mt-0.5";
+            } else {
+                upiLabel.className = "flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50";
+                upiRadio.disabled = false;
+                upiSubtext.textContent = "(GPay, PhonePe, Paytm, etc.)";
+                upiSubtext.className = "text-[10px] text-slate-500 mt-0.5";
+            }
+
+            // Handle COD Option State
+            if (!paymentSettings.codEnabled) {
+                codLabel.className = "flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-200/60 opacity-60 cursor-not-allowed";
+                codRadio.disabled = true;
+                codRadio.checked = false;
+                codSubtext.textContent = "(This feature is currently unavailable)";
+                codSubtext.className = "text-[10px] text-rose-600 font-bold mt-0.5";
+            } else {
+                codLabel.className = "flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50";
+                codRadio.disabled = false;
+                codSubtext.textContent = "(Pay cash upon order delivery)";
+                codSubtext.className = "text-[10px] text-slate-500 mt-0.5";
+            }
+        }
 
         // Convert Google Drive share link into a direct viewable image link
         function formatDriveUrl(rawUrl) {
@@ -400,12 +455,10 @@
                 document.getElementById('summary-discount-row').classList.add('hidden');
                 document.getElementById('offer-unlocked-banner').classList.add('hidden');
                 
-                // Hide Continue Shopping link inside the summary box when cart is empty
                 if (continueShoppingLink) continueShoppingLink.classList.add('hidden');
                 return;
             }
 
-            // Show Continue Shopping link when cart has items
             if (continueShoppingLink) continueShoppingLink.classList.remove('hidden');
 
             let subtotal = 0;
@@ -517,6 +570,7 @@
                 showCustomAlert("Empty Cart", "Your cart is empty!");
                 return;
             }
+            updatePaymentUIState();
             document.getElementById('customer-details-modal').classList.remove('hidden');
         };
 
@@ -533,7 +587,7 @@
 
             const selectedRadio = document.querySelector('input[name="payment-mode"]:checked');
             if (!selectedRadio) {
-                showCustomAlert("Payment Method Required", "Please select a payment method before proceeding.");
+                showCustomAlert("Payment Method Required", "Please select an available payment method before proceeding.");
                 return;
             }
             selectedPaymentMode = selectedRadio.value;
