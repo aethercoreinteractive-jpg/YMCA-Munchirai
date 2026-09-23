@@ -6,14 +6,14 @@
     <title>Product Management - Admin Panel</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h2 { color: #333; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-top: 0; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         
         /* Toggle Switch Styling */
-        .toggle-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fafafa; padding: 10px; border-radius: 4px; border: 1px solid #eee; }
+        .toggle-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: #fafafa; padding: 12px 15px; border-radius: 6px; border: 1px solid #eee; }
         .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
@@ -21,7 +21,9 @@
         input:checked + .slider { background-color: #4CAF50; }
         input:checked + .slider:before { transform: translateX(26px); }
 
-        button { background: #4CAF50; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-size: 16px; }
+        .discount-input-wrap { display: none; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 6px; border: 1px solid #ddd; }
+        
+        button { background: #4CAF50; color: white; border: none; padding: 12px 20px; cursor: pointer; border-radius: 4px; font-size: 16px; width: 100%; font-weight: bold; }
         button:hover { background: #45a049; }
     </style>
 </head>
@@ -32,7 +34,7 @@
     
     <div class="form-group">
         <label for="productId">Product ID / SKU</label>
-        <input type="text" id="productId" placeholder="e.g., prod_001">
+        <input type="text" id="productId" placeholder="e.g., prod_101">
     </div>
 
     <div class="form-group">
@@ -45,16 +47,16 @@
         <input type="number" id="productPrice" placeholder="0.00">
     </div>
 
-    <!-- Stock Availability Toggle -->
+    <!-- Stock Availability Toggle Switch -->
     <div class="toggle-container">
-        <span>In Stock Status</span>
+        <span>Stock Availability (In Stock)</span>
         <label class="switch">
             <input type="checkbox" id="stockToggle" checked>
             <span class="slider"></span>
         </label>
     </div>
 
-    <!-- Discount Toggle & Percentage -->
+    <!-- Discount Offer Toggle Switch -->
     <div class="toggle-container">
         <span>Enable Discount Offer</span>
         <label class="switch">
@@ -63,20 +65,21 @@
         </label>
     </div>
 
-    <div class="form-group" id="discountInputGroup">
+    <!-- Discount Percentage Input Field (Conditional) -->
+    <div class="discount-input-wrap" id="discountInputWrap">
         <label for="discountPercent">Discount Percentage (%)</label>
-        <input type="number" id="discountPercent" placeholder="e.g., 15" min="0" max="100" value="0">
+        <input type="number" id="discountPercent" placeholder="e.g., 20" min="0" max="100" value="0">
     </div>
 
-    <button id="saveBtn">Save & Sync to Firebase</button>
+    <button id="saveBtn">Save Product to Firebase</button>
 </div>
 
-<!-- Firebase SDK Scripts (Compat or Modular) -->
+<!-- Firebase Integration & Toggle Logic -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Your Firebase Configuration (Replace with your keys)
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "YOUR_AUTH_DOMAIN",
@@ -90,33 +93,47 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // Toggle visibility of the discount percentage input based on the discount switch
+    const discountToggle = document.getElementById('discountToggle');
+    const discountInputWrap = document.getElementById('discountInputWrap');
+
+    discountToggle.addEventListener('change', () => {
+        if (discountToggle.checked) {
+            discountInputWrap.style.display = 'block';
+        } else {
+            discountInputWrap.style.display = 'none';
+            document.getElementById('discountPercent').value = '0';
+        }
+    });
+
+    // Save product handler
     document.getElementById('saveBtn').addEventListener('click', () => {
         const prodId = document.getElementById('productId').value.trim();
         const name = document.getElementById('productName').value.trim();
         const price = parseFloat(document.getElementById('productPrice').value) || 0;
         const inStock = document.getElementById('stockToggle').checked;
-        const hasDiscount = document.getElementById('discountToggle').checked;
-        const discountValue = hasDiscount ? parseFloat(document.getElementById('discountPercent').value) || 0 : 0;
+        const discountActive = discountToggle.checked;
+        const discountPercent = discountActive ? parseFloat(document.getElementById('discountPercent').value) || 0 : 0;
 
         if (!prodId) {
             alert("Please enter a valid Product ID.");
             return;
         }
 
-        // Save data to Firebase Realtime Database
+        // Push to Firebase Realtime Database
         set(ref(db, 'products/' + prodId), {
             name: name,
             price: price,
             inStock: inStock,
-            discountActive: hasDiscount,
-            discountPercent: discountValue,
+            discountActive: discountActive,
+            discountPercent: discountPercent,
             lastUpdated: new Date().toISOString()
         })
         .then(() => {
             alert("Product inventory and offer settings updated successfully!");
         })
         .catch((error) => {
-            alert("Error updating data: " + error.message);
+            alert("Error updating database: " + error.message);
         });
     });
 </script>
