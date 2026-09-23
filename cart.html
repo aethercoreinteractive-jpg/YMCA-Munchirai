@@ -13,7 +13,6 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
 
-        /* Industry-Standard Checkmark & Ripple Animations */
         @keyframes scaleUpModal {
             0% { transform: scale(0.85); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -46,17 +45,17 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="javascript:void(0);" onclick="goToStore();" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                <a href="javascript:void(0);" onclick="goBack();" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
                     <div id="header-logo-container" class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
                         <span id="header-logo-fallback">MY</span>
                     </div>
                     <span>Cart</span>
                 </a>
             </div>
-            <!-- Wipes cart page out of the history stack completely -->
-            <a href="javascript:void(0);" onclick="goToStore();" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
-                <i class="fa-solid fa-store text-amber-400"></i> Back to Store
-            </a>
+            <!-- Pure history back button -->
+            <button onclick="goBack();" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-arrow-left text-amber-400"></i> Back
+            </button>
         </div>
     </header>
 
@@ -108,9 +107,9 @@
                         Proceed to Checkout
                     </button>
                     
-                    <a href="javascript:void(0);" onclick="goToStore();" id="continue-shopping-link" class="block text-center text-xs text-slate-500 hover:text-slate-900 transition pt-1 font-medium">
+                    <button onclick="goBack();" id="continue-shopping-link" class="w-full text-center text-xs text-slate-500 hover:text-slate-900 transition pt-1 font-medium bg-transparent border-0 cursor-pointer">
                         Continue Shopping
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -288,14 +287,14 @@
             </div>
             
             <div class="pt-2">
-                <button onclick="goToStore();" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
-                    <i class="fa-solid fa-store text-amber-400"></i> Continue Shopping
+                <button onclick="goBack();" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-amber-400"></i> Go Back
                 </button>
             </div>
         </div>
     </div>
 
- <!-- Confirmation Modal for Removing Items -->
+    <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
@@ -342,9 +341,9 @@
         let selectedPaymentMode = "";
         let paymentSettings = { codEnabled: true, upiEnabled: true };
 
-        // Global function to completely replace cart history so hardware back skips the cart stack
-        window.goToStore = function() {
-            window.location.replace('mystore.html');
+        // Pure browser history back function to avoid loops
+        window.goBack = function() {
+            window.history.back();
         };
 
         // Listen live to payment gateway toggles from Firebase settings
@@ -445,8 +444,8 @@
                         </div>
                         <h3 class="font-extrabold text-xs text-slate-900">Your cart is empty</h3>
                         <p class="text-[11px] text-slate-500 mt-1 mb-4">Explore our inventory catalog and add items to your cart.</p>
-                        <button onclick="goToStore();" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition active:scale-95">
-                            Shop on MyStore
+                        <button onclick="goBack();" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition active:scale-95 cursor-pointer">
+                            Go Back
                         </button>
                     </div>
                 `;
