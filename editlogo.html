@@ -41,14 +41,14 @@
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
-    <!-- INBUILT NOTIFICATION TOAST -->
-    <div id="toast-notification" class="fixed top-20 right-4 sm:right-6 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900 text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
-        <div id="toast-icon-wrapper" class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
+    <!-- PROFESSIONAL ENTERPRISE NOTIFICATION TOAST -->
+    <div id="toast-notification" class="fixed top-20 right-4 sm:right-6 z-50 transform translate-x-[120%] opacity-0 transition-all duration-300 max-w-sm w-full bg-white/95 backdrop-blur-md text-slate-900 px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-200/80 flex items-center gap-3.5">
+        <div id="toast-icon-wrapper" class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center text-sm flex-shrink-0 shadow-sm">
             <i id="toast-icon" class="fa-solid fa-check"></i>
         </div>
         <div class="flex-grow">
-            <h4 id="toast-title" class="text-xs font-bold text-white">Success</h4>
-            <p id="toast-message" class="text-[11px] text-slate-400">Action completed successfully.</p>
+            <h4 id="toast-title" class="text-xs font-bold text-slate-900 tracking-tight">Success</h4>
+            <p id="toast-message" class="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">Action completed successfully.</p>
         </div>
     </div>
 
@@ -134,11 +134,11 @@
                 </div>
             </div>
 
-            <!-- BIG LIVE PREVIEW SECTION -->
-            <div class="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200/80 rounded-2xl">
-                <span class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">Live Logo Preview</span>
-                <div id="logo-preview-badge" class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl bg-white border-2 border-slate-200 shadow-md flex items-center justify-center overflow-hidden">
-                    <i class="fa-solid fa-image text-slate-300 text-2xl"></i>
+            <!-- EXPANDED BIGGER LIVE PREVIEW SECTION -->
+            <div class="flex flex-col items-center justify-center p-8 sm:p-10 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                <span class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-4">Live Logo Preview</span>
+                <div id="logo-preview-badge" class="w-40 h-40 sm:w-52 sm:h-52 rounded-3xl bg-white border-2 border-slate-200 shadow-xl flex items-center justify-center overflow-hidden transition-all duration-300">
+                    <i class="fa-solid fa-image text-slate-300 text-4xl"></i>
                 </div>
             </div>
 
@@ -193,7 +193,7 @@
         const FALLBACK_PASSWORD = "Admin@123";
         const IMMUTABLE_COMPANY_CODE = "399812";
 
-        // Inbuilt Message Toast Notification System
+        // Professional Industry-Standard Slide-in Toast Notification System
         window.showToast = function(title, message, isError = false) {
             const toast = document.getElementById('toast-notification');
             const titleEl = document.getElementById('toast-title');
@@ -205,19 +205,19 @@
             msgEl.innerText = message;
 
             if (isError) {
-                iconWrapper.className = "w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
-                icon.className = "fa-solid fa-circle-exclamation";
+                iconWrapper.className = "w-10 h-10 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/60 flex items-center justify-center text-sm flex-shrink-0 shadow-sm";
+                icon.className = "fa-solid fa-triangle-exclamation";
             } else {
-                iconWrapper.className = "w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
+                iconWrapper.className = "w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center text-sm flex-shrink-0 shadow-sm";
                 icon.className = "fa-solid fa-check";
             }
 
-            toast.classList.remove('translate-y-[-150%]', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
+            toast.classList.remove('translate-x-[120%]', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
 
             setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-[-150%]', 'opacity-0');
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-[120%]', 'opacity-0');
             }, 3500);
         };
 
@@ -240,9 +240,9 @@
             const badge = document.getElementById('logo-preview-badge');
             const formatted = window.formatDriveUrl(val);
             if (formatted) {
-                badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-xl\'></i>';">`;
+                badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-3xl\'></i>';">`;
             } else {
-                badge.innerHTML = `<i class="fa-solid fa-image text-slate-300 text-2xl"></i>`;
+                badge.innerHTML = `<i class="fa-solid fa-image text-slate-300 text-4xl"></i>`;
             }
         };
 
@@ -356,7 +356,7 @@
             }
         };
 
-        // Delete Logo option to clear database field and revert header to "MY" default
+         // Delete Logo option to clear database field and revert header to "MY" default
         window.handleDeleteLogo = async function() {
             try {
                 const settingsRef = ref(db, 'settings');
