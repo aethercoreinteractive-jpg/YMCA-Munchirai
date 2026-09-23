@@ -168,19 +168,16 @@
     <header class="bg-slate-900 text-slate-100 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <a href="admin.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
-                    MY
-                </a>
+                <div id="header-logo-container" class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
+                    <!-- Dynamically injected circular logo -->
+                </div>
                 <div>
                     <h1 class="text-sm font-extrabold text-white tracking-tight leading-none">MY Food</h1>
-                    <span class="text-[10px] text-amber-400 font-semibold tracking-wide block mt-0.5">Product Feed Control</span>
+                    <span id="header-subtitle" class="text-[10px] text-amber-400 font-semibold tracking-wide block mt-0.5">Control Center</span>
                 </div>
             </div>
 
             <div class="flex items-center gap-2.5">
-                <a href="admininventory.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 transition border border-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-stacked text-amber-400 text-xs"></i> <span>Inventory Hub</span>
-                </a>
                 <a href="addproduct.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-950 bg-amber-500 hover:bg-amber-400 transition shadow-sm flex items-center gap-2">
                     <i class="fa-solid fa-plus text-xs"></i> <span>Add Product</span>
                 </a>
@@ -268,6 +265,22 @@
             return url;
         };
 
+        // Fetch settings for circular logo logic
+        const settingsRef = ref(db, 'settings');
+        onValue(settingsRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            const logoContainer = document.getElementById('header-logo-container');
+            const logoUrl = data.logoUrl ? window.formatDriveUrl(data.logoUrl) : '';
+
+            if (logoUrl) {
+                logoContainer.innerHTML = `<img src="${logoUrl}" alt="Logo" class="w-full h-full object-cover">`;
+                logoContainer.className = "w-10 h-10 rounded-full overflow-hidden flex items-center justify-center shadow-md flex-shrink-0 border border-amber-400/30 bg-slate-800";
+            } else {
+                logoContainer.innerHTML = 'MY';
+                logoContainer.className = "w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30";
+            }
+        });
+
         window.showToast = function(title, message, isError = false) {
             const toast = document.getElementById('toast-notification');
             const titleEl = document.getElementById('toast-title');
@@ -282,7 +295,7 @@
                 iconWrapper.className = "w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
                 icon.className = "fa-solid fa-triangle-exclamation";
             } else {
-                iconWrapper.className = "w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
+                iconWrapper.className = "w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0";
                 icon.className = "fa-solid fa-circle-check";
             }
 
@@ -309,8 +322,7 @@
             const updateMessage = sessionStorage.getItem("product_action_message");
 
             if (updateStatus === "success") {
-                window.showToast("Product Updated", updateMessage || "The product details have been saved successfully.");
-                // Clear state so it doesn't trigger again on refresh
+                window.showToast("Success", updateMessage || "The product details have been saved successfully.");
                 sessionStorage.removeItem("product_action_status");
                 sessionStorage.removeItem("product_action_message");
             }
@@ -348,7 +360,7 @@
             try {
                 const productRef = ref(db, `inventory/${keyToRemove}`);
                 await remove(productRef);
-                window.showToast("Product Deleted", "The product was removed from inventory successfully.");
+                window.showToast("Deleted", "The product was removed from inventory successfully.");
             } catch (err) {
                 console.error("Error deleting product:", err);
                 window.showToast("Action Failed", "Could not delete product.", true);
@@ -451,7 +463,6 @@
                         
                         <!-- ================= MOBILE VIEW (Visible on < 640px) ================= -->
                         <div class="block sm:hidden space-y-3.5">
-                            <!-- Top Row: Thumbnail + Info -->
                             <div class="flex items-start gap-3">
                                 <div class="w-16 h-16 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
                                     <img src="${formattedImg}" alt="${item.name}" class="w-full h-full object-contain p-1">
@@ -467,9 +478,7 @@
                                 </div>
                             </div>
 
-                            <!-- Controls Grid for Mobile -->
                             <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                                <!-- Stock Toggle -->
                                 <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
                                     <div>
                                         <span class="block text-[9px] font-bold text-slate-700 uppercase tracking-tight">Stock</span>
@@ -481,7 +490,6 @@
                                     </label>
                                 </div>
 
-                                <!-- Offer Toggle & Input -->
                                 <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
                                     <div>
                                         <span class="block text-[9px] font-bold text-slate-700 uppercase tracking-tight">Offer</span>
@@ -497,7 +505,6 @@
                                 </div>
                             </div>
 
-                            <!-- Mobile Action Buttons -->
                             <div class="grid grid-cols-2 gap-2 pt-1">
                                 <button onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
                                     <i class="fa-solid fa-pen-to-square text-amber-400 text-xs"></i> Edit
@@ -510,8 +517,6 @@
 
                         <!-- ================= DESKTOP VIEW (Visible on >= 640px) ================= -->
                         <div class="hidden sm:flex items-center justify-between gap-5">
-                            
-                            <!-- Left: Thumbnail & Core Info -->
                             <div class="flex items-center gap-4 flex-grow min-w-0">
                                 <div class="w-20 h-20 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
                                     <img src="${formattedImg}" alt="${item.name}" class="w-full h-full object-contain p-1">
@@ -527,10 +532,7 @@
                                 </div>
                             </div>
 
-                            <!-- Right: Desktop Enterprise Controls -->
                             <div class="flex items-center gap-3 shrink-0">
-                                
-                                <!-- Stock Availability Toggle -->
                                 <div class="flex items-center gap-2.5 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
                                     <div class="text-right">
                                         <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Stock</span>
@@ -542,7 +544,6 @@
                                     </label>
                                 </div>
 
-                                <!-- Offer Toggle & Percentage Input -->
                                 <div class="flex items-center gap-2.5 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
                                     <div class="text-right">
                                         <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Offer</span>
@@ -558,20 +559,16 @@
                                     </div>
                                 </div>
 
-                                <!-- Edit Action Button -->
                                 <button onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5" title="Edit Product">
                                     <i class="fa-solid fa-pen-to-square text-amber-400 text-xs"></i>
                                     <span>Edit</span>
                                 </button>
 
-                                <!-- Delete Action Button -->
                                 <button onclick="window.promptDeleteProduct('${item.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold px-3.5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5" title="Delete Product">
                                     <i class="fa-solid fa-trash-can text-xs"></i>
                                     <span>Delete</span>
                                 </button>
-
                             </div>
-
                         </div>
 
                     </div>
@@ -581,7 +578,6 @@
             listContainer.innerHTML = html;
         };
 
-        // Auto-save Stock Switch (Syncs both views if DOM elements exist)
         window.toggleProductStock = async function(firebaseKey, isChecked) {
             try {
                 const productRef = ref(db, `inventory/${firebaseKey}`);
@@ -601,7 +597,6 @@
             }
         };
 
-        // Auto-save Offer Switch (Syncs both views)
         window.toggleOfferSwitch = async function(firebaseKey, isChecked) {
             try {
                 ['m', 'd'].forEach(prefix => {
@@ -630,7 +625,6 @@
             }
         };
 
-        // Auto-save Offer Percentage Input
         window.updateOfferPercent = async function(firebaseKey, val) {
             const num = Math.max(0, Math.min(100, Number(val) || 0));
             try {
