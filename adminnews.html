@@ -16,7 +16,19 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
+    <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
+    <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
+        <div class="w-12 h-12 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-2xl flex items-center justify-center mb-4 text-lg">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-white text-base font-extrabold mb-1">Unauthorized Access Attempt</h2>
+        <p class="text-slate-400 text-xs max-w-xs mb-5">Security token not found or session expired. Please authenticate via the primary admin control center.</p>
+        <a href="admin.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md">
+            Return to Admin Portal
+        </a>
+    </div>
+
+    <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-40">
         <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
                 <div class="bg-amber-500 text-slate-950 p-2 rounded-lg text-sm font-bold">
@@ -28,6 +40,9 @@
                 </div>
             </div>
             <nav class="flex items-center space-x-2">
+                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token');" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i> Dashboard
+                </a>
                 <a href="index.html" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Live Site
                 </a>
@@ -144,13 +159,32 @@
     </div>
 
     <footer class="bg-white border-t border-slate-200 text-slate-400 py-4 text-center text-[11px] mt-auto">
-        &copy; 2026 YMCA Munchirai. System Panel v2.4
+        &copy; 2026 MY Food. Admin Panel v2.4
     </footer>
 
     <!-- Firebase Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, set, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // SECURITY CHECKPOINT: Enforce Session Token Verification
+        function verifyAdminSession() {
+            const isAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const redirectToken = sessionStorage.getItem("ymca_redirect_token");
+            
+            if (!isAuthenticated || redirectToken !== "active") {
+                document.getElementById('security-lock-overlay').classList.remove('hidden');
+                throw new Error("Unauthorized security access blocked.");
+            }
+        }
+
+        // Run security verification immediately
+        try {
+            verifyAdminSession();
+        } catch (e) {
+            // Halt script execution if unauthorized
+            throw e;
+        }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
