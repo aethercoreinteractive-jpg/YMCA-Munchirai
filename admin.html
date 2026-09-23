@@ -42,8 +42,8 @@
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
     <!-- INBUILT NOTIFICATION TOAST -->
-    <div id="toast-notification" class="fixed top-20 right-4 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
-        <div id="toast-icon-wrapper" class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
+    <div id="toast-notification" class="fixed top-20 right-4 sm:right-6 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900 text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
+        <div id="toast-icon-wrapper" class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
             <i id="toast-icon" class="fa-solid fa-check"></i>
         </div>
         <div class="flex-grow">
@@ -54,7 +54,7 @@
 
     <!-- ENTERPRISE AUTHENTICATION MODAL -->
     <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md hidden">
-        <div class="enterprise-card rounded-3xl max-w-sm w-full p-7 sm:p-8 relative overflow-hidden">
+        <div class="enterprise-card rounded-3xl max-w-sm w-full p-6 sm:p-8 relative overflow-hidden">
             <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-400"></div>
             
             <div class="w-14 h-14 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-5 text-lg shadow-inner">
@@ -63,7 +63,7 @@
             
             <div class="text-center mb-6">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">Restricted Access</span>
-                <h2 class="text-lg font-extrabold text-slate-900 mt-2.5">Administrator Portal</h2>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-2.5">Administrator Portal</h2>
                 <p class="text-xs text-slate-500 mt-1">Authenticate with your enterprise security key</p>
             </div>
             
@@ -71,8 +71,8 @@
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Security Password</label>
                     <div class="relative">
-                        <input type="password" id="login-input" required placeholder="Enter passcode..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 pr-11 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
-                        <button type="button" onclick="togglePasswordVisibility('login-input', 'login-eye-icon')" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1">
+                        <input type="password" id="login-input" required placeholder="Enter passcode..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 pr-11 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                        <button type="button" onclick="togglePasswordVisibility('login-input', 'login-eye-icon')" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-2">
                             <i id="login-eye-icon" class="fa-solid fa-eye text-xs"></i>
                         </button>
                     </div>
@@ -80,7 +80,7 @@
                 <p id="login-error" class="text-[11px] text-rose-600 font-bold hidden flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-exclamation"></i> Incorrect authorization key.
                 </p>
-                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-md active:scale-95 flex items-center justify-center gap-2">
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 flex items-center justify-center gap-2">
                     <span>Authenticate Session</span>
                     <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
@@ -88,24 +88,24 @@
         </div>
     </div>
 
-    <!-- CLEAN PROFESSIONAL HEADER ARRANGEMENT -->
+    <!-- CLEAN DESKTOP & MOBILE OPTIMIZED HEADER -->
     <header class="bg-slate-900 text-slate-100 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             
             <!-- Left Side: Dynamic Brand Logo & Title Group -->
             <div class="flex items-center gap-3">
-                <div id="header-logo-container" class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
+                <div id="header-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
                     <span id="header-logo-fallback">MY</span>
                 </div>
                 <div>
                     <h1 class="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-none">MY Food</h1>
-                    <span class="text-[10px] text-amber-400 font-semibold tracking-wide block mt-0.5">Admin Panel</span>
+                    <span class="text-[9px] sm:text-[10px] text-amber-400 font-semibold tracking-wide block mt-0.5">Admin Panel</span>
                 </div>
             </div>
             
-            <!-- Right Side: Navigation Links & Utility Actions Combined Cleanly -->
-            <div class="flex items-center gap-1.5 sm:gap-2">
-                <!-- Nav Links -->
+            <!-- Right Side: Desktop Nav Links & Action Controls -->
+            <div class="flex items-center gap-1.5 sm:gap-3">
+                <!-- Desktop Nav Links -->
                 <nav class="hidden md:flex items-center gap-1">
                     <a href="adminnews.html" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-newspaper text-amber-400 text-xs"></i> <span>News</span>
@@ -125,59 +125,59 @@
 
                 <!-- Action Controls (View Site & Logout) -->
                 <div class="flex items-center gap-1.5">
-                    <a href="index.html" target="_blank" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 transition border border-slate-700/80 shadow-sm flex items-center gap-1.5" title="View Live Site">
-                        <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <a href="index.html" target="_blank" class="p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 transition border border-slate-700/80 shadow-sm flex items-center gap-1.5" title="View Live Site">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-amber-400 text-xs"></i>
                         <span class="hidden sm:inline">View Site</span>
                     </a>
-                    <button onclick="handleLogout()" class="px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-950/70 transition border border-rose-900/30 shadow-sm flex items-center gap-1.5" title="Logout Session">
-                        <i class="fa-solid fa-power-off"></i>
+                    <button onclick="handleLogout()" class="p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-950/70 transition border border-rose-900/30 shadow-sm flex items-center gap-1.5" title="Logout Session">
+                        <i class="fa-solid fa-power-off text-xs"></i>
                         <span class="hidden sm:inline">Logout</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile Secondary Navigation Row -->
-        <div class="md:hidden bg-slate-950/50 border-t border-slate-800 px-3 py-2 flex items-center justify-around gap-1">
-            <a href="adminnews.html" class="py-1.5 px-2.5 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
+        <!-- Mobile Secondary Navigation Row (Optimized for Small Screens) -->
+        <div class="md:hidden bg-slate-950/60 border-t border-slate-800 px-2 py-2 flex items-center justify-around gap-1">
+            <a href="adminnews.html" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-newspaper text-amber-400 text-[10px]"></i> News
             </a>
-            <a href="admininventory.html" class="py-1.5 px-2.5 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
+            <a href="admininventory.html" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-boxes-stacked text-amber-400 text-[10px]"></i> Inventory
             </a>
-            <a href="paymentcontrol.html" class="py-1.5 px-2.5 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
+            <a href="paymentcontrol.html" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-credit-card text-amber-400 text-[10px]"></i> Payments
             </a>
-            <a href="settings.html" class="py-1.5 px-2.5 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
+            <a href="settings.html" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-gear text-[10px] text-amber-400"></i> Settings
             </a>
         </div>
     </header>
 
     <!-- MAIN WORKSPACE CONTAINER -->
-    <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
         
         <!-- SECTION TITLE -->
         <div>
-            <h2 class="text-base font-extrabold text-slate-900">Website Logo Configuration</h2>
-            <p class="text-xs text-slate-500">Manage the official branding logo for MY Food using a direct Google Drive link.</p>
+            <h2 class="text-sm sm:text-base font-extrabold text-slate-900">Website Logo Configuration</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Manage the official branding logo for MY Food using a direct Google Drive link.</p>
         </div>
 
         <!-- GOOGLE DRIVE LOGO MANAGEMENT CARD -->
-        <div class="enterprise-card rounded-3xl p-6 sm:p-7 space-y-6">
+        <div class="enterprise-card rounded-3xl p-5 sm:p-7 space-y-6">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm flex-shrink-0">
                         <i class="fa-solid fa-image"></i>
                     </div>
                     <div>
-                        <h3 class="text-xs font-extrabold text-slate-900">Store Logo Link</h3>
+                        <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">Store Logo Link</h3>
                         <p class="text-[11px] text-slate-500">Paste your shared Google Drive image link below</p>
                     </div>
                 </div>
                 
                 <!-- Side Small Rounded Preview Badge -->
-                <div class="flex items-center gap-2.5 bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-2xl">
+                <div class="flex items-center gap-2.5 bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-2xl w-full sm:w-auto justify-between sm:justify-start">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Live Preview:</span>
                     <div id="logo-preview-badge" class="w-9 h-9 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
                         <i class="fa-solid fa-image text-slate-400 text-xs"></i>
@@ -189,14 +189,14 @@
             <form onsubmit="handleSaveLogo(event)" class="space-y-4">
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Google Drive Image URL</label>
-                    <div class="flex gap-2">
-                        <input type="url" id="logo-url-input" oninput="previewDriveLogo(this.value)" placeholder="https://drive.google.com/uc?export=view&id=..." class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
-                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-xs transition shadow-md active:scale-95 flex items-center gap-2 flex-shrink-0">
+                    <div class="flex flex-col sm:flex-row gap-2.5">
+                        <input type="url" id="logo-url-input" oninput="previewDriveLogo(this.value)" placeholder="https://drive.google.com/uc?export=view&id=..." class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
+                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-6 py-3.5 sm:py-3 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 flex items-center justify-center gap-2 flex-shrink-0">
                             <i class="fa-solid fa-floppy-disk"></i>
                             <span>Save Logo</span>
                         </button>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-1.5">Make sure the Google Drive link is set to "Anyone with the link can view".</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-2">Make sure the Google Drive link is set to "Anyone with the link can view".</p>
                 </div>
             </form>
         </div>
@@ -241,10 +241,10 @@
             msgEl.innerText = message;
 
             if (isError) {
-                iconWrapper.className = "w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
+                iconWrapper.className = "w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
                 icon.className = "fa-solid fa-circle-exclamation";
             } else {
-                iconWrapper.className = "w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
+                iconWrapper.className = "w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
                 icon.className = "fa-solid fa-check";
             }
 
@@ -343,7 +343,7 @@
                 if (passSnap.exists()) { currentPass = passSnap.val(); } 
                 else { await set(passRef, FALLBACK_PASSWORD); }
 
-                 let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
+                let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
                 if (codeSnap.exists()) { savedCompanyCode = codeSnap.val(); } 
                 else { await set(codeRef, IMMUTABLE_COMPANY_CODE); }
 
