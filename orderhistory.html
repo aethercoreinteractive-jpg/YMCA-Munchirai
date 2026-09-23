@@ -200,9 +200,18 @@
                 
                 const status = order.status || 'Delivered';
                 const orderNumber = order.orderNumber || `YM-${order.firebaseKey.slice(-6).toUpperCase()}`;
+                const paymentMethod = order.paymentMethod || 'Cash on Delivery';
 
                 let statusBadgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                 if (status === 'Cancelled') statusBadgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
+
+                // Payment Method Badge Styling
+                let paymentBadgeHtml = '';
+                if (paymentMethod === 'Pay via UPI') {
+                    paymentBadgeHtml = `<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg border bg-amber-50 text-amber-800 border-amber-200"><i class="fa-solid fa-mobile-screen-button text-amber-600"></i> Pay via UPI</span>`;
+                } else {
+                    paymentBadgeHtml = `<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg border bg-emerald-50 text-emerald-800 border-emerald-200"><i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Cash on Delivery</span>`;
+                }
 
                 // Customer Data fallback if older orders didn't include it
                 const customer = order.customer || {
@@ -223,7 +232,7 @@
                     </div>
                 `).join('');
 
-                // Timeline details with 12-hour AM/PM format
+                  // Timeline details with 12-hour AM/PM format
                 let timelineHtml = `<div class="text-[11px] text-slate-500 space-y-1"><p class="font-medium"><i class="fa-regular fa-calendar-days text-amber-500 mr-1"></i> Ordered: ${orderDateFormatted}</p>`;
                 if (processingTime12) timelineHtml += `<p class="text-blue-600 font-semibold">⚡ Processing: ${processingTime12}</p>`;
                 if (readyTime12) timelineHtml += `<p class="text-indigo-600 font-semibold">📦 Ready: ${readyTime12}</p>`;
@@ -241,7 +250,8 @@
                                 </div>
                                 ${timelineHtml}
                             </div>
-                            <div class="flex items-center gap-2 shrink-0 self-start">
+                            <div class="flex items-center gap-2 flex-wrap shrink-0 self-start">
+                                ${paymentBadgeHtml}
                                 <span class="text-[10px] font-extrabold px-3 py-1 rounded-xl border uppercase tracking-wider ${statusBadgeColor}">${status}</span>
                             </div>
                         </div>
