@@ -84,15 +84,18 @@
         }
     </script>
 
-    <!-- INBUILT NOTIFICATION TOAST -->
-    <div id="toast-notification" class="fixed top-20 right-4 sm:right-6 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900 text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
+    <!-- INDUSTRY STANDARD PROFESSIONAL NOTIFICATION TOAST -->
+    <div id="toast-notification" class="fixed top-5 right-5 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900/95 backdrop-blur-md text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
         <div id="toast-icon-wrapper" class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
             <i id="toast-icon" class="fa-solid fa-check"></i>
         </div>
-        <div class="flex-grow">
-            <h4 id="toast-title" class="text-xs font-bold text-white">Success</h4>
-            <p id="toast-message" class="text-[11px] text-slate-400">Action completed successfully.</p>
+        <div class="flex-grow min-w-0">
+            <h4 id="toast-title" class="text-xs font-extrabold text-white tracking-tight">Success</h4>
+            <p id="toast-message" class="text-[11px] text-slate-400 truncate">Action completed successfully.</p>
         </div>
+        <button onclick="window.hideToast()" class="text-slate-500 hover:text-slate-300 transition text-xs p-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
     </div>
 
     <!-- CATEGORY FILTER POP-UP MODAL -->
@@ -203,6 +206,7 @@
         let globalInventory = [];
         let categoriesCache = [];
         let activeCategoryFilter = "ALL";
+        let toastTimeout = null;
 
         window.formatDriveUrl = function(rawUrl) {
             if (!rawUrl) return "";
@@ -230,19 +234,27 @@
 
             if (isError) {
                 iconWrapper.className = "w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
-                icon.className = "fa-solid fa-circle-exclamation";
+                icon.className = "fa-solid fa-triangle-exclamation";
             } else {
-                iconWrapper.className = "w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
-                icon.className = "fa-solid fa-check";
+                iconWrapper.className = "w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0";
+                icon.className = "fa-solid fa-circle-check";
             }
 
             toast.classList.remove('translate-y-[-150%]', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
 
-            setTimeout(() => {
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                window.hideToast();
+            }, 3500);
+        };
+
+        window.hideToast = function() {
+            const toast = document.getElementById('toast-notification');
+            if (toast) {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-[-150%]', 'opacity-0');
-            }, 3000);
+            }
         };
 
         // Modal Controls
@@ -368,8 +380,7 @@
 
                         <!-- Right: Industrial Controls -->
                         <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
-                            
-                               <!-- 1. Stock Availability Toggle Switch -->
+                                <!-- 1. Stock Availability Toggle Switch -->
                             <div class="flex items-center gap-2 bg-slate-50 px-2.5 sm:px-3 py-2 rounded-xl border border-slate-200">
                                 <div class="text-right">
                                     <span class="block text-[9px] sm:text-[10px] font-bold text-slate-700 uppercase tracking-tight">Stock</span>
@@ -423,10 +434,10 @@
                     statusLabel.className = `text-[8px] sm:text-[9px] font-semibold ${isChecked ? 'text-emerald-600' : 'text-rose-600'}`;
                     statusLabel.textContent = isChecked ? 'Available' : 'Out';
                 }
-                window.showToast("Updated", "Stock availability auto-saved.");
+                window.showToast("Stock Updated", "Availability status saved successfully.");
             } catch (err) {
                 console.error("Error updating stock:", err);
-                window.showToast("Error", "Failed to auto-save stock.", true);
+                window.showToast("Action Failed", "Could not update stock status.", true);
             }
         };
 
@@ -451,10 +462,10 @@
                     hasOffer: isChecked,
                     offerPercent: isChecked ? (currentVal > 0 ? currentVal : 10) : 0
                 });
-                window.showToast("Updated", "Offer switch auto-saved.");
+                window.showToast("Offer State Saved", "Promotional status updated.");
             } catch (err) {
                 console.error("Error updating offer toggle:", err);
-                window.showToast("Error", "Failed to auto-save offer state.", true);
+                window.showToast("Action Failed", "Could not update offer toggle.", true);
             }
         };
 
@@ -464,10 +475,10 @@
             try {
                 const productRef = ref(db, `inventory/${firebaseKey}`);
                 await update(productRef, { offerPercent: num, hasOffer: true });
-                window.showToast("Saved", `Discount updated to ${num}%.`);
+                window.showToast("Discount Saved", `Discount updated to ${num}%.`);
             } catch (err) {
                 console.error("Error updating discount percentage:", err);
-                window.showToast("Error", "Failed to update discount.", true);
+                window.showToast("Action Failed", "Could not update discount.", true);
             }
         };
     </script>
