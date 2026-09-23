@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
 
         /* Industry-Standard Checkmark & Ripple Animations */
         @keyframes scaleUpModal {
@@ -124,7 +124,7 @@
                 </button>
             </div>
 
-            <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3.5">
+            <form id="checkout-form" onsubmit="proceedToPayment(event)" class="space-y-3.5">
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 mb-1">Full Name <span class="text-rose-500">*</span></label>
                     <input type="text" id="cust-name" required placeholder="Enter your full name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition font-medium">
@@ -152,10 +152,59 @@
 
                 <div class="pt-2">
                     <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold py-3.5 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-lock text-[10px]"></i> Confirm & Place Order
+                        <i class="fa-solid fa-qrcode text-[12px]"></i> Proceed to QR Payment
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- QR Payment Modal -->
+    <div id="qr-payment-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl text-center space-y-4 animate-modal-pop">
+            <div class="flex items-center justify-between border-b pb-3 border-slate-100">
+                <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode text-amber-500"></i> Scan & Pay
+                </h3>
+                <button onclick="closeQrPaymentModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-3">
+                <span class="text-[10px] font-bold text-amber-700 uppercase tracking-widest block">Amount to be Paid</span>
+                <span id="qr-display-amount" class="text-lg font-black text-slate-900 font-mono tracking-wider">₹0</span>
+            </div>
+
+            <div class="p-2 bg-slate-50 border border-slate-200 rounded-2xl inline-block shadow-inner mx-auto">
+                <img src="qr.jpg" alt="Payment QR Code" class="w-48 h-48 object-contain mx-auto rounded-xl">
+            </div>
+
+            <p class="text-[11px] text-slate-600 leading-relaxed px-2">
+                Open the QR in GPay or any UPI app and pay the money. After payment is done successfully, tap the button below.
+            </p>
+
+            <div class="pt-1">
+                <button onclick="submitOrderAfterPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-circle-check text-xs"></i> Payment Done Successfully
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Inbuilt Alert Modal (Replaces Browser Default Alerts) -->
+    <div id="custom-alert-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 animate-modal-pop">
+            <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-amber-100">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="custom-alert-title">Notice</h3>
+                <p class="text-xs text-slate-600 mt-1" id="custom-alert-desc">Message goes here</p>
+            </div>
+            <button onclick="closeCustomAlert()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
+                OK
+            </button>
         </div>
     </div>
 
@@ -204,7 +253,7 @@
                     <span id="display-order-number" class="text-sm font-black text-slate-900 font-mono tracking-wider">--</span>
                 </div>
                 <p class="text-xs text-slate-600 leading-relaxed px-1">
-                    Our executive will contact you soon for confirmation and payment process. Thank you.
+                    Our executive review and call for confirmation. Thank you.
                 </p>
             </div>
             
@@ -258,6 +307,18 @@
 
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let pendingActionIndex = null;
+        let cachedCustomerData = null;
+        let cachedFinalTotal = 0;
+
+        function showCustomAlert(title, message) {
+            document.getElementById('custom-alert-title').textContent = title;
+            document.getElementById('custom-alert-desc').textContent = message;
+            document.getElementById('custom-alert-modal').classList.remove('hidden');
+        }
+
+        window.closeCustomAlert = function() {
+            document.getElementById('custom-alert-modal').classList.add('hidden');
+        }
 
         function renderCartPage() {
             const container = document.getElementById('cart-items-container');
@@ -331,6 +392,7 @@
             }).join('');
 
             const finalTotal = Math.max(0, subtotal - totalDiscount);
+            cachedFinalTotal = finalTotal;
 
             document.getElementById('summary-subtotal').textContent = `₹${subtotal.toFixed(2).replace(/\.00$/, '')}`;
             
@@ -387,7 +449,7 @@
 
         window.openCustomerDetailsModal = function() {
             if (cart.length === 0) {
-                alert("Your cart is empty!");
+                showCustomAlert("Empty Cart", "Your cart is empty!");
                 return;
             }
             document.getElementById('customer-details-modal').classList.remove('hidden');
@@ -397,6 +459,32 @@
             document.getElementById('customer-details-modal').classList.add('hidden');
         };
 
+        window.closeQrPaymentModal = function() {
+            document.getElementById('qr-payment-modal').classList.add('hidden');
+        };
+
+        // Step 1: When user fills customer details and clicks proceed to QR payment
+        window.proceedToPayment = function(event) {
+            event.preventDefault();
+
+            cachedCustomerData = {
+                name: document.getElementById('cust-name').value.trim(),
+                phone: document.getElementById('cust-phone').value.trim(),
+                email: document.getElementById('cust-email').value.trim(),
+                address: document.getElementById('cust-address').value.trim(),
+                landmark: document.getElementById('cust-landmark').value.trim()
+            };
+
+            // Close form modal
+            closeCustomerDetailsModal();
+
+            // Display amount in QR Modal
+            document.getElementById('qr-display-amount').textContent = `₹${cachedFinalTotal.toFixed(2).replace(/\.00$/, '')}`;
+
+            // Open QR Payment Modal
+            document.getElementById('qr-payment-modal').classList.remove('hidden');
+        };
+
         // Unique, non-repeating order number generator
         function generateOrderNumber() {
             const timestampPart = Date.now().toString().slice(-6);
@@ -404,19 +492,12 @@
             return `YM-${timestampPart}${randomPart}`;
         }
 
-        window.submitOrder = function(event) {
-            event.preventDefault();
-
-            // Collect form data
-            const customerName = document.getElementById('cust-name').value.trim();
-            const customerPhone = document.getElementById('cust-phone').value.trim();
-            const customerEmail = document.getElementById('cust-email').value.trim();
-            const customerAddress = document.getElementById('cust-address').value.trim();
-            const customerLandmark = document.getElementById('cust-landmark').value.trim();
+        // Step 2: When payment is done successfully and user taps payment done button
+        window.submitOrderAfterPayment = function() {
             const uniqueOrderNo = generateOrderNumber();
 
-            // Close form modal
-            closeCustomerDetailsModal();
+            // Close QR Payment modal
+            closeQrPaymentModal();
 
             // Show Professional Loading Animation Modal
             document.getElementById('loading-modal').classList.remove('hidden');
@@ -455,11 +536,11 @@
             const newOrderData = {
                 orderNumber: uniqueOrderNo,
                 customer: {
-                    name: customerName,
-                    phone: customerPhone,
-                    email: customerEmail || "N/A",
-                    address: customerAddress,
-                    landmark: customerLandmark || "N/A"
+                    name: cachedCustomerData.name,
+                    phone: cachedCustomerData.phone,
+                    email: cachedCustomerData.email || "N/A",
+                    address: cachedCustomerData.address,
+                    landmark: cachedCustomerData.landmark || "N/A"
                 },
                 items: itemsToSave,
                 subtotalAmount: subtotal,
@@ -491,7 +572,7 @@
                 .catch((error) => {
                     console.error("Error saving order: ", error);
                     document.getElementById('loading-modal').classList.add('hidden');
-                    alert("Failed to submit order. Please check your network connection and try again.");
+                    showCustomAlert("Network Error", "Failed to submit order. Please check your network connection and try again.");
                 });
         };
 
