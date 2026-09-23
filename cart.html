@@ -73,7 +73,7 @@
 
             <!-- Order Summary Box -->
             <div class="md:col-span-1">
-                <div class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm sticky top-20 space-y-4">
+                <div id="order-summary-box" class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-sm sticky top-20 space-y-4">
                     <h3 class="font-bold text-xs text-slate-900 border-b pb-2.5 border-slate-100 uppercase tracking-wider">Order Summary</h3>
                     
                     <div class="flex justify-between text-xs text-slate-600">
@@ -107,7 +107,7 @@
                         Proceed to Checkout
                     </button>
                     
-                    <a href="mystore.html" class="block text-center text-xs text-slate-500 hover:text-slate-900 transition pt-1 font-medium">
+                    <a href="mystore.html" id="continue-shopping-link" class="block text-center text-xs text-slate-500 hover:text-slate-900 transition pt-1 font-medium">
                         Continue Shopping
                     </a>
                 </div>
@@ -289,7 +289,7 @@
         </div>
     </div>
 
-<!-- Confirmation Modal for Removing Items -->
+ <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
@@ -379,6 +379,8 @@
 
         function renderCartPage() {
             const container = document.getElementById('cart-items-container');
+            const orderSummaryBox = document.getElementById('order-summary-box');
+            const continueShoppingLink = document.getElementById('continue-shopping-link');
 
             if (cart.length === 0) {
                 container.innerHTML = `
@@ -397,8 +399,14 @@
                 document.getElementById('summary-total').textContent = '₹0';
                 document.getElementById('summary-discount-row').classList.add('hidden');
                 document.getElementById('offer-unlocked-banner').classList.add('hidden');
+                
+                // Hide Continue Shopping link inside the summary box when cart is empty
+                if (continueShoppingLink) continueShoppingLink.classList.add('hidden');
                 return;
             }
+
+            // Show Continue Shopping link when cart has items
+            if (continueShoppingLink) continueShoppingLink.classList.remove('hidden');
 
             let subtotal = 0;
             let totalDiscount = 0;
