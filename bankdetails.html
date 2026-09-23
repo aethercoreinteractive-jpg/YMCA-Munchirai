@@ -20,8 +20,11 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span> Bank Details
+                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <div id="header-logo-container" class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-[10px] tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                        <span id="header-logo-fallback">MY</span>
+                    </div>
+                    <span>Bank Details</span>
                 </a>
             </div>
             <!-- Back Button -->
@@ -84,6 +87,17 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Professional WhatsApp Notification Notice -->
+            <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 shadow-sm flex items-start gap-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                </div>
+                <div class="text-xs space-y-1">
+                    <h3 class="font-bold text-slate-900">Payment Confirmation Notice</h3>
+                    <p class="text-slate-600 leading-relaxed font-light">Kindly share your transaction screenshot along with your order details to WhatsApp number <a href="https://wa.me/919488820998" target="_blank" class="font-bold text-slate-900 underline decoration-amber-500 decoration-2">+91-9488820998</a> to ensure prompt verification and order processing.</p>
+                </div>
+            </div>
         </div>
 
         <!-- Desktop Layout View -->
@@ -138,6 +152,17 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Professional WhatsApp Notification Notice (Desktop) -->
+            <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 shadow-xs text-base">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div class="text-xs space-y-1">
+                    <h3 class="font-bold text-slate-900">Payment Confirmation Notice</h3>
+                    <p class="text-slate-600 leading-relaxed font-light">Kindly share your transaction screenshot along with your order details to WhatsApp number <a href="https://wa.me/919488820998" target="_blank" class="font-bold text-slate-900 underline decoration-amber-500 decoration-2">+91-9488820998</a> to ensure prompt verification and order processing.</p>
+                </div>
+            </div>
         </div>
 
         <!-- Back Action -->
@@ -154,6 +179,59 @@
         &copy; 2026 Munchirai YMCA. All rights reserved.
     </footer>
 
+    <!-- Firebase Initialization & Logo Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
+
+        async function fetchStoreLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    const formatted = formatImageURL(snap.val());
+                    if (formatted) {
+                        const headerContainer = document.getElementById('header-logo-container');
+                        if (headerContainer) {
+                            headerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading store logo:", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchStoreLogo);
+    </script>
 </body>
 </html>
-      
