@@ -286,7 +286,7 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal for Removing Items -->
+ <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
@@ -582,12 +582,12 @@
                     
                     document.getElementById('display-order-number').textContent = uniqueOrderNo;
 
-                    // Set dynamic success instruction message based on chosen payment mode
+                    // Set dynamic success instruction message based on chosen payment mode (COD excludes WhatsApp number)
                     const instructionsEl = document.getElementById('success-instructions');
                     if (paymentMode === "Pay via UPI") {
                         instructionsEl.innerHTML = `Please send the payment receipt screenshot on WhatsApp at <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg border border-emerald-300 text-xs shadow-xs tracking-wide"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>+91-9488820998</span>. Our executive will review and make a confirmation call.`;
                     } else {
-                        instructionsEl.innerHTML = `Our executive will review and make a confirmation call. For any queries, reach us at <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg border border-emerald-300 text-xs shadow-xs tracking-wide"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>+91-9488820998</span> on WhatsApp.`;
+                        instructionsEl.innerHTML = `Our executive will review and make a confirmation call.`;
                     }
 
                     document.getElementById('loading-modal').classList.add('hidden');
