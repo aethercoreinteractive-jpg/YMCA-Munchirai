@@ -105,10 +105,10 @@
             
             <!-- Action Controls -->
             <div class="flex items-center gap-2">
-                <a href="settings.html" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-700 flex items-center gap-1.5 shadow-sm">
+                <button type="button" onclick="history.back()" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-700 flex items-center gap-1.5 shadow-sm active:scale-95">
                     <i class="fa-solid fa-arrow-left text-amber-400 text-xs"></i>
-                    <span>Back to Settings</span>
-                </a>
+                    <span>Back</span>
+                </button>
             </div>
         </div>
     </header>
@@ -356,7 +356,7 @@
             }
         };
 
-         // Delete Logo option to clear database field and revert header to "MY" default
+        // Delete Logo option to clear database field and revert header to "MY" default
         window.handleDeleteLogo = async function() {
             try {
                 const settingsRef = ref(db, 'settings');
