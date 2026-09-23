@@ -41,6 +41,14 @@
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
+    <!-- SECURITY GATEKEEPER & REDIRECT CHECK -->
+    <script>
+        if (!sessionStorage.getItem("admin_authenticated") || !sessionStorage.getItem("ymca_redirect_token")) {
+            // If not authenticated or missing token, we keep them here to show the login modal instead of bouncing out of admin.html itself.
+            // But we ensure the login modal stays open and locked until authentication.
+        }
+    </script>
+
     <!-- INBUILT NOTIFICATION TOAST -->
     <div id="toast-notification" class="fixed top-20 right-4 sm:right-6 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900 text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
         <div id="toast-icon-wrapper" class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
@@ -274,6 +282,7 @@
             if (!sessionStorage.getItem("admin_authenticated")) {
                 document.getElementById('login-modal').classList.remove('hidden');
             } else {
+                sessionStorage.setItem("ymca_redirect_token", "active");
                 fetchExistingLogo();
             }
         }
@@ -316,13 +325,13 @@
                 if (passSnap.exists()) { currentPass = passSnap.val(); } 
                 else { await set(passRef, FALLBACK_PASSWORD); }
 
-                let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
+                 let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
                 if (codeSnap.exists()) { savedCompanyCode = codeSnap.val(); } 
                 else { await set(codeRef, IMMUTABLE_COMPANY_CODE); }
 
                 if (enteredVal === currentPass || enteredVal === savedCompanyCode) {
                     sessionStorage.setItem("admin_authenticated", "true");
-                    sessionStorage.setItem("ymca_redirect_token", "active"); // Added security redirect token
+                    sessionStorage.setItem("ymca_redirect_token", "active"); // Sets security redirect token
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     document.getElementById('login-input').value = "";
@@ -334,7 +343,7 @@
             } catch (error) {
                 if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
                     sessionStorage.setItem("admin_authenticated", "true");
-                    sessionStorage.setItem("ymca_redirect_token", "active"); // Added security redirect token
+                    sessionStorage.setItem("ymca_redirect_token", "active"); // Sets security redirect token
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     fetchExistingLogo();
