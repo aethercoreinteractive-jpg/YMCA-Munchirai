@@ -34,6 +34,8 @@
         .enterprise-card:hover {
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
         }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
@@ -58,7 +60,7 @@
 
     <!-- HEADER NAVIGATION -->
     <header class="bg-slate-900 text-slate-100 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <div class="max-w-5xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <a href="admin.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
                     MY
@@ -70,36 +72,44 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <a href="admininventory.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 transition border border-slate-700 flex items-center gap-1.5">
-                    <i class="fa-solid fa-boxes-stacked text-amber-400 text-xs"></i> <span>Inventory Hub</span>
+                <a href="admininventory.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-2.5 sm:px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 transition border border-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-boxes-stacked text-amber-400 text-xs"></i> <span class="hidden sm:inline">Inventory Hub</span>
                 </a>
                 <a href="addproduct.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-950 bg-amber-500 hover:bg-amber-400 transition shadow-sm flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus text-xs"></i> <span class="hidden sm:inline">Add Product</span>
+                    <i class="fa-solid fa-plus text-xs"></i> <span>Add Product</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- MAIN FEED CONTAINER (Scrolling Up to Down) -->
-    <main class="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4">
+    <!-- MAIN FEED CONTAINER -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4">
         
-        <!-- Feed Control Header Bar -->
-        <div class="flex items-center justify-between bg-white px-5 py-4 rounded-2xl border border-slate-200 shadow-sm">
-            <div>
-                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+        <!-- Search & Category Filter Controls Hub -->
+        <div class="bg-white p-3 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between gap-3">
+                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 shrink-0">
                     <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block animate-pulse"></span>
-                    Live Product Feed
+                    Live Feed
                 </h2>
-                <p id="feed-counter" class="text-[11px] text-slate-500 mt-0.5">Synchronizing database records...</p>
+                <!-- Search Box -->
+                <div class="relative flex-grow max-w-xs">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="feed-search" placeholder="Search products..." oninput="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 shadow-inner">
+                </div>
             </div>
-            <div class="relative">
-                <input type="text" id="feed-search" placeholder="Filter products..." oninput="filterProductFeed()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 w-36 sm:w-48 shadow-inner">
+
+            <!-- Horizontal Category Filter Pills -->
+            <div id="category-pills-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 pb-0.5">
+                <button onclick="window.filterCategory('ALL')" class="category-pill bg-amber-500 text-slate-950 font-bold text-[11px] px-3.5 py-1.5 rounded-xl whitespace-nowrap shadow-sm transition">All Items</button>
             </div>
         </div>
 
-        <!-- Vertical Scrolling List Container -->
-        <div id="product-feed-list" class="space-y-4">
-            <div class="text-center py-16 text-slate-400 text-xs font-medium bg-white rounded-2xl border border-slate-200">
+        <!-- Vertical Scrolling Product List Container -->
+        <div id="product-feed-list" class="space-y-3 sm:space-y-4">
+            <div class="text-center py-16 bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-medium">
                 <i class="fa-solid fa-spinner fa-spin text-amber-500 text-lg mb-2"></i><br>Loading product feed...
             </div>
         </div>
@@ -131,6 +141,8 @@
         const db = getDatabase(app);
 
         let globalInventory = [];
+        let categoriesCache = [];
+        let activeCategoryFilter = "ALL";
 
         window.formatDriveUrl = function(rawUrl) {
             if (!rawUrl) return "";
@@ -173,6 +185,41 @@
             }, 3000);
         };
 
+        // Fetch categories for filter pills
+        const categoriesRef = ref(db, 'categories');
+        onValue(categoriesRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
+                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            } else {
+                categoriesCache = [];
+            }
+            renderCategoryPills();
+        });
+
+        function renderCategoryPills() {
+            const container = document.getElementById('category-pills-container');
+            let html = `
+                <button onclick="window.filterCategory('ALL')" class="category-pill ${activeCategoryFilter === 'ALL' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} font-bold text-[11px] px-3.5 py-1.5 rounded-xl whitespace-nowrap transition">All Items</button>
+            `;
+
+            categoriesCache.forEach(cat => {
+                const isActive = activeCategoryFilter === cat.name;
+                html += `
+                    <button onclick="window.filterCategory('${cat.name}')" class="category-pill ${isActive ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} font-bold text-[11px] px-3.5 py-1.5 rounded-xl whitespace-nowrap transition">${cat.name}</button>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        window.filterCategory = function(catName) {
+            activeCategoryFilter = catName;
+            renderCategoryPills();
+            applyFilters();
+        };
+
         // Real-time listener for Inventory Feed
         const inventoryRef = ref(db, 'inventory');
         onValue(inventoryRef, (snapshot) => {
@@ -185,19 +232,28 @@
             } else {
                 globalInventory = [];
             }
-            renderProductFeed(globalInventory);
+            applyFilters();
         });
+
+        window.applyFilters = function() {
+            const query = document.getElementById('feed-search').value.toLowerCase().trim();
+            
+            let filtered = globalInventory.filter(item => {
+                const matchesCat = (activeCategoryFilter === 'ALL') || (item.category === activeCategoryFilter);
+                const matchesSearch = !query || (item.name && item.name.toLowerCase().includes(query)) || (item.category && item.category.toLowerCase().includes(query));
+                return matchesCat && matchesSearch;
+            });
+
+            renderProductFeed(filtered);
+        };
 
         window.renderProductFeed = function(items) {
             const listContainer = document.getElementById('product-feed-list');
-            const counterEl = document.getElementById('feed-counter');
-            
-            counterEl.textContent = `Displaying ${items.length} active catalog record${items.length === 1 ? '' : 's'}`;
 
             if (items.length === 0) {
                 listContainer.innerHTML = `
                     <div class="text-center py-16 bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-medium">
-                        <i class="fa-solid fa-boxes-packing text-slate-300 text-2xl mb-2"></i><br>No inventory items found.
+                        <i class="fa-solid fa-boxes-packing text-slate-300 text-2xl mb-2"></i><br>No matching products found.
                     </div>
                 `;
                 return;
@@ -213,16 +269,16 @@
                 const smallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'No summary description available.';
 
                 html += `
-                    <div class="enterprise-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="enterprise-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                         
                         <!-- Left: Thumbnail & Core Info -->
-                        <div class="flex items-center gap-3.5 w-full sm:w-auto flex-grow">
+                        <div class="flex items-center gap-3.5 w-full sm:w-auto flex-grow min-w-0">
                             <div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
                                 <img src="${formattedImg}" alt="${item.name}" class="w-full h-full object-contain p-1">
                             </div>
                             <div class="space-y-1 min-w-0 flex-grow">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">${item.category || 'General'}</span>
+                                    <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 truncate max-w-[120px]">${item.category || 'General'}</span>
                                     <span class="text-[10px] text-slate-400 font-medium">Qty: ${item.qty || 'Std'}</span>
                                 </div>
                                 <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate">${item.name}</h3>
@@ -231,41 +287,41 @@
                             </div>
                         </div>
 
-                        <!-- Right: Industrial Controls (Stock Toggle, Offer Toggle + Input, Edit Button) -->
-                        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        <!-- Right: Industrial Controls (Optimized for Mobile & PC) -->
+                        <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
                             
                             <!-- 1. Stock Availability Toggle Switch -->
-                            <div class="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-2 bg-slate-50 px-2.5 sm:px-3 py-2 rounded-xl border border-slate-200">
                                 <div class="text-right">
-                                    <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Stock</span>
-                                    <span id="stock-text-${item.firebaseKey}" class="text-[9px] font-semibold ${inStock ? 'text-emerald-600' : 'text-rose-600'}">${inStock ? 'Available' : 'Out'}</span>
+                                    <span class="block text-[9px] sm:text-[10px] font-bold text-slate-700 uppercase tracking-tight">Stock</span>
+                                    <span id="stock-text-${item.firebaseKey}" class="text-[8px] sm:text-[9px] font-semibold ${inStock ? 'text-emerald-600' : 'text-rose-600'}">${inStock ? 'Available' : 'Out'}</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" ${inStock ? 'checked' : ''} onchange="window.toggleProductStock('${item.firebaseKey}', this.checked)" class="sr-only peer">
-                                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                                    <div class="w-8 h-4.5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-amber-500"></div>
                                 </label>
                             </div>
 
-                            <!-- 2. Offer On/Off Switch & Percentage Input -->
-                            <div class="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+                            <!-- 2. Offer Toggle & Percentage Input -->
+                            <div class="flex items-center gap-2 bg-slate-50 px-2.5 sm:px-3 py-2 rounded-xl border border-slate-200">
                                 <div class="text-right">
-                                    <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Offer</span>
-                                    <span id="offer-status-text-${item.firebaseKey}" class="text-[9px] font-semibold ${hasOffer ? 'text-amber-600' : 'text-slate-400'}">${hasOffer ? 'Active' : 'Off'}</span>
+                                    <span class="block text-[9px] sm:text-[10px] font-bold text-slate-700 uppercase tracking-tight">Offer</span>
+                                    <span id="offer-status-text-${item.firebaseKey}" class="text-[8px] sm:text-[9px] font-semibold ${hasOffer ? 'text-amber-600' : 'text-slate-400'}">${hasOffer ? 'Active' : 'Off'}</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" ${hasOffer ? 'checked' : ''} onchange="window.toggleOfferSwitch('${item.firebaseKey}', this.checked)" class="sr-only peer">
-                                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                                    <div class="w-8 h-4.5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-amber-500"></div>
                                 </label>
-                                <div class="relative flex items-center ml-1">
-                                    <input type="number" min="0" max="100" value="${offerPercent}" id="offer-input-${item.firebaseKey}" ${!hasOffer ? 'disabled' : ''} onchange="window.updateOfferPercent('${item.firebaseKey}', this.value)" placeholder="%" class="w-11 bg-white border border-slate-200 rounded-lg px-1.5 py-1 text-xs text-center font-bold text-slate-900 focus:outline-none focus:border-amber-500 disabled:opacity-30 shadow-inner">
-                                    <span class="text-[10px] text-slate-400 font-bold ml-0.5">%</span>
+                                <div class="relative flex items-center ml-0.5">
+                                    <input type="number" min="0" max="100" value="${offerPercent}" id="offer-input-${item.firebaseKey}" ${!hasOffer ? 'disabled' : ''} onchange="window.updateOfferPercent('${item.firebaseKey}', this.value)" placeholder="%" class="w-10 bg-white border border-slate-200 rounded-lg px-1 py-1 text-[11px] text-center font-bold text-slate-900 focus:outline-none focus:border-amber-500 disabled:opacity-30 shadow-inner">
+                                    <span class="text-[9px] text-slate-400 font-bold ml-0.5">%</span>
                                 </div>
                             </div>
 
-                            <!-- 3. Edit Action Button -> Leads to addproduct.html with ID -->
-                            <button onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 ml-auto sm:ml-0" title="Edit Product">
+                            <!-- 3. Edit Action Button -->
+                            <button onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5" title="Edit Product">
                                 <i class="fa-solid fa-pen-to-square text-amber-400 text-[11px]"></i>
-                                <span>Edit</span>
+                                <span class="hidden md:inline">Edit</span>
                             </button>
 
                         </div>
@@ -277,19 +333,6 @@
             listContainer.innerHTML = html;
         };
 
-        window.filterProductFeed = function() {
-            const query = document.getElementById('feed-search').value.toLowerCase().trim();
-            if (!query) {
-                renderProductFeed(globalInventory);
-                return;
-            }
-            const filtered = globalInventory.filter(item => 
-                (item.name && item.name.toLowerCase().includes(query)) ||
-                (item.category && item.category.toLowerCase().includes(query))
-            );
-            renderProductFeed(filtered);
-        };
-
         // Auto-save Stock Switch
         window.toggleProductStock = async function(firebaseKey, isChecked) {
             try {
@@ -298,7 +341,7 @@
                 
                 const statusLabel = document.getElementById(`stock-text-${firebaseKey}`);
                 if (statusLabel) {
-                    statusLabel.className = `text-[9px] font-semibold ${isChecked ? 'text-emerald-600' : 'text-rose-600'}`;
+                    statusLabel.className = `text-[8px] sm:text-[9px] font-semibold ${isChecked ? 'text-emerald-600' : 'text-rose-600'}`;
                     statusLabel.textContent = isChecked ? 'Available' : 'Out';
                 }
                 window.showToast("Updated", "Stock availability auto-saved.");
@@ -318,7 +361,7 @@
                     inputEl.disabled = !isChecked;
                 }
                 if (statusText) {
-                    statusText.className = `text-[9px] font-semibold ${isChecked ? 'text-amber-600' : 'text-slate-400'}`;
+                    statusText.className = `text-[8px] sm:text-[9px] font-semibold ${isChecked ? 'text-amber-600' : 'text-slate-400'}`;
                     statusText.textContent = isChecked ? 'Active' : 'Off';
                 }
 
@@ -342,11 +385,6 @@
             try {
                 const productRef = ref(db, `inventory/${firebaseKey}`);
                 await update(productRef, { offerPercent: num, hasOffer: true });
-                
-                // Automatically activate the switch UI if user typed a percentage
-                const item = globalInventory.find(p => p.firebaseKey === firebaseKey);
-                if (item) item.hasOffer = true;
-                
                 window.showToast("Saved", `Discount updated to ${num}%.`);
             } catch (err) {
                 console.error("Error updating discount percentage:", err);
