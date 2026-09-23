@@ -131,7 +131,17 @@
                 const keys = Object.keys(records).filter(k => records[k] !== null);
 
                 if (keys.length > 0) {
-                    keys.reverse().forEach(id => {
+                    // Sort keys strictly based on admin custom order property, falling back to newest date
+                    keys.sort((a, b) => {
+                        let orderA = records[a] && records[a].order !== undefined ? records[a].order : 9999;
+                        let orderB = records[b] && records[b].order !== undefined ? records[b].order : 9999;
+                        if (orderA !== orderB) {
+                            return orderA - orderB;
+                        }
+                        return new Date(records[b].date || 0) - new Date(records[a].date || 0);
+                    });
+
+                    keys.forEach(id => {
                         const item = records[id];
                         if (!item) return;
 
