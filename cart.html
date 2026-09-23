@@ -150,22 +150,15 @@
                     <input type="text" id="cust-landmark" placeholder="e.g. Near YMCA church or school" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition font-medium">
                 </div>
 
-                <!-- Payment Options Selection (Mandatory Selection) -->
+                <!-- Payment Option Selection (Mandatory Selection - Only Paid on QR) -->
                 <div class="pt-2 border-t border-slate-100">
                     <label class="block text-xs font-extrabold text-slate-900 mb-2">Select Payment Method <span class="text-rose-500">*</span></label>
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <label class="flex items-center gap-2.5 p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
-                            <input type="radio" name="payment-mode" value="Paid on QR" required class="text-amber-500 focus:ring-amber-500 w-4 h-4">
+                    <div class="grid grid-cols-1 gap-2.5">
+                        <label class="flex items-center gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
+                            <input type="radio" name="payment-mode" value="Paid on QR" required checked class="text-amber-500 focus:ring-amber-500 w-4 h-4">
                             <div>
                                 <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-qrcode text-amber-500"></i> Paid on QR</div>
-                                <div class="text-[9px] text-slate-500">Scan & pay via UPI</div>
-                            </div>
-                        </label>
-                        <label class="flex items-center gap-2.5 p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-emerald-500 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50/50">
-                            <input type="radio" name="payment-mode" value="Cash on Delivery" required class="text-emerald-600 focus:ring-emerald-500 w-4 h-4">
-                            <div>
-                                <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-truck text-emerald-600"></i> Cash on Delivery</div>
-                                <div class="text-[9px] text-slate-500">Pay when delivered</div>
+                                <div class="text-[10px] text-slate-500">Scan & pay via UPI QR code</div>
                             </div>
                         </label>
                     </div>
@@ -173,14 +166,14 @@
 
                 <div class="pt-2">
                     <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold py-3.5 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-circle-check text-[12px]"></i> Proceed Order
+                        <i class="fa-solid fa-qrcode text-[12px]"></i> Proceed to QR Payment
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- QR Payment Modal (Only shown if "Paid on QR" is selected) -->
+    <!-- QR Payment Modal (Only shown for Paid on QR) -->
     <div id="qr-payment-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl text-center space-y-4 animate-modal-pop">
             <div class="flex items-center justify-between border-b pb-3 border-slate-100">
@@ -274,7 +267,7 @@
                     <span id="display-order-number" class="text-sm font-black text-slate-900 font-mono tracking-wider">--</span>
                 </div>
                 <p id="success-instructions" class="text-xs text-slate-600 leading-relaxed px-1">
-                    <!-- Dynamic message depending on payment mode -->
+                    Our executive will review and call for confirmation. Please send the receipt screenshot to <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg border border-emerald-300 text-xs shadow-xs tracking-wide"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>+91-9488820998</span> on WhatsApp.
                 </p>
             </div>
             
@@ -286,7 +279,7 @@
         </div>
     </div>
 
-       <!-- Confirmation Modal for Removing Items -->
+    <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
@@ -307,7 +300,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDK Imports & Cart Script -->
+<!-- Firebase SDK Imports & Cart Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -330,7 +323,6 @@
         let pendingActionIndex = null;
         let cachedCustomerData = null;
         let cachedFinalTotal = 0;
-        let cachedPaymentMode = null;
 
         function showCustomAlert(title, message) {
             document.getElementById('custom-alert-title').textContent = title;
@@ -485,17 +477,9 @@
             document.getElementById('qr-payment-modal').classList.add('hidden');
         };
 
-        // When user fills checkout form and selects payment mode
+        // When user fills checkout form, store customer data and open the QR Payment modal directly
         window.proceedToPayment = function(event) {
             event.preventDefault();
-
-            const selectedPaymentRadio = document.querySelector('input[name="payment-mode"]:checked');
-            if (!selectedPaymentRadio) {
-                showCustomAlert("Payment Method Required", "Please select either 'Paid on QR' or 'Cash on Delivery' to proceed.");
-                return;
-            }
-
-            cachedPaymentMode = selectedPaymentRadio.value;
 
             cachedCustomerData = {
                 name: document.getElementById('cust-name').value.trim(),
@@ -508,14 +492,9 @@
             // Close customer details form modal
             closeCustomerDetailsModal();
 
-            if (cachedPaymentMode === 'Paid on QR') {
-                // Open QR Payment modal
-                document.getElementById('qr-display-amount').textContent = `₹${cachedFinalTotal.toFixed(2).replace(/\.00$/, '')}`;
-                document.getElementById('qr-payment-modal').classList.remove('hidden');
-            } else {
-                // Direct COD submission
-                submitOrderAfterPayment('Cash on Delivery');
-            }
+            // Open QR Payment modal with the final total
+            document.getElementById('qr-display-amount').textContent = `₹${cachedFinalTotal.toFixed(2).replace(/\.00$/, '')}`;
+            document.getElementById('qr-payment-modal').classList.remove('hidden');
         };
 
         // Unique, non-repeating order number generator
@@ -525,11 +504,11 @@
             return `YM-${timestampPart}${randomPart}`;
         }
 
-        // Final submission handler for both Paid on QR & Cash on Delivery
+        // Final submission handler for Paid on QR
         window.submitOrderAfterPayment = function(paymentMode) {
             const uniqueOrderNo = generateOrderNumber();
 
-            // Close any open QR modal
+            // Close QR modal
             closeQrPaymentModal();
 
             // Show Professional Loading Animation Modal
@@ -593,14 +572,6 @@
                     // Set the order number text in the success modal
                     document.getElementById('display-order-number').textContent = uniqueOrderNo;
 
-                    // Configure success message instructions based on payment mode
-                    const instructionsEl = document.getElementById('success-instructions');
-                    if (paymentMode === 'Paid on QR') {
-                        instructionsEl.innerHTML = `Our executive will review and call for confirmation. Please send the receipt screenshot to <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg border border-emerald-300 text-xs shadow-xs tracking-wide"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>+91-9488820998</span> on WhatsApp.`;
-                    } else {
-                        instructionsEl.innerHTML = `Our executive will review and call for confirmation. Please keep exact cash ready upon delivery.`;
-                    }
-
                     // Hide loading modal, show 3-second checkmark tick animation modal
                     document.getElementById('loading-modal').classList.add('hidden');
                     document.getElementById('tick-modal').classList.remove('hidden');
@@ -608,6 +579,7 @@
                     // After exactly 3 seconds, hide tick modal and show final message modal
                     setTimeout(() => {
                         document.getElementById('tick-modal').classList.add('hidden');
+                        document.getElementById('success-modal').classList.add('hidden'); // hidden initially until success modal shows
                         document.getElementById('success-modal').classList.remove('hidden');
                     }, 3000);
                 })
