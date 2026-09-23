@@ -46,8 +46,11 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span> Cart
+                <a href="index.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <div id="header-logo-container" class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                        <span id="header-logo-fallback">MY</span>
+                    </div>
+                    <span>Cart</span>
                 </a>
             </div>
             <a href="mystore.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
@@ -286,7 +289,7 @@
         </div>
     </div>
 
- <!-- Confirmation Modal for Removing Items -->
+   <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
@@ -310,7 +313,7 @@
     <!-- Firebase SDK Imports & Cart Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -331,6 +334,38 @@
         let cachedCustomerData = null;
         let cachedFinalTotal = 0;
         let selectedPaymentMode = "";
+
+        // Convert Google Drive share link into a direct viewable image link
+        function formatDriveUrl(rawUrl) {
+            if (!rawUrl) return "";
+            let url = rawUrl.trim();
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            }
+            return url;
+        }
+
+        // Fetch and load custom logo from Firebase
+        async function fetchHeaderLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                const container = document.getElementById('header-logo-container');
+                if (snap.exists() && snap.val()) {
+                    const formatted = formatDriveUrl(snap.val());
+                    if (formatted) {
+                        container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading header logo:", err);
+            }
+        }
 
         function showCustomAlert(title, message) {
             document.getElementById('custom-alert-title').textContent = title;
@@ -607,6 +642,7 @@
         };
 
         renderCartPage();
+        fetchHeaderLogo();
     </script>
 </body>
 </html>
