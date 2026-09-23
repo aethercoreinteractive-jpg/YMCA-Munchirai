@@ -385,7 +385,7 @@
                 </div>
             `;
 
-                // 2. Render All Other Products Below with Ribbon Offer Banners
+            // 2. Render All Other Products Below with Ribbon Offer Banners
             const otherProducts = liveInventory.filter(p => p.firebaseKey !== productId);
 
             let categoryGroups = {};
@@ -427,7 +427,6 @@
                                 <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                                 ${catName}
                             </h3>
-                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${groupItems.length} item${groupItems.length > 1 ? 's' : ''}</span>
                         </div>
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
