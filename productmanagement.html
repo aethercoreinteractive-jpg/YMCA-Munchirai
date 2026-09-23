@@ -122,6 +122,27 @@
         </button>
     </div>
 
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div id="delete-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg mx-auto border border-rose-200 shadow-sm">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Delete Product?</h3>
+                <p class="text-xs text-slate-500 mt-1">Are you sure you want to permanently delete this product? This action cannot be undone.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button type="button" onclick="window.closeDeleteModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition">
+                    Cancel
+                </button>
+                <button type="button" id="confirm-delete-btn" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- CATEGORY FILTER POP-UP MODAL -->
     <div id="category-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in duration-200">
@@ -211,7 +232,7 @@
     <!-- FIREBASE & FEED CONTROLLER SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -231,6 +252,7 @@
         let categoriesCache = [];
         let activeCategoryFilter = "ALL";
         let toastTimeout = null;
+        let productToDeleteKey = null;
 
         window.formatDriveUrl = function(rawUrl) {
             if (!rawUrl) return "";
@@ -291,6 +313,34 @@
             document.getElementById('category-modal').classList.remove('flex');
             document.getElementById('category-modal').classList.add('hidden');
         };
+
+        // Delete Modal Controls
+        window.promptDeleteProduct = function(firebaseKey) {
+            productToDeleteKey = firebaseKey;
+            document.getElementById('delete-modal').classList.remove('hidden');
+            document.getElementById('delete-modal').classList.add('flex');
+        };
+
+        window.closeDeleteModal = function() {
+            productToDeleteKey = null;
+            document.getElementById('delete-modal').classList.remove('flex');
+            document.getElementById('delete-modal').classList.add('hidden');
+        };
+
+        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+            if (!productToDeleteKey) return;
+            const keyToRemove = productToDeleteKey;
+            window.closeDeleteModal();
+
+            try {
+                const productRef = ref(db, `inventory/${keyToRemove}`);
+                await remove(productRef);
+                window.showToast("Product Deleted", "The product was removed from inventory successfully.");
+            } catch (err) {
+                console.error("Error deleting product:", err);
+                window.showToast("Action Failed", "Could not delete product.", true);
+            }
+        });
 
         // Fetch categories for modal pop-up list
         const categoriesRef = ref(db, 'categories');
@@ -386,7 +436,7 @@
                 html += `
                     <div class="enterprise-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                         
-                          <!-- Left: Thumbnail & Core Info -->
+                        <!-- Left: Thumbnail & Core Info -->
                         <div class="flex items-center gap-3.5 w-full sm:w-auto flex-grow min-w-0">
                             <div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
                                 <img src="${formattedImg}" alt="${item.name}" class="w-full h-full object-contain p-1">
@@ -437,6 +487,12 @@
                             <button onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5" title="Edit Product">
                                 <i class="fa-solid fa-pen-to-square text-amber-400 text-[11px]"></i>
                                 <span class="hidden md:inline">Edit</span>
+                            </button>
+
+                            <!-- 4. Delete Action Button -->
+                            <button onclick="window.promptDeleteProduct('${item.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold px-3 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5" title="Delete Product">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i>
+                                <span class="hidden md:inline">Delete</span>
                             </button>
 
                         </div>
