@@ -46,15 +46,15 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="javascript:void(0);" onclick="location.replace('mystore.html');" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                <a href="javascript:void(0);" onclick="goToStore();" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
                     <div id="header-logo-container" class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
                         <span id="header-logo-fallback">MY</span>
                     </div>
                     <span>Cart</span>
                 </a>
             </div>
-            <!-- Replaces history stack entry so phone back button skips cart -->
-            <a href="javascript:void(0);" onclick="location.replace('mystore.html');" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
+            <!-- Wipes cart page out of the history stack completely -->
+            <a href="javascript:void(0);" onclick="goToStore();" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
                 <i class="fa-solid fa-store text-amber-400"></i> Back to Store
             </a>
         </div>
@@ -108,7 +108,7 @@
                         Proceed to Checkout
                     </button>
                     
-                    <a href="javascript:void(0);" onclick="location.replace('mystore.html');" id="continue-shopping-link" class="block text-center text-xs text-slate-500 hover:text-slate-900 transition pt-1 font-medium">
+                    <a href="javascript:void(0);" onclick="goToStore();" id="continue-shopping-link" class="block text-center text-xs text-slate-500 hover:text-slate-900 transition pt-1 font-medium">
                         Continue Shopping
                     </a>
                 </div>
@@ -154,11 +154,10 @@
                     <input type="text" id="cust-landmark" placeholder="e.g. Near YMCA church or school" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition font-medium">
                 </div>
 
-                <!-- Professional Payment Option Selection (Dynamic based on Firebase gateway settings) -->
+                <!-- Professional Payment Option Selection -->
                 <div class="pt-2 border-t border-slate-100">
                     <label class="block text-xs font-extrabold text-slate-900 mb-2">Select Payment Method <span class="text-rose-500">*</span></label>
                     <div class="grid grid-cols-1 gap-2.5">
-                        <!-- UPI Option Wrapper -->
                         <label id="upi-option-label" class="flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
                             <input type="radio" id="upi-radio" name="payment-mode" value="Pay via UPI" required class="text-amber-500 focus:ring-amber-500 w-4 h-4 mt-0.5">
                             <div class="flex-1">
@@ -169,7 +168,6 @@
                             </div>
                         </label>
 
-                        <!-- COD Option Wrapper -->
                         <label id="cod-option-label" class="flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
                             <input type="radio" id="cod-radio" name="payment-mode" value="Cash on Delivery" required class="text-amber-500 focus:ring-amber-500 w-4 h-4 mt-0.5">
                             <div class="flex-1">
@@ -271,7 +269,7 @@
         </div>
     </div>
 
- <!-- Step 3: Final Success Message Modal with Dynamic Instructions -->
+    <!-- Step 3: Final Success Message Modal -->
     <div id="success-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center space-y-5 animate-modal-pop">
             <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl border border-emerald-100 shadow-inner">
@@ -285,19 +283,19 @@
                     <span id="display-order-number" class="text-sm font-black text-slate-900 font-mono tracking-wider">--</span>
                 </div>
                 <p id="success-instructions" class="text-xs text-slate-600 leading-relaxed px-1">
-                    <!-- Dynamically injected via JavaScript based on payment mode -->
+                    <!-- Dynamically injected via JavaScript -->
                 </p>
             </div>
             
             <div class="pt-2">
-                <button onclick="location.replace('mystore.html');" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
+                <button onclick="goToStore();" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
                     <i class="fa-solid fa-store text-amber-400"></i> Continue Shopping
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Confirmation Modal for Removing Items -->
+ <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
@@ -344,6 +342,11 @@
         let selectedPaymentMode = "";
         let paymentSettings = { codEnabled: true, upiEnabled: true };
 
+        // Global function to completely replace cart history so hardware back skips the cart stack
+        window.goToStore = function() {
+            window.location.replace('mystore.html');
+        };
+
         // Listen live to payment gateway toggles from Firebase settings
         const settingsRef = ref(db, 'settings');
         onValue(settingsRef, (snapshot) => {
@@ -362,7 +365,6 @@
             const codRadio = document.getElementById('cod-radio');
             const codSubtext = document.getElementById('cod-subtext');
 
-            // Handle UPI Option State
             if (!paymentSettings.upiEnabled) {
                 upiLabel.className = "flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-200/60 opacity-60 cursor-not-allowed";
                 upiRadio.disabled = true;
@@ -376,7 +378,6 @@
                 upiSubtext.className = "text-[10px] text-slate-500 mt-0.5";
             }
 
-            // Handle COD Option State
             if (!paymentSettings.codEnabled) {
                 codLabel.className = "flex items-start gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-200/60 opacity-60 cursor-not-allowed";
                 codRadio.disabled = true;
@@ -391,7 +392,6 @@
             }
         }
 
-        // Convert Google Drive share link into a direct viewable image link
         function formatDriveUrl(rawUrl) {
             if (!rawUrl) return "";
             let url = rawUrl.trim();
@@ -406,7 +406,6 @@
             return url;
         }
 
-        // Fetch and load custom logo from Firebase
         async function fetchHeaderLogo() {
             try {
                 const logoRef = ref(db, 'settings/storeLogo');
@@ -446,7 +445,7 @@
                         </div>
                         <h3 class="font-extrabold text-xs text-slate-900">Your cart is empty</h3>
                         <p class="text-[11px] text-slate-500 mt-1 mb-4">Explore our inventory catalog and add items to your cart.</p>
-                        <button onclick="location.replace('mystore.html');" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition active:scale-95">
+                        <button onclick="goToStore();" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition active:scale-95">
                             Shop on MyStore
                         </button>
                     </div>
