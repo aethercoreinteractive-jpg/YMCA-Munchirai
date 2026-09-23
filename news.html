@@ -16,6 +16,22 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
+    <!-- Access Denied Wrapper (Hidden by default) -->
+    <div id="access-denied-container" class="hidden fixed inset-0 z-50 bg-slate-900 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl space-y-4">
+            <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="space-y-1">
+                <h2 class="text-xl font-black text-slate-900">Authorized Personnel Only</h2>
+                <p class="text-xs text-slate-500">You must access this page through a direct redirect from the admin portal.</p>
+            </div>
+            <a href="admin.html" class="inline-flex items-center justify-center gap-2 w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl shadow transition">
+                <i class="fa-solid fa-arrow-left"></i> Go to Admin Login
+            </a>
+        </div>
+    </div>
+
     <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
@@ -65,6 +81,17 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Strict Redirect Check: Verifies that the previous page URL ends with admin.html
+        const referrer = document.referrer;
+        const hasValidRedirect = referrer.endsWith("admin.html") || sessionStorage.getItem("ymca_redirect_token") === "active";
+
+        if (!hasValidRedirect) {
+            document.getElementById('access-denied-container').classList.remove('hidden');
+        } else {
+            // Clear the token so refreshing or navigating back and forth requires going through admin.html again
+            sessionStorage.removeItem("ymca_redirect_token");
+        }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
