@@ -46,17 +46,20 @@
             </button>
         </div>
 
-        <!-- News Sorting Section -->
-        <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs gap-3">
-            <div>
-                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Sort Announcements</h3>
-                <p class="text-[10px] text-slate-400">Order the displayed news items</p>
+        <!-- Custom Order Manager Section (Auto-Save) -->
+        <div class="mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="mb-3 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Custom Display Order Manager</h3>
+                    <p class="text-[10px] text-slate-400">Drag titles up/down to automatically set the view order for index.html</p>
+                </div>
+                <span id="autoSaveIndicator" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full hidden">
+                    <i class="fa-solid fa-circle-check mr-1"></i> Saved
+                </span>
             </div>
-            <select id="sortSelect" onchange="handleSortChange()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="title">Title (A-Z)</option>
-            </select>
+            <div id="sortable-titles-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <!-- Dynamically populated sortable rows -->
+            </div>
         </div>
 
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
@@ -141,13 +144,13 @@
     </div>
 
     <footer class="bg-white border-t border-slate-200 text-slate-400 py-4 text-center text-[11px] mt-auto">
-        &copy; 2026 YMCA Munchirai. System Panel v2.2
+        &copy; 2026 YMCA Munchirai. System Panel v2.4
     </footer>
 
     <!-- Firebase Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get, set, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, set, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -165,6 +168,7 @@
         const newsRef = ref(db, 'news');
 
         window.adminRecords = {};
+        let draggedItemNode = null;
 
         // Custom Inbuilt Professional Modal Handler
         window.showAppModal = function(title, message, type = 'info', onConfirm = null) {
@@ -276,47 +280,84 @@
                 window.adminRecords = data || {};
                 
                 loadingBox.style.display = 'none';
-                renderAdminGrid();
+                renderAdminUI();
             } catch (err) {
                 loadingBox.innerHTML = `<p class="text-rose-500 text-xs font-medium">Connection error: ${err.message}</p>`;
             }
         }
 
-        window.handleSortChange = function() {
-            renderAdminGrid();
-        }
-
-        function renderAdminGrid() {
+        function renderAdminUI() {
             const adminGrid = document.getElementById('admin-grid');
+            const sortableList = document.getElementById('sortable-titles-list');
+            
             adminGrid.classList.remove('hidden');
             adminGrid.innerHTML = '';
+            sortableList.innerHTML = '';
 
             const data = window.adminRecords;
             if (!data || Object.keys(data).length === 0) {
                 adminGrid.innerHTML = `<div id="empty-state" class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No records available. Tap 'Add New Post' to start.</p></div>`;
+                sortableList.innerHTML = `<p class="text-slate-400 text-xs text-center py-3">No titles to reorder.</p>`;
                 return;
             }
 
             let keys = Object.keys(data);
-            const sortBy = document.getElementById('sortSelect').value;
-
+            
             keys.sort((a, b) => {
-                let itemA = data[a];
-                let itemB = data[b];
-                if (sortBy === 'oldest') {
-                    return new Date(itemA.date || 0) - new Date(itemB.date || 0);
-                } else if (sortBy === 'title') {
-                    return (itemA.title || '').localeCompare(itemB.title || '');
-                } else {
-                    // newest first
-                    return new Date(itemB.date || 0) - new Date(itemA.date || 0);
+                let orderA = data[a].order !== undefined ? data[a].order : 9999;
+                let orderB = data[b].order !== undefined ? data[b].order : 9999;
+                if (orderA !== orderB) {
+                    return orderA - orderB;
                 }
+                return new Date(data[b].date || 0) - new Date(data[a].date || 0);
             });
 
+             // 1. Render Sortable Titles Manager List
+            keys.forEach((id, index) => {
+                const item = data[id];
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 cursor-grab active:cursor-grabbing transition select-none";
+                row.draggable = true;
+                row.dataset.id = id;
+
+                row.addEventListener('dragstart', (e) => {
+                    draggedItemNode = row;
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => row.classList.add('opacity-40'), 0);
+                });
+
+                row.addEventListener('dragend', () => {
+                    row.classList.remove('opacity-40');
+                    draggedItemNode = null;
+                    autoSaveOrder(); // Auto-saves immediately upon drop
+                });
+
+                row.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const container = document.getElementById('sortable-titles-list');
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    if (afterElement == null) {
+                        container.appendChild(draggedItemNode);
+                    } else {
+                        container.insertBefore(draggedItemNode, afterElement);
+                    }
+                });
+
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5 overflow-hidden">
+                        <span class="row-index text-xs font-bold text-slate-400 w-5 text-center">${index + 1}.</span>
+                        <i class="fa-solid fa-grip-vertical text-slate-400 text-xs"></i>
+                        <span class="text-xs font-medium text-slate-800 truncate">${item.title || 'Untitled Post'}</span>
+                    </div>
+                    <span class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-md font-semibold">${item.category || 'General'}</span>
+                `;
+                sortableList.appendChild(row);
+            });
+
+            // 2. Render Grid Cards
             keys.forEach(id => {
                 const item = data[id];
-                if (!item) return;
-
                 const processedImg = formatImageURL(item.image);
                 const friendlyDate = displayFriendlyDate(item.date);
                 
@@ -348,6 +389,51 @@
             });
         }
 
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable:not(.opacity-40), [draggable="true"]:not(.opacity-40)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        async function autoSaveOrder() {
+            const sortableList = document.getElementById('sortable-titles-list');
+            const rows = sortableList.querySelectorAll('[data-id]');
+            if (rows.length === 0) return;
+
+            const indicator = document.getElementById('autoSaveIndicator');
+
+            try {
+                const updates = {};
+                rows.forEach((row, index) => {
+                    const id = row.dataset.id;
+                    if (window.adminRecords[id]) {
+                        window.adminRecords[id].order = index;
+                        updates[`news/${id}/order`] = index;
+                    }
+                    // Update index labels dynamically
+                    const idxLabel = row.querySelector('.row-index');
+                    if (idxLabel) idxLabel.textContent = `${index + 1}.`;
+                });
+
+                await update(ref(db), updates);
+                
+                // Show discreet saved badge
+                indicator.classList.remove('hidden');
+                setTimeout(() => {
+                    indicator.classList.add('hidden');
+                }, 2000);
+            } catch (err) {
+                console.error("Auto-save order failed: " + err.message);
+            }
+        }
+
         document.getElementById('newsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const saveBtn = document.getElementById('saveBtn');
@@ -363,7 +449,8 @@
                 description: document.getElementById('inputDescription').value.trim(),
                 showButton: document.getElementById('toggleButtonSwitch').checked,
                 btnText: document.getElementById('inputBtnText').value.trim(),
-                btnLink: document.getElementById('inputBtnLink').value.trim()
+                btnLink: document.getElementById('inputBtnLink').value.trim(),
+                order: id && window.adminRecords[id] && window.adminRecords[id].order !== undefined ? window.adminRecords[id].order : 0
             };
 
             try {
@@ -371,14 +458,15 @@
                     await set(ref(db, `news/${id}`), newsPayload);
                     window.adminRecords[id] = newsPayload;
                     closeNewsModal();
-                    renderAdminGrid();
+                    renderAdminUI();
                     window.showAppModal("Success", "Post updated successfully.", "success");
                 } else {
                     const newPostRef = push(newsRef);
+                    newsPayload.order = 0; // Put new posts at top by default
                     await set(newPostRef, newsPayload);
                     window.adminRecords[newPostRef.key] = newsPayload;
                     closeNewsModal();
-                    renderAdminGrid();
+                    renderAdminUI();
                     window.showAppModal("Success", "New post created successfully.", "success");
                 }
             } catch (err) {
@@ -394,7 +482,7 @@
                 try {
                     await remove(ref(db, `news/${id}`));
                     delete window.adminRecords[id];
-                    renderAdminGrid();
+                    renderAdminUI();
                     window.showAppModal("Success", "Entry removed successfully.", "success");
                 } catch (err) {
                     window.showAppModal("Error", "Deletion failed: " + err.message, "error");
