@@ -335,4 +335,94 @@
                 container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
             } else {
                 container.innerHTML = `MY`;
-    
+            }
+        }
+
+        window.handleLogin = async function(event) {
+            event.preventDefault();
+            const enteredVal = document.getElementById('login-input').value.trim();
+            
+            try {
+                const passRef = ref(db, 'settings/adminPassword');
+                const codeRef = ref(db, 'settings/companyCode');
+                
+                const [passSnap, codeSnap] = await Promise.all([get(passRef), get(codeRef)]);
+                
+                let currentPass = FALLBACK_PASSWORD;
+                if (passSnap.exists()) { currentPass = passSnap.val(); } 
+                else { await set(passRef, FALLBACK_PASSWORD); }
+
+                let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
+                if (codeSnap.exists()) { savedCompanyCode = codeSnap.val(); } 
+                else { await set(codeRef, IMMUTABLE_COMPANY_CODE); }
+
+                if (enteredVal === currentPass || enteredVal === savedCompanyCode) {
+                    sessionStorage.setItem("admin_authenticated", "true");
+                    document.getElementById('login-modal').classList.add('hidden');
+                    document.getElementById('login-error').classList.add('hidden');
+                    document.getElementById('login-input').value = "";
+                    fetchExistingLogo();
+                    window.showToast("Authenticated", "Welcome to MY Food Admin Portal.");
+                } else {
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
+            } catch (error) {
+                if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
+                    sessionStorage.setItem("admin_authenticated", "true");
+                    document.getElementById('login-modal').classList.add('hidden');
+                    document.getElementById('login-error').classList.add('hidden');
+                    fetchExistingLogo();
+                    window.showToast("Authenticated", "Session started securely.");
+                } else {
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
+            }
+        };
+
+        window.handleLogout = function() {
+            sessionStorage.removeItem("admin_authenticated");
+            window.location.reload();
+        };
+
+        // Save Logo safely using update() without disturbing other database keys
+        window.handleSaveLogo = async function(event) {
+            event.preventDefault();
+            const rawVal = document.getElementById('logo-url-input').value.trim();
+            const formattedUrl = window.formatDriveUrl(rawVal);
+
+            try {
+                const settingsRef = ref(db, 'settings');
+                await update(settingsRef, {
+                    storeLogo: formattedUrl
+                });
+
+                updateHeaderLogo(formattedUrl);
+                window.showToast("Logo Updated", "Brand identity successfully saved to Firebase!");
+            } catch (error) {
+                console.error("Save logo error:", error);
+                window.showToast("Error", "Failed to save logo to database.", true);
+            }
+        };
+
+        // Delete Logo option to clear database field and revert header to "MY" default
+        window.handleDeleteLogo = async function() {
+            try {
+                const settingsRef = ref(db, 'settings');
+                await update(settingsRef, {
+                    storeLogo: ""
+                });
+
+                document.getElementById('logo-url-input').value = "";
+                window.previewDriveLogo("");
+                updateHeaderLogo("");
+                window.showToast("Logo Removed", "Default branding 'MY' restored successfully.");
+            } catch (error) {
+                console.error("Delete logo error:", error);
+                window.showToast("Error", "Failed to delete logo from database.", true);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>
