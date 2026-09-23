@@ -46,6 +46,19 @@
             </button>
         </div>
 
+        <!-- News Sorting Section -->
+        <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs gap-3">
+            <div>
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Sort Announcements</h3>
+                <p class="text-[10px] text-slate-400">Order the displayed news items</p>
+            </div>
+            <select id="sortSelect" onchange="handleSortChange()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="title">Title (A-Z)</option>
+            </select>
+        </div>
+
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl text-amber-500 mb-2"></i>
             <p class="text-slate-500 text-xs font-medium">Syncing database records...</p>
@@ -151,6 +164,8 @@
         const db = getDatabase(app);
         const newsRef = ref(db, 'news');
 
+        window.adminRecords = {};
+
         // Custom Inbuilt Professional Modal Handler
         window.showAppModal = function(title, message, type = 'info', onConfirm = null) {
             const modal = document.getElementById('app-modal');
@@ -254,64 +269,83 @@
 
         async function loadAdminData() {
             const loadingBox = document.getElementById('loading-box');
-            const adminGrid = document.getElementById('admin-grid');
 
             try {
                 const snapshot = await get(newsRef);
                 const data = snapshot.val();
+                window.adminRecords = data || {};
                 
                 loadingBox.style.display = 'none';
-                adminGrid.classList.remove('hidden');
-                adminGrid.innerHTML = '';
-
-                if (data) {
-                    Object.keys(data).reverse().forEach(id => {
-                        renderCard(id, data[id]);
-                    });
-                } else {
-                    adminGrid.innerHTML = `<div id="empty-state" class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No records available. Tap 'Add New Post' to start.</p></div>`;
-                }
+                renderAdminGrid();
             } catch (err) {
                 loadingBox.innerHTML = `<p class="text-rose-500 text-xs font-medium">Connection error: ${err.message}</p>`;
             }
         }
 
-        function renderCard(id, item) {
+        window.handleSortChange = function() {
+            renderAdminGrid();
+        }
+
+        function renderAdminGrid() {
             const adminGrid = document.getElementById('admin-grid');
-            const emptyState = document.getElementById('empty-state');
-            if (emptyState) emptyState.remove();
+            adminGrid.classList.remove('hidden');
+            adminGrid.innerHTML = '';
 
-            let existingCard = document.getElementById(`card-${id}`);
-            if (existingCard) existingCard.remove();
+            const data = window.adminRecords;
+            if (!data || Object.keys(data).length === 0) {
+                adminGrid.innerHTML = `<div id="empty-state" class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No records available. Tap 'Add New Post' to start.</p></div>`;
+                return;
+            }
 
-            const processedImg = formatImageURL(item.image);
-            const friendlyDate = displayFriendlyDate(item.date);
-            
-            const card = document.createElement('div');
-            card.id = `card-${id}`;
-            card.className = "bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col justify-between";
-            card.innerHTML = `
-                <div>
-                    <div class="h-36 bg-slate-100 relative">
-                        <img src="${processedImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'">
-                        <span class="absolute top-2.5 right-2.5 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">${item.category}</span>
+            let keys = Object.keys(data);
+            const sortBy = document.getElementById('sortSelect').value;
+
+            keys.sort((a, b) => {
+                let itemA = data[a];
+                let itemB = data[b];
+                if (sortBy === 'oldest') {
+                    return new Date(itemA.date || 0) - new Date(itemB.date || 0);
+                } else if (sortBy === 'title') {
+                    return (itemA.title || '').localeCompare(itemB.title || '');
+                } else {
+                    // newest first
+                    return new Date(itemB.date || 0) - new Date(itemA.date || 0);
+                }
+            });
+
+            keys.forEach(id => {
+                const item = data[id];
+                if (!item) return;
+
+                const processedImg = formatImageURL(item.image);
+                const friendlyDate = displayFriendlyDate(item.date);
+                
+                const card = document.createElement('div');
+                card.id = `card-${id}`;
+                card.className = "bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="h-36 bg-slate-100 relative">
+                            <img src="${processedImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'">
+                            <span class="absolute top-2.5 right-2.5 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">${item.category}</span>
+                        </div>
+                        <div class="p-3.5">
+                            <p class="text-[11px] text-slate-400 font-medium mb-1"><i class="fa-regular fa-calendar mr-1"></i>${friendlyDate}</p>
+                            <h3 class="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">${item.title}</h3>
+                            <p class="text-slate-600 text-xs line-clamp-2 leading-relaxed">${item.description}</p>
+                        </div>
                     </div>
-                    <div class="p-3.5">
-                        <p class="text-[11px] text-slate-400 font-medium mb-1"><i class="fa-regular fa-calendar mr-1"></i>${friendlyDate}</p>
-                        <h3 class="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">${item.title}</h3>
-                        <p class="text-slate-600 text-xs line-clamp-2 leading-relaxed">${item.description}</p>
+                    <div class="p-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                        <button onclick="triggerEdit('${id}')" class="text-amber-600 hover:text-amber-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-amber-50 transition">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button onclick="triggerDelete('${id}')" class="text-rose-600 hover:text-rose-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-rose-50 transition">
+                            <i class="fa-regular fa-trash-can"></i> Delete
+                        </button>
                     </div>
-                </div>
-                <div class="p-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                    <button onclick="triggerEdit('${id}', '${encodeURIComponent(item.title)}', '${encodeURIComponent(item.date)}', '${encodeURIComponent(item.category)}', '${encodeURIComponent(item.image)}', '${encodeURIComponent(item.description)}', ${item.showButton ? true : false}, '${encodeURIComponent(item.btnText || '')}', '${encodeURIComponent(item.btnLink || '')}')" class="text-amber-600 hover:text-amber-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-amber-50 transition">
-                        <i class="fa-solid fa-pen-to-square"></i> Edit
-                    </button>
-                    <button onclick="triggerDelete('${id}')" class="text-rose-600 hover:text-rose-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-rose-50 transition">
-                        <i class="fa-regular fa-trash-can"></i> Delete
-                    </button>
-                </div>
-            `;
-            adminGrid.prepend(card);
+                `;
+                adminGrid.appendChild(card);
+            });
         }
 
         document.getElementById('newsForm').addEventListener('submit', async function(e) {
@@ -335,14 +369,16 @@
             try {
                 if (id) {
                     await set(ref(db, `news/${id}`), newsPayload);
+                    window.adminRecords[id] = newsPayload;
                     closeNewsModal();
-                    renderCard(id, newsPayload);
+                    renderAdminGrid();
                     window.showAppModal("Success", "Post updated successfully.", "success");
                 } else {
                     const newPostRef = push(newsRef);
                     await set(newPostRef, newsPayload);
+                    window.adminRecords[newPostRef.key] = newsPayload;
                     closeNewsModal();
-                    renderCard(newPostRef.key, newsPayload);
+                    renderAdminGrid();
                     window.showAppModal("Success", "New post created successfully.", "success");
                 }
             } catch (err) {
@@ -357,13 +393,8 @@
             window.showAppModal("Confirm Deletion", "Are you sure you want to remove this entry?", "confirm", async () => {
                 try {
                     await remove(ref(db, `news/${id}`));
-                    const card = document.getElementById(`card-${id}`);
-                    if (card) card.remove();
-                    
-                    const adminGrid = document.getElementById('admin-grid');
-                    if (adminGrid.children.length === 0) {
-                        adminGrid.innerHTML = `<div id="empty-state" class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No records available. Tap 'Add New Post' to start.</p></div>`;
-                    }
+                    delete window.adminRecords[id];
+                    renderAdminGrid();
                     window.showAppModal("Success", "Entry removed successfully.", "success");
                 } catch (err) {
                     window.showAppModal("Error", "Deletion failed: " + err.message, "error");
@@ -371,21 +402,27 @@
             });
         }
 
-        window.triggerEdit = function(id, title, date, category, image, description, showButton, btnText, btnLink) {
+        window.triggerEdit = function(id) {
+            const item = window.adminRecords[id];
+            if (!item) {
+                window.showAppModal("Error", "Record details could not be found.", "error");
+                return;
+            }
+
             document.getElementById('modalHeading').innerText = "Edit Record";
             document.getElementById('recordId').value = id;
-            document.getElementById('inputTitle').value = decodeURIComponent(title);
-            document.getElementById('inputDate').value = decodeURIComponent(date);
-            document.getElementById('inputCategory').value = decodeURIComponent(category);
-            document.getElementById('inputImage').value = decodeURIComponent(image);
-            document.getElementById('inputDescription').value = decodeURIComponent(description);
+            document.getElementById('inputTitle').value = item.title || '';
+            document.getElementById('inputDate').value = item.date || '';
+            document.getElementById('inputCategory').value = item.category || '';
+            document.getElementById('inputImage').value = item.image || '';
+            document.getElementById('inputDescription').value = item.description || '';
             
             const toggle = document.getElementById('toggleButtonSwitch');
-            toggle.checked = (showButton === true || showButton === 'true');
+            toggle.checked = (item.showButton === true || item.showButton === 'true');
             toggleActionFields();
 
-            document.getElementById('inputBtnText').value = decodeURIComponent(btnText);
-            document.getElementById('inputBtnLink').value = decodeURIComponent(btnLink);
+            document.getElementById('inputBtnText').value = item.btnText || '';
+            document.getElementById('inputBtnLink').value = item.btnLink || '';
             document.getElementById('newsModal').classList.replace('hidden', 'flex');
         }
 
