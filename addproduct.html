@@ -352,7 +352,7 @@
             };
         }
 
-// Load Categories into Dropdown
+        // Load Categories into Dropdown
         function loadCategories(selectedCategory = '') {
             get(child(ref(db), 'categories')).then((snapshot) => {
                 if (snapshot.exists()) {
