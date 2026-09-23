@@ -27,8 +27,11 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <span class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span> Contact
+                <span class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <div id="header-logo-container" class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-[10px] tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                        <span id="header-logo-fallback">MY</span>
+                    </div>
+                    <span>Contact</span>
                 </span>
             </div>
             <!-- Back Button -->
@@ -196,5 +199,60 @@
         &copy; 2026 Munchirai YMCA. All rights reserved.
     </footer>
 
+    <!-- Firebase Initialization & Logo Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
+
+        async function fetchStoreLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    const formatted = formatImageURL(snap.val());
+                    if (formatted) {
+                        const headerContainer = document.getElementById('header-logo-container');
+                        if (headerContainer) {
+                            headerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading store logo:", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchStoreLogo);
+    </script>
 </body>
-</html>
+    </html>
+    
