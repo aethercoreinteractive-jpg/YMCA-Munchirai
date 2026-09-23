@@ -41,11 +41,6 @@
                 <h2 class="text-xl font-bold text-slate-900 tracking-tight">Latest Updates</h2>
                 <p class="text-xs text-slate-500">Stay informed with the latest announcements from YMCA Munchirai.</p>
             </div>
-            <!-- Live sync indicator dot -->
-            <div class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Live</span>
-            </div>
         </div>
 
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
@@ -55,6 +50,12 @@
 
         <div id="news-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden"></div>
     </main>
+
+    <!-- Fixed Live sync indicator dot -->
+    <div class="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full shadow-lg">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Live</span>
+    </div>
 
     <footer class="bg-white border-t border-slate-200 text-slate-400 py-4 text-center text-[11px] mt-auto">
         &copy; 2026 YMCA Munchirai. All Rights Reserved.
