@@ -157,55 +157,32 @@
     <!-- MAIN WORKSPACE CONTAINER -->
     <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
         
-        <!-- REVISED PROFESSIONAL SECTION TITLE -->
-        <div>
-            <h2 class="text-sm sm:text-base font-extrabold text-slate-900">Brand Identity & Logo Edit</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Manage your platform's primary visual identifier using a secure cloud link.</p>
-        </div>
-
-        <!-- GOOGLE DRIVE LOGO MANAGEMENT CARD -->
-        <div class="enterprise-card rounded-3xl p-5 sm:p-7 space-y-6">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm flex-shrink-0">
-                        <i class="fa-solid fa-image"></i>
+        <!-- DASHBOARD OVERVIEW CONTENT AREA -->
+        <div class="enterprise-card rounded-3xl p-6 sm:p-8 space-y-4">
+            <h2 class="text-sm sm:text-base font-extrabold text-slate-900">Admin Dashboard Overview</h2>
+            <p class="text-xs text-slate-500">Welcome to the control center. Use the navigation bar above or links below to manage your inventory, news, payment settings, or branding.</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                <a href="admininventory.html" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-50/50 border border-slate-200 transition flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm group-hover:bg-amber-500 group-hover:text-white transition">
+                        <i class="fa-solid fa-boxes-stacked"></i>
                     </div>
                     <div>
-                        <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">Platform Logo Source</h3>
-                        <p class="text-[11px] text-slate-500">Paste your shared Google Drive image link below</p>
+                        <h3 class="text-xs font-bold text-slate-900">Manage Inventory</h3>
+                        <p class="text-[11px] text-slate-500">Add, edit, or remove store products</p>
                     </div>
-                </div>
-                
-                <!-- Side Small Rounded Preview Badge -->
-                <div class="flex items-center gap-2.5 bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-2xl w-full sm:w-auto justify-between sm:justify-start">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Live Preview:</span>
-                    <div id="logo-preview-badge" class="w-9 h-9 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
-                        <i class="fa-solid fa-image text-slate-400 text-xs"></i>
-                    </div>
-                </div>
-            </div>
+                </a>
 
-            <!-- Logo Form -->
-            <form onsubmit="handleSaveLogo(event)" class="space-y-4">
-                <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Google Drive Image URL</label>
-                    <div class="flex flex-col sm:flex-row gap-2.5">
-                        <input type="url" id="logo-url-input" oninput="previewDriveLogo(this.value)" placeholder="https://drive.google.com/uc?export=view&id=..." class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
-                        
-                        <div class="flex gap-2">
-                            <button type="submit" class="flex-grow sm:flex-grow-0 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-5 py-3.5 sm:py-3 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 flex items-center justify-center gap-2 flex-shrink-0">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Save</span>
-                            </button>
-                            <button type="button" onclick="handleDeleteLogo()" class="flex-grow sm:flex-grow-0 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold px-4 py-3.5 sm:py-3 rounded-xl text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-2 flex-shrink-0" title="Delete custom logo">
-                                <i class="fa-solid fa-trash-can"></i>
-                                <span class="sm:hidden">Delete</span>
-                            </button>
-                        </div>
+                <a href="adminnews.html" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-50/50 border border-slate-200 transition flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm group-hover:bg-amber-500 group-hover:text-white transition">
+                        <i class="fa-solid fa-newspaper"></i>
                     </div>
-                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-2">Ensure the Google Drive link permission is set to "Anyone with the link can view".</p>
-                </div>
-            </form>
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-900">Manage News</h3>
+                        <p class="text-[11px] text-slate-500">Publish updates and announcements</p>
+                    </div>
+                </a>
+            </div>
         </div>
 
     </main>
@@ -215,10 +192,10 @@
         MY Food Admin Panel &bull; Secure Operations Center
     </footer>
 
-    <!-- CORE FIREBASE & AUTH & LOGO SCRIPT -->
+    <!-- CORE FIREBASE & AUTH SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -279,16 +256,6 @@
             return url;
         };
 
-        window.previewDriveLogo = function(val) {
-            const badge = document.getElementById('logo-preview-badge');
-            const formatted = window.formatDriveUrl(val);
-            if (formatted) {
-                badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-xs\'></i>';">`;
-            } else {
-                badge.innerHTML = `<i class="fa-solid fa-image text-slate-400 text-xs"></i>`;
-            }
-        };
-
         window.togglePasswordVisibility = function(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
@@ -316,10 +283,7 @@
                 const logoRef = ref(db, 'settings/storeLogo');
                 const snap = await get(logoRef);
                 if (snap.exists() && snap.val()) {
-                    const val = snap.val();
-                    document.getElementById('logo-url-input').value = val;
-                    window.previewDriveLogo(val);
-                    updateHeaderLogo(val);
+                    updateHeaderLogo(snap.val());
                 } else {
                     updateHeaderLogo("");
                 }
@@ -382,45 +346,6 @@
         window.handleLogout = function() {
             sessionStorage.removeItem("admin_authenticated");
             window.location.reload();
-        };
-
-        // Save Logo safely using update() without disturbing other database keys
-        window.handleSaveLogo = async function(event) {
-            event.preventDefault();
-            const rawVal = document.getElementById('logo-url-input').value.trim();
-            const formattedUrl = window.formatDriveUrl(rawVal);
-
-            try {
-                const settingsRef = ref(db, 'settings');
-                await update(settingsRef, {
-                    storeLogo: formattedUrl
-                });
-
-                updateHeaderLogo(formattedUrl);
-                window.showToast("Logo Updated", "Brand identity successfully saved to Firebase!");
-            } catch (error) {
-                console.error("Save logo error:", error);
-                window.showToast("Error", "Failed to save logo to database.", true);
-            }
-        };
-
-        // Delete Logo option to clear database field and revert header to "MY" default
-        window.handleDeleteLogo = async function() {
-            try {
-                const settingsRef = ref(db, 'settings');
-                // Set storeLogo to an empty string or null safely via update
-                await update(settingsRef, {
-                    storeLogo: ""
-                });
-
-                document.getElementById('logo-url-input').value = "";
-                window.previewDriveLogo("");
-                updateHeaderLogo("");
-                window.showToast("Logo Removed", "Default branding 'MY' restored successfully.");
-            } catch (error) {
-                console.error("Delete logo error:", error);
-                window.showToast("Error", "Failed to delete logo from database.", true);
-            }
         };
 
         document.addEventListener('DOMContentLoaded', checkAuth);
