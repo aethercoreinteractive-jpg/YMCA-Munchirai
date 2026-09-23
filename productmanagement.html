@@ -29,49 +29,6 @@
             background: #ffffff;
             border: 1px solid rgba(226, 232, 240, 0.8);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s ease;
-        }
-        .enterprise-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
-        }
-        /* Explicit toggle switch styling */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 36px;
-            height: 20px;
-            flex-shrink: 0;
-        }
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1;
-            transition: .2s;
-            border-radius: 20px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .2s;
-            border-radius: 50%;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        input:checked + .slider {
-            background-color: #f59e0b;
-        }
-        input:checked + .slider:before {
-            transform: translateX(16px);
         }
     </style>
 </head>
@@ -104,14 +61,14 @@
         try {
             verifyAdminSession();
         } catch (e) {
-            // Halt further code execution if unauthorized
+            // Halt execution if unauthorized
         }
     </script>
 
-    <!-- INDUSTRY STANDARD PROFESSIONAL NOTIFICATION TOAST -->
-    <div id="toast-notification" class="fixed top-5 right-5 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900/95 backdrop-blur-md text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
-        <div id="toast-icon-wrapper" class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
-            <i id="toast-icon" class="fa-solid fa-check"></i>
+    <!-- INDUSTRY STANDARD PROFESSIONAL NOTIFICATION TOAST (FIXED & PINNED ABOVE ALL SCREENS) -->
+    <div id="toast-notification" class="fixed top-5 right-5 z-[9999] transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900/95 backdrop-blur-md text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
+        <div id="toast-icon-wrapper" class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">
+            <i id="toast-icon" class="fa-solid fa-circle-check"></i>
         </div>
         <div class="flex-grow min-w-0">
             <h4 id="toast-title" class="text-xs font-extrabold text-white tracking-tight">Success</h4>
@@ -122,114 +79,102 @@
         </button>
     </div>
 
-    <!-- DELETE CONFIRMATION MODAL -->
-    <div id="delete-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4 animate-in fade-in zoom-in duration-200">
-            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg mx-auto border border-rose-200 shadow-sm">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <div>
-                <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Delete Product?</h3>
-                <p class="text-xs text-slate-500 mt-1">Are you sure you want to permanently delete this product? This action cannot be undone.</p>
-            </div>
-            <div class="grid grid-cols-2 gap-2 pt-2">
-                <button type="button" onclick="window.closeDeleteModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition">
-                    Cancel
-                </button>
-                <button type="button" id="confirm-delete-btn" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
-                    Yes, Delete
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CATEGORY FILTER POP-UP MODAL -->
-    <div id="category-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in duration-200">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-filter"></i>
-                    </div>
-                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">Select Category</h3>
-                </div>
-                <button onclick="window.closeCategoryModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            
-            <div id="modal-categories-list" class="space-y-1.5 max-h-72 overflow-y-auto pr-1">
-                <!-- Dynamically populated categories -->
-            </div>
-        </div>
-    </div>
-
     <!-- HEADER NAVIGATION -->
     <header class="bg-slate-900 text-slate-100 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div id="header-logo-container" class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
                     <!-- Dynamically injected circular logo -->
                 </div>
                 <div>
                     <h1 class="text-sm font-extrabold text-white tracking-tight leading-none">MY Food</h1>
-                    <span id="header-subtitle" class="text-[10px] text-amber-400 font-semibold tracking-wide block mt-0.5">Control Center</span>
+                    <span class="text-[10px] text-amber-400 font-semibold tracking-wide block mt-0.5">Product Editor</span>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2.5">
-                <a href="addproduct.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-950 bg-amber-500 hover:bg-amber-400 transition shadow-sm flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-xs"></i> <span>Add Product</span>
+            <div class="flex items-center gap-2">
+                <a href="testmerchandise.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 transition border border-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i> <span>Back to Feed</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- MAIN FEED CONTAINER -->
-    <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
+    <!-- MAIN FORM CONTAINER -->
+    <main class="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
         
-        <!-- Search & Category Pop-up Trigger Bar -->
-        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center justify-between w-full sm:w-auto gap-3">
-                <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block animate-pulse"></span>
-                    Live Feed
-                </h2>
-                <!-- Category Pop-up Trigger Button -->
-                <button onclick="window.openCategoryModal()" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-filter text-amber-600"></i>
-                    <span id="active-category-label">All Categories</span>
-                    <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
-                </button>
+        <div class="enterprise-card rounded-2xl p-5 sm:p-7">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                <div>
+                    <h2 id="form-main-title" class="text-sm font-black text-slate-900 uppercase tracking-wider">Add New Product</h2>
+                    <p id="form-subtitle" class="text-xs text-slate-500 mt-0.5">Fill in the details to publish your item to the live store feed.</p>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
             </div>
 
-            <!-- Search Box -->
-            <div class="relative w-full sm:max-w-xs">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
-                    <i class="fa-solid fa-search"></i>
-                </span>
-                <input type="text" id="feed-search" placeholder="Search products..." oninput="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500 shadow-inner">
-            </div>
-        </div>
+            <form id="product-form" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">Product Name *</label>
+                        <input type="text" id="prod-name" required placeholder="e.g. Crispy Chicken Burger" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 shadow-inner">
+                    </div>
 
-        <!-- Vertical Scrolling Product List Container -->
-        <div id="product-feed-list" class="space-y-3 sm:space-y-4">
-            <div class="text-center py-16 bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-medium">
-                <i class="fa-solid fa-spinner fa-spin text-amber-500 text-lg mb-2"></i><br>Loading product feed...
-            </div>
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">Category *</label>
+                        <select id="prod-category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 shadow-inner">
+                            <option value="">Select category...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">Price (₹) *</label>
+                        <input type="number" step="0.01" min="0" id="prod-price" required placeholder="e.g. 149" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 shadow-inner">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">Quantity / Serving *</label>
+                        <input type="text" id="prod-qty" required placeholder="e.g. 1 Piece / 250g" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 shadow-inner">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">Google Drive Image Link *</label>
+                    <input type="url" id="prod-img" required placeholder="Paste Google Drive shareable link here..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 shadow-inner">
+                    <p class="text-[10px] text-slate-400 mt-1">Make sure the Google Drive link sharing permission is set to "Anyone with the link can view".</p>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">Short Description *</label>
+                    <textarea id="prod-desc" required rows="3" placeholder="Write a concise product summary..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 shadow-inner resize-none"></textarea>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <a href="testmerchandise.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-5 py-3 rounded-xl text-xs transition">
+                        Cancel
+                    </a>
+                    <button type="submit" id="submit-btn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-xs transition shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span id="submit-btn-text">Publish Product</span>
+                    </button>
+                </div>
+            </form>
         </div>
 
     </main>
 
     <!-- ENTERPRISE FOOTER -->
     <footer class="bg-white border-t border-slate-200 py-4 px-4 text-center text-[11px] font-medium text-slate-500">
-        MY Food Admin Panel &bull; Vertical Management Stream
+        MY Food Admin Panel &bull; Product Management Console
     </footer>
 
-    <!-- FIREBASE & FEED CONTROLLER SCRIPT -->
+    <!-- FIREBASE & LOGIC SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -245,11 +190,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let globalInventory = [];
-        let categoriesCache = [];
-        let activeCategoryFilter = "ALL";
         let toastTimeout = null;
-        let productToDeleteKey = null;
+        let editProductId = null;
 
         window.formatDriveUrl = function(rawUrl) {
             if (!rawUrl) return "";
@@ -265,7 +207,7 @@
             return url;
         };
 
-        // Fetch settings for circular logo logic
+        // Load Header Circular Logo Dynamically from Firebase Settings
         const settingsRef = ref(db, 'settings');
         onValue(settingsRef, (snapshot) => {
             const data = snapshot.val() || {};
@@ -316,326 +258,113 @@
             }
         };
 
-        // Check if redirected from product update/creation
-        window.addEventListener('DOMContentLoaded', () => {
-            const updateStatus = sessionStorage.getItem("product_action_status");
-            const updateMessage = sessionStorage.getItem("product_action_message");
-
-            if (updateStatus === "success") {
-                window.showToast("Success", updateMessage || "The product details have been saved successfully.");
-                sessionStorage.removeItem("product_action_status");
-                sessionStorage.removeItem("product_action_message");
-            }
-        });
-
-        // Modal Controls
-        window.openCategoryModal = function() {
-            document.getElementById('category-modal').classList.remove('hidden');
-            document.getElementById('category-modal').classList.add('flex');
-        };
-
-        window.closeCategoryModal = function() {
-            document.getElementById('category-modal').classList.remove('flex');
-            document.getElementById('category-modal').classList.add('hidden');
-        };
-
-        // Delete Modal Controls
-        window.promptDeleteProduct = function(firebaseKey) {
-            productToDeleteKey = firebaseKey;
-            document.getElementById('delete-modal').classList.remove('hidden');
-            document.getElementById('delete-modal').classList.add('flex');
-        };
-
-        window.closeDeleteModal = function() {
-            productToDeleteKey = null;
-            document.getElementById('delete-modal').classList.remove('flex');
-            document.getElementById('delete-modal').classList.add('hidden');
-        };
-
-        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
-            if (!productToDeleteKey) return;
-            const keyToRemove = productToDeleteKey;
-            window.closeDeleteModal();
-
-            try {
-                const productRef = ref(db, `inventory/${keyToRemove}`);
-                await remove(productRef);
-                window.showToast("Deleted", "The product was removed from inventory successfully.");
-            } catch (err) {
-                console.error("Error deleting product:", err);
-                window.showToast("Action Failed", "Could not delete product.", true);
-            }
-        });
-
-        // Fetch categories for modal pop-up list
+        // Populate Category Dropdown
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
-                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-            } else {
-                categoriesCache = [];
-            }
-            renderModalCategories();
-        });
-
-        function renderModalCategories() {
-            const container = document.getElementById('modal-categories-list');
-            let html = `
-                <button onclick="window.selectCategory('ALL')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center justify-between ${activeCategoryFilter === 'ALL' ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'}">
-                    <span>All Categories</span>
-                    ${activeCategoryFilter === 'ALL' ? '<i class="fa-solid fa-check text-amber-600"></i>' : ''}
-                </button>
-            `;
-
-            categoriesCache.forEach(cat => {
-                const isActive = activeCategoryFilter === cat.name;
-                html += `
-                    <button onclick="window.selectCategory('${cat.name}')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center justify-between ${isActive ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'}">
-                        <span>${cat.name}</span>
-                        ${isActive ? '<i class="fa-solid fa-check text-amber-600"></i>' : ''}
-                    </button>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        window.selectCategory = function(catName) {
-            activeCategoryFilter = catName;
-            document.getElementById('active-category-label').textContent = catName === 'ALL' ? 'All Categories' : catName;
-            renderModalCategories();
-            closeCategoryModal();
-            applyFilters();
-        };
-
-        // Real-time listener for Inventory Feed
-        const inventoryRef = ref(db, 'inventory');
-        onValue(inventoryRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                globalInventory = Object.keys(data).map(key => ({
-                    firebaseKey: key,
-                    ...data[key]
-                }));
-            } else {
-                globalInventory = [];
-            }
-            applyFilters();
-        });
-
-        window.applyFilters = function() {
-            const query = document.getElementById('feed-search').value.toLowerCase().trim();
+            const selectEl = document.getElementById('prod-category');
+            let currentVal = selectEl.value;
             
-            let filtered = globalInventory.filter(item => {
-                const matchesCat = (activeCategoryFilter === 'ALL') || (item.category === activeCategoryFilter);
-                const matchesSearch = !query || (item.name && item.name.toLowerCase().includes(query)) || (item.category && item.category.toLowerCase().includes(query));
-                return matchesCat && matchesSearch;
-            });
+            let html = '<option value="">Select category...</option>';
+            if (data) {
+                const cats = Object.keys(data).map(key => ({ key, ...data[key] }));
+                cats.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                cats.forEach(cat => {
+                    html += `<option value="${cat.name}">${cat.name}</option>`;
+                });
+            }
+            selectEl.innerHTML = html;
+            if (currentVal) selectEl.value = currentVal;
+        });
 
-            renderProductFeed(filtered);
-        };
+        // Check if editing existing product via URL query parameter ?id=...
+        window.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            editProductId = urlParams.get('id');
 
-        window.renderProductFeed = function(items) {
-            const listContainer = document.getElementById('product-feed-list');
+            if (editProductId) {
+                document.getElementById('form-main-title').innerText = "Edit Product";
+                document.getElementById('form-subtitle').innerText = "Update existing product details in the inventory database.";
+                document.getElementById('submit-btn-text').innerText = "Save Changes";
 
-            if (items.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-16 bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-medium">
-                        <i class="fa-solid fa-boxes-packing text-slate-300 text-2xl mb-2"></i><br>No matching products found.
-                    </div>
-                `;
+                try {
+                    const productSnap = await get(ref(db, `inventory/${editProductId}`));
+                    if (productSnap.exists()) {
+                        const p = productSnap.val();
+                        document.getElementById('prod-name').value = p.name || '';
+                        document.getElementById('prod-category').value = p.category || '';
+                        document.getElementById('prod-price').value = p.price || '';
+                        document.getElementById('prod-qty').value = p.qty || '';
+                        document.getElementById('prod-img').value = p.img || '';
+                        document.getElementById('prod-desc').value = p.descSmall || p.smallDesc || p.desc || p.description || '';
+                    } else {
+                        window.showToast("Not Found", "Requested product not found.", true);
+                    }
+                } catch (err) {
+                    console.error("Error loading product for edit:", err);
+                    window.showToast("Load Failed", "Could not fetch product details.", true);
+                }
+            }
+        });
+
+        // Form Submission Handler
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('prod-name').value.trim();
+            const category = document.getElementById('prod-category').value;
+            const price = Number(document.getElementById('prod-price').value) || 0;
+            const qty = document.getElementById('prod-qty').value.trim();
+            const img = document.getElementById('prod-img').value.trim();
+            const desc = document.getElementById('prod-desc').value.trim();
+
+            if (!name || !category || !price || !img || !desc) {
+                window.showToast("Validation Error", "Please fill in all required fields.", true);
                 return;
             }
 
-            let html = '';
-            items.forEach(item => {
-                const inStock = item.inStock !== false;
-                const hasOffer = item.hasOffer === true;
-                const offerPercent = item.offerPercent || 0;
-                const rawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
-                const formattedImg = window.formatDriveUrl(item.img) || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=300';
-                const smallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'No summary description available.';
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
 
-                html += `
-                    <div class="enterprise-card rounded-2xl p-4 sm:p-5">
-                        
-                        <!-- ================= MOBILE VIEW (Visible on < 640px) ================= -->
-                        <div class="block sm:hidden space-y-3.5">
-                            <div class="flex items-start gap-3">
-                                <div class="w-16 h-16 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
-                                    <img src="${formattedImg}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                </div>
-                                <div class="space-y-1 min-w-0 flex-grow">
-                                    <div class="flex items-center justify-between gap-1">
-                                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 truncate max-w-[130px]">${item.category || 'General'}</span>
-                                        <span class="text-[10px] text-slate-400 font-medium">Qty: ${item.qty || 'Std'}</span>
-                                    </div>
-                                    <h3 class="text-xs font-extrabold text-slate-900 truncate">${item.name}</h3>
-                                    <p class="text-[11px] text-slate-500 line-clamp-1">${smallDesc}</p>
-                                    <div class="text-xs font-bold text-slate-900">₹${rawPrice.toFixed(2).replace(/\.00$/, '')}</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                                <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                                    <div>
-                                        <span class="block text-[9px] font-bold text-slate-700 uppercase tracking-tight">Stock</span>
-                                        <span id="stock-text-m-${item.firebaseKey}" class="text-[9px] font-semibold ${inStock ? 'text-emerald-600' : 'text-rose-600'}">${inStock ? 'Available' : 'Out'}</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" ${inStock ? 'checked' : ''} onchange="window.toggleProductStock('${item.firebaseKey}', this.checked)">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-
-                                <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                                    <div>
-                                        <span class="block text-[9px] font-bold text-slate-700 uppercase tracking-tight">Offer</span>
-                                        <span id="offer-status-text-m-${item.firebaseKey}" class="text-[9px] font-semibold ${hasOffer ? 'text-amber-600' : 'text-slate-400'}">${hasOffer ? 'Active' : 'Off'}</span>
-                                    </div>
-                                    <div class="flex items-center gap-1.5">
-                                        <input type="number" min="0" max="100" value="${offerPercent}" id="offer-input-m-${item.firebaseKey}" ${!hasOffer ? 'disabled' : ''} onchange="window.updateOfferPercent('${item.firebaseKey}', this.value)" placeholder="%" class="w-9 bg-white border border-slate-200 rounded-lg px-1 py-1 text-[11px] text-center font-bold text-slate-900 focus:outline-none focus:border-amber-500 disabled:opacity-30 shadow-inner">
-                                        <label class="switch">
-                                            <input type="checkbox" ${hasOffer ? 'checked' : ''} onchange="window.toggleOfferSwitch('${item.firebaseKey}', this.checked)">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2 pt-1">
-                                <button onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-pen-to-square text-amber-400 text-xs"></i> Edit
-                                </button>
-                                <button onclick="window.promptDeleteProduct('${item.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-trash-can text-xs"></i> Delete
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- ================= DESKTOP VIEW (Visible on >= 640px) ================= -->
-                        <div class="hidden sm:flex items-center justify-between gap-5">
-                            <div class="flex items-center gap-4 flex-grow min-w-0">
-                                <div class="w-20 h-20 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
-                                    <img src="${formattedImg}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                </div>
-                                <div class="space-y-1 min-w-0 flex-grow">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 truncate max-w-[140px]">${item.category || 'General'}</span>
-                                        <span class="text-[10px] text-slate-400 font-medium">Qty: ${item.qty || 'Std'}</span>
-                                    </div>
-                                    <h3 class="text-sm font-extrabold text-slate-900 truncate">${item.name}</h3>
-                                    <p class="text-[11px] text-slate-500 line-clamp-1">${smallDesc}</p>
-                                    <div class="text-xs font-bold text-slate-900">₹${rawPrice.toFixed(2).replace(/\.00$/, '')}</div>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-3 shrink-0">
-                                <div class="flex items-center gap-2.5 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                                    <div class="text-right">
-                                        <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Stock</span>
-                                        <span id="stock-text-d-${item.firebaseKey}" class="text-[9px] font-semibold ${inStock ? 'text-emerald-600' : 'text-rose-600'}">${inStock ? 'Available' : 'Out'}</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" ${inStock ? 'checked' : ''} onchange="window.toggleProductStock('${item.firebaseKey}', this.checked)">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-
-                                <div class="flex items-center gap-2.5 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                                    <div class="text-right">
-                                        <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Offer</span>
-                                        <span id="offer-status-text-d-${item.firebaseKey}" class="text-[9px] font-semibold ${hasOffer ? 'text-amber-600' : 'text-slate-400'}">${hasOffer ? 'Active' : 'Off'}</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" ${hasOffer ? 'checked' : ''} onchange="window.toggleOfferSwitch('${item.firebaseKey}', this.checked)">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <div class="relative flex items-center ml-0.5">
-                                        <input type="number" min="0" max="100" value="${offerPercent}" id="offer-input-d-${item.firebaseKey}" ${!hasOffer ? 'disabled' : ''} onchange="window.updateOfferPercent('${item.firebaseKey}', this.value)" placeholder="%" class="w-10 bg-white border border-slate-200 rounded-lg px-1 py-1 text-[11px] text-center font-bold text-slate-900 focus:outline-none focus:border-amber-500 disabled:opacity-30 shadow-inner">
-                                        <span class="text-[9px] text-slate-400 font-bold ml-0.5">%</span>
-                                    </div>
-                                </div>
-
-                                <button onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5" title="Edit Product">
-                                    <i class="fa-solid fa-pen-to-square text-amber-400 text-xs"></i>
-                                    <span>Edit</span>
-                                </button>
-
-                                <button onclick="window.promptDeleteProduct('${item.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold px-3.5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5" title="Delete Product">
-                                    <i class="fa-solid fa-trash-can text-xs"></i>
-                                    <span>Delete</span>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                `;
-            });
-
-            listContainer.innerHTML = html;
-        };
-
-        window.toggleProductStock = async function(firebaseKey, isChecked) {
             try {
-                const productRef = ref(db, `inventory/${firebaseKey}`);
-                await update(productRef, { inStock: isChecked });
-                
-                ['m', 'd'].forEach(prefix => {
-                    const statusLabel = document.getElementById(`stock-text-${prefix}-${firebaseKey}`);
-                    if (statusLabel) {
-                        statusLabel.className = `text-[9px] font-semibold ${isChecked ? 'text-emerald-600' : 'text-rose-600'}`;
-                        statusLabel.textContent = isChecked ? 'Available' : 'Out';
-                    }
-                });
-                window.showToast("Stock Updated", "Availability status saved successfully.");
-            } catch (err) {
-                console.error("Error updating stock:", err);
-                window.showToast("Action Failed", "Could not update stock status.", true);
-            }
-        };
+                if (editProductId) {
+                    const productRef = ref(db, `inventory/${editProductId}`);
+                    await update(productRef, {
+                        name,
+                        category,
+                        price,
+                        qty,
+                        img,
+                        descSmall: desc
+                    });
+                    sessionStorage.setItem("product_action_status", "success");
+                    sessionStorage.setItem("product_action_message", "Product updated successfully.");
+                } else {
+                    const inventoryRef = ref(db, 'inventory');
+                    const newRef = push(inventoryRef);
+                    await set(newRef, {
+                        name,
+                        category,
+                        price,
+                        qty,
+                        img,
+                        descSmall: desc,
+                        inStock: true,
+                        hasOffer: false,
+                        offerPercent: 0
+                    });
+                    sessionStorage.setItem("product_action_status", "success");
+                    sessionStorage.setItem("product_action_message", "New product published successfully.");
+                }
 
-        window.toggleOfferSwitch = async function(firebaseKey, isChecked) {
-            try {
-                ['m', 'd'].forEach(prefix => {
-                    const inputEl = document.getElementById(`offer-input-${prefix}-${firebaseKey}`);
-                    const statusText = document.getElementById(`offer-status-text-${prefix}-${firebaseKey}`);
-                    
-                    if (inputEl) inputEl.disabled = !isChecked;
-                    if (statusText) {
-                        statusText.className = `text-[9px] font-semibold ${isChecked ? 'text-amber-600' : 'text-slate-400'}`;
-                        statusText.textContent = isChecked ? 'Active' : 'Off';
-                    }
-                });
-
-                const sampleInput = document.getElementById(`offer-input-d-${firebaseKey}`) || document.getElementById(`offer-input-m-${firebaseKey}`);
-                const currentVal = sampleInput ? Number(sampleInput.value) || 0 : 0;
-                
-                const productRef = ref(db, `inventory/${firebaseKey}`);
-                await update(productRef, { 
-                    hasOffer: isChecked,
-                    offerPercent: isChecked ? (currentVal > 0 ? currentVal : 10) : 0
-                });
-                window.showToast("Offer State Saved", "Promotional status updated.");
+                sessionStorage.setItem('ymca_redirect_token', 'active');
+                window.location.href = "testmerchandise.html";
             } catch (err) {
-                console.error("Error updating offer toggle:", err);
-                window.showToast("Action Failed", "Could not update offer toggle.", true);
+                console.error("Error saving product:", err);
+                window.showToast("Save Failed", "An error occurred while saving the product.", true);
+                submitBtn.disabled = false;
             }
-        };
-
-        window.updateOfferPercent = async function(firebaseKey, val) {
-            const num = Math.max(0, Math.min(100, Number(val) || 0));
-            try {
-                const productRef = ref(db, `inventory/${firebaseKey}`);
-                await update(productRef, { offerPercent: num, hasOffer: true });
-                window.showToast("Discount Saved", `Discount updated to ${num}%.`);
-            } catch (err) {
-                console.error("Error updating discount percentage:", err);
-                window.showToast("Action Failed", "Could not update discount.", true);
-            }
-        };
+        });
     </script>
 </body>
 </html>
