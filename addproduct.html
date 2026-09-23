@@ -51,11 +51,11 @@
             
             <!-- Quick Actions -->
             <div class="flex items-center gap-2">
-                <a href="admin.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                <a href="admin.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
                     <i class="fa-solid fa-arrow-left text-amber-400"></i>
                     <span>Admin Hub</span>
                 </a>
-                <a href="productmanagement.html" class="w-9 h-9 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center justify-center active:scale-95" title="Product Management">
+                <a href="productmanagement.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="w-9 h-9 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center justify-center active:scale-95" title="Product Management">
                     <i class="fa-solid fa-database"></i>
                 </a>
             </div>
@@ -168,7 +168,7 @@
     <!-- Firebase Realtime Engine & Analytics -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, update, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         const firebaseConfig = {
@@ -186,8 +186,9 @@
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
+        // Updated to use 'id' parameter matching productmanagement.html
         const urlParams = new URLSearchParams(window.location.search);
-        const editKey = urlParams.get('edit');
+        const editKey = urlParams.get('id');
 
         const formTitle = document.getElementById('form-title');
         const formIcon = document.getElementById('form-icon');
@@ -250,7 +251,7 @@
             });
         }
 
-        // Check if Edit Mode
+        // Check if Edit Mode (Now correctly looks for ?id=)
         if (editKey) {
             formTitle.textContent = "Edit Product";
             formHeaderBadge.textContent = "PRODUCT_EDIT_NODE";
@@ -264,7 +265,7 @@
                     document.getElementById('product-price').value = item.price || '';
                     document.getElementById('product-qty').value = item.qty || '';
                     document.getElementById('product-rating').value = item.rating !== undefined ? String(item.rating) : '5';
-                    document.getElementById('product-desc-small').value = item.descSmall || '';
+                    document.getElementById('product-desc-small').value = item.descSmall || item.desc || '';
                     document.getElementById('product-desc-big').value = item.descBig || '';
                     imgInput.value = item.img || '';
                     updateImagePreview(item.img || '');
@@ -312,7 +313,7 @@
             };
 
             if (editKey) {
-                set(ref(db, `inventory/${editKey}`), productData)
+                update(ref(db, `inventory/${editKey}`), productData)
                     .then(() => {
                         showStatus("Product updated successfully!");
                         setTimeout(() => { window.location.href = 'productmanagement.html'; }, 1500);
