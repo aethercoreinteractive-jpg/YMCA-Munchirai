@@ -150,35 +150,42 @@
                     <input type="text" id="cust-landmark" placeholder="e.g. Near YMCA church or school" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 transition font-medium">
                 </div>
 
-                <!-- Payment Option Selection (Mandatory Selection - Only Paid on QR) -->
+                <!-- Professional Payment Option Selection -->
                 <div class="pt-2 border-t border-slate-100">
                     <label class="block text-xs font-extrabold text-slate-900 mb-2">Select Payment Method <span class="text-rose-500">*</span></label>
                     <div class="grid grid-cols-1 gap-2.5">
                         <label class="flex items-center gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
-                            <input type="radio" name="payment-mode" value="Paid on QR" required checked class="text-amber-500 focus:ring-amber-500 w-4 h-4">
+                            <input type="radio" name="payment-mode" value="Pay via UPI" required checked class="text-amber-500 focus:ring-amber-500 w-4 h-4">
                             <div>
-                                <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-qrcode text-amber-500"></i> Paid on QR</div>
-                                <div class="text-[10px] text-slate-500">Scan & pay via UPI QR code</div>
+                                <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-mobile-screen-button text-amber-500"></i> Pay via UPI (GPay, PhonePe, Paytm, etc.)</div>
+                                <div class="text-[10px] text-slate-500">Complete payment securely using any UPI application</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50">
+                            <input type="radio" name="payment-mode" value="Cash on Delivery" required class="text-amber-500 focus:ring-amber-500 w-4 h-4">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Cash on Delivery</div>
+                                <div class="text-[10px] text-slate-500">Pay cash upon order delivery</div>
                             </div>
                         </label>
                     </div>
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold py-3.5 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-qrcode text-[12px]"></i> Proceed to QR Payment
+                    <button type="submit" id="form-submit-btn" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold py-3.5 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-arrow-right text-[12px]"></i> Proceed
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- QR Payment Modal (Only shown for Paid on QR) -->
+    <!-- UPI Payment Modal (Shown if Pay via UPI is selected) -->
     <div id="qr-payment-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl text-center space-y-4 animate-modal-pop">
             <div class="flex items-center justify-between border-b pb-3 border-slate-100">
                 <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-qrcode text-amber-500"></i> Scan & Pay
+                    <i class="fa-solid fa-mobile-screen-button text-amber-500"></i> Pay via UPI
                 </h3>
                 <button onclick="closeQrPaymentModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg transition">
                     <i class="fa-solid fa-xmark text-sm"></i>
@@ -191,22 +198,22 @@
             </div>
 
             <div class="p-2 bg-slate-50 border border-slate-200 rounded-2xl inline-block shadow-inner mx-auto">
-                <img src="qr.jpg" alt="Payment QR Code" class="w-48 h-48 object-contain mx-auto rounded-xl">
+                <img src="qr.jpg" alt="UPI Payment QR" class="w-48 h-48 object-contain mx-auto rounded-xl">
             </div>
 
             <p class="text-[11px] text-slate-600 leading-relaxed px-2">
-                Open the QR in GPay or any UPI app and pay the money. After payment is done successfully, tap the button below.
+                Use Google Pay, PhonePe, Paytm, or any UPI app to complete your payment. After making the payment, click the button below.
             </p>
 
             <div class="pt-1">
-                <button onclick="submitOrderAfterPayment('Paid on QR')" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
-                    <i class="fa-solid fa-circle-check text-xs"></i> Payment Done Successfully
+                <button onclick="submitOrderAfterPayment('Pay via UPI')" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-circle-check text-xs"></i> I Have Paid Successfully
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Custom Inbuilt Alert Modal (Replaces Browser Default Alerts) -->
+    <!-- Custom Inbuilt Alert Modal -->
     <div id="custom-alert-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 animate-modal-pop">
             <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-amber-100">
@@ -267,7 +274,7 @@
                     <span id="display-order-number" class="text-sm font-black text-slate-900 font-mono tracking-wider">--</span>
                 </div>
                 <p id="success-instructions" class="text-xs text-slate-600 leading-relaxed px-1">
-                    Our executive will review and call for confirmation. Please send the receipt screenshot to <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg border border-emerald-300 text-xs shadow-xs tracking-wide"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>+91-9488820998</span> on WhatsApp.
+                    Our executive will review and call for confirmation. For any queries, reach us at <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg border border-emerald-300 text-xs shadow-xs tracking-wide"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>+91-9488820998</span> on WhatsApp.
                 </p>
             </div>
             
@@ -279,7 +286,7 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal for Removing Items -->
+ <!-- Confirmation Modal for Removing Items -->
     <div id="confirmation-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-base shadow-inner border border-rose-100">
@@ -300,7 +307,7 @@
         </div>
     </div>
 
-<!-- Firebase SDK Imports & Cart Script -->
+    <!-- Firebase SDK Imports & Cart Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -323,6 +330,7 @@
         let pendingActionIndex = null;
         let cachedCustomerData = null;
         let cachedFinalTotal = 0;
+        let selectedPaymentMode = "Pay via UPI";
 
         function showCustomAlert(title, message) {
             document.getElementById('custom-alert-title').textContent = title;
@@ -477,7 +485,6 @@
             document.getElementById('qr-payment-modal').classList.add('hidden');
         };
 
-        // When user fills checkout form, store customer data and open the QR Payment modal directly
         window.proceedToPayment = function(event) {
             event.preventDefault();
 
@@ -489,29 +496,30 @@
                 landmark: document.getElementById('cust-landmark').value.trim()
             };
 
-            // Close customer details form modal
+            const selectedRadio = document.querySelector('input[name="payment-mode"]:checked');
+            selectedPaymentMode = selectedRadio ? selectedRadio.value : "Pay via UPI";
+
             closeCustomerDetailsModal();
 
-            // Open QR Payment modal with the final total
-            document.getElementById('qr-display-amount').textContent = `₹${cachedFinalTotal.toFixed(2).replace(/\.00$/, '')}`;
-            document.getElementById('qr-payment-modal').classList.remove('hidden');
+            if (selectedPaymentMode === "Pay via UPI") {
+                document.getElementById('qr-display-amount').textContent = `₹${cachedFinalTotal.toFixed(2).replace(/\.00$/, '')}`;
+                document.getElementById('qr-payment-modal').classList.remove('hidden');
+            } else {
+                submitOrderAfterPayment("Cash on Delivery");
+            }
         };
 
-        // Unique, non-repeating order number generator
         function generateOrderNumber() {
             const timestampPart = Date.now().toString().slice(-6);
             const randomPart = Math.floor(1000 + Math.random() * 9000);
             return `YM-${timestampPart}${randomPart}`;
         }
 
-        // Final submission handler for Paid on QR
         window.submitOrderAfterPayment = function(paymentMode) {
             const uniqueOrderNo = generateOrderNumber();
 
-            // Close QR modal
             closeQrPaymentModal();
 
-            // Show Professional Loading Animation Modal
             document.getElementById('loading-modal').classList.remove('hidden');
 
             let subtotal = 0;
@@ -563,23 +571,19 @@
                 timestamp: new Date().toISOString()
             };
 
-            // Push order to Firebase under "orders"
             push(ref(db, 'orders'), newOrderData)
                 .then(() => {
                     cart = [];
                     localStorage.removeItem("ymca_cart");
                     
-                    // Set the order number text in the success modal
                     document.getElementById('display-order-number').textContent = uniqueOrderNo;
 
-                    // Hide loading modal, show 3-second checkmark tick animation modal
                     document.getElementById('loading-modal').classList.add('hidden');
                     document.getElementById('tick-modal').classList.remove('hidden');
 
-                    // After exactly 3 seconds, hide tick modal and show final message modal
                     setTimeout(() => {
                         document.getElementById('tick-modal').classList.add('hidden');
-                        document.getElementById('success-modal').classList.add('hidden'); // hidden initially until success modal shows
+                        document.getElementById('success-modal').classList.add('hidden');
                         document.getElementById('success-modal').classList.remove('hidden');
                     }, 3000);
                 })
