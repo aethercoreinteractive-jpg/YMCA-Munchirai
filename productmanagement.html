@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Product Details | Munchirai YMCA Food Store</title>
+    
+    <!-- ========================================== -->
+    <!-- ADMIN SECURITY GATEKEEPER -->
+    <!-- ========================================== -->
+    <script>
+        if (!sessionStorage.getItem("admin_authenticated") || sessionStorage.getItem("ymca_redirect_token") !== "active") {
+            window.location.replace("admin.html"); // Redirects unauthorized users immediately
+        }
+    </script>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for UI icons -->
@@ -88,7 +98,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -97,12 +106,10 @@
           projectId: "munchirai-ymca-e950e",
           storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
           messagingSenderId: "126602574927",
-          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
-          measurementId: "G-8V9C3GS231"
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a"
         };
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
         let liveInventory = [];
@@ -125,9 +132,7 @@
             } else {
                 categoriesCache = [];
             }
-            if (liveInventory.length > 0) {
-                renderEverything();
-            }
+            if (liveInventory.length > 0) renderEverything();
         });
 
         // Fetch inventory
@@ -151,24 +156,15 @@
             const badge = document.getElementById('cart-badge');
             if (badge) {
                 badge.textContent = totalCount;
-                if (totalCount > 0) {
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
+                if (totalCount > 0) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
             }
         }
 
-        // Helper matching mystore.html cart button logic & text format
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
-            
             if (product && product.inStock === false) {
-                return `
-                    <div class="w-full bg-slate-900 text-white border border-slate-900 text-[9px] font-black py-1 px-1 rounded text-center tracking-wider uppercase shadow-sm">
-                        Out of Stock
-                    </div>
-                `;
+                return `<div class="w-full bg-slate-900 text-white border border-slate-900 text-[9px] font-black py-1 px-1 rounded text-center tracking-wider uppercase shadow-sm">Out of Stock</div>`;
             }
 
             const cartItem = cart.find(item => item.firebaseKey === firebaseKey);
@@ -177,35 +173,18 @@
             if (count > 0) {
                 return `
                     <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded text-[10px] font-bold overflow-hidden shadow-sm" onclick="event.stopPropagation()">
-                        <button onclick="window.updateQuantity('${firebaseKey}', -1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
-                            <i class="fa-solid fa-minus text-[9px]"></i>
-                        </button>
+                        <button onclick="window.updateQuantity('${firebaseKey}', -1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition"><i class="fa-solid fa-minus text-[9px]"></i></button>
                         <span class="px-1.5 font-black text-slate-950">${count}</span>
-                        <button onclick="window.updateQuantity('${firebaseKey}', 1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
-                            <i class="fa-solid fa-plus text-[9px]"></i>
-                        </button>
-                    </div>
-                `;
+                        <button onclick="window.updateQuantity('${firebaseKey}', 1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition"><i class="fa-solid fa-plus text-[9px]"></i></button>
+                    </div>`;
             } else {
-                return `
-                    <button onclick="event.stopPropagation(); window.addToCart('${firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-cart-plus text-[9px]"></i> Add
-                    </button>
-                `;
+                return `<button onclick="event.stopPropagation(); window.addToCart('${firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1"><i class="fa-solid fa-cart-plus text-[9px]"></i> Add</button>`;
             }
         }
 
-        // Helper matching scaledup action button logic & text format
         function getDetailCartActionHTML() {
             if (!currentProduct) return '';
-            
-            if (currentProduct.inStock === false) {
-                return `
-                    <div class="w-full bg-slate-900 text-white text-xs font-black py-3 px-4 rounded-xl text-center uppercase tracking-wider shadow-sm">
-                        Out of Stock
-                    </div>
-                `;
-            }
+            if (currentProduct.inStock === false) return `<div class="w-full bg-slate-900 text-white text-xs font-black py-3 px-4 rounded-xl text-center uppercase tracking-wider shadow-sm">Out of Stock</div>`;
 
             const cartItem = cart.find(item => item.firebaseKey === productId);
             const count = cartItem ? (cartItem.qtyCount || 1) : 0;
@@ -213,21 +192,12 @@
             if (count > 0) {
                 return `
                     <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded-xl text-sm font-bold overflow-hidden shadow-md">
-                        <button onclick="window.updateDetailQuantity(-1)" class="w-14 py-3 bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center transition">
-                            <i class="fa-solid fa-minus text-xs"></i>
-                        </button>
+                        <button onclick="window.updateDetailQuantity(-1)" class="w-14 py-3 bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center transition"><i class="fa-solid fa-minus text-xs"></i></button>
                         <span class="px-4 font-black text-slate-950 text-base">${count}</span>
-                        <button onclick="window.updateDetailQuantity(1)" class="w-14 py-3 bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center transition">
-                            <i class="fa-solid fa-plus text-xs"></i>
-                        </button>
-                    </div>
-                `;
+                        <button onclick="window.updateDetailQuantity(1)" class="w-14 py-3 bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center transition"><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>`;
             } else {
-                return `
-                    <button onclick="window.addDetailToCart()" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 text-sm font-black py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-cart-plus"></i> Add to Cart
-                    </button>
-                `;
+                return `<button onclick="window.addDetailToCart()" class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 text-sm font-black py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>`;
             }
         }
 
@@ -235,13 +205,9 @@
             let starsHtml = '';
             const numRating = Number(rating) || 0;
             for (let i = 1; i <= 5; i++) {
-                if (numRating >= i) {
-                    starsHtml += `<i class="fa-solid fa-star text-amber-400"></i>`;
-                } else if (numRating >= i - 0.5) {
-                    starsHtml += `<i class="fa-solid fa-star-half-stroke text-amber-400"></i>`;
-                } else {
-                    starsHtml += `<i class="fa-regular fa-star text-slate-300"></i>`;
-                }
+                if (numRating >= i) starsHtml += `<i class="fa-solid fa-star text-amber-400"></i>`;
+                else if (numRating >= i - 0.5) starsHtml += `<i class="fa-solid fa-star-half-stroke text-amber-400"></i>`;
+                else starsHtml += `<i class="fa-regular fa-star text-slate-300"></i>`;
             }
             return starsHtml;
         }
@@ -251,98 +217,93 @@
             const categoryTag = document.getElementById('product-category-tag');
             const catalogContainer = document.getElementById('store-categories-container');
 
-            if (!productId || liveInventory.length === 0) {
-                if (!productId) {
-                    container.innerHTML = `<div class="text-center py-12 text-rose-500 text-xs font-bold">No product ID specified.</div>`;
-                    categoryTag.textContent = "Error";
-                }
+            if (liveInventory.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-rose-500 text-xs font-bold">No products found in the database.</div>`;
                 return;
             }
 
-            currentProduct = liveInventory.find(p => p.firebaseKey === productId);
-
-            if (!currentProduct) {
-                container.innerHTML = `<div class="text-center py-12 text-amber-600 text-xs font-bold">Product not found in store database.</div>`;
-                categoryTag.textContent = "Unavailable";
-                return;
-            }
-
-            // 1. Render Scaled Up Pinned Product (Professional Offer Integration matching productmanagement.html)
-            categoryTag.textContent = currentProduct.category || "Uncategorized";
-            const rawPrice = Number(typeof currentProduct.price === 'string' ? currentProduct.price.replace('₹', '') : currentProduct.price) || 0;
-            
-            const hasOffer = currentProduct.hasOffer === true;
-            const offerPercentage = Number(currentProduct.offerPercent || 0);
-            
-            let displayPrice = rawPrice;
-            if (hasOffer && offerPercentage > 0) {
-                displayPrice = rawPrice - (rawPrice * offerPercentage / 100);
-            }
-
-            const cleanPrice = displayPrice.toFixed(2).replace(/\.00$/, '');
-            const originalPriceFormatted = rawPrice.toFixed(2).replace(/\.00$/, '');
-
-            const isInStock = currentProduct.inStock !== false;
-            const bigDesc = currentProduct.descBig || currentProduct.description || currentProduct.desc || currentProduct.descSmall || 'No detailed description available.';
-            const productRating = currentProduct.rating !== undefined ? currentProduct.rating : 5;
-
-            container.innerHTML = `
-                <div class="relative bg-slate-100 rounded-xl overflow-hidden h-64 sm:h-80 border border-gray-100 flex items-center justify-center shadow-inner">
-                    <img src="${currentProduct.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${currentProduct.name}" class="w-full h-full object-contain p-2">
-                    <span class="absolute top-3 left-3 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-xs px-2.5 py-1 rounded-lg shadow">
-                        ${isInStock ? '<i class="fa-solid fa-star mr-1"></i> In Stock' : 'Out of Stock'}
-                    </span>
-                    ${hasOffer && offerPercentage > 0 ? `<span class="absolute top-3 right-3 bg-rose-600 text-white font-black text-xs px-2.5 py-1 rounded-lg shadow">${offerPercentage}% OFF</span>` : ''}
-                </div>
-
-                <div class="space-y-2 border-b border-gray-100 pb-4">
-                    <div class="flex items-center justify-between gap-2">
-                        <h1 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">${currentProduct.name}</h1>
-                        <div class="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 shrink-0">
-                            <div class="flex items-center text-xs space-x-0.5">
-                                ${renderStars(productRating)}
-                            </div>
-                            <span class="text-xs font-bold text-slate-700 ml-1">(${Number(productRating).toFixed(1)})</span>
-                        </div>
-                    </div>
+            // ==========================================
+            // FIX: Render Pinned Product Logic Separated
+            // ==========================================
+            if (productId) {
+                currentProduct = liveInventory.find(p => p.firebaseKey === productId);
+                
+                if (currentProduct) {
+                    categoryTag.textContent = currentProduct.category || "Uncategorized";
+                    const rawPrice = Number(typeof currentProduct.price === 'string' ? currentProduct.price.replace('₹', '') : currentProduct.price) || 0;
+                    const hasOffer = currentProduct.hasOffer === true;
+                    const offerPercentage = Number(currentProduct.offerPercent || 0);
                     
-                    <div class="flex items-center justify-between pt-1">
-                        <div class="flex items-baseline gap-2.5">
-                            <div class="text-2xl sm:text-3xl font-black text-slate-900">₹${cleanPrice}</div>
-                            ${hasOffer && offerPercentage > 0 ? `<div class="text-sm sm:text-base font-bold text-slate-400 line-through">₹${originalPriceFormatted}</div>` : ''}
+                    let displayPrice = rawPrice;
+                    if (hasOffer && offerPercentage > 0) displayPrice = rawPrice - (rawPrice * offerPercentage / 100);
+                    
+                    const cleanPrice = displayPrice.toFixed(2).replace(/\.00$/, '');
+                    const originalPriceFormatted = rawPrice.toFixed(2).replace(/\.00$/, '');
+                    const isInStock = currentProduct.inStock !== false;
+                    const bigDesc = currentProduct.descBig || currentProduct.description || currentProduct.desc || currentProduct.descSmall || 'No detailed description available.';
+                    const productRating = currentProduct.rating !== undefined ? currentProduct.rating : 5;
+
+                    container.innerHTML = `
+                        <div class="relative bg-slate-100 rounded-xl overflow-hidden h-64 sm:h-80 border border-gray-100 flex items-center justify-center shadow-inner">
+                            <img src="${currentProduct.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${currentProduct.name}" class="w-full h-full object-contain p-2">
+                            <span class="absolute top-3 left-3 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-xs px-2.5 py-1 rounded-lg shadow">
+                                ${isInStock ? '<i class="fa-solid fa-star mr-1"></i> In Stock' : 'Out of Stock'}
+                            </span>
+                            ${hasOffer && offerPercentage > 0 ? `<span class="absolute top-3 right-3 bg-rose-600 text-white font-black text-xs px-2.5 py-1 rounded-lg shadow">${offerPercentage}% OFF</span>` : ''}
                         </div>
-                        <div class="text-xs font-bold text-slate-600 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
-                            <i class="fa-solid fa-weight-scale text-amber-600 mr-1"></i> Size/Qty: <span class="text-slate-900">${currentProduct.qty || 'Standard'}</span>
+
+                        <div class="space-y-2 border-b border-gray-100 pb-4">
+                            <div class="flex items-center justify-between gap-2">
+                                <h1 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">${currentProduct.name}</h1>
+                                <div class="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 shrink-0">
+                                    <div class="flex items-center text-xs space-x-0.5">${renderStars(productRating)}</div>
+                                    <span class="text-xs font-bold text-slate-700 ml-1">(${Number(productRating).toFixed(1)})</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between pt-1">
+                                <div class="flex items-baseline gap-2.5">
+                                    <div class="text-2xl sm:text-3xl font-black text-slate-900">₹${cleanPrice}</div>
+                                    ${hasOffer && offerPercentage > 0 ? `<div class="text-sm sm:text-base font-bold text-slate-400 line-through">₹${originalPriceFormatted}</div>` : ''}
+                                </div>
+                                <div class="text-xs font-bold text-slate-600 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
+                                    <i class="fa-solid fa-weight-scale text-amber-600 mr-1"></i> Size/Qty: <span class="text-slate-900">${currentProduct.qty || 'Standard'}</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="space-y-2 pt-1">
-                    <h2 class="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-info text-amber-500"></i> Product Description
-                    </h2>
-                    <div class="text-xs sm:text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-line">${bigDesc}</div>
-                </div>
+                        <div class="space-y-2 pt-1">
+                            <h2 class="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-info text-amber-500"></i> Product Description
+                            </h2>
+                            <div class="text-xs sm:text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-line">${bigDesc}</div>
+                        </div>
 
-                <div id="detail-action-wrapper" class="pt-2">
-                    ${getDetailCartActionHTML()}
-                </div>
-            `;
+                        <div id="detail-action-wrapper" class="pt-2">
+                            ${getDetailCartActionHTML()}
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<div class="text-center py-12 text-amber-600 text-xs font-bold">Product not found in store database.</div>`;
+                    categoryTag.textContent = "Unavailable";
+                }
+            } else {
+                container.innerHTML = `<div class="text-center py-12 text-slate-500 text-sm font-bold">No product selected. Browse our catalog below.</div>`;
+                categoryTag.textContent = "Catalog";
+            }
 
-              // 2. Render All Other Products Below (Excluding the pinned product)
+            // ==========================================
+            // FIX: Render Catalog Logic ALWAYS Runs
+            // ==========================================
             const otherProducts = liveInventory.filter(p => p.firebaseKey !== productId);
 
             let categoryGroups = {};
-            categoriesCache.forEach(cat => {
-                categoryGroups[cat.name] = [];
-            });
+            categoriesCache.forEach(cat => { categoryGroups[cat.name] = []; });
             categoryGroups["Uncategorized"] = [];
 
             otherProducts.forEach(item => {
                 const cat = item.category || "Uncategorized";
-                if (!categoryGroups[cat]) {
-                    categoryGroups[cat] = [];
-                }
+                if (!categoryGroups[cat]) categoryGroups[cat] = [];
                 categoryGroups[cat].push(item);
             });
 
@@ -382,9 +343,7 @@
                     const itemOfferPct = Number(item.offerPercent || 0);
 
                     let itemDisplayPrice = itemRawPrice;
-                    if (itemHasOffer && itemOfferPct > 0) {
-                        itemDisplayPrice = itemRawPrice - (itemRawPrice * itemOfferPct / 100);
-                    }
+                    if (itemHasOffer && itemOfferPct > 0) itemDisplayPrice = itemRawPrice - (itemRawPrice * itemOfferPct / 100);
                     const itemCleanPrice = itemDisplayPrice.toFixed(2).replace(/\.00$/, '');
                     const itemOriginalPriceFormatted = itemRawPrice.toFixed(2).replace(/\.00$/, '');
                     
@@ -393,7 +352,7 @@
                     const itemIsInStock = item.inStock !== false;
 
                     htmlOutput += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${itemIsInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
+                        <div onclick="window.location.href='?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${itemIsInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group">
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
@@ -425,17 +384,12 @@
             catalogContainer.innerHTML = htmlOutput || '<div class="text-center py-8 text-gray-400 text-xs">No other products available.</div>';
         }
 
-        // Cart Actions for Pinned Product
+        // Cart Actions
         window.addDetailToCart = function() {
             if (!currentProduct || currentProduct.inStock === false) return;
-
             const existing = cart.find(item => item.firebaseKey === productId);
-            if (existing) {
-                existing.qtyCount = (existing.qtyCount || 1) + 1;
-            } else {
-                cart.push({ ...currentProduct, qtyCount: 1 });
-            }
-
+            if (existing) existing.qtyCount = (existing.qtyCount || 1) + 1;
+            else cart.push({ ...currentProduct, qtyCount: 1 });
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartCount();
             document.getElementById('detail-action-wrapper').innerHTML = getDetailCartActionHTML();
@@ -445,49 +399,34 @@
         window.updateDetailQuantity = function(change) {
             const existing = cart.find(item => item.firebaseKey === productId);
             if (!existing) return;
-
             existing.qtyCount = (existing.qtyCount || 1) + change;
-            if (existing.qtyCount <= 0) {
-                cart = cart.filter(item => item.firebaseKey !== productId);
-            }
-
+            if (existing.qtyCount <= 0) cart = cart.filter(item => item.firebaseKey !== productId);
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartCount();
             document.getElementById('detail-action-wrapper').innerHTML = getDetailCartActionHTML();
             renderEverything();
         };
 
-        // Cart Actions for Other Products in Sliders
         window.addToCart = function(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             if (!product || product.inStock === false) return;
-
             const existing = cart.find(item => item.firebaseKey === firebaseKey);
-            if (existing) {
-                existing.qtyCount = (existing.qtyCount || 1) + 1;
-            } else {
-                cart.push({ ...product, qtyCount: 1 });
-            }
-
+            if (existing) existing.qtyCount = (existing.qtyCount || 1) + 1;
+            else cart.push({ ...product, qtyCount: 1 });
             saveAndRefreshCatalogItem(firebaseKey);
         };
 
         window.updateQuantity = function(firebaseKey, change) {
             const existing = cart.find(item => item.firebaseKey === firebaseKey);
             if (!existing) return;
-
             existing.qtyCount = (existing.qtyCount || 1) + change;
-            if (existing.qtyCount <= 0) {
-                cart = cart.filter(item => item.firebaseKey !== firebaseKey);
-            }
-
+            if (existing.qtyCount <= 0) cart = cart.filter(item => item.firebaseKey !== firebaseKey);
             saveAndRefreshCatalogItem(firebaseKey);
         };
 
         function saveAndRefreshCatalogItem(firebaseKey) {
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartCount();
-
             const newActionHtml = getCartActionHTML(firebaseKey);
             document.querySelectorAll(`[id="action-container-${firebaseKey}"]`).forEach(el => {
                 el.innerHTML = newActionHtml;
