@@ -110,13 +110,13 @@
                     <a href="adminnews.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-newspaper text-amber-400 text-xs"></i> <span>News</span>
                     </a>
-                    <a href="admininventory.html" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
+                    <a href="admininventory.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-boxes-stacked text-amber-400 text-xs"></i> <span>Inventory</span>
                     </a>
-                    <a href="paymentcontrol.html" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
+                    <a href="paymentcontrol.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-credit-card text-amber-400 text-xs"></i> <span>Payment Control</span>
                     </a>
-                    <a href="settings.html" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
+                    <a href="settings.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-gear text-xs text-amber-400"></i> <span>Settings</span>
                     </a>
                 </nav>
@@ -142,13 +142,13 @@
             <a href="adminnews.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-newspaper text-amber-400 text-[10px]"></i> News
             </a>
-            <a href="admininventory.html" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
+            <a href="admininventory.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-boxes-stacked text-amber-400 text-[10px]"></i> Inventory
             </a>
-            <a href="paymentcontrol.html" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
+            <a href="paymentcontrol.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-credit-card text-amber-400 text-[10px]"></i> Payments
             </a>
-            <a href="settings.html" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
+            <a href="settings.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1">
                 <i class="fa-solid fa-gear text-[10px] text-amber-400"></i> Settings
             </a>
         </div>
@@ -163,7 +163,7 @@
             <p class="text-xs text-slate-500">Welcome to the control center. Use the navigation bar above or links below to manage your inventory, news, payment settings, or branding.</p>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                <a href="admininventory.html" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-50/50 border border-slate-200 transition flex items-center gap-3 group">
+                <a href="admininventory.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-50/50 border border-slate-200 transition flex items-center gap-3 group">
                     <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm group-hover:bg-amber-500 group-hover:text-white transition">
                         <i class="fa-solid fa-boxes-stacked"></i>
                     </div>
@@ -322,6 +322,7 @@
 
                 if (enteredVal === currentPass || enteredVal === savedCompanyCode) {
                     sessionStorage.setItem("admin_authenticated", "true");
+                    sessionStorage.setItem("ymca_redirect_token", "active"); // Added security redirect token
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     document.getElementById('login-input').value = "";
@@ -333,6 +334,7 @@
             } catch (error) {
                 if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
                     sessionStorage.setItem("admin_authenticated", "true");
+                    sessionStorage.setItem("ymca_redirect_token", "active"); // Added security redirect token
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     fetchExistingLogo();
@@ -345,10 +347,11 @@
 
         window.handleLogout = function() {
             sessionStorage.removeItem("admin_authenticated");
+            sessionStorage.removeItem("ymca_redirect_token"); // Clears redirect token on logout
             window.location.reload();
         };
 
         document.addEventListener('DOMContentLoaded', checkAuth);
-      </script>
+    </script>
 </body>
 </html>
