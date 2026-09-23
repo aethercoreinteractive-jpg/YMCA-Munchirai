@@ -34,14 +34,6 @@
         .enterprise-card:hover {
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
         }
-        /* Custom Toggle Switch Styles */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #f59e0b;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #f59e0b;
-        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
@@ -239,14 +231,14 @@
                             </div>
                         </div>
 
-                        <!-- Right: Industrial Controls (Stock Toggle, Offer Toggle/Input, Edit Button) -->
+                        <!-- Right: Industrial Controls (Stock Toggle, Offer Toggle + Input, Edit Button) -->
                         <div class="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                             
                             <!-- 1. Stock Availability Toggle Switch -->
                             <div class="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
                                 <div class="text-right">
-                                    <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Stock Status</span>
-                                    <span id="stock-text-${item.firebaseKey}" class="text-[9px] font-semibold ${inStock ? 'text-emerald-600' : 'text-rose-600'}">${inStock ? 'Available' : 'Out of Stock'}</span>
+                                    <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Stock</span>
+                                    <span id="stock-text-${item.firebaseKey}" class="text-[9px] font-semibold ${inStock ? 'text-emerald-600' : 'text-rose-600'}">${inStock ? 'Available' : 'Out'}</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" ${inStock ? 'checked' : ''} onchange="window.toggleProductStock('${item.firebaseKey}', this.checked)" class="sr-only peer">
@@ -254,20 +246,24 @@
                                 </label>
                             </div>
 
-                            <!-- 2. Discount Offer Switch & Percentage Input -->
+                            <!-- 2. Offer On/Off Switch & Percentage Input -->
                             <div class="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-[10px] font-bold text-slate-700 uppercase tracking-tight">Offer</span>
-                                    <input type="checkbox" ${hasOffer ? 'checked' : ''} onchange="window.toggleOfferSwitch('${item.firebaseKey}', this.checked)" class="w-3.5 h-3.5 text-amber-600 rounded border-slate-300 focus:ring-amber-500 cursor-pointer">
+                                <div class="text-right">
+                                    <span class="block text-[10px] font-bold text-slate-700 uppercase tracking-tight">Offer</span>
+                                    <span id="offer-status-text-${item.firebaseKey}" class="text-[9px] font-semibold ${hasOffer ? 'text-amber-600' : 'text-slate-400'}">${hasOffer ? 'Active' : 'Off'}</span>
                                 </div>
-                                <div class="relative flex items-center">
-                                    <input type="number" min="0" max="100" value="${offerPercent}" id="offer-input-${item.firebaseKey}" ${!hasOffer ? 'disabled' : ''} onchange="window.updateOfferPercent('${item.firebaseKey}', this.value)" placeholder="%" class="w-12 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-center font-bold text-slate-900 focus:outline-none focus:border-amber-500 disabled:opacity-40 shadow-inner">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" ${hasOffer ? 'checked' : ''} onchange="window.toggleOfferSwitch('${item.firebaseKey}', this.checked)" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                                </label>
+                                <div class="relative flex items-center ml-1">
+                                    <input type="number" min="0" max="100" value="${offerPercent}" id="offer-input-${item.firebaseKey}" ${!hasOffer ? 'disabled' : ''} onchange="window.updateOfferPercent('${item.firebaseKey}', this.value)" placeholder="%" class="w-11 bg-white border border-slate-200 rounded-lg px-1.5 py-1 text-xs text-center font-bold text-slate-900 focus:outline-none focus:border-amber-500 disabled:opacity-30 shadow-inner">
                                     <span class="text-[10px] text-slate-400 font-bold ml-0.5">%</span>
                                 </div>
                             </div>
 
-                            <!-- 3. Edit Action Button -> Leads to addproduct.html -->
-                            <button onclick="window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 ml-auto sm:ml-0" title="Edit Product">
+                            <!-- 3. Edit Action Button -> Leads to addproduct.html with ID -->
+                            <button onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.location.href='addproduct.html?id=${item.firebaseKey}'" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 ml-auto sm:ml-0" title="Edit Product">
                                 <i class="fa-solid fa-pen-to-square text-amber-400 text-[11px]"></i>
                                 <span>Edit</span>
                             </button>
@@ -303,12 +299,12 @@
                 const statusLabel = document.getElementById(`stock-text-${firebaseKey}`);
                 if (statusLabel) {
                     statusLabel.className = `text-[9px] font-semibold ${isChecked ? 'text-emerald-600' : 'text-rose-600'}`;
-                    statusLabel.textContent = isChecked ? 'Available' : 'Out of Stock';
+                    statusLabel.textContent = isChecked ? 'Available' : 'Out';
                 }
-                window.showToast("Updated", "Stock availability auto-saved successfully.");
+                window.showToast("Updated", "Stock availability auto-saved.");
             } catch (err) {
                 console.error("Error updating stock:", err);
-                window.showToast("Error", "Failed to auto-save stock state.", true);
+                window.showToast("Error", "Failed to auto-save stock.", true);
             }
         };
 
@@ -316,9 +312,16 @@
         window.toggleOfferSwitch = async function(firebaseKey, isChecked) {
             try {
                 const inputEl = document.getElementById(`offer-input-${firebaseKey}`);
+                const statusText = document.getElementById(`offer-status-text-${firebaseKey}`);
+                
                 if (inputEl) {
                     inputEl.disabled = !isChecked;
                 }
+                if (statusText) {
+                    statusText.className = `text-[9px] font-semibold ${isChecked ? 'text-amber-600' : 'text-slate-400'}`;
+                    statusText.textContent = isChecked ? 'Active' : 'Off';
+                }
+
                 const currentVal = inputEl ? Number(inputEl.value) || 0 : 0;
                 
                 const productRef = ref(db, `inventory/${firebaseKey}`);
@@ -326,10 +329,10 @@
                     hasOffer: isChecked,
                     offerPercent: isChecked ? (currentVal > 0 ? currentVal : 10) : 0
                 });
-                window.showToast("Updated", "Offer status auto-saved.");
+                window.showToast("Updated", "Offer switch auto-saved.");
             } catch (err) {
                 console.error("Error updating offer toggle:", err);
-                window.showToast("Error", "Failed to auto-save offer switch.", true);
+                window.showToast("Error", "Failed to auto-save offer state.", true);
             }
         };
 
@@ -339,9 +342,14 @@
             try {
                 const productRef = ref(db, `inventory/${firebaseKey}`);
                 await update(productRef, { offerPercent: num, hasOffer: true });
+                
+                // Automatically activate the switch UI if user typed a percentage
+                const item = globalInventory.find(p => p.firebaseKey === firebaseKey);
+                if (item) item.hasOffer = true;
+                
                 window.showToast("Saved", `Discount updated to ${num}%.`);
             } catch (err) {
-                console.error("Error updating offer percentage:", err);
+                console.error("Error updating discount percentage:", err);
                 window.showToast("Error", "Failed to update discount.", true);
             }
         };
