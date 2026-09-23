@@ -40,7 +40,10 @@
             <!-- Brand Logo -->
             <div class="flex items-center gap-3 shrink-0">
                 <a href="index.html" class="text-xl sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-2">
-                    <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-lg font-bold">MY</span> Food
+                    <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                        <span id="header-logo-fallback">MY</span>
+                    </div>
+                    <span>Food</span>
                 </a>
             </div>
 
@@ -251,12 +254,15 @@ toward sustainable growth across our region.</p>
         </div>
     </section>
 
-       <!-- Professional Footer -->
+              <!-- Professional Footer -->
     <footer id="contact" class="bg-slate-950 text-white pt-14 pb-10 border-t border-slate-800 text-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
                 <h3 class="text-base font-extrabold tracking-tight uppercase mb-3 flex items-center gap-2">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-sm font-bold">MY</span> Food Products
+                    <div id="footer-logo-container" class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                        <span id="footer-logo-fallback">MY</span>
+                    </div>
+                    <span>Food Products</span>
                 </h3>
                 <p id="display-footer-desc" class="text-slate-400 font-light leading-relaxed">Committed to offering carefully selected food products, authentic flavours, reliable sourcing, and everyday essentials for modern households.</p>
             </div>
@@ -288,7 +294,7 @@ toward sustainable growth across our region.</p>
     <!-- Firebase Initialization & Real-Time Database Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -319,6 +325,31 @@ toward sustainable growth across our region.</p>
             return url;
         }
 
+        // Fetch and load custom store logo from Firebase
+        async function fetchStoreLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    const formatted = formatImageURL(snap.val());
+                    if (formatted) {
+                        const headerContainer = document.getElementById('header-logo-container');
+                        if (headerContainer) {
+                            headerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                        }
+                        const footerContainer = document.getElementById('footer-logo-container');
+                        if (footerContainer) {
+                            footerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading store logo:", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchStoreLogo);
+
         // ==================== CART ACTIONS & STEPPER HELPERS ====================
         window.getCartActionHTML = function(itemKey, itemName, itemPrice, itemImg, itemCategory) {
             let cart = JSON.parse(localStorage.getItem('ymca_cart')) || [];
@@ -339,7 +370,7 @@ toward sustainable growth across our region.</p>
                 `;
             } else {
                 return `
-                    <button onclick="event.stopPropagation(); window.addToCartDirect('${itemKey}', '${itemName.replace(/'/g, "\\'")}', ${itemPrice || 0}, '${itemImg || ''}', '${itemCategory || ''}')" class="w-full bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-bold text-[11px] py-2 px-2 rounded-lg transition shadow-sm flex items-center justify-center gap-1.5">
+                    <button onclick="event.stopPropagation(); window.addToCartDirect('${itemKey}', '${itemName.replace(/'/g, "\\'")} ', ${itemPrice || 0}, '${itemImg || ''}', '${itemCategory || ''}')" class="w-full bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-bold text-[11px] py-2 px-2 rounded-lg transition shadow-sm flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-cart-plus text-[10px]"></i>
                         <span>Add to Cart</span>
                     </button>
