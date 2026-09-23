@@ -113,6 +113,20 @@
         </div>
     </div>
 
+    <!-- Custom Inbuilt Professional Notification / Confirmation Modal -->
+    <div id="app-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-sm w-full mx-4 p-5 text-center">
+            <div id="modal-icon-container" class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 text-base">
+                <i id="modal-icon" class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="app-modal-title" class="font-bold text-slate-900 text-sm mb-1">Notification</h3>
+            <p id="app-modal-message" class="text-slate-600 text-xs mb-4 leading-relaxed">Message goes here.</p>
+            <div id="app-modal-actions" class="flex gap-2 justify-center">
+                <button id="modal-btn-ok" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl transition w-full">OK</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-white border-t border-slate-200 text-slate-400 py-4 text-center text-[11px] mt-auto">
         &copy; 2026 YMCA Munchirai. System Panel v2.2
     </footer>
@@ -136,6 +150,51 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const newsRef = ref(db, 'news');
+
+        // Custom Inbuilt Professional Modal Handler
+        window.showAppModal = function(title, message, type = 'info', onConfirm = null) {
+            const modal = document.getElementById('app-modal');
+            const modalTitle = document.getElementById('app-modal-title');
+            const modalMessage = document.getElementById('app-modal-message');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalIconContainer = document.getElementById('modal-icon-container');
+            const modalActions = document.getElementById('app-modal-actions');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            if (type === 'success') {
+                modalIconContainer.className = "w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 text-base";
+                modalIcon.className = "fa-solid fa-circle-check";
+            } else if (type === 'error') {
+                modalIconContainer.className = "w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3 text-base";
+                modalIcon.className = "fa-solid fa-circle-exclamation";
+            } else if (type === 'confirm') {
+                modalIconContainer.className = "w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 text-base";
+                modalIcon.className = "fa-solid fa-triangle-exclamation";
+            } else {
+                modalIconContainer.className = "w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 text-base";
+                modalIcon.className = "fa-solid fa-triangle-exclamation";
+            }
+
+            modalActions.innerHTML = '';
+            if (onConfirm) {
+                modalActions.innerHTML = `
+                    <button id="modal-btn-cancel" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 px-4 rounded-xl transition w-1/2">Cancel</button>
+                    <button id="modal-btn-confirm" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold py-2 px-4 rounded-xl transition w-1/2">Confirm</button>
+                `;
+                document.getElementById('modal-btn-cancel').onclick = () => modal.classList.add('hidden');
+                document.getElementById('modal-btn-confirm').onclick = () => {
+                    modal.classList.add('hidden');
+                    onConfirm();
+                };
+            } else {
+                modalActions.innerHTML = `<button id="modal-btn-ok" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl transition w-full">OK</button>`;
+                document.getElementById('modal-btn-ok').onclick = () => modal.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        };
 
         function formatImageURL(url) {
             if (!url) return '';
@@ -278,14 +337,16 @@
                     await set(ref(db, `news/${id}`), newsPayload);
                     closeNewsModal();
                     renderCard(id, newsPayload);
+                    window.showAppModal("Success", "Post updated successfully.", "success");
                 } else {
                     const newPostRef = push(newsRef);
                     await set(newPostRef, newsPayload);
                     closeNewsModal();
                     renderCard(newPostRef.key, newsPayload);
+                    window.showAppModal("Success", "New post created successfully.", "success");
                 }
             } catch (err) {
-                alert("Operation failed: " + err.message);
+                window.showAppModal("Error", "Operation failed: " + err.message, "error");
             } finally {
                 saveBtn.innerText = "Save Post";
                 saveBtn.disabled = false;
@@ -293,7 +354,7 @@
         });
 
         window.triggerDelete = async function(id) {
-            if (confirm("Are you sure you want to remove this entry?")) {
+            window.showAppModal("Confirm Deletion", "Are you sure you want to remove this entry?", "confirm", async () => {
                 try {
                     await remove(ref(db, `news/${id}`));
                     const card = document.getElementById(`card-${id}`);
@@ -303,10 +364,11 @@
                     if (adminGrid.children.length === 0) {
                         adminGrid.innerHTML = `<div id="empty-state" class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No records available. Tap 'Add New Post' to start.</p></div>`;
                     }
+                    window.showAppModal("Success", "Entry removed successfully.", "success");
                 } catch (err) {
-                    alert("Deletion failed: " + err.message);
+                    window.showAppModal("Error", "Deletion failed: " + err.message, "error");
                 }
-            }
+            });
         }
 
         window.triggerEdit = function(id, title, date, category, image, description, showButton, btnText, btnLink) {
