@@ -19,8 +19,8 @@
     <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
-                <div class="bg-amber-500 text-slate-950 p-2 rounded-lg text-sm font-bold">
-                    <i class="fa-solid fa-bullhorn"></i>
+                <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                    <span id="header-logo-fallback">MY</span>
                 </div>
                 <div>
                     <h1 class="text-sm font-bold tracking-tight">MY Food</h1>
@@ -28,9 +28,9 @@
                 </div>
             </div>
             <nav class="flex items-center space-x-2">
-                <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
-                    <i class="fa-solid fa-house text-[10px]"></i> Home
-                </a>
+                <button onclick="goBack();" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i> Back
+                </button>
             </nav>
         </div>
     </header>
@@ -64,7 +64,7 @@
     <!-- Firebase Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -81,19 +81,39 @@
         const db = getDatabase(app);
         const newsRef = ref(db, 'news');
 
+        // Pure browser history back function
+        window.goBack = function() {
+            window.history.back();
+        };
+
         function formatImageURL(url) {
             if (!url) return '';
-            if (url.includes('drive.google.com')) {
-                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
-                }
-                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-                if (idMatch && idMatch[1]) {
-                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
-                }
+            let u = url.trim();
+            const match = u.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
             }
-            return url;
+            const matchId = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            }
+            return u;
+        }
+
+        async function fetchHeaderLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                const container = document.getElementById('header-logo-container');
+                if (snap.exists() && snap.val()) {
+                    const formatted = formatImageURL(snap.val());
+                    if (formatted) {
+                        container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading header logo:", err);
+            }
         }
 
         function displayFriendlyDate(dateStr) {
@@ -186,6 +206,7 @@
         }
 
         initRealtimeNews();
+        fetchHeaderLogo();
     </script>
 </body>
 </html>
