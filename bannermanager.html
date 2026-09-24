@@ -66,7 +66,7 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <div>
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Preview</h2>
-                    <p class="text-[10px] text-slate-400">Bounded reverse simulation</p>
+                    <p class="text-[10px] text-slate-400">Seamless loop simulation</p>
                 </div>
                 <div class="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live Sync
@@ -151,7 +151,6 @@
         window.slidesState = [];
         let previewIndex = 0;
         let previewTimer = null;
-        let slideDirection = 1; 
         let draggedItemNode = null;
 
         // Preview Slider Gestures state
@@ -422,8 +421,8 @@
             const track = document.getElementById('preview-slider-track');
             if (!track || slidesState.length === 0) return;
             
-            if (previewIndex >= slidesState.length) previewIndex = slidesState.length - 1;
-            if (previewIndex < 0) previewIndex = 0;
+            if (previewIndex >= slidesState.length) previewIndex = 0;
+            if (previewIndex < 0) previewIndex = slidesState.length - 1;
 
             track.style.transition = 'transform 0.3s ease-out';
             currentTranslate = previewIndex * -track.parentElement.clientWidth;
@@ -446,12 +445,7 @@
             if (slidesState.length <= 1) return;
             previewTimer = setInterval(() => {
                 if (!isDraggingPreview) {
-                    if (previewIndex >= slidesState.length - 1) {
-                        slideDirection = -1; 
-                    } else if (previewIndex <= 0) {
-                        slideDirection = 1; 
-                    }
-                    previewIndex += slideDirection;
+                    previewIndex = (previewIndex + 1) % slidesState.length;
                     updateTransform();
                 }
             }, 4000);
@@ -497,15 +491,15 @@
                 const currentPosition = getPositionX(event);
                 const diff = currentPosition - startX;
                 
-                // Strict bounds so it can't drag past first/last items into blank space
+                // Hard clamp bounds to ensure zero black space during drag
                 const maxTranslate = 0;
                 const minTranslate = -(slidesState.length - 1) * activeContainer.clientWidth;
                 let potentialTranslate = prevTranslate + diff;
                 
                 if (potentialTranslate > maxTranslate) {
-                    potentialTranslate = maxTranslate + (diff * 0.15); // gentle resistance
+                    potentialTranslate = maxTranslate;
                 } else if (potentialTranslate < minTranslate) {
-                    potentialTranslate = minTranslate + (diff * 0.15); // gentle resistance
+                    potentialTranslate = minTranslate;
                 }
                 
                 currentTranslate = potentialTranslate;
@@ -519,10 +513,18 @@
                 const movedBy = currentTranslate - prevTranslate;
                 const threshold = activeContainer.clientWidth / 4;
 
-                if (movedBy < -threshold && previewIndex < slidesState.length - 1) {
-                    previewIndex++;
-                } else if (movedBy > threshold && previewIndex > 0) {
-                    previewIndex--;
+                if (movedBy < -threshold) {
+                    if (previewIndex < slidesState.length - 1) {
+                        previewIndex++;
+                    } else {
+                        previewIndex = 0; // Wrap directly to first image
+                    }
+                } else if (movedBy > threshold) {
+                    if (previewIndex > 0) {
+                        previewIndex--;
+                    } else {
+                        previewIndex = slidesState.length - 1; // Wrap directly to last image
+                    }
                 }
 
                 updateTransform();
