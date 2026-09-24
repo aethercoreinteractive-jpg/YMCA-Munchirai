@@ -48,15 +48,18 @@
         </div>
     </header>
 
-    <!-- Custom In-Website Toast Banner -->
-    <div id="toast-banner" class="fixed top-20 right-4 z-50 transform translate-y-[-200%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3">
-        <div id="toast-icon" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-sm">
-            <i class="fa-solid fa-check"></i>
+    <!-- Industry Standard Professional Notification Toast (Fixed, Center-Pinned, Floating) -->
+    <div id="toast-notification" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-[99999] max-w-sm w-[90%] bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
+        <div id="toast-icon-wrapper" class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
+            <i id="toast-icon" class="fa-solid fa-circle-check"></i>
         </div>
-        <div class="flex-1">
-            <h4 id="toast-title" class="text-xs font-bold">Success</h4>
-            <p id="toast-msg" class="text-[11px] text-slate-400">Settings updated successfully.</p>
+        <div class="flex-grow min-w-0">
+            <h4 id="toast-title" class="text-xs font-extrabold text-white tracking-tight">Success</h4>
+            <p id="toast-message" class="text-[11px] text-slate-400 truncate">Action completed successfully.</p>
         </div>
+        <button onclick="window.hideToast()" class="text-slate-500 hover:text-slate-300 transition text-xs p-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
     </div>
 
     <!-- Main Content Container -->
@@ -135,6 +138,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const settingsRef = ref(db, 'settings');
+        let toastTimeout = null;
 
         // Listen to live database changes without disturbing other settings/nodes
         onValue(settingsRef, (snapshot) => {
@@ -156,40 +160,48 @@
                 updates[settingKey] = isEnabled;
                 
                 await update(settingsRef, updates);
-                showToast("Updated Successfully", `Payment gateway option has been turned ${isEnabled ? 'ON' : 'OFF'}.`, "success");
+                showToast("Updated Successfully", `Payment gateway option turned ${isEnabled ? 'ON' : 'OFF'}.`, false);
             } catch (error) {
                 console.error("Error updating setting:", error);
-                showToast("Update Failed", "Could not save change. Check connection.", "error");
+                showToast("Update Failed", "Could not save change. Check connection.", true);
             }
         };
 
-        // Professional In-Website Toast Notifier
-        function showToast(title, message, type = "success") {
-            const banner = document.getElementById('toast-banner');
+        // Industry Standard Floating Toast Notifier
+        window.showToast = function(title, message, isError = false) {
+            const toast = document.getElementById('toast-notification');
             const titleEl = document.getElementById('toast-title');
-            const msgEl = document.getElementById('toast-msg');
-            const iconEl = document.getElementById('toast-icon');
+            const msgEl = document.getElementById('toast-message');
+            const iconWrapper = document.getElementById('toast-icon-wrapper');
+            const icon = document.getElementById('toast-icon');
 
-            titleEl.textContent = title;
-            msgEl.textContent = message;
+            titleEl.innerText = title;
+            msgEl.innerText = message;
 
-            if (type === "success") {
-                iconEl.className = "w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-sm";
-                iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+            if (isError) {
+                iconWrapper.className = "w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
+                icon.className = "fa-solid fa-circle-exclamation";
             } else {
-                iconEl.className = "w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 text-sm";
-                iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                iconWrapper.className = "w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
+                icon.className = "fa-solid fa-circle-check";
             }
 
-            banner.classList.remove('translate-y-[-200%]', 'opacity-0');
-            banner.classList.add('translate-y-0', 'opacity-100');
+            toast.classList.remove('-translate-y-20', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
 
-            setTimeout(() => {
-                banner.classList.remove('translate-y-0', 'opacity-100');
-                banner.classList.add('translate-y-[-200%]', 'opacity-0');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                window.hideToast();
             }, 3000);
-        }
+        };
+
+        window.hideToast = function() {
+            const toast = document.getElementById('toast-notification');
+            if (toast) {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-20', 'opacity-0', 'pointer-events-none');
+            }
+        };
     </script>
 </body>
-  </html>
-  
+</html>
