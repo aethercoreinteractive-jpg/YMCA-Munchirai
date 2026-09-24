@@ -1,144 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heroic Banner Manager | MY Store Admin</title>
+    <title>Heroic Banner CMS | Enterprise Admin</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome Pro Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 text-slate-100 antialiased h-full flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
 
-    <!-- Top Navigation Header -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+    <!-- Top Application Header -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <a href="admin.html" class="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 flex items-center justify-center border border-slate-700 hover:bg-slate-700 transition">
+                <a href="admin.html" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center border border-slate-700/80 transition shadow-sm">
                     <i class="fa-solid fa-arrow-left text-xs"></i>
                 </a>
-                <h1 class="text-base font-extrabold tracking-tight uppercase flex items-center gap-2">
-                    <span class="text-amber-400"><i class="fa-solid fa-images"></i></span>
-                    <span>Banner Manager</span>
-                </h1>
+                <div>
+                    <span class="text-[9px] uppercase tracking-widest font-extrabold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">Enterprise CMS</span>
+                    <h1 class="text-sm font-extrabold tracking-tight text-white flex items-center gap-2">Heroic Banner Manager</h1>
+                </div>
             </div>
-            <a href="index.html" target="_blank" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
-                <i class="fa-solid fa-globe text-amber-400"></i> View Live Site
-            </a>
+            <div class="flex items-center gap-3">
+                <span id="sync-status" class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-lg">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Synchronized
+                </span>
+                <a href="index.html" target="_blank" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl border border-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-globe text-amber-400"></i> Live Preview
+                </a>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content Grid -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <!-- Main Workspace Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start flex-1">
         
-        <!-- Left Column: Form & Management (7 Cols) -->
-        <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
-            <div class="border-b border-gray-100 pb-4 mb-6">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">CMS Control</span>
-                <h2 class="text-lg font-bold text-gray-900 mt-1">Manage Heroic Slides</h2>
-                <p class="text-xs text-gray-500 mt-0.5">Add, edit, or remove slides. Paste any shareable Google Drive image link.</p>
+        <!-- Left Column: CMS Data Form & Slide Queue (7 Cols) -->
+        <div class="lg:col-span-7 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+            <div class="border-b border-slate-800/80 pb-5 mb-6 flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-white">Slide Configuration Engine</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Configure target assets, metadata, and cloud routing pointers.</p>
+                </div>
+                <button type="button" onclick="openCreateModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-amber-500/10 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-[10px]"></i> New Slide
+                </button>
             </div>
 
-            <!-- Slide Entry Form -->
-            <form id="banner-form" class="space-y-4 mb-8 bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200/80">
-                <input type="hidden" id="edit-index" value="-1">
+            <!-- Slide Queue Manager List -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-400 px-1">
+                    <span>Active Queue Sequence</span>
+                    <span id="queue-counter" class="bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-md text-[11px] font-mono border border-slate-700">0 Slides Loaded</span>
+                </div>
                 
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Badge Tag</label>
-                    <input type="text" id="banner-badge" placeholder="e.g. Featured Initiative / MY Store Special" required class="w-full bg-white border border-gray-300 rounded-lg px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 font-medium">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Headline Title</label>
-                    <input type="text" id="banner-title" placeholder="e.g. Empowering Youth Through Community Sports" required class="w-full bg-white border border-gray-300 rounded-lg px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 font-medium">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Description</label>
-                    <textarea id="banner-desc" rows="2" placeholder="Enter short engaging summary text..." required class="w-full bg-white border border-gray-300 rounded-lg px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 font-medium resize-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Google Drive Image Link</label>
-                    <input type="url" id="banner-image" placeholder="https://drive.google.com/file/d/... or direct image URL" required class="w-full bg-white border border-gray-300 rounded-lg px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 font-medium">
-                    <p class="text-[10px] text-gray-400 mt-1">Make sure the Google Drive link sharing permission is set to "Anyone with the link can view".</p>
-                </div>
-
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="submit" id="save-btn" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Add to Slider List
-                    </button>
-                    <button type="button" id="cancel-edit-btn" onclick="resetForm()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-xs py-2.5 px-4 rounded-lg transition">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-
-            <!-- Saved Banners Queue List -->
-            <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-600 mb-3 flex items-center justify-between">
-                    <span>Active Queue List</span>
-                    <span id="banner-count-badge" class="bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded-full">0 Slides</span>
-                </h3>
-                <div id="banner-queue-container" class="space-y-3 max-h-96 overflow-y-auto pr-1">
-                    <div class="text-center py-8 text-xs text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">No slides added yet. Create one above!</div>
+                <div id="banner-queue-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1 no-scrollbar">
+                    <!-- Skeleton Loader State -->
+                    <div class="p-6 text-center text-xs text-slate-500 bg-slate-950/40 rounded-2xl border border-slate-800/80">
+                        <i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-base mb-2"></i>
+                        <p>Establishing secure connection to Firebase database...</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Global Firebase Commit Action -->
-            <div class="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between gap-4">
-                <p class="text-[11px] text-gray-500">Saves securely to Firebase database node <code class="text-slate-950 bg-gray-100 px-1.5 py-0.5 rounded font-mono">heroicBanners</code>.</p>
-                <button onclick="commitBannersToFirebase()" id="commit-firebase-btn" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-6 py-3 rounded-lg shadow-md transition flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up text-amber-400"></i> Save to Firebase
+            <!-- Global Commit Control Panel -->
+            <div class="mt-8 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="text-left w-full sm:w-auto">
+                    <p class="text-xs font-semibold text-slate-300">Atomic Database Persistence</p>
+                    <p class="text-[11px] text-slate-500">Target Node: <code class="text-amber-400 font-mono bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">/heroicBanners</code></p>
+                </div>
+                <button onclick="commitStateToFirebase()" id="commit-btn" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs px-7 py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-sm"></i> Commit to Firebase
                 </button>
             </div>
         </div>
 
-        <!-- Right Column: Live 16:9 Preview Engine (5 Cols) -->
-        <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 sticky top-24">
-            <div class="border-b border-gray-100 pb-4 mb-6 flex items-center justify-between">
+        <!-- Right Column: Real-time Live Simulator Engine (5 Cols) -->
+        <div class="lg:col-span-5 bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-6 sm:p-8 sticky top-24 shadow-xl">
+            <div class="border-b border-slate-800/80 pb-5 mb-6 flex items-center justify-between">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Live Simulation</span>
-                    <h2 class="text-lg font-bold text-gray-900 mt-1">Preview Screen</h2>
+                    <h2 class="text-base font-bold text-white">Production Simulator</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Real-time telemetry preview of index.html UI.</p>
                 </div>
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Auto-sliding (4s)
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 4s Interval Loop
                 </span>
             </div>
 
-            <!-- 16:9 Aspect Ratio Heroic Slider Preview Component -->
-            <div id="preview-slider-wrapper" class="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-md bg-slate-900 group">
-                <div id="preview-slider-track" class="flex h-full transition-transform duration-300 ease-out">
-                    <!-- Dynamic Slides Injected Here -->
-                    <div class="min-w-full h-full relative flex items-center justify-center text-slate-500 bg-slate-900 text-xs">
-                        Loading Preview...
+            <!-- 16:9 Aspect Ratio Live Component Render Engine -->
+            <div class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl bg-slate-950 border border-slate-800 group">
+                <div id="preview-slider-track" class="flex h-full transition-transform duration-500 ease-out">
+                    <div class="min-w-full h-full flex items-center justify-center text-slate-500 text-xs">
+                        Awaiting telemetry stream...
                     </div>
                 </div>
 
-                <!-- Slider Navigation Dots -->
-                <div id="preview-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10">
-                    <!-- Dots Injected Here -->
+                <!-- Simulation Pagination Indicators -->
+                <div id="preview-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/60 shadow-lg">
                 </div>
             </div>
-            <p class="text-[11px] text-center text-gray-400 mt-3">This preview exactly mirrors how your heroes will render on index.html.</p>
+            
+            <div class="mt-4 p-4 rounded-xl bg-slate-950/50 border border-slate-800/80 flex items-start gap-3">
+                <i class="fa-solid fa-circle-info text-amber-400 mt-0.5"></i>
+                <p class="text-[11px] text-slate-400 leading-relaxed">Google Drive shared URLs are automatically parsed through secure content proxies (<code class="text-slate-200">lh3.googleusercontent.com</code>) ensuring high availability and zero hotlinking restrictions.</p>
+            </div>
         </div>
 
     </main>
 
+    <!-- Slide Configuration Modal (Create / Edit) -->
+    <div id="slide-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                <h3 id="modal-title" class="text-base font-extrabold text-white">Create New Slide Item</h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <form id="slide-form" class="space-y-4">
+                <input type="hidden" id="modal-slide-id">
+                
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Badge Identifier Tag</label>
+                    <input type="text" id="slide-badge" placeholder="e.g. Featured Initiative / Special Offer" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 font-medium transition shadow-inner">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Headline Title</label>
+                    <input type="text" id="slide-title" placeholder="e.g. Empowering Community Sports Program" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 font-medium transition shadow-inner">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Descriptive Summary</label>
+                    <textarea id="slide-desc" rows="3" placeholder="Enter concise overview narrative..." required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 font-medium transition resize-none shadow-inner"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Asset Source (Google Drive / Direct URL)</label>
+                    <input type="url" id="slide-image" placeholder="https://drive.google.com/file/d/..." required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 font-medium transition shadow-inner">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition shadow-lg shadow-amber-500/20">Save Slide Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
-    <footer class="bg-slate-950 text-white py-6 text-center text-xs mt-12 border-t border-slate-800">
-        <p>&copy; 2026 Munchirai YMCA & MY Store. Admin Control System.</p>
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        <p>&copy; 2026 Munchirai YMCA & MY Store. Enterprise Infrastructure Control.</p>
     </footer>
 
-    <!-- Firebase SDK & Controller Script -->
+    <!-- Enterprise Modular Firebase Controller -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -157,237 +184,242 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let localBannersList = [];
-        let previewSlideIndex = 0;
+        let slidesState = [];
+        let previewIndex = 0;
         let previewTimer = null;
 
-        // Google Drive URL Formatter matching your index.html standard
-        function formatImageURL(url) {
+        // Enterprise URL Parser supporting Google Drive API endpoints
+        function parseAssetURL(url) {
             if (!url) return '';
             if (url.includes('drive.google.com')) {
                 let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
-                }
+                if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
                 let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-                if (idMatch && idMatch[1]) {
-                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
-                }
+                if (idMatch && idMatch[1]) return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
             }
             return url;
         }
 
-        // Fetch existing banners from Firebase on load
-        async function loadExistingBanners() {
+        // Generate unique UUID v4 string for robust identification
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        async function initCMS() {
             try {
-                const bannerRef = ref(db, 'heroicBanners');
-                const snap = await get(bannerRef);
-                if (snap.exists() && Array.isArray(snap.val())) {
-                    localBannersList = snap.val();
+                const snapshot = await get(ref(db, 'heroicBanners'));
+                if (snapshot.exists() && Array.isArray(snapshot.val())) {
+                    slidesState = snapshot.val();
                 } else {
-                    // Default fallback fallback banners if empty
-                    localBannersList = [
+                    slidesState = [
                         {
+                            id: generateUUID(),
                             badge: "Featured Initiative",
                             title: "Empowering Youth Through Community Sports",
                             desc: "Join our active sports training programs designed to foster teamwork, health, and leadership.",
                             image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600"
-                        },
-                        {
-                            badge: "MY Store Special",
-                            title: "100% Pure Organic Self-Help Products",
-                            desc: "Support local farmers and self-help groups by purchasing unpasteurized wild honey and authentic spices.",
-                            image: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=1600"
                         }
                     ];
                 }
-                renderQueueList();
-                renderPreviewSlider();
-                startPreviewAutoSlide();
+                renderWorkspace();
             } catch (err) {
-                console.error("Error fetching banners from Firebase:", err);
+                console.error("Critical CMS Telemetry Failure:", err);
             }
         }
 
-        window.commitBannersToFirebase = async function() {
-            const btn = document.getElementById('commit-firebase-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Saving...`;
+        window.commitStateToFirebase = async function() {
+            const btn = document.getElementById('commit-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Committing...`;
             btn.disabled = true;
 
             try {
-                // Saves strictly to 'heroicBanners' without touching any other node/data
-                const bannerRef = ref(db, 'heroicBanners');
-                await set(bannerRef, localBannersList);
-                alert("Heroic banners successfully updated and saved to Firebase!");
+                await set(ref(db, 'heroicBanners'), slidesState);
+                showSyncBadge(true);
             } catch (err) {
-                console.error("Firebase save failed:", err);
-                alert("Error saving banners to Firebase. Check console.");
+                console.error("Firebase persistence error:", err);
+                alert("Commit failed. Verify network connectivity.");
             } finally {
-                btn.innerHTML = originalText;
+                btn.innerHTML = originalHTML;
                 btn.disabled = false;
             }
         };
 
-        // Form Submit Handler (Add / Update)
-        document.getElementById('banner-form').addEventListener('submit', (e) => {
+        function showSyncBadge(isSuccess) {
+            const badge = document.getElementById('sync-status');
+            badge.className = isSuccess 
+                ? "inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-lg animate-fade-in"
+                : "inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-400 bg-amber-950/40 border border-amber-500/30 px-3 py-1.5 rounded-lg animate-fade-in";
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full ${isSuccess ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse"></span> ${isSuccess ? 'Changes Committed Successfully' : 'Unsaved Local State'}`;
+        }
+
+        window.openCreateModal = function() {
+            document.getElementById('modal-title').textContent = "Create New Slide Item";
+            document.getElementById('slide-form').reset();
+            document.getElementById('modal-slide-id').value = "";
+            document.getElementById('slide-modal').classList.remove('hidden');
+            document.getElementById('slide-modal').classList.add('flex');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('slide-modal').classList.remove('flex');
+            document.getElementById('slide-modal').classList.add('hidden');
+        };
+
+        document.getElementById('slide-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const editIndex = parseInt(document.getElementById('edit-index').value);
-            
-            const newBanner = {
-                badge: document.getElementById('banner-badge').value.trim(),
-                title: document.getElementById('banner-title').value.trim(),
-                desc: document.getElementById('banner-desc').value.trim(),
-                image: document.getElementById('banner-image').value.trim()
+            const id = document.getElementById('modal-slide-id').value;
+            const payload = {
+                id: id || generateUUID(),
+                badge: document.getElementById('slide-badge').value.trim(),
+                title: document.getElementById('slide-title').value.trim(),
+                desc: document.getElementById('slide-desc').value.trim(),
+                image: document.getElementById('slide-image').value.trim()
             };
 
-            if (editIndex > -1) {
-                localBannersList[editIndex] = newBanner;
+            if (id) {
+                const idx = slidesState.findIndex(s => s.id === id);
+                if (idx > -1) slidesState[idx] = payload;
             } else {
-                localBannersList.push(newBanner);
+                slidesState.push(payload);
             }
 
-            resetForm();
-            renderQueueList();
-            renderPreviewSlider();
-            startPreviewAutoSlide();
+            closeModal();
+            renderWorkspace();
+            showSyncBadge(false);
         });
 
-        window.resetForm = function() {
-            document.getElementById('banner-form').reset();
-            document.getElementById('edit-index').value = "-1";
-            document.getElementById('save-btn.innerHTML') // Keep safe
-            document.getElementById('save-btn').innerHTML = `<i class="fa-solid fa-plus"></i> Add to Slider List`;
-            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        window.editSlide = function(id) {
+            const slide = slidesState.find(s => s.id === id);
+            if (!slide) return;
+            document.getElementById('modal-title').textContent = "Edit Slide Item";
+            document.getElementById('modal-slide-id').value = slide.id;
+            document.getElementById('slide-badge').value = slide.badge;
+            document.getElementById('slide-title').value = slide.title;
+            document.getElementById('slide-desc').value = slide.desc;
+            document.getElementById('slide-image').value = slide.image;
+
+            document.getElementById('slide-modal').classList.remove('hidden');
+            document.getElementById('slide-modal').classList.add('flex');
         };
 
-        window.editBanner = function(index) {
-            const item = localBannersList[index];
-            if (!item) return;
-            document.getElementById('edit-index').value = index;
-            document.getElementById('banner-badge').value = item.badge;
-            document.getElementById('banner-title').value = item.title;
-            document.getElementById('banner-desc').value = item.desc;
-            document.getElementById('banner-image').value = item.image;
-
-            document.getElementById('save-btn').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Update Slide`;
-            document.getElementById('cancel-edit-btn').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.deleteBanner = function(index) {
-            if (confirm("Are you sure you want to remove this slide?")) {
-                localBannersList.splice(index, 1);
-                renderQueueList();
-                renderPreviewSlider();
-                startPreviewAutoSlide();
+        window.deleteSlide = function(id) {
+            if (confirm("Are you sure you want to permanently purge this slide record?")) {
+                slidesState = slidesState.filter(s => s.id !== id);
+                renderWorkspace();
+                showSyncBadge(false);
             }
         };
+
+        window.moveSlide = function(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= slidesState.length) return;
+            const temp = slidesState[index];
+            slidesState[index] = slidesState[newIndex];
+            slidesState[newIndex] = temp;
+            renderWorkspace();
+            showSyncBadge(false);
+        };
+
+        function renderWorkspace() {
+            renderQueueList();
+            renderPreviewEngine();
+            restartPreviewLoop();
+        }
 
         function renderQueueList() {
             const container = document.getElementById('banner-queue-container');
-            const countBadge = document.getElementById('banner-count-badge');
-            countBadge.textContent = `${localBannersList.length} Slides`;
+            document.getElementById('queue-counter').textContent = `${slidesState.length} Slides Loaded`;
 
-            if (localBannersList.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-xs text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">No slides added yet. Create one above!</div>`;
+            if (slidesState.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-xs text-slate-500 bg-slate-950/40 rounded-2xl border border-slate-800">No active queue records found.</div>`;
                 return;
             }
 
-            container.innerHTML = localBannersList.map((item, idx) => {
-                const formattedImg = formatImageURL(item.image);
-                return `
-                    <div class="flex items-center justify-between gap-3 bg-gray-50 border border-gray-200 p-3 rounded-xl">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-16 h-10 rounded-lg bg-gray-200 overflow-hidden shrink-0 border border-gray-300">
-                                <img src="${formattedImg}" alt="Thumb" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=IMG'">
-                            </div>
-                            <div class="min-w-0">
-                                <span class="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">${item.badge}</span>
-                                <h4 class="text-xs font-bold text-gray-900 truncate mt-0.5">${item.title}</h4>
-                            </div>
+            container.innerHTML = slidesState.map((slide, idx) => `
+                <div class="flex items-center justify-between gap-4 bg-slate-950/50 border border-slate-800/80 p-3.5 rounded-2xl transition hover:border-slate-700">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-16 h-10 rounded-xl bg-slate-900 overflow-hidden shrink-0 border border-slate-800">
+                            <img src="${parseAssetURL(slide.image)}" alt="Thumbnail" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <button onclick="editBanner(${idx})" class="w-7 h-7 rounded-lg bg-white border border-gray-200 text-slate-700 hover:bg-slate-900 hover:text-white transition flex items-center justify-center text-xs" title="Edit Slide">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="deleteBanner(${idx})" class="w-7 h-7 rounded-lg bg-white border border-gray-200 text-rose-600 hover:bg-rose-600 hover:text-white transition flex items-center justify-center text-xs" title="Delete Slide">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                        <div class="min-w-0">
+                            <span class="text-[9px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">${slide.badge}</span>
+                            <h4 class="text-xs font-bold text-white truncate mt-1">${slide.title}</h4>
                         </div>
                     </div>
-                `;
-            }).join('');
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="moveSlide(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-30 transition flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-up"></i></button>
+                        <button onclick="moveSlide(${idx}, 1)" ${idx === slidesState.length - 1 ? 'disabled' : ''} class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-30 transition flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-down"></i></button>
+                        <button onclick="editSlide('${slide.id}')" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteSlide('${slide.id}')" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-rose-400 hover:bg-rose-950 hover:text-rose-200 transition flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function renderPreviewSlider() {
+        function renderPreviewEngine() {
             const track = document.getElementById('preview-slider-track');
-            const dotsContainer = document.getElementById('preview-dots-container');
+            const dots = document.getElementById('preview-dots-container');
 
-            if (localBannersList.length === 0) {
-                track.innerHTML = `<div class="min-w-full h-full relative flex items-center justify-center text-slate-400 text-xs">No slides to preview.</div>`;
-                dotsContainer.innerHTML = ``;
+            if (slidesState.length === 0) {
+                track.innerHTML = `<div class="min-w-full h-full flex items-center justify-center text-slate-500 text-xs">No active slides available.</div>`;
+                dots.innerHTML = ``;
                 return;
             }
 
-            track.innerHTML = localBannersList.map(item => {
-                const formattedImg = formatImageURL(item.image);
-                return `
-                    <div class="min-w-full h-full relative shrink-0">
-                        <img src="${formattedImg}" alt="Banner" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-5 text-white">
-                            <span class="bg-amber-500 text-slate-950 font-bold text-[9px] px-2 py-0.5 rounded w-max mb-1">${item.badge}</span>
-                            <h3 class="text-sm sm:text-base font-black tracking-tight mb-1 truncate">${item.title}</h3>
-                            <p class="text-[11px] text-slate-300 font-light line-clamp-1">${item.desc}</p>
-                        </div>
+            track.innerHTML = slidesState.map(slide => `
+                <div class="min-w-full h-full relative shrink-0">
+                    <img src="${parseAssetURL(slide.image)}" alt="Preview" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent flex flex-col justify-end p-5 text-white">
+                        <span class="bg-amber-500 text-slate-950 font-bold text-[9px] px-2 py-0.5 rounded w-max mb-1">${slide.badge}</span>
+                        <h3 class="text-sm sm:text-base font-black tracking-tight mb-1 truncate">${slide.title}</h3>
+                        <p class="text-[11px] text-slate-300 font-light line-clamp-1">${slide.desc}</p>
                     </div>
-                `;
-            }).join('');
-
-            dotsContainer.innerHTML = localBannersList.map((_, idx) => `
-                <button onclick="currentPreviewSlide(${idx})" class="w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-white w-3' : 'bg-white/45'} transition preview-dot" data-index="${idx}"></button>
+                </div>
             `).join('');
 
-            updatePreviewTransform();
+            dots.innerHTML = slidesState.map((_, idx) => `
+                <button onclick="jumpPreview(${idx})" class="w-1.5 h-1.5 rounded-full ${idx === previewIndex ? 'bg-amber-400 w-3' : 'bg-slate-600'} transition preview-dot"></button>
+            `).join('');
+
+            updateTransform();
         }
 
-        window.currentPreviewSlide = function(idx) {
-            previewSlideIndex = idx;
-            updatePreviewTransform();
-            resetPreviewTimer();
+        window.jumpPreview = function(idx) {
+            previewIndex = idx;
+            updateTransform();
+            restartPreviewLoop();
         }
 
-        function updatePreviewTransform() {
+        function updateTransform() {
             const track = document.getElementById('preview-slider-track');
             if (!track) return;
-            track.style.transform = `translateX(-${previewSlideIndex * 100}%)`;
+            track.style.transform = `translateX(-${previewIndex * 100}%)`;
 
             document.querySelectorAll('.preview-dot').forEach((dot, idx) => {
-                if (idx === previewSlideIndex) {
-                    dot.classList.remove('bg-white/45', 'w-1.5');
-                    dot.classList.add('bg-white', 'w-3');
+                if (idx === previewIndex) {
+                    dot.classList.remove('bg-slate-600', 'w-1.5');
+                    dot.classList.add('bg-amber-400', 'w-3');
                 } else {
-                    dot.classList.add('bg-white/45', 'w-1.5');
-                    dot.classList.remove('bg-white', 'w-3');
+                    dot.classList.add('bg-slate-600', 'w-1.5');
+                    dot.classList.remove('bg-amber-400', 'w-3');
                 }
             });
         }
 
-        function startPreviewAutoSlide() {
+        function restartPreviewLoop() {
             clearInterval(previewTimer);
-            if (localBannersList.length <= 1) return;
+            if (slidesState.length <= 1) return;
             previewTimer = setInterval(() => {
-                previewSlideIndex = (previewSlideIndex + 1) % localBannersList.length;
-                updatePreviewTransform();
+                previewIndex = (previewIndex + 1) % slidesState.length;
+                updateTransform();
             }, 4000);
         }
 
-        function resetPreviewTimer() {
-            clearInterval(previewTimer);
-            startPreviewAutoSlide();
-        }
-
-        document.addEventListener('DOMContentLoaded', loadExistingBanners);
+        document.addEventListener('DOMContentLoaded', initCMS);
     </script>
 </body>
 </html>
