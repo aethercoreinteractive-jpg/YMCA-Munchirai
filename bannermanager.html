@@ -322,7 +322,6 @@
         };
 
         window.deleteSlide = async function(id) {
-            // Replaced window.confirm (native browser pop) with inbuilt toast/workflow or direct clean removal since native confirms can be blocked. Let's do a fast direct removal with an undo feedback toast.
             slidesState = slidesState.filter(s => s.id !== id);
             renderWorkspace();
             await syncToFirebase(false);
@@ -384,9 +383,9 @@
                         <div class="w-14 h-10 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                             <img src="${window.formatDriveUrl(slide.image)}" alt="Thumbnail" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
                         </div>
-                        <div class="flex-1 min-w-0 py-0.5">
-                            <span class="inline-block text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60 mb-0.5">${slide.badge}</span>
-                            <h4 class="text-xs font-semibold text-slate-900 leading-snug break-words">${slide.title}</h4>
+                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                            <span class="inline-block text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60 shrink-0">${slide.badge}</span>
+                            <h4 class="text-xs font-semibold text-slate-900 truncate flex-1">${slide.title}</h4>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0" onclick="event.stopPropagation()">
