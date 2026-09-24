@@ -326,17 +326,18 @@
             } catch (error) {
                 if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
                     sessionStorage.setItem("admin_authenticated", "true");
-                    document.getElementById('login-modal'].classList.add('hidden');
+                    document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     fetchExistingLogo();
                     window.showToast("Authenticated", "Session started securely.");
                 } else {
+                    document.getElementById('login-error').classList.add('hidden'); // Fixed typo here that broke the login catch block
                     document.getElementById('login-error').classList.remove('hidden');
                 }
             }
         };
 
-        // Save Logo safely using update() without disturbing other database keys
+          // Save Logo safely using update() without disturbing other database keys
         window.handleSaveLogo = async function(event) {
             event.preventDefault();
             const rawVal = document.getElementById('logo-url-input').value.trim();
@@ -356,7 +357,7 @@
             }
         };
 
-      // Delete Logo option to clear database field and revert header to default "MY Food Logo.png"
+        // Delete Logo option to clear database field and revert header to default "MY Food Logo.png"
         window.handleDeleteLogo = async function() {
             try {
                 const settingsRef = ref(db, 'settings');
