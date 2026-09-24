@@ -35,7 +35,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2.5 shrink-0">
                 <a href="mystore.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center text-xs tracking-tighter shadow-md">MY</span>
+                    <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
+                        <span>MY</span>
+                    </div>
                     <span>Order History</span>
                 </a>
             </div>
@@ -141,6 +143,59 @@
         
         let pendingActionType = null; 
         let pendingTargetKey = null;   
+
+        // Convert Google Drive share link into a direct viewable image link
+        window.formatDriveUrl = function(rawUrl) {
+            if (!rawUrl) return "";
+            let url = rawUrl.trim();
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            }
+            return url;
+        };
+
+        // Fetch and apply existing store logo into the header
+        async function fetchExistingLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    updateHeaderLogo(snap.val());
+                } else {
+                    updateHeaderLogo("");
+                }
+            } catch (err) {
+                console.error("Error loading logo:", err);
+            }
+        }
+
+        function updateHeaderLogo(url) {
+            const container = document.getElementById('header-logo-container');
+            const formatted = window.formatDriveUrl(url);
+            if (formatted) {
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+            } else {
+                container.innerHTML = `MY`;
+            }
+        }
+
+        // Initialize logo on load and listen for real-time changes
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchExistingLogo();
+        });
+
+        onValue(ref(db, 'settings/storeLogo'), (snapshot) => {
+            if (snapshot.exists()) {
+                updateHeaderLogo(snapshot.val());
+            } else {
+                updateHeaderLogo("");
+            }
+        });
 
         // Helper function to format any epoch/timestamp string into 12-hour AM/PM format
         function format12HourTime(timestampInput) {
@@ -390,7 +445,7 @@
                     closeSecurityModal();
                 } else {
                     errorMsg.textContent = "Verification failed. Check network connection.";
-                    errorMsg.classList.remove('hidden');
+                    errorMsg.classList.add('hidden');
                 }
             } finally {
                 confirmBtn.disabled = false;
