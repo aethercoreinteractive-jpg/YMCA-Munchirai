@@ -149,6 +149,22 @@
         </div>
     </div>
 
+    <!-- Inbuilt Website Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-xs w-full p-6 shadow-2xl text-center transform transition-all scale-100">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-3 text-lg border border-rose-100">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-sm font-extrabold text-slate-900 mb-1">Delete Banner</h3>
+            <p class="text-[11px] text-slate-500 mb-5">Are you sure you want to permanently remove this banner from the queue?</p>
+            <input type="hidden" id="delete-target-id">
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">Cancel</button>
+                <button type="button" onclick="executeDelete()" class="flex-1 px-4 py-2.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-extrabold transition shadow-sm">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400 mt-auto">
         Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
@@ -321,13 +337,23 @@
             modal.classList.add('flex');
         };
 
-        window.confirmDelete = function(id) {
-            if (confirm("Are you sure you want to permanently delete this banner?")) {
-                deleteSlide(id);
-            }
+        window.openDeleteModal = function(id) {
+            document.getElementById('delete-target-id').value = id;
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         };
 
-        window.deleteSlide = async function(id) {
+        window.closeDeleteModal = function() {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        };
+
+        window.executeDelete = async function() {
+            const id = document.getElementById('delete-target-id').value;
+            if (!id) return;
+            closeDeleteModal();
             slidesState = slidesState.filter(s => s.id !== id);
             renderWorkspace();
             await syncToFirebase(false);
@@ -410,7 +436,7 @@
                             <!-- Actions (Below Description) -->
                             <div class="flex items-center gap-2 mt-3.5 pt-3 border-t border-slate-100/80" onclick="event.stopPropagation()">
                                 <button type="button" onclick="editSlide('${slide.id}')" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-amber-600 transition flex items-center justify-center gap-1.5 text-[11px] font-bold"><i class="fa-solid fa-pen"></i> Edit</button>
-                                <button type="button" onclick="confirmDelete('${slide.id}')" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center gap-1.5 text-[11px] font-bold"><i class="fa-solid fa-trash"></i> Delete</button>
+                                <button type="button" onclick="openDeleteModal('${slide.id}')" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center gap-1.5 text-[11px] font-bold"><i class="fa-solid fa-trash"></i> Delete</button>
                             </div>
                         </div>
                     </div>
