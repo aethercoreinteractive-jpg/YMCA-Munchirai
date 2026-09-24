@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>News & Announcements | MY Food</title>
+    <title>News Admin Panel | MY Food</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -16,55 +16,175 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
+    <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
+    <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
+        <div class="w-12 h-12 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-2xl flex items-center justify-center mb-4 text-lg">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-white text-base font-extrabold mb-1">Unauthorized Access Attempt</h2>
+        <p class="text-slate-400 text-xs max-w-xs mb-5">Security token not found or session expired. Please authenticate via the primary admin control center.</p>
+        <a href="admin.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md">
+            Return to Admin Portal
+        </a>
+    </div>
+
+    <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-40">
         <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
             <div class="flex items-center space-x-2.5">
-                <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
-                    <span id="header-logo-fallback">MY</span>
+                <div class="bg-amber-500 text-slate-950 p-2 rounded-lg text-sm font-bold">
+                    <i class="fa-solid fa-gauge-high"></i>
                 </div>
                 <div>
                     <h1 class="text-sm font-bold tracking-tight">MY Food</h1>
-                    <p class="text-[10px] text-slate-400">Community News & Events</p>
+                    <p class="text-[10px] text-slate-400">News Admin Control Center</p>
                 </div>
             </div>
             <nav class="flex items-center space-x-2">
-                <button onclick="goBack();" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-bold shadow-sm active:scale-95 cursor-pointer">
-                    <i class="fa-solid fa-arrow-left text-[10px]"></i> Back
-                </button>
+                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token');" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i> Dashboard
+                </a>
+                <a href="index.html" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Live Site
+                </a>
             </nav>
         </div>
     </header>
 
     <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
-        <div class="mb-6 flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <div>
-                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Latest Updates</h2>
-                <p class="text-xs text-slate-500">Stay informed with the latest announcements from MY Food.</p>
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">News Announcements</h2>
+                <p class="text-xs text-slate-500">Publish and manage updates visible on the live homepage ticker.</p>
+            </div>
+            <button type="button" onclick="openModalForAdd()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center justify-center gap-2 active:scale-95">
+                <i class="fa-solid fa-plus"></i> Add New Post
+            </button>
+        </div>
+
+        <!-- Custom Order Manager Section (Auto-Save) -->
+        <div class="mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="mb-3 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Custom Display Order Manager</h3>
+                    <p class="text-[10px] text-slate-400">Drag titles up/down to automatically set the view order</p>
+                </div>
+                <span id="autoSaveIndicator" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full hidden">
+                    <i class="fa-solid fa-circle-check mr-1"></i> Saved
+                </span>
+            </div>
+            <div id="sortable-titles-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <!-- Dynamically populated sortable rows -->
             </div>
         </div>
 
         <div id="loading-box" class="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl text-amber-500 mb-2"></i>
-            <p class="text-slate-500 text-xs font-medium">Loading announcements...</p>
+            <p class="text-slate-500 text-xs font-medium">Syncing database records...</p>
         </div>
 
-        <div id="news-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden"></div>
+        <div id="admin-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden"></div>
     </main>
 
-    <!-- Fixed Live sync indicator dot -->
-    <div class="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full shadow-lg">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Live</span>
+    <!-- Modal Form -->
+    <div id="newsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-3 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl relative my-auto border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+                <h3 id="modalHeading" class="text-base font-bold text-slate-900">Add New Post</h3>
+                <button type="button" onclick="closeNewsModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200">&times;</button>
+            </div>
+            
+            <form id="newsForm" class="space-y-3.5">
+                <input type="hidden" id="recordId" value="">
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Post Title</label>
+                    <input type="text" id="inputTitle" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="e.g. Youth Leadership Meet">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Date</label>
+                        <input type="date" id="inputDate" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Category</label>
+                        <input type="text" id="inputCategory" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="e.g. Seminar">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Image URL (Google Drive or Direct Link)</label>
+                    <input type="url" id="inputImage" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="Paste Google Drive link or image URL...">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Description</label>
+                    <textarea id="inputDescription" rows="3" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="Enter post summary..."></textarea>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Enable Action Button</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="toggleButtonSwitch" class="sr-only peer" onchange="toggleActionFields()">
+                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                        </label>
+                    </div>
+                    <div id="actionFieldsContainer" class="space-y-2.5 hidden pt-2 border-t border-slate-200">
+                        <input type="text" id="inputBtnText" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="Button Label (e.g. Register Now)">
+                        <input type="url" id="inputBtnLink" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="Destination Link (https://...)">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-2.5 pt-2">
+                    <button type="button" onclick="closeNewsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-200 transition">Cancel</button>
+                    <button type="submit" id="saveBtn" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-sm transition">Save Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Inbuilt Professional Notification / Confirmation Modal -->
+    <div id="app-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-sm w-full mx-4 p-5 text-center">
+            <div id="modal-icon-container" class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 text-base">
+                <i id="modal-icon" class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="app-modal-title" class="font-bold text-slate-900 text-sm mb-1">Notification</h3>
+            <p id="app-modal-message" class="text-slate-600 text-xs mb-4 leading-relaxed">Message goes here.</p>
+            <div id="app-modal-actions" class="flex gap-2 justify-center">
+                <button id="modal-btn-ok" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl transition w-full">OK</button>
+            </div>
+        </div>
     </div>
 
     <footer class="bg-white border-t border-slate-200 text-slate-400 py-4 text-center text-[11px] mt-auto">
-        &copy; 2026 YMCA Munchirai. All Rights Reserved.
+        &copy; 2026 MY Food. Admin Panel v2.4
     </footer>
 
     <!-- Firebase Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, set, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // SECURITY CHECKPOINT: Enforce Session Token Verification
+        function verifyAdminSession() {
+            const isAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const redirectToken = sessionStorage.getItem("ymca_redirect_token");
+            
+            if (!isAuthenticated || redirectToken !== "active") {
+                document.getElementById('security-lock-overlay').classList.remove('hidden');
+                throw new Error("Unauthorized security access blocked.");
+            }
+        }
+
+        // Run security verification immediately
+        try {
+            verifyAdminSession();
+        } catch (e) {
+            // Halt script execution if unauthorized
+            throw e;
+        }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -81,39 +201,67 @@
         const db = getDatabase(app);
         const newsRef = ref(db, 'news');
 
-        // Pure browser history back function
-        window.goBack = function() {
-            window.history.back();
+        window.adminRecords = {};
+        let draggedItemNode = null;
+
+        // Custom Inbuilt Professional Modal Handler
+        window.showAppModal = function(title, message, type = 'info', onConfirm = null) {
+            const modal = document.getElementById('app-modal');
+            const modalTitle = document.getElementById('app-modal-title');
+            const modalMessage = document.getElementById('app-modal-message');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalIconContainer = document.getElementById('modal-icon-container');
+            const modalActions = document.getElementById('app-modal-actions');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            if (type === 'success') {
+                modalIconContainer.className = "w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 text-base";
+                modalIcon.className = "fa-solid fa-circle-check";
+            } else if (type === 'error') {
+                modalIconContainer.className = "w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3 text-base";
+                modalIcon.className = "fa-solid fa-circle-exclamation";
+            } else if (type === 'confirm') {
+                modalIconContainer.className = "w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 text-base";
+                modalIcon.className = "fa-solid fa-triangle-exclamation";
+            } else {
+                modalIconContainer.className = "w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 text-base";
+                modalIcon.className = "fa-solid fa-triangle-exclamation";
+            }
+
+            modalActions.innerHTML = '';
+            if (onConfirm) {
+                modalActions.innerHTML = `
+                    <button id="modal-btn-cancel" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 px-4 rounded-xl transition w-1/2">Cancel</button>
+                    <button id="modal-btn-confirm" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold py-2 px-4 rounded-xl transition w-1/2">Confirm</button>
+                `;
+                document.getElementById('modal-btn-cancel').onclick = () => modal.classList.add('hidden');
+                document.getElementById('modal-btn-confirm').onclick = () => {
+                    modal.classList.add('hidden');
+                    onConfirm();
+                };
+            } else {
+                modalActions.innerHTML = `<button id="modal-btn-ok" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl transition w-full">OK</button>`;
+                document.getElementById('modal-btn-ok').onclick = () => modal.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
         };
 
         function formatImageURL(url) {
             if (!url) return '';
-            let u = url.trim();
-            const match = u.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-            if (match && match[1]) {
-                return `https://lh3.googleusercontent.com/d/${match[1]}`;
-            }
-            const matchId = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-            if (matchId && matchId[1]) {
-                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
-            }
-            return u;
-        }
-
-        async function fetchHeaderLogo() {
-            try {
-                const logoRef = ref(db, 'settings/storeLogo');
-                const snap = await get(logoRef);
-                const container = document.getElementById('header-logo-container');
-                if (snap.exists() && snap.val()) {
-                    const formatted = formatImageURL(snap.val());
-                    if (formatted) {
-                        container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
-                    }
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
                 }
-            } catch (err) {
-                console.error("Error loading header logo:", err);
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
             }
+            return url;
         }
 
         function displayFriendlyDate(dateStr) {
@@ -128,87 +276,279 @@
             return dateStr;
         }
 
-        // Real-time listener using Firebase SDK onValue
-        function initRealtimeNews() {
-            onValue(newsRef, (snapshot) => {
-                const data = snapshot.val();
-                handleDatabaseUpdate(data);
-            }, (error) => {
-                document.getElementById('loading-box').innerHTML = `<p class="text-rose-500 text-xs font-medium">Failed to load news feed. Please check your connection.</p>`;
-            });
+        window.openModalForAdd = function() {
+            document.getElementById('modalHeading').innerText = "Add New Post";
+            document.getElementById('recordId').value = "";
+            document.getElementById('newsForm').reset();
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inputDate').value = today;
+
+            document.getElementById('toggleButtonSwitch').checked = false;
+            toggleActionFields();
+            document.getElementById('newsModal').classList.replace('hidden', 'flex');
         }
 
-        function handleDatabaseUpdate(data) {
-            const loadingBox = document.getElementById('loading-box');
-            const newsGrid = document.getElementById('news-grid');
-            
-            loadingBox.style.display = 'none';
-            newsGrid.classList.remove('hidden');
-            newsGrid.innerHTML = '';
+        window.closeNewsModal = function() {
+            document.getElementById('newsModal').classList.replace('flex', 'hidden');
+        }
 
-            if (data && typeof data === 'object') {
-                let records = data.data || data;
-                const keys = Object.keys(records).filter(k => records[k] !== null);
-
-                if (keys.length > 0) {
-                    // Sort keys strictly based on admin custom order property, falling back to newest date
-                    keys.sort((a, b) => {
-                        let orderA = records[a] && records[a].order !== undefined ? records[a].order : 9999;
-                        let orderB = records[b] && records[b].order !== undefined ? records[b].order : 9999;
-                        if (orderA !== orderB) {
-                            return orderA - orderB;
-                        }
-                        return new Date(records[b].date || 0) - new Date(records[a].date || 0);
-                    });
-
-                    keys.forEach(id => {
-                        const item = records[id];
-                        if (!item) return;
-
-                        const processedImg = formatImageURL(item.image);
-                        const friendlyDate = displayFriendlyDate(item.date);
-                        
-                        let actionButtonHTML = '';
-                        if (item.showButton && item.btnText && item.btnLink) {
-                            actionButtonHTML = `
-                                <div class="mt-4 pt-3 border-t border-slate-100">
-                                    <a href="${item.btnLink}" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold py-2 px-4 rounded-xl shadow-xs transition">
-                                        ${item.btnText} <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                                    </a>
-                                </div>
-                            `;
-                        }
-
-                        const card = document.createElement('div');
-                        card.className = "bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col justify-between";
-                        card.innerHTML = `
-                            <div>
-                                <div class="h-44 bg-slate-100 relative">
-                                    <img src="${processedImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=YMCA+Munchirai'">
-                                    <span class="absolute top-2.5 right-2.5 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">${item.category}</span>
-                                </div>
-                                <div class="p-4">
-                                    <p class="text-[11px] text-slate-400 font-medium mb-1.5"><i class="fa-regular fa-calendar mr-1"></i>${friendlyDate}</p>
-                                    <h3 class="font-bold text-slate-900 text-base mb-2 leading-snug">${item.title}</h3>
-                                    <p class="text-slate-600 text-xs leading-relaxed whitespace-pre-line">${item.description}</p>
-                                    ${actionButtonHTML}
-                                </div>
-                            </div>
-                        `;
-                        newsGrid.appendChild(card);
-                    });
-                } else {
-                    newsGrid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No news announcements available right now. Please check back later.</p></div>`;
-                }
+        window.toggleActionFields = function() {
+            const isChecked = document.getElementById('toggleButtonSwitch').checked;
+            const container = document.getElementById('actionFieldsContainer');
+            if (isChecked) {
+                container.classList.remove('hidden');
             } else {
-                newsGrid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No news announcements available right now. Please check back later.</p></div>`;
+                container.classList.add('hidden');
+                document.getElementById('inputBtnText').value = '';
+                document.getElementById('inputBtnLink').value = '';
             }
         }
 
-        initRealtimeNews();
-        fetchHeaderLogo();
+        async function loadAdminData() {
+            const loadingBox = document.getElementById('loading-box');
+
+            try {
+                const snapshot = await get(newsRef);
+                const data = snapshot.val();
+                window.adminRecords = data || {};
+                
+                loadingBox.style.display = 'none';
+                renderAdminUI();
+            } catch (err) {
+                loadingBox.innerHTML = `<p class="text-rose-500 text-xs font-medium">Connection error: ${err.message}</p>`;
+            }
+        }
+
+        function renderAdminUI() {
+            const adminGrid = document.getElementById('admin-grid');
+            const sortableList = document.getElementById('sortable-titles-list');
+            
+            adminGrid.classList.remove('hidden');
+            adminGrid.innerHTML = '';
+            sortableList.innerHTML = '';
+
+            const data = window.adminRecords;
+            if (!data || Object.keys(data).length === 0) {
+                adminGrid.innerHTML = `<div id="empty-state" class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-slate-400 text-xs">No records available. Tap 'Add New Post' to start.</p></div>`;
+                sortableList.innerHTML = `<p class="text-slate-400 text-xs text-center py-3">No titles to reorder.</p>`;
+                return;
+            }
+
+            let keys = Object.keys(data);
+            
+            keys.sort((a, b) => {
+                let orderA = data[a].order !== undefined ? data[a].order : 9999;
+                let orderB = data[b].order !== undefined ? data[b].order : 9999;
+                if (orderA !== orderB) {
+                    return orderA - orderB;
+                }
+                return new Date(data[b].date || 0) - new Date(data[a].date || 0);
+            });
+
+             // 1. Render Sortable Titles Manager List
+            keys.forEach((id, index) => {
+                const item = data[id];
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 cursor-grab active:cursor-grabbing transition select-none";
+                row.draggable = true;
+                row.dataset.id = id;
+
+                row.addEventListener('dragstart', (e) => {
+                    draggedItemNode = row;
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => row.classList.add('opacity-40'), 0);
+                });
+
+                row.addEventListener('dragend', () => {
+                    row.classList.remove('opacity-40');
+                    draggedItemNode = null;
+                    autoSaveOrder(); // Auto-saves immediately upon drop
+                });
+
+                row.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const container = document.getElementById('sortable-titles-list');
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    if (afterElement == null) {
+                        container.appendChild(draggedItemNode);
+                    } else {
+                        container.insertBefore(draggedItemNode, afterElement);
+                    }
+                });
+
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5 overflow-hidden">
+                        <span class="row-index text-xs font-bold text-slate-400 w-5 text-center">${index + 1}.</span>
+                        <i class="fa-solid fa-grip-vertical text-slate-400 text-xs"></i>
+                        <span class="text-xs font-medium text-slate-800 truncate">${item.title || 'Untitled Post'}</span>
+                    </div>
+                    <span class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-md font-semibold">${item.category || 'General'}</span>
+                `;
+                sortableList.appendChild(row);
+            });
+
+            // 2. Render Grid Cards
+            keys.forEach(id => {
+                const item = data[id];
+                const processedImg = formatImageURL(item.image);
+                const friendlyDate = displayFriendlyDate(item.date);
+                
+                const card = document.createElement('div');
+                card.id = `card-${id}`;
+                card.className = "bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="h-36 bg-slate-100 relative">
+                            <img src="${processedImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'">
+                            <span class="absolute top-2.5 right-2.5 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">${item.category}</span>
+                        </div>
+                        <div class="p-3.5">
+                            <p class="text-[11px] text-slate-400 font-medium mb-1"><i class="fa-regular fa-calendar mr-1"></i>${friendlyDate}</p>
+                            <h3 class="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">${item.title}</h3>
+                            <p class="text-slate-600 text-xs line-clamp-2 leading-relaxed">${item.description}</p>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                        <button onclick="triggerEdit('${id}')" class="text-amber-600 hover:text-amber-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-amber-50 transition">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button onclick="triggerDelete('${id}')" class="text-rose-600 hover:text-rose-700 text-xs font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-rose-50 transition">
+                            <i class="fa-regular fa-trash-can"></i> Delete
+                        </button>
+                    </div>
+                `;
+                adminGrid.appendChild(card);
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable:not(.opacity-40), [draggable="true"]:not(.opacity-40)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        async function autoSaveOrder() {
+            const sortableList = document.getElementById('sortable-titles-list');
+            const rows = sortableList.querySelectorAll('[data-id]');
+            if (rows.length === 0) return;
+
+            const indicator = document.getElementById('autoSaveIndicator');
+
+            try {
+                const updates = {};
+                rows.forEach((row, index) => {
+                    const id = row.dataset.id;
+                    if (window.adminRecords[id]) {
+                        window.adminRecords[id].order = index;
+                        updates[`news/${id}/order`] = index;
+                    }
+                    // Update index labels dynamically
+                    const idxLabel = row.querySelector('.row-index');
+                    if (idxLabel) idxLabel.textContent = `${index + 1}.`;
+                });
+
+                await update(ref(db), updates);
+                
+                // Show discreet saved badge
+                indicator.classList.remove('hidden');
+                setTimeout(() => {
+                    indicator.classList.add('hidden');
+                }, 2000);
+            } catch (err) {
+                console.error("Auto-save order failed: " + err.message);
+            }
+        }
+
+        document.getElementById('newsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.innerText = "Saving...";
+            saveBtn.disabled = true;
+
+            const id = document.getElementById('recordId').value;
+            const newsPayload = {
+                title: document.getElementById('inputTitle').value.trim(),
+                date: document.getElementById('inputDate').value.trim(),
+                category: document.getElementById('inputCategory').value.trim(),
+                image: document.getElementById('inputImage').value.trim(),
+                description: document.getElementById('inputDescription').value.trim(),
+                showButton: document.getElementById('toggleButtonSwitch').checked,
+                btnText: document.getElementById('inputBtnText').value.trim(),
+                btnLink: document.getElementById('inputBtnLink').value.trim(),
+                order: id && window.adminRecords[id] && window.adminRecords[id].order !== undefined ? window.adminRecords[id].order : 0
+            };
+
+            try {
+                if (id) {
+                    await set(ref(db, `news/${id}`), newsPayload);
+                    window.adminRecords[id] = newsPayload;
+                    closeNewsModal();
+                    renderAdminUI();
+                    window.showAppModal("Success", "Post updated successfully.", "success");
+                } else {
+                    const newPostRef = push(newsRef);
+                    newsPayload.order = 0; // Put new posts at top by default
+                    await set(newPostRef, newsPayload);
+                    window.adminRecords[newPostRef.key] = newsPayload;
+                    closeNewsModal();
+                    renderAdminUI();
+                    window.showAppModal("Success", "New post created successfully.", "success");
+                }
+            } catch (err) {
+                window.showAppModal("Error", "Operation failed: " + err.message, "error");
+            } finally {
+                saveBtn.innerText = "Save Post";
+                saveBtn.disabled = false;
+            }
+        });
+
+        window.triggerDelete = async function(id) {
+            window.showAppModal("Confirm Deletion", "Are you sure you want to remove this entry?", "confirm", async () => {
+                try {
+                    await remove(ref(db, `news/${id}`));
+                    delete window.adminRecords[id];
+                    renderAdminUI();
+                    window.showAppModal("Success", "Entry removed successfully.", "success");
+                } catch (err) {
+                    window.showAppModal("Error", "Deletion failed: " + err.message, "error");
+                }
+            });
+        }
+
+        window.triggerEdit = function(id) {
+            const item = window.adminRecords[id];
+            if (!item) {
+                window.showAppModal("Error", "Record details could not be found.", "error");
+                return;
+            }
+
+            document.getElementById('modalHeading').innerText = "Edit Record";
+            document.getElementById('recordId').value = id;
+            document.getElementById('inputTitle').value = item.title || '';
+            document.getElementById('inputDate').value = item.date || '';
+            document.getElementById('inputCategory').value = item.category || '';
+            document.getElementById('inputImage').value = item.image || '';
+            document.getElementById('inputDescription').value = item.description || '';
+            
+            const toggle = document.getElementById('toggleButtonSwitch');
+            toggle.checked = (item.showButton === true || item.showButton === 'true');
+            toggleActionFields();
+
+            document.getElementById('inputBtnText').value = item.btnText || '';
+            document.getElementById('inputBtnLink').value = item.btnLink || '';
+            document.getElementById('newsModal').classList.replace('hidden', 'flex');
+        }
+
+        loadAdminData();
     </script>
 </body>
 </html>
-
-
