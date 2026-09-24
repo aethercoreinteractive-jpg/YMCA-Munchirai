@@ -31,7 +31,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 antialiased selection:bg-transparent selection:text-current">
+<body class="bg-gray-100 text-gray-900 antialiased selection:bg-transparent selection:text-current select-none" oncopy="return false;" oncut="return false;" onpaste="return false;" oncontextmenu="return false;">
 
     <!-- Amazon / Flipkart Style Professional Marketplace Header -->
     <header class="sticky top-0 z-40 bg-slate-900 text-white shadow-md">
@@ -87,7 +87,7 @@
     <!-- Hero Section -->
     <section class="relative bg-slate-950 text-white overflow-hidden">
         <div id="display-hero-bg" class="absolute inset-0 opacity-30 mix-blend-overlay">
-            <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=2000" alt="YMCA Community" class="w-full h-full object-cover object-center">
+            <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=2000" alt="YMCA Community" class="w-full h-full object-cover object-center pointer-events-none">
         </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 flex flex-col items-center text-center justify-center">
             <span id="display-branch-tag" class="text-[11px] uppercase tracking-widest font-bold bg-amber-500/20 text-amber-300 px-3 py-1 rounded-md mb-4 border border-amber-500/30">Munchirai YMCA</span>
@@ -247,12 +247,12 @@
                 <p class="text-gray-600 font-light text-xs sm:text-sm leading-relaxed">Every purchase helps create a meaningful social impact.</p>
             </div>
             <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-gray-100 border border-gray-200 shadow-sm">
-                <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1000" alt="Community Activity" class="w-full h-full object-cover">
+                <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1000" alt="Community Activity" class="w-full h-full object-cover pointer-events-none">
             </div>
         </div>
     </section>
 
-        <!-- Professional Footer -->
+ <!-- Professional Footer -->
     <footer id="contact" class="bg-slate-950 text-white pt-14 pb-10 border-t border-slate-800 text-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
@@ -333,11 +333,11 @@
                     if (formatted) {
                         const headerContainer = document.getElementById('header-logo-container');
                         if (headerContainer) {
-                            headerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                            headerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover pointer-events-none" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
                         }
                         const footerContainer = document.getElementById('footer-logo-container');
                         if (footerContainer) {
-                            footerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                            footerContainer.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover pointer-events-none" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
                         }
                     }
                 }
@@ -479,7 +479,7 @@
                     <div class="snap-start shrink-0 w-[calc(50%-6px)] sm:w-56 bg-white rounded-xl p-2.5 sm:p-3.5 border border-gray-200 shadow-sm flex flex-col justify-between transition hover:border-amber-400">
                         <div>
                             <div class="w-full h-28 sm:h-36 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center mb-2 sm:mb-3">
-                                <img src="${formatImageURL(item.img) || ''}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200?text=IMG'">
+                                <img src="${formatImageURL(item.img) || ''}" alt="${item.name}" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://placehold.co/200x200?text=IMG'">
                             </div>
                             <span class="text-[9px] sm:text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">${item.category || 'General'}</span>
                             <h4 class="font-bold text-gray-900 text-xs mt-1.5 sm:mt-2 truncate">${item.name}</h4>
@@ -510,6 +510,7 @@
 
             sliderContainer.innerHTML = html;
         }
+
  // ==================== REALTIME NEWS ENGINE ====================
         const NEWS_DB_URL = "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com/news";
         let newsList = [];
@@ -586,7 +587,7 @@
             container.innerHTML = `
                 <div class="bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden shadow-inner flex flex-col md:flex-row news-animate-fade">
                     <div class="relative md:w-1/2 aspect-[16/9] md:aspect-auto overflow-hidden bg-gray-200 min-h-[220px]">
-                        <img src="${processedImg}" alt="${titleText}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
+                        <img src="${processedImg}" alt="${titleText}" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800'">
                         <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded shadow">${item.category || 'Announcement'}</span>
                     </div>
                     <div class="md:w-1/2 p-6 sm:p-8 flex flex-col justify-center min-w-0">
@@ -618,7 +619,7 @@
             const savedSettings = JSON.parse(localStorage.getItem("ymca_index_settings")) || {};
             if (savedSettings.heroTitle) document.getElementById('display-hero-title').textContent = savedSettings.heroTitle;
             if (savedSettings.heroDesc) document.getElementById('display-hero-desc').textContent = savedSettings.heroDesc;
-            if (savedSettings.heroImg) document.getElementById('display-hero-bg').innerHTML = `<img src="${savedSettings.heroImg}" alt="YMCA Community" class="w-full h-full object-cover object-center">`;
+            if (savedSettings.heroImg) document.getElementById('display-hero-bg').innerHTML = `<img src="${savedSettings.heroImg}" alt="YMCA Community" class="w-full h-full object-cover object-center pointer-events-none">`;
             if (savedSettings.footerDesc) document.getElementById('display-footer-desc').textContent = savedSettings.footerDesc;
         }
 
@@ -673,6 +674,22 @@
                     window.globalInventoryData.forEach(item => {
                         refreshCardActionUI(item.key);
                     });
+                }
+            });
+
+            // Prevent Copy, Cut, Paste, and Context Menu globally
+            document.addEventListener('copy', (e) => e.preventDefault());
+            document.addEventListener('cut', (e) => e.preventDefault());
+            document.addEventListener('paste', (e) => e.preventDefault());
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            
+            // Prevent Keyboard Shortcuts (Ctrl+C, Ctrl+X, Ctrl+A, Ctrl+U, etc.)
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && (e.key === 'c' || e.key === 'x' || e.key === 'a' || e.key === 'u' || e.key === 's' || e.key === 'p')) {
+                    e.preventDefault();
+                }
+                if (e.key === 'F12') {
+                    e.preventDefault();
                 }
             });
 
