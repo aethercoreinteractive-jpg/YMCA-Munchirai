@@ -20,8 +20,11 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Live Orders
+                <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
+                        <span>MY</span>
+                    </div>
+                    <span>Live Orders</span>
                 </a>
             </div>
             <div class="flex items-center gap-2">
@@ -67,7 +70,7 @@
     <!-- Firebase SDK Imports & Orders Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -84,6 +87,59 @@
         const db = getDatabase(app);
 
         const ordersRef = ref(db, 'orders');
+
+        // Convert Google Drive share link into a direct viewable image link
+        window.formatDriveUrl = function(rawUrl) {
+            if (!rawUrl) return "";
+            let url = rawUrl.trim();
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            }
+            return url;
+        };
+
+        // Fetch and apply existing store logo into the header
+        async function fetchExistingLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    updateHeaderLogo(snap.val());
+                } else {
+                    updateHeaderLogo("");
+                }
+            } catch (err) {
+                console.error("Error loading logo:", err);
+            }
+        }
+
+        function updateHeaderLogo(url) {
+            const container = document.getElementById('header-logo-container');
+            const formatted = window.formatDriveUrl(url);
+            if (formatted) {
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+            } else {
+                container.innerHTML = `MY`;
+            }
+        }
+
+        // Initialize logo on load and listen for real-time changes
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchExistingLogo();
+        });
+
+        onValue(ref(db, 'settings/storeLogo'), (snapshot) => {
+            if (snapshot.exists()) {
+                updateHeaderLogo(snapshot.val());
+            } else {
+                updateHeaderLogo("");
+            }
+        });
 
         onValue(ordersRef, (snapshot) => {
             const data = snapshot.val();
