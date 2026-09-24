@@ -28,11 +28,23 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16 flex flex-col min-h-screen">
 
+    <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
+    <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
+        <div class="w-12 h-12 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-2xl flex items-center justify-center mb-4 text-lg">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-white text-base font-extrabold mb-1">Unauthorized Access Attempt</h2>
+        <p class="text-slate-400 text-xs max-w-xs mb-5">Security token not found or session expired. Please authenticate via the primary admin control center.</p>
+        <a href="admin.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md">
+            Return to Admin Portal
+        </a>
+    </div>
+
     <!-- Professional Fixed Header -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2.5 shrink-0">
-                <a href="admin.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token');" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
                     <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
                         <span>MY</span>
                     </div>
@@ -40,6 +52,10 @@
                 </a>
             </div>
             <div class="flex items-center gap-2">
+                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token');" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl transition border border-slate-700 flex items-center gap-1.5 font-medium">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                    <span>Dashboard</span>
+                </a>
                 <button type="button" onclick="openCreateModal()" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 px-3.5 py-2 rounded-xl transition border border-amber-400 flex items-center gap-1.5 font-extrabold shadow-sm active:scale-95">
                     <i class="fa-solid fa-plus text-xs"></i>
                     <span>Add Banner</span>
@@ -174,6 +190,25 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // SECURITY CHECKPOINT: Enforce Session Token Verification
+        function verifyAdminSession() {
+            const isAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const redirectToken = sessionStorage.getItem("ymca_redirect_token");
+            
+            if (!isAuthenticated || redirectToken !== "active") {
+                document.getElementById('security-lock-overlay').classList.remove('hidden');
+                throw new Error("Unauthorized security access blocked.");
+            }
+        }
+
+        // Run security verification immediately
+        try {
+            verifyAdminSession();
+        } catch (e) {
+            // Halt script execution if unauthorized
+            throw e;
+        }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -638,6 +673,7 @@
         window.hideToast = function() {
             const toast = document.getElementById('toast-notification');
             if (toast) {
+                toast.classList.0 = ''; //noop
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('-translate-y-20', 'opacity-0', 'pointer-events-none');
             }
