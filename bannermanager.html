@@ -66,7 +66,7 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <div>
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Preview</h2>
-                    <p class="text-[10px] text-slate-400">Infinite swipeable simulation</p>
+                    <p class="text-[10px] text-slate-400">Bounce-back reverse simulation</p>
                 </div>
                 <div class="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live Sync
@@ -132,7 +132,7 @@
     <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -151,6 +151,7 @@
         window.slidesState = [];
         let previewIndex = 0;
         let previewTimer = null;
+        let slideDirection = 1; // 1 = moving forward, -1 = moving backward
         let draggedItemNode = null;
 
         // Preview Slider Gestures state
@@ -198,7 +199,6 @@
                     }];
                 }
                 
-                // Sort by order property if available
                 slidesState.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
                 renderWorkspace();
             } catch (err) {
@@ -294,7 +294,6 @@
                 row.draggable = true;
                 row.dataset.id = slide.id;
 
-                // Native Drag & Drop Listeners (Identical pattern to adminnews.html)
                 row.addEventListener('dragstart', (e) => {
                     draggedItemNode = row;
                     e.dataTransfer.effectAllowed = 'move';
@@ -362,15 +361,12 @@
             const indicator = document.getElementById('autoSaveIndicator');
             const newOrderIDs = Array.from(rows).map(row => row.getAttribute('data-id'));
 
-            // Reorder slidesState array to match DOM order
             slidesState.sort((a, b) => newOrderIDs.indexOf(a.id) - newOrderIDs.indexOf(b.id));
             
-            // Update order indices
             slidesState.forEach((slide, idx) => {
                 slide.order = idx;
             });
 
-     // Update DOM indices labels
             rows.forEach((row, idx) => {
                 const idxLabel = row.querySelector('.row-index');
                 if (idxLabel) idxLabel.textContent = idx + 1;
@@ -398,6 +394,7 @@
                 return;
             }
 
+            // Normal sequential array list (No infinite cloning)
             track.innerHTML = slidesState.map(slide => `
                 <div class="min-w-full h-full relative shrink-0">
                     <img src="${parseAssetURL(slide.image)}" alt="Preview Slide" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
@@ -425,7 +422,11 @@
         function updateTransform() {
             const track = document.getElementById('preview-slider-track');
             if (!track || slidesState.length === 0) return;
-            previewIndex = (previewIndex + slidesState.length) % slidesState.length;
+            
+            // Hard boundaries clamp to prevent black backgrounds or out-of-bounds rendering
+            if (previewIndex >= slidesState.length) previewIndex = slidesState.length - 1;
+            if (previewIndex < 0) previewIndex = 0;
+
             track.style.transition = 'transform 0.3s ease-out';
             currentTranslate = previewIndex * -track.parentElement.clientWidth;
             prevTranslate = currentTranslate;
@@ -447,7 +448,13 @@
             if (slidesState.length <= 1) return;
             previewTimer = setInterval(() => {
                 if (!isDraggingPreview) {
-                    previewIndex = (previewIndex + 1) % slidesState.length;
+                    // Check if we hit the boundaries, and reverse direction accordingly (Bounce effect)
+                    if (previewIndex >= slidesState.length - 1) {
+                        slideDirection = -1; // Reverse to go backward
+                    } else if (previewIndex <= 0) {
+                        slideDirection = 1; // Reverse to go forward
+                    }
+                    previewIndex += slideDirection;
                     updateTransform();
                 }
             }, 4000);
@@ -458,7 +465,6 @@
             const track = document.getElementById('preview-slider-track');
             if (!container || !track) return;
 
-            // Remove existing listeners to avoid duplicates
             const newContainer = container.cloneNode(true);
             container.parentNode.replaceChild(newContainer, container);
             
@@ -493,7 +499,19 @@
                 if (!isDraggingPreview) return;
                 const currentPosition = getPositionX(event);
                 const diff = currentPosition - startX;
-                currentTranslate = prevTranslate + diff;
+                
+                // Prevent pulling past boundaries during manual drag
+                const maxTranslate = 0;
+                const minTranslate = -(slidesState.length - 1) * activeContainer.clientWidth;
+                let potentialTranslate = prevTranslate + diff;
+                
+                if (potentialTranslate > maxTranslate) {
+                    potentialTranslate = maxTranslate + (diff * 0.2); // Rubber-band resistance effect at start edge
+                } else if (potentialTranslate < minTranslate) {
+                    potentialTranslate = minTranslate + (diff * 0.2); // Rubber-band resistance effect at end edge
+                }
+                
+                currentTranslate = potentialTranslate;
             }
 
             function touchEnd() {
@@ -504,10 +522,10 @@
                 const movedBy = currentTranslate - prevTranslate;
                 const threshold = activeContainer.clientWidth / 4;
 
-                if (movedBy < -threshold) {
-                    previewIndex = (previewIndex + 1) % slidesState.length;
-                } else if (movedBy > threshold) {
-                    previewIndex = (previewIndex - 1 + slidesState.length) % slidesState.length;
+                if (movedBy < -threshold && previewIndex < slidesState.length - 1) {
+                    previewIndex++;
+                } else if (movedBy > threshold && previewIndex > 0) {
+                    previewIndex--;
                 }
 
                 updateTransform();
