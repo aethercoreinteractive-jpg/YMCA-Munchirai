@@ -184,7 +184,8 @@
                                 <i class="fa-solid fa-floppy-disk"></i>
                                 <span>Save</span>
                             </button>
-                            <button type="button" onclick="handleDeleteLogo()" class="flex-grow sm:flex-grow-0 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold px-4 py-3.5 sm:py-3 rounded-xl text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-2 flex-shrink-0" title="Delete custom logo">
+                            <!-- DELETE BUTTON (Dynamically shown/hidden based on whether an image/link exists) -->
+                            <button type="button" id="delete-logo-btn" onclick="handleDeleteLogo()" class="hidden flex-grow sm:flex-grow-0 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold px-4 py-3.5 sm:py-3 rounded-xl text-xs sm:text-sm transition active:scale-95 flex items-center justify-center gap-2 flex-shrink-0" title="Delete custom logo">
                                 <i class="fa-solid fa-trash-can"></i>
                                 <span class="sm:hidden">Delete</span>
                             </button>
@@ -224,7 +225,7 @@
         const IMMUTABLE_COMPANY_CODE = "399812";
         let toastTimeout = null;
 
-        // Industry Standard Floating Toast Notification System (Matched with admin.html)
+        // Industry Standard Floating Toast Notification System
         window.showToast = function(title, message, isError = false) {
             const toast = document.getElementById('toast-notification');
             const titleEl = document.getElementById('toast-title');
@@ -277,10 +278,18 @@
 
         window.previewDriveLogo = function(val) {
             const badge = document.getElementById('logo-preview-badge');
+            const deleteBtn = document.getElementById('delete-logo-btn');
             const formatted = window.formatDriveUrl(val);
-            if (formatted) {
-                badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-3xl\'></i>';">`;
+            
+            if (val && val.trim().length > 0) {
+                deleteBtn.classList.remove('hidden');
+                if (formatted) {
+                    badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-3xl\'></i>';">`;
+                } else {
+                    badge.innerHTML = `<i class="fa-solid fa-image text-slate-300 text-4xl"></i>`;
+                }
             } else {
+                deleteBtn.classList.add('hidden');
                 badge.innerHTML = `<i class="fa-solid fa-image text-slate-300 text-4xl"></i>`;
             }
         };
@@ -318,6 +327,7 @@
                     updateHeaderLogo(val);
                 } else {
                     updateHeaderLogo("");
+                    window.previewDriveLogo("");
                 }
             } catch (err) {
                 console.error("Error loading logo:", err);
@@ -377,11 +387,18 @@
             }
         };
 
-        // Save Logo safely using update() without disturbing other database keys
+        // Save Logo safely: verifies input is provided, otherwise prompts user to paste a link first.
         window.handleSaveLogo = async function(event) {
             event.preventDefault();
             const rawVal = document.getElementById('logo-url-input').value.trim();
-            const formattedUrl = window.formatDriveUrl(rawUrl);
+
+            if (!rawVal) {
+                window.showToast("Link Required", "Please paste a link first.", true);
+                document.getElementById('logo-url-input').focus();
+                return;
+            }
+
+            const formattedUrl = window.formatDriveUrl(rawVal);
 
             try {
                 const settingsRef = ref(db, 'settings');
@@ -390,6 +407,7 @@
                 });
 
                 updateHeaderLogo(formattedUrl);
+                window.previewDriveLogo(formattedUrl);
                 window.showToast("Logo Updated", "Brand identity successfully saved to Firebase!");
             } catch (error) {
                 console.error("Save logo error:", error);
@@ -406,7 +424,7 @@
             document.getElementById('confirm-modal').classList.add('hidden');
         };
 
-        // Permanently remove only the storeLogo node from Firebase without touching any other settings or database keys
+        // Permanently remove only the storeLogo node from Firebase without touching any other settings
         window.executePermanentDeleteLogo = async function() {
             closeConfirmModal();
             try {
