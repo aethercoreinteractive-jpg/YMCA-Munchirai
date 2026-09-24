@@ -95,7 +95,7 @@
             <!-- Logo & Title Group -->
             <div class="flex items-center gap-3">
                 <div id="header-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-slate-700 bg-white">
-                    <img src="./MY Food Logo.png" alt="MY Food Logo" class="w-full h-full object-cover object-center scale-125" onerror="this.onerror=null; this.src='MY Food Logo.png';">
+                    <img src="./MY Food Logo.png" alt="MY Food Logo" class="w-full h-full object-cover object-center">
                 </div>
                 <div>
                     <h1 class="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-none">MY Food</h1>
@@ -138,7 +138,7 @@
             <div class="flex flex-col items-center justify-center p-8 sm:p-10 bg-slate-50 border border-slate-200/80 rounded-2xl">
                 <span class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-4">Live Logo Preview</span>
                 <div id="logo-preview-badge" class="w-40 h-40 sm:w-52 sm:h-52 rounded-3xl bg-white border-2 border-slate-200 shadow-xl flex items-center justify-center overflow-hidden transition-all duration-300">
-                    <i class="fa-solid fa-image text-slate-300 text-4xl"></i>
+                    <img src="./MY Food Logo.png" alt="Logo Preview" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-image text-slate-300 text-4xl\'></i>';">
                 </div>
             </div>
 
@@ -240,9 +240,9 @@
             const badge = document.getElementById('logo-preview-badge');
             const formatted = window.formatDriveUrl(val);
             if (formatted) {
-                badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-cover object-center scale-125" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-3xl\'></i>';">`;
+                badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-3xl\'></i>';">`;
             } else {
-                badge.innerHTML = `<i class="fa-solid fa-image text-slate-300 text-4xl"></i>`;
+                badge.innerHTML = `<img src="./MY Food Logo.png" alt="Logo Preview" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-image text-slate-300 text-4xl\'></i>';">`;
             }
         };
 
@@ -282,6 +282,7 @@
                 }
             } catch (err) {
                 console.error("Error loading logo:", err);
+                updateHeaderLogo("");
             }
         }
 
@@ -289,9 +290,9 @@
             const container = document.getElementById('header-logo-container');
             const formatted = window.formatDriveUrl(url);
             if (formatted) {
-                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover object-center scale-125" onerror="this.onerror=null; this.innerHTML='<img src=\\'./MY Food Logo.png\\' alt=\\'MY Food Logo.png\\' class=\\'w-full h-full object-cover object-center scale-125\\' onerror=\\'this.onerror=null; this.parentElement.innerHTML=\\'MY\\';\\">';">`;
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.innerHTML='<img src=\\'./MY Food Logo.png\\' alt=\\'MY Food Logo.png\\' class=\\'w-full h-full object-cover object-center\\' onerror=\\'this.onerror=null; this.parentElement.innerHTML=\\'MY\\';\\">';">`;
             } else {
-                container.innerHTML = `<img src="./MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover object-center scale-125" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                container.innerHTML = `<img src="./MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
             }
         }
 
@@ -350,7 +351,7 @@
 
                 updateHeaderLogo(formattedUrl);
                 window.showToast("Logo Updated", "Brand identity successfully saved to Firebase!");
-            } catch(error) {
+            } catch (error) {
                 console.error("Save logo error:", error);
                 window.showToast("Error", "Failed to save logo to database.", true);
             }
