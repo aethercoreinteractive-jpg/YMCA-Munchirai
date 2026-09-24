@@ -41,15 +41,18 @@
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
-    <!-- PROFESSIONAL ENTERPRISE NOTIFICATION TOAST -->
-    <div id="toast-notification" class="fixed top-20 right-4 sm:right-6 z-50 transform translate-x-[120%] opacity-0 transition-all duration-300 max-w-sm w-full bg-white/95 backdrop-blur-md text-slate-900 px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-200/80 flex items-center gap-3.5">
-        <div id="toast-icon-wrapper" class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center text-sm flex-shrink-0 shadow-sm">
+    <!-- PROFESSIONAL INDUSTRY-STANDARD FLOATING NOTIFICATION TOAST -->
+    <div id="toast-notification" class="fixed top-6 right-6 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900/95 backdrop-blur-md text-white px-5 py-4 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-4">
+        <div id="toast-icon-wrapper" class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-sm flex-shrink-0 shadow-inner">
             <i id="toast-icon" class="fa-solid fa-check"></i>
         </div>
         <div class="flex-grow">
-            <h4 id="toast-title" class="text-xs font-bold text-slate-900 tracking-tight">Success</h4>
-            <p id="toast-message" class="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">Action completed successfully.</p>
+            <h4 id="toast-title" class="text-xs font-extrabold text-white tracking-tight">Success</h4>
+            <p id="toast-message" class="text-[11px] text-slate-300 font-medium leading-relaxed mt-0.5">Action completed successfully.</p>
         </div>
+        <button onclick="hideToast()" class="text-slate-400 hover:text-white p-1 transition">
+            <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
     </div>
 
     <!-- ENTERPRISE AUTHENTICATION MODAL -->
@@ -94,8 +97,8 @@
             
             <!-- Logo & Title Group -->
             <div class="flex items-center gap-3">
-                <div id="header-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
-                    <span id="header-logo-fallback">MY</span>
+                <div id="header-logo-container" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 border-2 border-amber-500/30 bg-white shadow-sm p-0.5">
+                    <img src="./MY Food Logo.png" alt="MY Food Logo" class="w-full h-full object-contain object-center" onerror="this.onerror=null; this.src='MY Food Logo.png';">
                 </div>
                 <div>
                     <h1 class="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-none">MY Food</h1>
@@ -137,8 +140,8 @@
             <!-- EXPANDED BIGGER LIVE PREVIEW SECTION -->
             <div class="flex flex-col items-center justify-center p-8 sm:p-10 bg-slate-50 border border-slate-200/80 rounded-2xl">
                 <span class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-4">Live Logo Preview</span>
-                <div id="logo-preview-badge" class="w-40 h-40 sm:w-52 sm:h-52 rounded-3xl bg-white border-2 border-slate-200 shadow-xl flex items-center justify-center overflow-hidden transition-all duration-300">
-                    <i class="fa-solid fa-image text-slate-300 text-4xl"></i>
+                <div id="logo-preview-badge" class="w-40 h-40 sm:w-52 sm:h-52 rounded-3xl bg-white border-2 border-slate-200 shadow-xl flex items-center justify-center overflow-hidden transition-all duration-300 p-3">
+                    <img src="./MY Food Logo.png" alt="Logo Preview" class="w-full h-full object-contain object-center" onerror="this.onerror=null; this.src='./MY Food Logo.png';">
                 </div>
             </div>
 
@@ -193,7 +196,9 @@
         const FALLBACK_PASSWORD = "Admin@123";
         const IMMUTABLE_COMPANY_CODE = "399812";
 
-        // Professional Industry-Standard Slide-in Toast Notification System
+        let toastTimeout = null;
+
+        // Professional Industry-Standard Floating Toast Notification System
         window.showToast = function(title, message, isError = false) {
             const toast = document.getElementById('toast-notification');
             const titleEl = document.getElementById('toast-title');
@@ -205,20 +210,27 @@
             msgEl.innerText = message;
 
             if (isError) {
-                iconWrapper.className = "w-10 h-10 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/60 flex items-center justify-center text-sm flex-shrink-0 shadow-sm";
+                iconWrapper.className = "w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-sm flex-shrink-0 shadow-inner";
                 icon.className = "fa-solid fa-triangle-exclamation";
             } else {
-                iconWrapper.className = "w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center text-sm flex-shrink-0 shadow-sm";
+                iconWrapper.className = "w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-sm flex-shrink-0 shadow-inner";
                 icon.className = "fa-solid fa-check";
             }
 
-            toast.classList.remove('translate-x-[120%]', 'opacity-0');
-            toast.classList.add('translate-x-0', 'opacity-100');
+            if (toastTimeout) clearTimeout(toastTimeout);
 
-            setTimeout(() => {
-                toast.classList.remove('translate-x-0', 'opacity-100');
-                toast.classList.add('translate-x-[120%]', 'opacity-0');
-            }, 3500);
+            toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            toastTimeout = setTimeout(() => {
+                hideToast();
+            }, 4000);
+        };
+
+        window.hideToast = function() {
+            const toast = document.getElementById('toast-notification');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-[-150%]', 'opacity-0');
         };
 
         // Convert Google Drive share link into a direct viewable image link
@@ -240,9 +252,9 @@
             const badge = document.getElementById('logo-preview-badge');
             const formatted = window.formatDriveUrl(val);
             if (formatted) {
-                badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-3xl\'></i>';">`;
+                badge.innerHTML = `<img src="${formatted}" alt="Logo Preview" class="w-full h-full object-contain object-center" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-triangle-exclamation text-rose-500 text-3xl\'></i>';">`;
             } else {
-                badge.innerHTML = `<i class="fa-solid fa-image text-slate-300 text-4xl"></i>`;
+                badge.innerHTML = `<img src="./MY Food Logo.png" alt="Logo Preview" class="w-full h-full object-contain object-center" onerror="this.onerror=null; this.src='./MY Food Logo.png';">`;
             }
         };
 
@@ -282,6 +294,7 @@
                 }
             } catch (err) {
                 console.error("Error loading logo:", err);
+                updateHeaderLogo("");
             }
         }
 
@@ -289,9 +302,9 @@
             const container = document.getElementById('header-logo-container');
             const formatted = window.formatDriveUrl(url);
             if (formatted) {
-                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-contain object-center" onerror="this.onerror=null; this.innerHTML='<img src=\\'./MY Food Logo.png\\' alt=\\'MY Food Logo.png\\' class=\\'w-full h-full object-contain object-center\\">';">`;
             } else {
-                container.innerHTML = `MY`;
+                container.innerHTML = `<img src="./MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-contain object-center" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
             }
         }
 
@@ -336,7 +349,7 @@
             }
         };
 
-        // Save Logo safely using update() without disturbing other database keys
+         // Save Logo safely using update() without disturbing other database keys
         window.handleSaveLogo = async function(event) {
             event.preventDefault();
             const rawVal = document.getElementById('logo-url-input').value.trim();
@@ -356,7 +369,7 @@
             }
         };
 
-      // Delete Logo option to clear database field and revert header to "MY" default
+        // Delete Logo option to clear database field and revert header to default "MY Food Logo.png"
         window.handleDeleteLogo = async function() {
             try {
                 const settingsRef = ref(db, 'settings');
@@ -367,7 +380,7 @@
                 document.getElementById('logo-url-input').value = "";
                 window.previewDriveLogo("");
                 updateHeaderLogo("");
-                window.showToast("Logo Removed", "Default branding 'MY' restored successfully.");
+                window.showToast("Logo Removed", "Default branding 'MY Food Logo.png' restored successfully.");
             } catch (error) {
                 console.error("Delete logo error:", error);
                 window.showToast("Error", "Failed to delete logo from database.", true);
