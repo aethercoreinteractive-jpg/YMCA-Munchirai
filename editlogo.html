@@ -41,7 +41,7 @@
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
-    <!-- INDUSTRY STANDARD PROFESSIONAL NOTIFICATION TOAST (FIXED, CENTER-PINNED, FLOATING) -->
+    <!-- ENTERPRISE NOTIFICATION TOAST -->
     <div id="toast-notification" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-[99999] max-w-sm w-[90%] bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
         <div id="toast-icon-wrapper" class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
             <i id="toast-icon" class="fa-solid fa-circle-check"></i>
@@ -67,7 +67,7 @@
             <div class="mb-6">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-700 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">Permanent Action</span>
                 <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-2.5">Delete Custom Logo?</h2>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed px-2">Removes logo link from Firebase and restores default branding.</p>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed px-2">Removes logo from cloud registry and restores default branding.</p>
             </div>
             
             <div class="flex gap-3">
@@ -149,7 +149,7 @@
         <!-- SECTION TITLE -->
         <div>
             <h2 class="text-sm sm:text-base font-extrabold text-slate-900">Brand Identity & Logo Configuration</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Update platform logo using a secure Google Drive cloud link.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Update platform logo using a secure cloud storage link.</p>
         </div>
 
         <!-- GOOGLE DRIVE LOGO MANAGEMENT CARD -->
@@ -160,7 +160,7 @@
                 </div>
                 <div>
                     <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">Platform Logo Source</h3>
-                    <p class="text-[11px] text-slate-500">Paste shared Google Drive image link below</p>
+                    <p class="text-[11px] text-slate-500">Paste shared cloud storage image link below</p>
                 </div>
             </div>
 
@@ -175,7 +175,7 @@
             <!-- Logo Form -->
             <form onsubmit="handleSaveLogo(event)" class="space-y-4">
                 <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Google Drive Image URL</label>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">Cloud Image URL</label>
                     <div class="flex flex-col sm:flex-row gap-2.5">
                         <input type="url" id="logo-url-input" oninput="previewDriveLogo(this.value)" placeholder="https://drive.google.com/uc?export=view&id=..." class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition shadow-sm">
                         
@@ -191,7 +191,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-2">Set Google Drive sharing permission to "Anyone with the link can view".</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-2">Set file sharing permission to public view mode.</p>
                 </div>
             </form>
         </div>
@@ -203,7 +203,7 @@
         MY Food Edit Logo &bull; Secure Operations Center
     </footer>
 
-    <!-- CORE FIREBASE & LOGO SCRIPT -->
+    <!-- CORE CLOUD BACKEND & LOGO SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, set, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -261,7 +261,7 @@
             }
         };
 
-        // Convert Google Drive share link into a direct viewable image link
+        // Convert cloud share link into a direct viewable image link
         window.formatDriveUrl = function(rawUrl) {
             if (!rawUrl) return "";
             let url = rawUrl.trim();
@@ -417,7 +417,7 @@
 
         // Trigger confirmation modal for deletion
         window.handleDeleteLogo = function() {
-            document.getElementById('confirm-modal').classList.add('hidden'); // safe reset
+            document.getElementById('confirm-modal').classList.add('hidden');
             document.getElementById('confirm-modal').classList.remove('hidden');
         };
 
@@ -425,7 +425,7 @@
             document.getElementById('confirm-modal').classList.add('hidden');
         };
 
-        // Permanently remove only the storeLogo node from Firebase without touching any other settings
+        // Permanently remove only the logo registry node without disturbing other settings
         window.executePermanentDeleteLogo = async function() {
             closeConfirmModal();
             try {
