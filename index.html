@@ -104,10 +104,9 @@
         </div>
     </section>
 
-    <!-- Value Propositions Section (Three Separate Capsule Cards) -->
+    <!-- Value Propositions Section -->
     <section class="bg-white border-b border-gray-200 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Capsule 1 -->
             <div class="bg-gray-50 border border-gray-200/80 rounded-2xl p-6 shadow-sm flex items-center gap-4 transition hover:border-amber-400 hover:shadow-md">
                 <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-shield-halved text-base"></i></div>
                 <div>
@@ -115,7 +114,6 @@
                     <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Selected favourites for taste and freshness.</p>
                 </div>
             </div>
-            <!-- Capsule 2 -->
             <div class="bg-gray-50 border border-gray-200/80 rounded-2xl p-6 shadow-sm flex items-center gap-4 transition hover:border-amber-400 hover:shadow-md">
                 <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-truck-fast text-base"></i></div>
                 <div>
@@ -123,7 +121,6 @@
                     <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Free delivery, more savings.</p>
                 </div>
             </div>
-            <!-- Capsule 3 -->
             <div class="bg-gray-50 border border-gray-200/80 rounded-2xl p-6 shadow-sm flex items-center gap-4 transition hover:border-amber-400 hover:shadow-md">
                 <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-leaf text-base"></i></div>
                 <div>
@@ -216,7 +213,7 @@
         </div>
     </section>
 
-    <!-- Professional Industry-Standard Card News Section (Fixed Single Line with Ellipsis) -->
+    <!-- Professional Industry-Standard Card News Section -->
     <section id="updates" class="bg-white w-full py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 border-b border-gray-100 pb-4 gap-4">
@@ -230,7 +227,6 @@
                 </a>
             </div>
 
-            <!-- Single rotating news display item container -->
             <div id="homepage-news-container">
                 <div class="text-center py-10 text-xs text-gray-500">Loading latest announcement...</div>
             </div>
@@ -252,7 +248,7 @@
         </div>
     </section>
 
- <!-- Professional Footer -->
+   <!-- Professional Footer -->
     <footer id="contact" class="bg-slate-950 text-white pt-14 pb-10 border-t border-slate-800 text-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
@@ -323,7 +319,6 @@
             return url;
         }
 
-        // Fetch and load custom store logo from Firebase
         async function fetchStoreLogo() {
             try {
                 const logoRef = ref(db, 'settings/storeLogo');
@@ -348,7 +343,6 @@
 
         document.addEventListener('DOMContentLoaded', fetchStoreLogo);
 
-        // ==================== CART ACTIONS & STEPPER HELPERS ====================
         window.getCartActionHTML = function(itemKey, itemName, itemPrice, itemImg, itemCategory) {
             let cart = JSON.parse(localStorage.getItem('ymca_cart')) || [];
             const existingItem = cart.find(i => i.key === itemKey || i.firebaseKey === itemKey);
@@ -424,7 +418,6 @@
             }
         }
 
-        // ==================== DYNAMIC BEST SELLERS / INVENTORY SLIDER ====================
         const sliderContainer = document.getElementById('inventory-slider');
         window.globalInventoryData = [];
 
@@ -458,7 +451,6 @@
                 }
 
                 displayItems = displayItems.slice(0, 6);
-
                 renderSlider(displayItems);
             });
         });
@@ -511,7 +503,6 @@
             sliderContainer.innerHTML = html;
         }
 
- // ==================== REALTIME NEWS ENGINE ====================
         const NEWS_DB_URL = "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com/news";
         let newsList = [];
         let currentNewsIndex = 0;
@@ -683,7 +674,7 @@
             document.addEventListener('paste', (e) => e.preventDefault());
             document.addEventListener('contextmenu', (e) => e.preventDefault());
             
-            // Prevent Keyboard Shortcuts (Ctrl+C, Ctrl+X, Ctrl+A, Ctrl+U, etc.)
+            // Prevent Keyboard Shortcuts
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey && (e.key === 'c' || e.key === 'x' || e.key === 'a' || e.key === 'u' || e.key === 's' || e.key === 'p')) {
                     e.preventDefault();
@@ -703,7 +694,8 @@
                     clearInterval(bannerInterval);
                 }, { passive: true });
 
-                sliderWrapper.addEventListener('touched', (e) => {
+                // FIXED: Changed 'touched' to valid 'touchend' event listener
+                sliderWrapper.addEventListener('touchend', (e) => {
                     touchEndX = e.changedTouches[0].screenX;
                     handleSwipeGesture();
                     resetBannerTimer();
