@@ -49,15 +49,18 @@
         }
     </script>
 
-    <!-- INBUILT NOTIFICATION TOAST -->
-    <div id="toast-notification" class="fixed top-20 right-4 sm:right-6 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 max-w-sm w-full bg-slate-900 text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
-        <div id="toast-icon-wrapper" class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
-            <i id="toast-icon" class="fa-solid fa-check"></i>
+    <!-- INDUSTRY STANDARD PROFESSIONAL NOTIFICATION TOAST (FIXED, CENTER-PINNED, FLOATING) -->
+    <div id="toast-notification" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-[99999] max-w-sm w-[90%] bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
+        <div id="toast-icon-wrapper" class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
+            <i id="toast-icon" class="fa-solid fa-circle-check"></i>
         </div>
-        <div class="flex-grow">
-            <h4 id="toast-title" class="text-xs font-bold text-white">Success</h4>
-            <p id="toast-message" class="text-[11px] text-slate-400">Action completed successfully.</p>
+        <div class="flex-grow min-w-0">
+            <h4 id="toast-title" class="text-xs font-extrabold text-white tracking-tight">Success</h4>
+            <p id="toast-message" class="text-[11px] text-slate-400 truncate">Action completed successfully.</p>
         </div>
+        <button onclick="window.hideToast()" class="text-slate-500 hover:text-slate-300 transition text-xs p-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
     </div>
 
     <!-- ENTERPRISE AUTHENTICATION MODAL -->
@@ -220,8 +223,9 @@
         const db = getDatabase(app);
         const FALLBACK_PASSWORD = "Admin@123";
         const IMMUTABLE_COMPANY_CODE = "399812";
+        let toastTimeout = null;
 
-        // Inbuilt Message Toast Notification System
+        // Industry Standard Floating Toast Notification System
         window.showToast = function(title, message, isError = false) {
             const toast = document.getElementById('toast-notification');
             const titleEl = document.getElementById('toast-title');
@@ -233,20 +237,28 @@
             msgEl.innerText = message;
 
             if (isError) {
-                iconWrapper.className = "w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
+                iconWrapper.className = "w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
                 icon.className = "fa-solid fa-circle-exclamation";
             } else {
-                iconWrapper.className = "w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
-                icon.className = "fa-solid fa-check";
+                iconWrapper.className = "w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
+                icon.className = "fa-solid fa-circle-check";
             }
 
-            toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+            toast.classList.remove('-translate-y-20', 'opacity-0', 'pointer-events-none');
             toast.classList.add('translate-y-0', 'opacity-100');
 
-            setTimeout(() => {
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                window.hideToast();
+            }, 3000);
+        };
+
+        window.hideToast = function() {
+            const toast = document.getElementById('toast-notification');
+            if (toast) {
                 toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-[-150%]', 'opacity-0');
-            }, 3500);
+                toast.classList.add('-translate-y-20', 'opacity-0', 'pointer-events-none');
+            }
         };
 
         // Convert Google Drive share link into a direct viewable image link
@@ -325,7 +337,7 @@
                 if (passSnap.exists()) { currentPass = passSnap.val(); } 
                 else { await set(passRef, FALLBACK_PASSWORD); }
 
-                 let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
+                  let savedCompanyCode = IMMUTABLE_COMPANY_CODE;
                 if (codeSnap.exists()) { savedCompanyCode = codeSnap.val(); } 
                 else { await set(codeRef, IMMUTABLE_COMPANY_CODE); }
 
@@ -339,6 +351,7 @@
                     window.showToast("Authenticated", "Welcome to MY Food Admin Portal.");
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
+                    window.showToast("Authentication Failed", "Incorrect authorization key.", true);
                 }
             } catch (error) {
                 if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
@@ -350,6 +363,7 @@
                     window.showToast("Authenticated", "Session started securely.");
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
+                    window.showToast("Authentication Failed", "Incorrect authorization key.", true);
                 }
             }
         };
@@ -357,7 +371,10 @@
         window.handleLogout = function() {
             sessionStorage.removeItem("admin_authenticated");
             sessionStorage.removeItem("ymca_redirect_token"); // Clears redirect token on logout
-            window.location.reload();
+            window.showToast("Logged out", "Session terminated successfully.");
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
         };
 
         document.addEventListener('DOMContentLoaded', checkAuth);
