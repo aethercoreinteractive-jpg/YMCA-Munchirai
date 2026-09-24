@@ -48,7 +48,7 @@
         </div>
     </header>
 
-    <!-- Industry Standard Professional Notification Toast (Fixed, Center-Pinned, Floating) -->
+    <!-- Industry Standard Professional Notification Toast -->
     <div id="toast-notification" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-[99999] max-w-sm w-[90%] bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
         <div id="toast-icon-wrapper" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 transition-colors">
             <i id="toast-icon" class="fa-solid fa-circle-check"></i>
@@ -66,7 +66,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1">
         
         <!-- Left Column: Sortable Banner Queue -->
-        <div class="lg:col-span-7 bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 shadow-sm">
+        <div class="lg:col-span-7 bg-white border border-slate-200/80 rounded-3xl p-4 sm:p-6 shadow-sm">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <div>
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Active Queue</h2>
@@ -78,7 +78,7 @@
             </div>
 
             <!-- Queue List Container -->
-            <div id="banner-queue-container" class="space-y-3 min-h-[140px] max-h-[500px] overflow-y-auto pr-1">
+            <div id="banner-queue-container" class="space-y-3 min-h-[140px] max-h-[600px] overflow-y-auto pr-1">
                 <div class="p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
                     <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-base mb-2"></i>
                     <p>Loading banners...</p>
@@ -132,7 +132,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Title</label>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Title / Description</label>
                     <input type="text" id="slide-title" placeholder="e.g. Summer Camp 2026" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
                 </div>
 
@@ -321,6 +321,12 @@
             modal.classList.add('flex');
         };
 
+        window.confirmDelete = function(id) {
+            if (confirm("Are you sure you want to permanently delete this banner?")) {
+                deleteSlide(id);
+            }
+        };
+
         window.deleteSlide = async function(id) {
             slidesState = slidesState.filter(s => s.id !== id);
             renderWorkspace();
@@ -347,7 +353,7 @@
             container.innerHTML = '';
             slidesState.forEach((slide, index) => {
                 const row = document.createElement('div');
-                row.className = "flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 bg-white border border-slate-200/80 p-3.5 rounded-2xl transition shadow-xs hover:border-slate-300 cursor-grab active:cursor-grabbing select-none";
+                row.className = "bg-white border border-slate-200/80 p-3.5 rounded-2xl transition shadow-sm hover:border-slate-300 cursor-grab active:cursor-grabbing select-none";
                 row.draggable = true;
                 row.dataset.id = slide.id;
 
@@ -375,24 +381,38 @@
                 });
 
                 row.innerHTML = `
-                    <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                        <div class="row-index text-xs font-bold text-slate-400 w-4 text-center shrink-0 pt-1 sm:pt-0">${index + 1}</div>
-                        <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
-                            <i class="fa-solid fa-grip-vertical text-xs"></i>
-                        </div>
-                        <div class="w-16 h-11 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200 mt-0.5 sm:mt-0">
-                            <img src="${window.formatDriveUrl(slide.image)}" alt="Thumbnail" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
-                        </div>
-                        <div class="flex flex-col min-w-0 flex-1 pr-1">
-                            <div>
-                                <span class="inline-block text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60 mb-1">${slide.badge}</span>
+                    <div class="flex items-start gap-3 w-full">
+                        <!-- Index & Drag Handle -->
+                        <div class="flex flex-col items-center gap-1.5 shrink-0 pt-1">
+                            <div class="row-index text-[11px] font-extrabold text-slate-400 w-4 text-center">${index + 1}</div>
+                            <div class="w-6 h-6 rounded-md bg-slate-50 text-slate-300 flex items-center justify-center border border-slate-100">
+                                <i class="fa-solid fa-grip-vertical text-[10px]"></i>
                             </div>
-                            <h4 class="text-xs font-semibold text-slate-900 leading-snug break-words">${slide.title}</h4>
                         </div>
-                    </div>
-                    <div class="flex items-center justify-end sm:justify-start gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100" onclick="event.stopPropagation()">
-                        <button type="button" onclick="editSlide('${slide.id}')" class="flex-1 sm:flex-none px-3 py-1.5 sm:w-8 sm:h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-amber-600 transition flex items-center justify-center gap-1.5 text-xs font-semibold sm:font-normal"><i class="fa-solid fa-pen text-[11px]"></i><span class="sm:hidden">Edit</span></button>
-                        <button type="button" onclick="deleteSlide('${slide.id}')" class="flex-1 sm:flex-none px-3 py-1.5 sm:w-8 sm:h-8 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center gap-1.5 text-xs font-semibold sm:font-normal"><i class="fa-solid fa-trash text-[11px]"></i><span class="sm:hidden">Delete</span></button>
+
+                        <!-- Card Content -->
+                        <div class="flex-1 min-w-0">
+                            <!-- Image (Left) & Badge (Right) -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-16 h-11 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                                    <img src="${window.formatDriveUrl(slide.image)}" alt="Thumbnail" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <span class="inline-block text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60 truncate max-w-full shadow-xs">${slide.badge}</span>
+                                </div>
+                            </div>
+
+                            <!-- Description (Below Image) -->
+                            <div class="mt-3">
+                                <h4 class="text-xs font-semibold text-slate-900 leading-snug break-words">${slide.title}</h4>
+                            </div>
+
+                            <!-- Actions (Below Description) -->
+                            <div class="flex items-center gap-2 mt-3.5 pt-3 border-t border-slate-100/80" onclick="event.stopPropagation()">
+                                <button type="button" onclick="editSlide('${slide.id}')" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-amber-600 transition flex items-center justify-center gap-1.5 text-[11px] font-bold"><i class="fa-solid fa-pen"></i> Edit</button>
+                                <button type="button" onclick="confirmDelete('${slide.id}')" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center gap-1.5 text-[11px] font-bold"><i class="fa-solid fa-trash"></i> Delete</button>
+                            </div>
+                        </div>
                     </div>
                 `;
                 container.appendChild(row);
@@ -561,7 +581,7 @@
             }
         }
 
-        // Industry Standard Floating Toast Notifier with Dynamic Green/Red Accents
+        // Industry Standard Floating Toast Notifier
         window.showToast = function(title, message, isError = false) {
             const toast = document.getElementById('toast-notification');
             const titleEl = document.getElementById('toast-title');
