@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .sortable-ghost { opacity: 0.4; background: #e0e7ff !important; }
+        .sortable-chosen { background: #f8fafc; box-shadow: 0 10px 15px -3px rgb(0 0 / 0.1); }
+        .drag-handle { touch-action: none; cursor: grab; }
+        .drag-handle:active { cursor: grabbing; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 h-full flex flex-col justify-between">
@@ -34,7 +38,7 @@
         <!-- Left: Slide List & Add Button -->
         <div class="md:col-span-7 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
             <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Active Banners</h2>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Active Banners <span class="text-[10px] font-normal lowercase">(hold grip to reorder)</span></h2>
                 <button type="button" onclick="openCreateModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
                     <i class="fa-solid fa-plus text-[10px]"></i> Add Banner
                 </button>
@@ -109,6 +113,9 @@
         <p>&copy; 2026 Munchirai YMCA & MY Store</p>
     </footer>
 
+    <!-- SortableJS CDN for Touch-and-Hold Drag Reordering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/SortableJS/1.15.0/Sortable.min.js"></script>
+
     <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -131,8 +138,9 @@
         let slidesState = [];
         let previewIndex = 0;
         let previewTimer = null;
+        let sortableInstance = null;
 
-        // Touch & Mouse Drag Variables
+        // Touch & Mouse Drag Variables for Preview Slider
         let startX = 0;
         let currentTranslate = 0;
         let prevTranslate = 0;
@@ -240,16 +248,6 @@
             }
         };
 
-        window.moveSlide = async function(index, direction) {
-            const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= slidesState.length) return;
-            const temp = slidesState[index];
-            slidesState[index] = slidesState[newIndex];
-            slidesState[newIndex] = temp;
-            renderWorkspace();
-            await syncToFirebase();
-        };
-
         function renderWorkspace() {
             renderQueueList();
             renderPreviewEngine();
@@ -264,9 +262,12 @@
                 return;
             }
 
-            container.innerHTML = slidesState.map((slide, idx) => `
-                <div class="flex items-center justify-between gap-3 bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl transition hover:bg-white hover:border-slate-300">
+            container.innerHTML = slidesState.map((slide) => `
+                <div data-id="${slide.id}" class="flex items-center justify-between gap-3 bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl transition hover:bg-white hover:border-slate-300">
                     <div class="flex items-center gap-3 min-w-0">
+                        <div class="drag-handle w-7 h-9 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-500 flex items-center justify-center shrink-0 transition" title="Touch & hold to reorder">
+                            <i class="fa-solid fa-grip-vertical text-xs"></i>
+                        </div>
                         <div class="w-12 h-9 rounded-lg bg-slate-200 overflow-hidden shrink-0 border border-slate-300">
                             <img src="${parseAssetURL(slide.image)}" alt="Thumb" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
                         </div>
@@ -276,13 +277,29 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-1 shrink-0">
-                        <button onclick="moveSlide(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 disabled:opacity-30 transition flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-up"></i></button>
-                        <button onclick="moveSlide(${idx}, 1)" ${idx === slidesState.length - 1 ? 'disabled' : ''} class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 disabled:opacity-30 transition flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-down"></i></button>
                         <button onclick="editSlide('${slide.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
                         <button onclick="deleteSlide('${slide.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-500 hover:bg-rose-50 transition flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
+
+            // Initialize SortableJS for Touch-and-Hold Drag Reordering
+            if (sortableInstance) sortableInstance.destroy();
+            sortableInstance = Sortable.create(container, {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                delay: 200, // Touch hold duration (ms) before drag initiates on mobile
+                delayOnTouchOnly: true,
+                onEnd: async function() {
+                    const newOrderIDs = Array.from(container.children).map(el => el.getAttribute('data-id'));
+                    slidesState.sort((a, b) => newOrderIDs.indexOf(a.id) - newOrderIDs.indexOf(b.id));
+                    renderPreviewEngine();
+                    restartPreviewLoop();
+                    await syncToFirebase();
+                }
+            });
         }
 
         function renderPreviewEngine() {
@@ -349,13 +366,11 @@
             }, 4000);
         }
 
-        // Swipe & Touch Support for Live Preview
         function setupSwipeEvents() {
             const container = document.getElementById('preview-container');
             const track = document.getElementById('preview-slider-track');
             if (!container || !track) return;
 
-            // Remove previous listeners to prevent duplicates
             container.ontouchstart = null;
             container.ontouchmove = null;
             container.ontouchend = null;
