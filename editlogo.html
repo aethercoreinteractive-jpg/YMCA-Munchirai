@@ -67,7 +67,7 @@
             <div class="mb-6">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-700 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">Permanent Action</span>
                 <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-2.5">Delete Custom Logo?</h2>
-                <p class="text-xs text-slate-500 mt-1">This will permanently remove the logo link from Firebase and revert back to the default branding.</p>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed px-2">Removes logo link from Firebase and restores default branding.</p>
             </div>
             
             <div class="flex gap-3">
@@ -94,7 +94,7 @@
             <div class="text-center mb-6">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">Restricted Access</span>
                 <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-2.5">Administrator Portal</h2>
-                <p class="text-xs text-slate-500 mt-1">Authenticate with your enterprise security key</p>
+                <p class="text-xs text-slate-500 mt-1">Authenticate with security key</p>
             </div>
             
             <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
@@ -108,7 +108,7 @@
                     </div>
                 </div>
                 <p id="login-error" class="text-[11px] text-rose-600 font-bold hidden flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect authorization key.
+                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect key.
                 </p>
                 <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 flex items-center justify-center gap-2">
                     <span>Authenticate Session</span>
@@ -149,7 +149,7 @@
         <!-- SECTION TITLE -->
         <div>
             <h2 class="text-sm sm:text-base font-extrabold text-slate-900">Brand Identity & Logo Configuration</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Update your platform's primary visual identifier using a secure Google Drive cloud link.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Update platform logo using a secure Google Drive cloud link.</p>
         </div>
 
         <!-- GOOGLE DRIVE LOGO MANAGEMENT CARD -->
@@ -160,7 +160,7 @@
                 </div>
                 <div>
                     <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">Platform Logo Source</h3>
-                    <p class="text-[11px] text-slate-500">Paste your shared Google Drive image link below</p>
+                    <p class="text-[11px] text-slate-500">Paste shared Google Drive image link below</p>
                 </div>
             </div>
 
@@ -191,7 +191,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-2">Ensure the Google Drive link permission is set to "Anyone with the link can view".</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-2">Set Google Drive sharing permission to "Anyone with the link can view".</p>
                 </div>
             </form>
         </div>
@@ -368,10 +368,10 @@
                     document.getElementById('login-error').classList.add('hidden');
                     document.getElementById('login-input').value = "";
                     fetchExistingLogo();
-                    window.showToast("Authenticated", "Welcome to MY Food Edit Logo Portal.");
+                    window.showToast("Authenticated", "Welcome to Admin Portal.");
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
-                    window.showToast("Authentication Failed", "Incorrect authorization key.", true);
+                    window.showToast("Failed", "Incorrect key.", true);
                 }
             } catch (error) {
                 if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
@@ -379,10 +379,10 @@
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     fetchExistingLogo();
-                    window.showToast("Authenticated", "Session started securely.");
+                    window.showToast("Authenticated", "Session started.");
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
-                    window.showToast("Authentication Failed", "Incorrect authorization key.", true);
+                    window.showToast("Failed", "Incorrect key.", true);
                 }
             }
         };
@@ -408,15 +408,16 @@
 
                 updateHeaderLogo(formattedUrl);
                 window.previewDriveLogo(formattedUrl);
-                window.showToast("Logo Updated", "Brand identity successfully saved to Firebase!");
+                window.showToast("Success", "Logo updated successfully.");
             } catch (error) {
                 console.error("Save logo error:", error);
-                window.showToast("Error", "Failed to save logo to database.", true);
+                window.showToast("Error", "Failed to save logo.", true);
             }
         };
 
         // Trigger confirmation modal for deletion
         window.handleDeleteLogo = function() {
+            document.getElementById('confirm-modal').classList.add('hidden'); // safe reset
             document.getElementById('confirm-modal').classList.remove('hidden');
         };
 
@@ -434,10 +435,10 @@
                 document.getElementById('logo-url-input').value = "";
                 window.previewDriveLogo("");
                 updateHeaderLogo("");
-                window.showToast("Logo Removed", "Logo link permanently deleted from Firebase.");
+                window.showToast("Success", "Logo link deleted.");
             } catch (error) {
                 console.error("Delete logo error:", error);
-                window.showToast("Error", "Failed to delete logo from database.", true);
+                window.showToast("Error", "Failed to delete logo.", true);
             }
         };
 
