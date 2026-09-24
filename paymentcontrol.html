@@ -144,7 +144,6 @@
         onValue(settingsRef, (snapshot) => {
             const data = snapshot.val() || {};
             
-            // Default to true if not initialized yet
             const codStatus = data.codEnabled !== undefined ? data.codEnabled : true;
             const upiStatus = data.upiEnabled !== undefined ? data.upiEnabled : true;
 
@@ -152,7 +151,7 @@
             document.getElementById('upi-toggle').checked = upiStatus;
         });
 
-        // Function exposed globally to handle switch toggles safely with custom messages
+        // Function exposed globally to handle switch toggles safely with concise messages
         window.updatePaymentSetting = async function(settingKey, isEnabled) {
             try {
                 const updates = {};
@@ -160,21 +159,17 @@
                 
                 await update(settingsRef, updates);
 
-                // Distinct custom popup messages based on which toggle was flipped
+                // Short, concise messages guaranteed to fit comfortably inside the floating box
                 if (settingKey === 'codEnabled') {
-                    const message = isEnabled 
-                        ? "Cash on Delivery is now available at checkout." 
-                        : "Cash on Delivery has been disabled for users.";
+                    const message = isEnabled ? "COD enabled" : "COD disabled";
                     showToast("COD Updated", message, false);
                 } else if (settingKey === 'upiEnabled') {
-                    const message = isEnabled 
-                        ? "UPI Online Payments are now active." 
-                        : "UPI Online Payments have been turned off.";
+                    const message = isEnabled ? "UPI enabled" : "UPI disabled";
                     showToast("UPI Updated", message, false);
                 }
             } catch (error) {
                 console.error("Error updating setting:", error);
-                showToast("Update Failed", "Could not save change. Check connection.", true);
+                showToast("Update Failed", "Connection error", true);
             }
         };
 
