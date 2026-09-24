@@ -66,22 +66,22 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <div>
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Preview</h2>
-                    <p class="text-[10px] text-slate-400">Overscroll wrap simulation</p>
+                    <p class="text-[10px] text-slate-400">Exact Homepage Sync Simulation</p>
                 </div>
                 <div class="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live Sync
                 </div>
             </div>
             
-            <div id="preview-container" class="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner cursor-grab active:cursor-grabbing select-none">
-                <div id="preview-slider-track" class="flex h-full transition-transform duration-300 ease-out w-full">
+            <div id="preview-container" class="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner group touch-pan-y">
+                <div id="preview-slider-track" class="flex h-full transition-transform duration-300 ease-out w-full cursor-grab active:cursor-grabbing">
                     <div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">
                         No preview available
                     </div>
                 </div>
 
-                <!-- Navigation Dots -->
-                <div id="preview-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur-xs px-3 py-1 rounded-full pointer-events-none">
+                <!-- Navigation Dots (Identical to index.html design) -->
+                <div id="preview-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10 pointer-events-none">
                 </div>
             </div>
         </div>
@@ -153,13 +153,6 @@
         let previewTimer = null;
         let draggedItemNode = null;
 
-        // Preview Slider Gestures state
-        let startX = 0;
-        let currentTranslate = 0;
-        let prevTranslate = 0;
-        let isDraggingPreview = false;
-        let animationID = 0;
-
         function parseAssetURL(url) {
             if (!url) return '';
             if (url.includes('drive.google.com')) {
@@ -191,8 +184,8 @@
                 } else {
                     slidesState = [{
                         id: generateUUID(),
-                        badge: "Featured",
-                        title: "Community Sports Program",
+                        badge: "Featured Initiative",
+                        title: "Empowering Youth Through Community Sports",
                         image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600",
                         order: 0
                     }];
@@ -396,151 +389,116 @@
             track.innerHTML = slidesState.map(slide => `
                 <div class="min-w-full h-full relative shrink-0">
                     <img src="${parseAssetURL(slide.image)}" alt="Preview Slide" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-4 text-white">
-                        <span class="bg-indigo-600 text-white font-bold text-[8px] px-1.5 py-0.5 rounded w-max mb-1">${slide.badge}</span>
-                        <h3 class="text-xs font-bold truncate">${slide.title}</h3>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 text-white">
+                        <span class="bg-indigo-600 text-white font-bold text-[10px] px-2 py-0.5 rounded w-max mb-1">${slide.badge}</span>
+                        <h3 class="text-xs sm:text-sm font-black tracking-tight truncate">${slide.title}</h3>
                     </div>
                 </div>
             `).join('');
 
             dots.innerHTML = slidesState.map((_, idx) => `
-                <button type="button" onclick="jumpPreview(${idx})" class="w-1.5 h-1.5 rounded-full ${idx === previewIndex ? 'bg-indigo-400 w-3' : 'bg-white/50'} transition preview-dot"></button>
+                <button type="button" onclick="jumpPreview(${idx})" class="w-1.5 h-1.5 rounded-full ${idx === previewIndex ? 'bg-white w-3' : 'bg-white/45'} transition preview-dot" data-index="${idx}"></button>
             `).join('');
 
-            updateTransform(false);
+            updateBannerSlider();
             setupSwipeEvents();
         }
 
         window.jumpPreview = function(idx) {
             previewIndex = idx;
-            updateTransform(false);
+            updateBannerSlider();
             restartPreviewLoop();
         }
 
-        function updateTransform(isFastSwipe = false) {
+        function updateBannerSlider() {
             const track = document.getElementById('preview-slider-track');
             if (!track || slidesState.length === 0) return;
-            
+
             if (previewIndex >= slidesState.length) previewIndex = 0;
             if (previewIndex < 0) previewIndex = slidesState.length - 1;
 
-            track.style.transition = isFastSwipe ? 'transform 0.18s cubic-bezier(0.1, 1, 0.1, 1)' : 'transform 0.3s ease-out';
-            currentTranslate = previewIndex * -track.parentElement.clientWidth;
-            prevTranslate = currentTranslate;
-            track.style.transform = `translateX(${currentTranslate}px)`;
+            track.style.transform = `translateX(-${previewIndex * 100}%)`;
 
             document.querySelectorAll('.preview-dot').forEach((dot, idx) => {
                 if (idx === previewIndex) {
-                    dot.classList.remove('bg-white/50', 'w-1.5');
-                    dot.classList.add('bg-indigo-400', 'w-3');
+                    dot.classList.remove('bg-white/45', 'w-1.5');
+                    dot.classList.add('bg-white', 'w-3');
                 } else {
-                    dot.classList.add('bg-white/50', 'w-1.5');
-                    dot.classList.remove('bg-indigo-400', 'w-3');
+                    dot.classList.add('bg-white/45', 'w-1.5');
+                    dot.classList.remove('bg-white', 'w-3');
                 }
             });
+        }
+
+        function nextBannerSlide() {
+            previewIndex = (previewIndex + 1) % slidesState.length;
+            updateBannerSlider();
+        }
+
+        function prevBannerSlide() {
+            previewIndex = (previewIndex - 1 + slidesState.length) % slidesState.length;
+            updateBannerSlider();
         }
 
         function restartPreviewLoop() {
             clearInterval(previewTimer);
             if (slidesState.length <= 1) return;
             previewTimer = setInterval(() => {
-                if (!isDraggingPreview) {
-                    let isFast = (previewIndex === slidesState.length - 1);
-                    previewIndex = (previewIndex + 1) % slidesState.length;
-                    updateTransform(isFast);
-                }
+                nextBannerSlide();
             }, 4000);
         }
 
         function setupSwipeEvents() {
-            const container = document.getElementById('preview-container');
-            const track = document.getElementById('preview-slider-track');
-            if (!container || !track) return;
+            const sliderWrapper = document.getElementById('preview-container');
+            if (!sliderWrapper) return;
 
-            const newContainer = container.cloneNode(true);
-            container.parentNode.replaceChild(newContainer, container);
-            
-            const activeContainer = document.getElementById('preview-container');
-            const activeTrack = document.getElementById('preview-slider-track');
+            // Clean up prior event listeners by cloning
+            const newWrapper = sliderWrapper.cloneNode(true);
+            sliderWrapper.parentNode.replaceChild(newWrapper, sliderWrapper);
 
-            activeContainer.addEventListener('touchstart', touchStart, {passive: true});
-            activeContainer.addEventListener('touchmove', touchMove, {passive: true});
-            activeContainer.addEventListener('touchend', touchEnd);
+            let touchStartX = 0;
+            let touchEndX = 0;
 
-            activeContainer.addEventListener('mousedown', touchStart);
-            activeContainer.addEventListener('mousemove', touchMove);
-            activeContainer.addEventListener('mouseup', touchEnd);
-            activeContainer.addEventListener('mouseleave', () => {
-                if (isDraggingPreview) touchEnd();
+            const activeWrapper = document.getElementById('preview-container');
+
+            activeWrapper.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                clearInterval(previewTimer);
+            }, { passive: true });
+
+            activeWrapper.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipeGesture();
+                restartPreviewLoop();
+            }, { passive: true });
+
+            let isDragging = false;
+            let startPos = 0;
+
+            activeWrapper.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startPos = e.clientX;
+                clearInterval(previewTimer);
             });
 
-            function getPositionX(event) {
-                return event.type.includes('mouse') ? event.clientX : event.touches[0].clientX;
-            }
-
-            function touchStart(event) {
-                if (slidesState.length <= 1) return;
-                isDraggingPreview = true;
-                startX = getPositionX(event);
-                clearInterval(previewTimer);
-                activeTrack.style.transition = 'none';
-                animationID = requestAnimationFrame(animation);
-            }
-
-            function touchMove(event) {
-                if (!isDraggingPreview) return;
-                const currentPosition = getPositionX(event);
-                const diff = currentPosition - startX;
-                
-                // Allow slight over-drag resistance when already at the edge
-                const maxTranslate = 0;
-                const minTranslate = -(slidesState.length - 1) * activeContainer.clientWidth;
-                let potentialTranslate = prevTranslate + diff;
-                
-                if (potentialTranslate > maxTranslate) {
-                    potentialTranslate = maxTranslate + (diff * 0.2); // Rubberband resistance
-                } else if (potentialTranslate < minTranslate) {
-                    potentialTranslate = minTranslate + (diff * 0.2); // Rubberband resistance
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                let diff = e.clientX - startPos;
+                if (diff > 40) {
+                    prevBannerSlide();
+                } else if (diff < -40) {
+                    nextBannerSlide();
                 }
-                
-                currentTranslate = potentialTranslate;
-            }
-
-            function touchEnd() {
-                if (!isDraggingPreview) return;
-                isDraggingPreview = false;
-                cancelAnimationFrame(animationID);
-
-                const movedBy = currentTranslate - prevTranslate;
-                const threshold = activeContainer.clientWidth / 6;
-                let isFastSwipe = false;
-
-                if (movedBy < -threshold) {
-                    if (previewIndex < slidesState.length - 1) {
-                        previewIndex++;
-                    } else {
-                        // Already at the last image and swiped again into the blank zone -> wrap to first!
-                        previewIndex = 0;
-                        isFastSwipe = true;
-                    }
-                } else if (movedBy > threshold) {
-                    if (previewIndex > 0) {
-                        previewIndex--;
-                    } else {
-                        // Already at the first image and swiped backward into the blank zone -> wrap to last!
-                        previewIndex = slidesState.length - 1;
-                        isFastSwipe = true;
-                    }
-                }
-
-                updateTransform(isFastSwipe);
                 restartPreviewLoop();
-            }
+            });
 
-            function animation() {
-                if (isDraggingPreview) {
-                    activeTrack.style.transform = `translateX(${currentTranslate}px)`;
-                    animationID = requestAnimationFrame(animation);
+            function handleSwipeGesture() {
+                let threshold = 40;
+                if (touchEndX < touchStartX - threshold) {
+                    nextBannerSlide();
+                } else if (touchEndX > touchStartX + threshold) {
+                    prevBannerSlide();
                 }
             }
         }
