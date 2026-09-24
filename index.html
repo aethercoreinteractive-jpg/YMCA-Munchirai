@@ -89,11 +89,11 @@
         <div id="display-hero-bg" class="absolute inset-0 opacity-30 mix-blend-overlay">
             <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=2000" alt="YMCA Community" class="w-full h-full object-cover object-center">
         </div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 flex flex-col items-start justify-center">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 flex flex-col items-center text-center justify-center">
             <span id="display-branch-tag" class="text-[11px] uppercase tracking-widest font-bold bg-amber-500/20 text-amber-300 px-3 py-1 rounded-md mb-4 border border-amber-500/30">Munchirai YMCA</span>
             <h1 id="display-hero-title" class="text-3xl sm:text-5xl font-extrabold tracking-tight max-w-2xl leading-tight mb-4 text-white">Craving something delicious? Discover a taste you won’t forget.</h1>
             <p id="display-hero-desc" class="text-base text-slate-300 max-w-lg mb-8 font-light">Your favourite healthy foods, now just a click away.</p>
-            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
                 <a href="mystore.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-7 py-3.5 rounded-lg font-bold text-xs text-center transition shadow flex items-center justify-center gap-2">
                     <i class="fa-solid fa-store"></i> Shop MY Store Now
                 </a>
@@ -107,21 +107,21 @@
     <!-- Value Propositions Section -->
     <section class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
-            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center gap-3.5">
+            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center justify-center md:justify-start text-center md:text-left gap-3.5">
                 <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-shield-halved text-sm"></i></div>
                 <div>
                     <h4 class="font-bold text-xs text-gray-900 tracking-tight">100% Authentic Quality</h4>
                     <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Selected favourites for taste and freshness.</p>
                 </div>
             </div>
-            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center gap-3.5">
+            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center justify-center md:justify-start text-center md:text-left gap-3.5">
                 <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-truck-fast text-sm"></i></div>
                 <div>
                     <h4 class="font-bold text-xs text-gray-900 tracking-tight">Fast Local Delivery</h4>
                     <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Free delivery, more savings.</p>
                 </div>
             </div>
-            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center gap-3.5">
+            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center justify-center md:justify-start text-center md:text-left gap-3.5">
                 <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-leaf text-sm"></i></div>
                 <div>
                     <h4 class="font-bold text-xs text-gray-900 tracking-tight">Organic Self-Help Group</h4>
@@ -152,9 +152,9 @@
             <h2 class="text-2xl font-bold tracking-tight mt-2 mb-4 text-gray-900">View Bank Details</h2>
             <p class="text-xs sm:text-sm text-slate-600 font-light leading-relaxed mb-4">Transfer funds safely to our bank account, pay your total invoice securely, and view complete payment instructions.</p>
             <a href="bankdetails.html">
-  <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition">
-    Show Payment Details
-  </button>
+                <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition">
+                    Show Payment Details
+                </button>
             </a>
         </div>
     </section>
@@ -421,7 +421,7 @@
             }
         }
 
-// ==================== DYNAMIC BEST SELLERS / INVENTORY SLIDER ====================
+        // ==================== DYNAMIC BEST SELLERS / INVENTORY SLIDER ====================
         const sliderContainer = document.getElementById('inventory-slider');
         window.globalInventoryData = [];
 
@@ -439,17 +439,14 @@
                     return;
                 }
 
-                // Map inventory and filter out Out of Stock items
                 const allInventory = Object.keys(invData)
                     .map(key => ({ key, ...invData[key] }))
                     .filter(item => item.inStock !== false);
 
                 window.globalInventoryData = allInventory;
                 
-                // Select items marked as best sellers
                 let displayItems = allInventory.filter(item => bestSellersData[item.key] === true);
 
-                // If best sellers are fewer than 6, fill remaining slots randomly from other in-stock items
                 if (displayItems.length < 6) {
                     const remainingItems = allInventory.filter(item => !bestSellersData[item.key]);
                     const shuffledRemaining = [...remainingItems].sort(() => 0.5 - Math.random());
@@ -457,7 +454,6 @@
                     displayItems = [...displayItems, ...shuffledRemaining.slice(0, neededCount)];
                 }
 
-                // Limit strictly to a maximum of 6 items
                 displayItems = displayItems.slice(0, 6);
 
                 renderSlider(displayItems);
@@ -474,7 +470,6 @@
                 return;
             }
 
-          // Exactly 2 cards fit per view on mobile screens using calc width (calc(50% - 6px))
             let html = items.map(item => {
                 const actionHtml = window.getCartActionHTML(item.key, item.name, item.price, item.img, item.category);
                 return `
@@ -494,7 +489,6 @@
                 `;
             }).join('');
 
-            // Append the "View More" card as the last slide element redirecting to mystore.html
             html += `
                 <a href="mystore.html" class="snap-start shrink-0 w-[calc(50%-6px)] sm:w-56 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl p-4 sm:p-6 border border-slate-800 shadow-lg flex flex-col items-center justify-center text-center gap-2.5 transition hover:scale-[1.02] active:scale-95 group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-sm sm:text-base shadow-md group-hover:rotate-12 transition">
@@ -616,7 +610,7 @@
         document.addEventListener('DOMContentLoaded', initRealtimeNews);
     </script>
 
-<!-- General Application Logic & Hero Banner Slider with Touch Swipe Support -->
+    <!-- General Application Logic & Hero Banner Slider with Touch Swipe Support -->
     <script>
         function applyLiveIndexSettings() {
             const savedSettings = JSON.parse(localStorage.getItem("ymca_index_settings")) || {};
@@ -667,13 +661,11 @@
             bannerInterval = setInterval(nextBannerSlide, 4000);
         }
 
-        // Enable Finger Swipe Support for Heroic Slider
         document.addEventListener('DOMContentLoaded', () => {
             applyLiveIndexSettings();
             updateBannerSlider();
             resetBannerTimer();
 
-            // Listen for storage changes so quantity updates sync if cart is changed in another tab or page
             window.addEventListener('storage', (e) => {
                 if (e.key === 'ymca_cart' && window.globalInventoryData) {
                     window.globalInventoryData.forEach(item => {
@@ -698,7 +690,6 @@
                     resetBannerTimer();
                 }, { passive: true });
 
-                // Mouse support for desktop dragging
                 let isDragging = false;
                 let startPos = 0;
 
@@ -724,10 +715,8 @@
             function handleSwipeGesture() {
                 let threshold = 40;
                 if (touchEndX < touchStartX - threshold) {
-                    // Swiped Left -> Next slide
                     nextBannerSlide();
                 } else if (touchEndX > touchStartX + threshold) {
-                    // Swiped Right -> Previous slide
                     prevBannerSlide();
                 }
             }
