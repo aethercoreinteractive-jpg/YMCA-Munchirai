@@ -2,141 +2,82 @@
 <html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Heroic Banner CMS | Enterprise Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banner Manager</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Pro Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 antialiased h-full flex flex-col justify-between selection:bg-indigo-600 selection:text-white">
+<body class="bg-slate-50 text-slate-900 h-full flex flex-col justify-between">
 
-    <!-- Top Application Header (Strict White Surface) -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <!-- Top Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <a href="admin.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center border border-slate-200 transition">
+                <a href="admin.html" class="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition">
                     <i class="fa-solid fa-arrow-left text-xs"></i>
                 </a>
-                <div>
-                    <span class="text-[9px] uppercase tracking-widest font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-md border border-indigo-100">Enterprise CMS</span>
-                    <h1 class="text-xs sm:text-sm font-extrabold tracking-tight text-slate-900 mt-0.5">Heroic Banner Manager</h1>
-                </div>
+                <h1 class="text-sm font-bold text-slate-900">Banner Manager</h1>
             </div>
-            <div class="flex items-center gap-2">
-                <span id="sync-status" class="hidden md:inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Synchronized
-                </span>
-                <a href="index.html" target="_blank" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2.5 rounded-xl border border-slate-200 transition flex items-center gap-2">
-                    <i class="fa-solid fa-globe text-indigo-600"></i> <span class="hidden sm:inline">Live Preview</span>
-                </a>
-            </div>
+            <button onclick="commitStateToFirebase()" id="commit-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Save Changes
+            </button>
         </div>
     </header>
 
-    <!-- Main Workspace Grid (Optimized for Mobile Touch & Desktop Master-Detail) -->
-    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start flex-1 pb-24 sm:pb-12">
+    <!-- Main Content Grid -->
+    <main class="max-w-5xl mx-auto px-4 py-6 w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start flex-1">
         
-        <!-- Left Column: CMS Data Form & Slide Queue (Mobile Stacked, Desktop 7 Cols) -->
-        <div class="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-4 sm:p-8 shadow-sm">
-            <div class="border-b border-slate-100 pb-4 sm:pb-5 mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-sm sm:text-base font-bold text-slate-900">Slide Configuration Engine</h2>
-                    <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">Manage assets, tags, and cloud pointers.</p>
-                </div>
-                <!-- Desktop Add Button -->
-                <button type="button" onclick="openCreateModal()" class="hidden sm:flex bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl transition shadow-md shadow-indigo-600/20 items-center justify-center gap-2 shrink-0">
-                    <i class="fa-solid fa-plus text-[10px]"></i> New Slide Item
+        <!-- Left: Slide List & Add Button -->
+        <div class="md:col-span-7 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Active Banners</h2>
+                <button type="button" onclick="openCreateModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Add Banner
                 </button>
             </div>
 
-            <!-- Slide Queue Manager List -->
-            <div class="space-y-3">
-                <div class="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
-                    <span>Active Queue Sequence</span>
-                    <span id="queue-counter" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-[11px] font-mono border border-slate-200">0 Loaded</span>
+            <!-- Queue Container -->
+            <div id="banner-queue-container" class="space-y-3">
+                <div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
+                    <i class="fa-solid fa-circle-notch fa-spin text-indigo-600 text-sm mb-2"></i>
+                    <p>Loading banners...</p>
                 </div>
-                
-                <div id="banner-queue-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1 no-scrollbar">
-                    <!-- Skeleton Loader State -->
-                    <div class="p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
-                        <i class="fa-solid fa-circle-notch fa-spin text-indigo-600 text-base mb-2"></i>
-                        <p>Establishing secure connection to Firebase...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Global Commit Control Panel -->
-            <div class="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="text-center sm:text-left w-full">
-                    <p class="text-xs font-bold text-slate-800">Atomic Database Persistence</p>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Node: <code class="text-indigo-600 font-mono bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">/heroicBanners</code></p>
-                </div>
-                <button onclick="commitStateToFirebase()" id="commit-btn" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-7 py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 shrink-0">
-                    <i class="fa-solid fa-cloud-arrow-up text-sm text-indigo-400"></i> Commit Changes
-                </button>
             </div>
         </div>
 
-        <!-- Right Column: Real-time Live Simulator Engine (Desktop Sticky 5 Cols) -->
-        <div class="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-4 sm:p-8 lg:sticky lg:top-24 shadow-sm">
-            <div class="border-b border-slate-100 pb-4 sm:pb-5 mb-5 sm:mb-6 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm sm:text-base font-bold text-slate-900">Production Simulator</h2>
-                    <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">Real-time telemetry preview.</p>
-                </div>
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> 4s Loop
-                </span>
-            </div>
-
-            <!-- 16:9 Aspect Ratio Live Component Render Engine -->
-            <div class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-md bg-slate-950 border border-slate-200 group">
+        <!-- Right: Live Preview -->
+        <div class="md:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 md:sticky md:top-24 shadow-xs">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 pb-4 mb-4 border-b border-slate-100">Live Preview</h2>
+            
+            <div class="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner">
                 <div id="preview-slider-track" class="flex h-full transition-transform duration-500 ease-out">
                     <div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">
-                        Awaiting telemetry stream...
+                        No preview available
                     </div>
                 </div>
 
-                <!-- Simulation Pagination Indicators -->
-                <div id="preview-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
+                <!-- Dots -->
+                <div id="preview-dots-container" class="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur-xs px-2.5 py-1 rounded-full">
                 </div>
-            </div>
-            
-            <div class="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 shrink-0"></i>
-                <p class="text-[11px] text-slate-600 leading-relaxed">Google Drive asset URLs are automatically parsed through secure content proxies (<code class="text-slate-900 font-semibold">lh3.googleusercontent.com</code>).</p>
             </div>
         </div>
 
     </main>
 
-    <!-- Mobile Sticky Bottom Action Bar (Mobile Only Ergonomics) -->
-    <div class="sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 z-40 flex items-center gap-3 shadow-2xl">
-        <button type="button" onclick="openCreateModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3.5 rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-plus text-xs"></i> New Slide
-        </button>
-        <button onclick="commitStateToFirebase()" class="bg-slate-900 text-white font-black text-xs px-5 py-3.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md">
-            <i class="fa-solid fa-cloud-arrow-up text-indigo-400"></i> Commit
-        </button>
-    </div>
-
-    <!-- Slide Configuration Modal (Create / Edit) -->
-    <div id="slide-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-5 sm:p-8 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto no-scrollbar">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
-                <h3 id="modal-title" class="text-sm sm:text-base font-extrabold text-slate-900">Create New Slide Item</h3>
-                <button onclick="closeModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition flex items-center justify-center">
-                    <i class="fa-solid fa-xmark text-sm"></i>
+    <!-- Modal Form (Create / Edit) -->
+    <div id="slide-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 id="modal-title" class="text-sm font-bold text-slate-900">Add Banner</h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </div>
 
@@ -144,39 +85,34 @@
                 <input type="hidden" id="modal-slide-id">
                 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Badge Identifier Tag</label>
-                    <input type="text" id="slide-badge" placeholder="e.g. Featured Initiative" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white font-medium transition shadow-inner">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Badge Tag</label>
+                    <input type="text" id="slide-badge" placeholder="e.g. Featured" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white transition">
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Headline Title</label>
-                    <input type="text" id="slide-title" placeholder="e.g. Community Sports Program" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white font-medium transition shadow-inner">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Title</label>
+                    <input type="text" id="slide-title" placeholder="e.g. Summer Camp 2026" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white transition">
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Descriptive Summary</label>
-                    <textarea id="slide-desc" rows="3" placeholder="Enter concise overview narrative..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white font-medium transition resize-none shadow-inner"></textarea>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Image Link (Google Drive / URL)</label>
+                    <input type="url" id="slide-image" placeholder="https://..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white transition">
                 </div>
 
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Asset Source (Google Drive / Direct URL)</label>
-                    <input type="url" id="slide-image" placeholder="https://drive.google.com/file/d/..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white font-medium transition shadow-inner">
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                    <button type="button" onclick="closeModal()" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">Cancel</button>
-                    <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black transition shadow-md shadow-indigo-600/20">Save Slide Data</button>
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">Save Banner</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 hidden sm:block">
-        <p>&copy; 2026 Munchirai YMCA & MY Store. Enterprise Infrastructure Control.</p>
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        <p>&copy; 2026 Munchirai YMCA & MY Store</p>
     </footer>
 
-    <!-- Enterprise Modular Firebase Controller Script -->
+    <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -223,51 +159,40 @@
                 if (snapshot.exists() && Array.isArray(snapshot.val())) {
                     slidesState = snapshot.val();
                 } else {
-                    slidesState = [
-                        {
-                            id: generateUUID(),
-                            badge: "Featured Initiative",
-                            title: "Empowering Youth Through Community Sports",
-                            desc: "Join our active sports training programs designed to foster teamwork, health, and leadership.",
-                            image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600"
-                        }
-                    ];
+                    slidesState = [{
+                        id: generateUUID(),
+                        badge: "Featured",
+                        title: "Community Sports Program",
+                        image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600"
+                    }];
                 }
                 renderWorkspace();
             } catch (err) {
-                console.error("Critical CMS Telemetry Failure:", err);
+                console.error("Error loading banners:", err);
             }
         }
 
         window.commitStateToFirebase = async function() {
             const btn = document.getElementById('commit-btn');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Committing...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
             btn.disabled = true;
 
             try {
                 await set(ref(db, 'heroicBanners'), slidesState);
-                showSyncBadge(true);
+                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-300"></i> Saved!`;
+                setTimeout(() => {
+                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Changes`;
+                    btn.disabled = false;
+                }, 2000);
             } catch (err) {
-                console.error("Firebase persistence error:", err);
-                alert("Commit failed. Verify network connectivity.");
-            } finally {
-                btn.innerHTML = originalHTML;
+                alert("Failed to save changes.");
+                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Changes`;
                 btn.disabled = false;
             }
         };
 
-        function showSyncBadge(isSuccess) {
-            const badge = document.getElementById('sync-status');
-            if (!badge) return;
-            badge.className = isSuccess 
-                ? "hidden md:inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl animate-fade-in"
-                : "hidden md:inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl animate-fade-in";
-            badge.innerHTML = `<span class="w-2 h-2 rounded-full ${isSuccess ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse"></span> ${isSuccess ? 'Synchronized' : 'Unsaved State'}`;
-        }
-
         window.openCreateModal = function() {
-            document.getElementById('modal-title').textContent = "Create New Slide Item";
+            document.getElementById('modal-title').textContent = "Add Banner";
             document.getElementById('slide-form').reset();
             document.getElementById('modal-slide-id').value = "";
             document.getElementById('slide-modal').classList.remove('hidden');
@@ -286,7 +211,6 @@
                 id: id || generateUUID(),
                 badge: document.getElementById('slide-badge').value.trim(),
                 title: document.getElementById('slide-title').value.trim(),
-                desc: document.getElementById('slide-desc').value.trim(),
                 image: document.getElementById('slide-image').value.trim()
             };
 
@@ -299,17 +223,15 @@
 
             closeModal();
             renderWorkspace();
-            showSyncBadge(false);
         });
 
         window.editSlide = function(id) {
             const slide = slidesState.find(s => s.id === id);
             if (!slide) return;
-            document.getElementById('modal-title').textContent = "Edit Slide Item";
+            document.getElementById('modal-title').textContent = "Edit Banner";
             document.getElementById('modal-slide-id').value = slide.id;
             document.getElementById('slide-badge').value = slide.badge;
             document.getElementById('slide-title').value = slide.title;
-            document.getElementById('slide-desc').value = slide.desc;
             document.getElementById('slide-image').value = slide.image;
 
             document.getElementById('slide-modal').classList.remove('hidden');
@@ -317,10 +239,9 @@
         };
 
         window.deleteSlide = function(id) {
-            if (confirm("Permanently purge this slide record?")) {
+            if (confirm("Delete this banner?")) {
                 slidesState = slidesState.filter(s => s.id !== id);
                 renderWorkspace();
-                showSyncBadge(false);
             }
         };
 
@@ -331,7 +252,6 @@
             slidesState[index] = slidesState[newIndex];
             slidesState[newIndex] = temp;
             renderWorkspace();
-            showSyncBadge(false);
         };
 
         function renderWorkspace() {
@@ -342,29 +262,28 @@
 
         function renderQueueList() {
             const container = document.getElementById('banner-queue-container');
-            document.getElementById('queue-counter').textContent = `${slidesState.length} Loaded`;
 
             if (slidesState.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">No active queue items found.</div>`;
+                container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-200">No banners found.</div>`;
                 return;
             }
 
             container.innerHTML = slidesState.map((slide, idx) => `
-                <div class="flex items-center justify-between gap-3 bg-slate-50/90 border border-slate-200 p-3 rounded-2xl transition hover:border-indigo-300 hover:bg-white shadow-xs">
+                <div class="flex items-center justify-between gap-3 bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl transition hover:bg-white hover:border-slate-300">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-14 h-10 rounded-xl bg-slate-200 overflow-hidden shrink-0 border border-slate-300">
+                        <div class="w-12 h-9 rounded-lg bg-slate-200 overflow-hidden shrink-0 border border-slate-300">
                             <img src="${parseAssetURL(slide.image)}" alt="Thumb" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
                         </div>
                         <div class="min-w-0">
-                            <span class="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">${slide.badge}</span>
-                            <h4 class="text-xs font-bold text-slate-900 truncate mt-1">${slide.title}</h4>
+                            <span class="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${slide.badge}</span>
+                            <h4 class="text-xs font-semibold text-slate-900 truncate mt-0.5">${slide.title}</h4>
                         </div>
                     </div>
                     <div class="flex items-center gap-1 shrink-0">
-                        <button onclick="moveSlide(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 disabled:opacity-30 transition flex items-center justify-center text-xs shadow-xs"><i class="fa-solid fa-chevron-up"></i></button>
-                        <button onclick="moveSlide(${idx}, 1)" ${idx === slidesState.length - 1 ? 'disabled' : ''} class="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 disabled:opacity-30 transition flex items-center justify-center text-xs shadow-xs"><i class="fa-solid fa-chevron-down"></i></button>
-                        <button onclick="editSlide('${slide.id}')" class="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition flex items-center justify-center text-xs shadow-xs"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteSlide('${slide.id}')" class="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center text-xs shadow-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="moveSlide(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 disabled:opacity-30 transition flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-up"></i></button>
+                        <button onclick="moveSlide(${idx}, 1)" ${idx === slidesState.length - 1 ? 'disabled' : ''} class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 disabled:opacity-30 transition flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-down"></i></button>
+                        <button onclick="editSlide('${slide.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteSlide('${slide.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-500 hover:bg-rose-50 transition flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -375,7 +294,7 @@
             const dots = document.getElementById('preview-dots-container');
 
             if (slidesState.length === 0) {
-                track.innerHTML = `<div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">No preview available.</div>`;
+                track.innerHTML = `<div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">No preview available</div>`;
                 dots.innerHTML = ``;
                 return;
             }
@@ -383,10 +302,9 @@
             track.innerHTML = slidesState.map(slide => `
                 <div class="min-w-full h-full relative shrink-0">
                     <img src="${parseAssetURL(slide.image)}" alt="Preview" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent flex flex-col justify-end p-4 sm:p-5 text-white">
-                        <span class="bg-indigo-600 text-white font-bold text-[9px] px-2 py-0.5 rounded w-max mb-1">${slide.badge}</span>
-                        <h3 class="text-xs sm:text-sm font-black tracking-tight mb-0.5 truncate">${slide.title}</h3>
-                        <p class="text-[10px] text-slate-300 font-light line-clamp-1">${slide.desc}</p>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-3 text-white">
+                        <span class="bg-indigo-600 text-white font-bold text-[8px] px-1.5 py-0.5 rounded w-max mb-0.5">${slide.badge}</span>
+                        <h3 class="text-xs font-bold truncate">${slide.title}</h3>
                     </div>
                 </div>
             `).join('');
