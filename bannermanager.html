@@ -66,7 +66,7 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <div>
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Preview</h2>
-                    <p class="text-[10px] text-slate-400">Continuous loop simulation</p>
+                    <p class="text-[10px] text-slate-400">Overscroll wrap simulation</p>
                 </div>
                 <div class="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live Sync
@@ -424,7 +424,6 @@
             if (previewIndex >= slidesState.length) previewIndex = 0;
             if (previewIndex < 0) previewIndex = slidesState.length - 1;
 
-            // Use a faster transition speed when wrapping around from end -> start or start -> end
             track.style.transition = isFastSwipe ? 'transform 0.18s cubic-bezier(0.1, 1, 0.1, 1)' : 'transform 0.3s ease-out';
             currentTranslate = previewIndex * -track.parentElement.clientWidth;
             prevTranslate = currentTranslate;
@@ -493,15 +492,15 @@
                 const currentPosition = getPositionX(event);
                 const diff = currentPosition - startX;
                 
-                // Strict bounds so it never shows empty/black space
+                // Allow slight over-drag resistance when already at the edge
                 const maxTranslate = 0;
                 const minTranslate = -(slidesState.length - 1) * activeContainer.clientWidth;
                 let potentialTranslate = prevTranslate + diff;
                 
                 if (potentialTranslate > maxTranslate) {
-                    potentialTranslate = maxTranslate;
+                    potentialTranslate = maxTranslate + (diff * 0.2); // Rubberband resistance
                 } else if (potentialTranslate < minTranslate) {
-                    potentialTranslate = minTranslate;
+                    potentialTranslate = minTranslate + (diff * 0.2); // Rubberband resistance
                 }
                 
                 currentTranslate = potentialTranslate;
@@ -513,21 +512,23 @@
                 cancelAnimationFrame(animationID);
 
                 const movedBy = currentTranslate - prevTranslate;
-                const threshold = activeContainer.clientWidth / 4;
+                const threshold = activeContainer.clientWidth / 6;
                 let isFastSwipe = false;
 
                 if (movedBy < -threshold) {
                     if (previewIndex < slidesState.length - 1) {
                         previewIndex++;
                     } else {
-                        previewIndex = 0; // Fast glide to first image
+                        // Already at the last image and swiped again into the blank zone -> wrap to first!
+                        previewIndex = 0;
                         isFastSwipe = true;
                     }
                 } else if (movedBy > threshold) {
                     if (previewIndex > 0) {
                         previewIndex--;
                     } else {
-                        previewIndex = slidesState.length - 1; // Fast glide to last image
+                        // Already at the first image and swiped backward into the blank zone -> wrap to last!
+                        previewIndex = slidesState.length - 1;
                         isFastSwipe = true;
                     }
                 }
