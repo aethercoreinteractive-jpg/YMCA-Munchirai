@@ -106,23 +106,23 @@
 
     <!-- Value Propositions Section -->
     <section class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
-            <div class="bg-gray-50/60 md:bg-transparent p-5 md:p-0 rounded-xl border border-gray-100 md:border-0 flex items-start md:items-center gap-4 text-left justify-start shadow-sm md:shadow-none">
-                <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-shield-halved text-base"></i></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center gap-3.5">
+                <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-shield-halved text-sm"></i></div>
                 <div>
                     <h4 class="font-bold text-xs text-gray-900 tracking-tight">100% Authentic Quality</h4>
                     <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Selected favourites for taste and freshness.</p>
                 </div>
             </div>
-            <div class="bg-gray-50/60 md:bg-transparent p-5 md:p-0 rounded-xl border border-gray-100 md:border-0 flex items-start md:items-center gap-4 text-left justify-start shadow-sm md:shadow-none">
-                <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-truck-fast text-base"></i></div>
+            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center gap-3.5">
+                <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-truck-fast text-sm"></i></div>
                 <div>
                     <h4 class="font-bold text-xs text-gray-900 tracking-tight">Fast Local Delivery</h4>
                     <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Free delivery, more savings.</p>
                 </div>
             </div>
-            <div class="bg-gray-50/60 md:bg-transparent p-5 md:p-0 rounded-xl border border-gray-100 md:border-0 flex items-start md:items-center gap-4 text-left justify-start shadow-sm md:shadow-none">
-                <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-leaf text-base"></i></div>
+            <div class="py-2.5 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0 flex items-center gap-3.5">
+                <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0 border border-amber-100 shadow-sm"><i class="fa-solid fa-leaf text-sm"></i></div>
                 <div>
                     <h4 class="font-bold text-xs text-gray-900 tracking-tight">Organic Self-Help Group</h4>
                     <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Supporting regional community welfare.</p>
@@ -249,7 +249,7 @@
         </div>
     </section>
 
-      <!-- Professional Footer -->
+        <!-- Professional Footer -->
     <footer id="contact" class="bg-slate-950 text-white pt-14 pb-10 border-t border-slate-800 text-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
@@ -514,7 +514,7 @@
             sliderContainer.innerHTML = html;
         }
 
-// ==================== REALTIME NEWS ENGINE ====================
+        // ==================== REALTIME NEWS ENGINE ====================
         const NEWS_DB_URL = "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com/news";
         let newsList = [];
         let currentNewsIndex = 0;
@@ -692,7 +692,7 @@
                     clearInterval(bannerInterval);
                 }, { passive: true });
 
-                sliderWrapper.addEventListener('touchend', (e) => {
+                sliderWrapper.addEventListener('touched', (e) => {
                     touchEndX = e.changedTouches[0].screenX;
                     handleSwipeGesture();
                     resetBannerTimer();
