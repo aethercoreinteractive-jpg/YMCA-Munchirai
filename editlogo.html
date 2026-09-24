@@ -94,8 +94,8 @@
             
             <!-- Logo & Title Group -->
             <div class="flex items-center gap-3">
-                <div id="header-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-slate-700">
-                    <img src="MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">
+                <div id="header-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-slate-700 bg-white">
+                    <img src="./MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='MY Food Logo.png';">
                 </div>
                 <div>
                     <h1 class="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-none">MY Food</h1>
@@ -289,9 +289,9 @@
             const container = document.getElementById('header-logo-container');
             const formatted = window.formatDriveUrl(url);
             if (formatted) {
-                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<img src=\\'MY Food Logo.png\\' alt=\\'MY Food Logo.png\\' class=\\'w-full h-full object-cover\\' onerror=\\'this.onerror=null; this.parentElement.innerHTML=\\'MY\\';\\">';">`;
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.innerHTML='<img src=\\'./MY Food Logo.png\\' alt=\\'MY Food Logo.png\\' class=\\'w-full h-full object-cover\\' onerror=\\'this.onerror=null; this.parentElement.innerHTML=\\'MY\\';\\">';">`;
             } else {
-                container.innerHTML = `<img src="MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                container.innerHTML = `<img src="./MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
             }
         }
 
@@ -326,7 +326,7 @@
             } catch (error) {
                 if (enteredVal === FALLBACK_PASSWORD || enteredVal === IMMUTABLE_COMPANY_CODE) {
                     sessionStorage.setItem("admin_authenticated", "true");
-                    document.getElementById('login-modal').classList.add('hidden');
+                    document.getElementById('login-modal'].classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     fetchExistingLogo();
                     window.showToast("Authenticated", "Session started securely.");
