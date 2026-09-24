@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MY Food Products| Payment Gateway Control</title>
+    <title>Munchirai YMCA | Payment Gateway Control</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -50,7 +50,7 @@
 
     <!-- Industry Standard Professional Notification Toast (Fixed, Center-Pinned, Floating) -->
     <div id="toast-notification" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-[99999] max-w-sm w-[90%] bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
-        <div id="toast-icon-wrapper" class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
+        <div id="toast-icon-wrapper" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 transition-colors">
             <i id="toast-icon" class="fa-solid fa-circle-check"></i>
         </div>
         <div class="flex-grow min-w-0">
@@ -151,7 +151,7 @@
             document.getElementById('upi-toggle').checked = upiStatus;
         });
 
-        // Function exposed globally to handle switch toggles safely with concise messages
+        // Function exposed globally to handle switch toggles safely with customized status messages
         window.updatePaymentSetting = async function(settingKey, isEnabled) {
             try {
                 const updates = {};
@@ -159,13 +159,18 @@
                 
                 await update(settingsRef, updates);
 
-                // Short, concise messages guaranteed to fit comfortably inside the floating box
                 if (settingKey === 'codEnabled') {
-                    const message = isEnabled ? "COD enabled" : "COD disabled";
-                    showToast("COD Updated", message, false);
+                    if (isEnabled) {
+                        showToast("COD Updated", "Cash on Delivery is now available.", false);
+                    } else {
+                        showToast("COD Updated", "Cash on Delivery is now unavailable.", true);
+                    }
                 } else if (settingKey === 'upiEnabled') {
-                    const message = isEnabled ? "UPI enabled" : "UPI disabled";
-                    showToast("UPI Updated", message, false);
+                    if (isEnabled) {
+                        showToast("UPI Updated", "UPI payments enabled successfully.", false);
+                    } else {
+                        showToast("UPI Updated", "UPI payment option disabled.", true);
+                    }
                 }
             } catch (error) {
                 console.error("Error updating setting:", error);
@@ -173,7 +178,7 @@
             }
         };
 
-        // Industry Standard Floating Toast Notifier
+        // Industry Standard Floating Toast Notifier with Dynamic Green/Red Accents
         window.showToast = function(title, message, isError = false) {
             const toast = document.getElementById('toast-notification');
             const titleEl = document.getElementById('toast-title');
@@ -185,10 +190,12 @@
             msgEl.innerText = message;
 
             if (isError) {
-                iconWrapper.className = "w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0";
+                // Red theme for disabled states
+                iconWrapper.className = "w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0 transition-colors";
                 icon.className = "fa-solid fa-circle-exclamation";
             } else {
-                iconWrapper.className = "w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs flex-shrink-0";
+                // Green theme for enabled states
+                iconWrapper.className = "w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 transition-colors";
                 icon.className = "fa-solid fa-circle-check";
             }
 
