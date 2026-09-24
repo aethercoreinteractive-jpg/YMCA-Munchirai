@@ -95,7 +95,7 @@
             <!-- Logo & Title Group -->
             <div class="flex items-center gap-3">
                 <div id="header-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
-                    <span id="header-logo-fallback">MY</span>
+                    <img src="MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">
                 </div>
                 <div>
                     <h1 class="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-none">MY Food</h1>
@@ -289,9 +289,9 @@
             const container = document.getElementById('header-logo-container');
             const formatted = window.formatDriveUrl(url);
             if (formatted) {
-                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<img src=\\'MY Food Logo.png\\' alt=\\'MY Food Logo.png\\' class=\\'w-full h-full object-cover\\' onerror=\\'this.onerror=null; this.parentElement.innerHTML=\\'MY\\';\\">';">`;
             } else {
-                container.innerHTML = `MY`;
+                container.innerHTML = `<img src="MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
             }
         }
 
@@ -356,7 +356,7 @@
             }
         };
 
-        // Delete Logo option to clear database field and revert header to "MY" default
+      // Delete Logo option to clear database field and revert header to "MY Food Logo.png" default
         window.handleDeleteLogo = async function() {
             try {
                 const settingsRef = ref(db, 'settings');
@@ -367,7 +367,7 @@
                 document.getElementById('logo-url-input').value = "";
                 window.previewDriveLogo("");
                 updateHeaderLogo("");
-                window.showToast("Logo Removed", "Default branding 'MY' restored successfully.");
+                window.showToast("Logo Removed", "Default branding 'MY Food Logo.png' restored successfully.");
             } catch (error) {
                 console.error("Delete logo error:", error);
                 window.showToast("Error", "Failed to delete logo from database.", true);
