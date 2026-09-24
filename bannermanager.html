@@ -12,9 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .sortable-ghost { opacity: 0.3; background: #e0e7ff !important; border: 2px dashed #6366f1 !important; }
+        .sortable-ghost { opacity: 0.4; background: #e0e7ff !important; border: 2px dashed #6366f1 !important; }
         .sortable-chosen { background: #ffffff !important; box-shadow: 0 10px 25px -5px rgb(0 0 / 0.1); }
-        .drag-handle { touch-action: none; cursor: grab; }
+        .drag-handle { cursor: grab; }
         .drag-handle:active { cursor: grabbing; }
     </style>
 </head>
@@ -301,16 +301,14 @@
                 </div>
             `).join('');
 
-            // Initialize SortableJS with Optimized Mobile Long-Press Handling
+            // Initialize SortableJS with direct touch dragging support
             if (sortableInstance) sortableInstance.destroy();
             sortableInstance = Sortable.create(container, {
                 handle: '.drag-handle',
-                animation: 200,
+                animation: 150,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
-                delay: 300,              // Requires ~300ms touch hold on mobile before dragging unlocks
-                touchStartThreshold: 5,  // Allows minor finger wobbles without failing the hold
-                delayOnTouchOnly: true,  // Desktop works instantly on mouse click-drag
+                delay: 0, // Instant drag response enabled
                 onEnd: async function() {
                     const newOrderIDs = Array.from(container.children).map(el => el.getAttribute('data-id'));
                     slidesState.sort((a, b) => newOrderIDs.indexOf(a.id) - newOrderIDs.indexOf(b.id));
