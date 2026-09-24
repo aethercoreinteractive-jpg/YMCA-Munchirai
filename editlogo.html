@@ -94,7 +94,7 @@
             
             <!-- Logo & Title Group -->
             <div class="flex items-center gap-3">
-                <div id="header-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-amber-400/30">
+                <div id="header-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md flex-shrink-0 overflow-hidden border border-slate-700">
                     <img src="MY Food Logo.png" alt="MY Food Logo.png" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">
                 </div>
                 <div>
@@ -356,7 +356,7 @@
             }
         };
 
-      // Delete Logo option to clear database field and revert header to "MY Food Logo.png" default
+      // Delete Logo option to clear database field and revert header to default "MY Food Logo.png"
         window.handleDeleteLogo = async function() {
             try {
                 const settingsRef = ref(db, 'settings');
