@@ -152,15 +152,26 @@
             document.getElementById('upi-toggle').checked = upiStatus;
         });
 
-        // Function exposed globally to handle switch toggles safely
+        // Function exposed globally to handle switch toggles safely with custom messages
         window.updatePaymentSetting = async function(settingKey, isEnabled) {
             try {
-                // Safely update only the exact node inside settings without erasing other data fields
                 const updates = {};
                 updates[settingKey] = isEnabled;
                 
                 await update(settingsRef, updates);
-                showToast("Updated Successfully", `Payment gateway option turned ${isEnabled ? 'ON' : 'OFF'}.`, false);
+
+                // Distinct custom popup messages based on which toggle was flipped
+                if (settingKey === 'codEnabled') {
+                    const message = isEnabled 
+                        ? "Cash on Delivery is now available at checkout." 
+                        : "Cash on Delivery has been disabled for users.";
+                    showToast("COD Updated", message, false);
+                } else if (settingKey === 'upiEnabled') {
+                    const message = isEnabled 
+                        ? "UPI Online Payments are now active." 
+                        : "UPI Online Payments have been turned off.";
+                    showToast("UPI Updated", message, false);
+                }
             } catch (error) {
                 console.error("Error updating setting:", error);
                 showToast("Update Failed", "Could not save change. Check connection.", true);
