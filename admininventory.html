@@ -57,7 +57,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
             <!-- Brand Mark -->
             <div class="flex items-center gap-3 shrink-0">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md">MY</div>
+                <div id="header-logo-container" class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
+                    <span>MY</span>
+                </div>
                 <div>
                     <h1 class="text-xs font-extrabold text-white tracking-tight">MUNCHIRAI YMCA</h1>
                     <span class="text-[10px] text-amber-400 font-mono tracking-wider block">ADMIN_CONSOLE</span>
@@ -189,7 +191,7 @@
     <!-- Firebase Realtime Engine & Analytics -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         // SECURITY CHECKPOINT: Enforce Session Token Verification
@@ -227,6 +229,59 @@
 
         let categoriesCache = [];
         let draggedCategoryKey = null;
+
+        // Convert Google Drive share link into a direct viewable image link
+        window.formatDriveUrl = function(rawUrl) {
+            if (!rawUrl) return "";
+            let url = rawUrl.trim();
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            }
+            return url;
+        };
+
+        // Fetch and apply existing store logo into the header
+        async function fetchExistingLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    updateHeaderLogo(snap.val());
+                } else {
+                    updateHeaderLogo("");
+                }
+            } catch (err) {
+                console.error("Error loading logo:", err);
+            }
+        }
+
+        function updateHeaderLogo(url) {
+            const container = document.getElementById('header-logo-container');
+            const formatted = window.formatDriveUrl(url);
+            if (formatted) {
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+            } else {
+                container.innerHTML = `MY`;
+            }
+        }
+
+        // Initialize logo on load and listen for real-time changes
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchExistingLogo();
+        });
+
+        onValue(ref(db, 'settings/storeLogo'), (snapshot) => {
+            if (snapshot.exists()) {
+                updateHeaderLogo(snapshot.val());
+            } else {
+                updateHeaderLogo("");
+            }
+        });
 
         // Real-time live orders badge counter integration
         onValue(ref(db, 'orders'), (snapshot) => {
