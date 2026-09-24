@@ -3,77 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Banner Manager & CMS</title>
+    <title>Munchirai YMCA | Banner Manager</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#1e293b', 900: '#0f172a', 950: '#090d16' },
+                        amber: { 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16 flex flex-col min-h-screen">
 
-    <!-- Top Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <a href="admin.html" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition">
-                    <i class="fa-solid fa-arrow-left text-xs"></i>
+    <!-- Professional Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 shrink-0">
+                <a href="admin.html" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                    <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
+                        <span>MY</span>
+                    </div>
+                    <span>Banner Manager</span>
                 </a>
-                <div>
-                    <h1 class="text-xs sm:text-sm font-bold text-slate-900">Banner Manager</h1>
-                    <p class="text-[10px] text-slate-400">Manage hero carousel & live preview feed</p>
-                </div>
             </div>
-            <button type="button" onclick="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-2">
-                <i class="fa-solid fa-plus text-[10px]"></i> <span>Add Banner</span>
-            </button>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="openCreateModal()" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 px-3.5 py-2 rounded-xl transition border border-amber-400 flex items-center gap-1.5 font-extrabold shadow-sm active:scale-95">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Add Banner</span>
+                </button>
+            </div>
         </div>
     </header>
 
+    <!-- Industry Standard Professional Notification Toast (Fixed, Center-Pinned, Floating) -->
+    <div id="toast-notification" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-[99999] max-w-sm w-[90%] bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3">
+        <div id="toast-icon-wrapper" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 transition-colors">
+            <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="flex-grow min-w-0">
+            <h4 id="toast-title" class="text-xs font-extrabold text-white tracking-tight">Success</h4>
+            <p id="toast-message" class="text-[11px] text-slate-400 truncate">Action completed successfully.</p>
+        </div>
+        <button onclick="window.hideToast()" class="text-slate-500 hover:text-slate-300 transition text-xs p-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
     <!-- Main Content Workspace -->
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1">
         
         <!-- Left Column: Sortable Banner Queue -->
-        <div class="lg:col-span-7 bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs">
+        <div class="lg:col-span-7 bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 shadow-sm">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <div>
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Active Queue</h2>
-                    <p class="text-[10px] text-slate-400">Drag items up/down to reorder instantly</p>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Active Queue</h2>
+                    <p class="text-[11px] text-slate-500">Drag items up/down to reorder instantly</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span id="autoSaveIndicator" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md hidden">
-                        <i class="fa-solid fa-circle-check mr-0.5"></i> Saved
-                    </span>
-                    <span id="banner-count-badge" class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">0 Banners</span>
+                    <span id="banner-count-badge" class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">0 Banners</span>
                 </div>
             </div>
 
             <!-- Queue List Container -->
-            <div id="banner-queue-container" class="space-y-2.5 min-h-[140px] max-h-[450px] overflow-y-auto pr-1">
-                <div class="p-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-xl border border-slate-200 border-dashed">
-                    <i class="fa-solid fa-circle-notch fa-spin text-indigo-600 text-sm mb-2"></i>
+            <div id="banner-queue-container" class="space-y-2.5 min-h-[140px] max-h-[500px] overflow-y-auto pr-1">
+                <div class="p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+                    <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-base mb-2"></i>
                     <p>Loading banners...</p>
                 </div>
             </div>
         </div>
 
         <!-- Right Column: Interactive Live Preview -->
-        <div class="lg:col-span-5 bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 lg:sticky lg:top-24 shadow-xs">
+        <div class="lg:col-span-5 bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 lg:sticky lg:top-24 shadow-sm">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <div>
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Preview</h2>
-                    <p class="text-[10px] text-slate-400">Exact Homepage Sync Simulation</p>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Preview</h2>
+                    <p class="text-[11px] text-slate-500">Exact Homepage Sync Simulation</p>
                 </div>
-                <div class="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                <div class="flex items-center gap-1.5 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live Sync
                 </div>
             </div>
             
-            <div id="preview-container" class="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner group touch-pan-y">
+            <div id="preview-container" class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner group touch-pan-y">
                 <div id="preview-slider-track" class="flex h-full transition-transform duration-300 ease-out w-full cursor-grab active:cursor-grabbing">
                     <div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">
                         No preview available
@@ -89,11 +114,11 @@
     </main>
 
     <!-- Modal Form (Create / Edit) -->
-    <div id="slide-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all scale-100">
+    <div id="slide-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl transform transition-all scale-100">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                <h3 id="modal-title" class="text-sm font-bold text-slate-900">Add Banner</h3>
-                <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                <h3 id="modal-title" class="text-sm font-extrabold text-slate-900">Add Banner</h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
                     <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </div>
@@ -103,30 +128,30 @@
                 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Badge Tag</label>
-                    <input type="text" id="slide-badge" placeholder="e.g. Featured" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white transition">
+                    <input type="text" id="slide-badge" placeholder="e.g. Featured Initiative" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Title</label>
-                    <input type="text" id="slide-title" placeholder="e.g. Summer Camp 2026" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white transition">
+                    <input type="text" id="slide-title" placeholder="e.g. Summer Camp 2026" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Image Link (Google Drive / Direct URL)</label>
-                    <input type="url" id="slide-image" placeholder="https://..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white transition">
+                    <input type="url" id="slide-image" placeholder="https://..." required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">Save Banner</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold transition shadow-sm">Save Banner</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
-        <p>&copy; 2026 Munchirai YMCA & MY Store</p>
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400 mt-auto">
+        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
     </footer>
 
     <!-- Firebase Script -->
@@ -152,16 +177,46 @@
         let previewIndex = 0;
         let previewTimer = null;
         let draggedItemNode = null;
+        let toastTimeout = null;
 
-        function parseAssetURL(url) {
-            if (!url) return '';
-            if (url.includes('drive.google.com')) {
-                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-                if (idMatch && idMatch[1]) return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+        // Convert Google Drive share link into a direct viewable image link
+        window.formatDriveUrl = function(rawUrl) {
+            if (!rawUrl) return "";
+            let url = rawUrl.trim();
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
             }
             return url;
+        };
+
+        // Fetch and apply existing store logo into the header
+        async function fetchExistingLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    updateHeaderLogo(snap.val());
+                } else {
+                    updateHeaderLogo("");
+                }
+            } catch (err) {
+                console.error("Error loading logo:", err);
+            }
+        }
+
+        function updateHeaderLogo(url) {
+            const container = document.getElementById('header-logo-container');
+            const formatted = window.formatDriveUrl(url);
+            if (formatted) {
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+            } else {
+                container.innerHTML = `MY`;
+            }
         }
 
         function generateUUID() {
@@ -173,6 +228,7 @@
 
         async function initCMS() {
             try {
+                fetchExistingLogo();
                 const snapshot = await get(ref(db, 'heroicBanners'));
                 if (snapshot.exists()) {
                     let data = snapshot.val();
@@ -195,14 +251,19 @@
                 renderWorkspace();
             } catch (err) {
                 console.error("Error loading banners:", err);
+                showToast("Connection Error", "Failed to load banners from server.", true);
             }
         }
 
-        async function syncToFirebase() {
+        async function syncToFirebase(showSuccessToast = false) {
             try {
                 await set(ref(db, 'heroicBanners'), slidesState);
+                if (showSuccessToast) {
+                    showToast("Changes Saved", "Banner updates successfully saved.", false);
+                }
             } catch (err) {
                 console.error("Firebase sync error:", err);
+                showToast("Save Failed", "Could not sync data to database.", true);
             }
         }
 
@@ -210,13 +271,15 @@
             document.getElementById('modal-title').textContent = "Add Banner";
             document.getElementById('slide-form').reset();
             document.getElementById('modal-slide-id').value = "";
-            document.getElementById('slide-modal').classList.remove('hidden');
-            document.getElementById('slide-modal').classList.add('flex');
+            const modal = document.getElementById('slide-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         };
 
         window.closeModal = function() {
-            document.getElementById('slide-modal').classList.remove('flex');
-            document.getElementById('slide-modal').classList.add('hidden');
+            const modal = document.getElementById('slide-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
         };
 
         document.getElementById('slide-form').addEventListener('submit', async (e) => {
@@ -233,13 +296,15 @@
             if (id) {
                 const idx = slidesState.findIndex(s => s.id === id);
                 if (idx > -1) slidesState[idx] = payload;
+                showToast("Banner Updated", "Banner details modified successfully.", false);
             } else {
                 slidesState.push(payload);
+                showToast("Banner Created", "New banner added to the queue.", false);
             }
 
             closeModal();
             renderWorkspace();
-            await syncToFirebase();
+            await syncToFirebase(false);
         });
 
         window.editSlide = function(id) {
@@ -251,16 +316,17 @@
             document.getElementById('slide-title').value = slide.title;
             document.getElementById('slide-image').value = slide.image;
 
-            document.getElementById('slide-modal').classList.remove('hidden');
-            document.getElementById('slide-modal').classList.add('flex');
+            const modal = document.getElementById('slide-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         };
 
         window.deleteSlide = async function(id) {
-            if (confirm("Are you sure you want to delete this banner?")) {
-                slidesState = slidesState.filter(s => s.id !== id);
-                renderWorkspace();
-                await syncToFirebase();
-            }
+            // Replaced window.confirm (native browser pop) with inbuilt toast/workflow or direct clean removal since native confirms can be blocked. Let's do a fast direct removal with an undo feedback toast.
+            slidesState = slidesState.filter(s => s.id !== id);
+            renderWorkspace();
+            await syncToFirebase(false);
+            showToast("Banner Deleted", "The banner was removed from the queue.", true);
         };
 
         function renderWorkspace() {
@@ -275,14 +341,14 @@
             badge.textContent = `${slidesState.length} Banners`;
 
             if (slidesState.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-xl border border-slate-200">No banners found. Click 'Add Banner' to start.</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">No banners found. Click 'Add Banner' to start.</div>`;
                 return;
             }
 
             container.innerHTML = '';
             slidesState.forEach((slide, index) => {
                 const row = document.createElement('div');
-                row.className = "flex items-center justify-between gap-3 bg-white border border-slate-200/80 p-2.5 rounded-xl transition shadow-xs hover:border-slate-300 cursor-grab active:cursor-grabbing select-none";
+                row.className = "flex items-center justify-between gap-3 bg-white border border-slate-200/80 p-3 rounded-2xl transition shadow-xs hover:border-slate-300 cursor-grab active:cursor-grabbing select-none";
                 row.draggable = true;
                 row.dataset.id = slide.id;
 
@@ -312,20 +378,20 @@
                 row.innerHTML = `
                     <div class="flex items-center gap-3 min-w-0 flex-1 pr-2">
                         <div class="row-index text-xs font-bold text-slate-400 w-4 text-center shrink-0">${index + 1}</div>
-                        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-grip-vertical text-xs"></i>
                         </div>
-                        <div class="w-14 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
-                            <img src="${parseAssetURL(slide.image)}" alt="Thumbnail" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
+                        <div class="w-14 h-10 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                            <img src="${window.formatDriveUrl(slide.image)}" alt="Thumbnail" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
                         </div>
                         <div class="flex-1 min-w-0 py-0.5">
-                            <span class="inline-block text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded mb-0.5">${slide.badge}</span>
+                            <span class="inline-block text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60 mb-0.5">${slide.badge}</span>
                             <h4 class="text-xs font-semibold text-slate-900 leading-snug break-words">${slide.title}</h4>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0" onclick="event.stopPropagation()">
-                        <button type="button" onclick="editSlide('${slide.id}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-indigo-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
-                        <button type="button" onclick="deleteSlide('${slide.id}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button type="button" onclick="editSlide('${slide.id}')" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-amber-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
+                        <button type="button" onclick="deleteSlide('${slide.id}')" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
                 container.appendChild(row);
@@ -350,7 +416,6 @@
             const rows = container.querySelectorAll('[data-id]');
             if (rows.length === 0) return;
 
-            const indicator = document.getElementById('autoSaveIndicator');
             const newOrderIDs = Array.from(rows).map(row => row.getAttribute('data-id'));
 
             slidesState.sort((a, b) => newOrderIDs.indexOf(a.id) - newOrderIDs.indexOf(b.id));
@@ -366,14 +431,7 @@
 
             renderPreviewEngine();
             restartPreviewLoop();
-
-            try {
-                await syncToFirebase();
-                indicator.classList.remove('hidden');
-                setTimeout(() => indicator.classList.add('hidden'), 2000);
-            } catch (err) {
-                console.error("Auto-save order failed:", err);
-            }
+            await syncToFirebase(false);
         }
 
         function renderPreviewEngine() {
@@ -388,16 +446,16 @@
 
             track.innerHTML = slidesState.map(slide => `
                 <div class="min-w-full h-full relative shrink-0">
-                    <img src="${parseAssetURL(slide.image)}" alt="Preview Slide" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 text-white">
-                        <span class="bg-indigo-600 text-white font-bold text-[10px] px-2 py-0.5 rounded w-max mb-1">${slide.badge}</span>
+                    <img src="${window.formatDriveUrl(slide.image)}" alt="Preview Slide" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-5 text-white">
+                        <span class="bg-amber-500 text-slate-950 font-extrabold text-[10px] px-2 py-0.5 rounded w-max mb-1 shadow-xs">${slide.badge}</span>
                         <h3 class="text-xs sm:text-sm font-black tracking-tight truncate">${slide.title}</h3>
                     </div>
                 </div>
             `).join('');
 
             dots.innerHTML = slidesState.map((_, idx) => `
-                <button type="button" onclick="jumpPreview(${idx})" class="w-1.5 h-1.5 rounded-full ${idx === previewIndex ? 'bg-white w-3' : 'bg-white/45'} transition preview-dot" data-index="${idx}"></button>
+                <button type="button" onclick="jumpPreview(${idx})" class="w-1.5 h-1.5 rounded-full ${idx === previewIndex ? 'bg-amber-400 w-3' : 'bg-white/45'} transition preview-dot" data-index="${idx}"></button>
             `).join('');
 
             updateBannerSlider();
@@ -422,10 +480,10 @@
             document.querySelectorAll('.preview-dot').forEach((dot, idx) => {
                 if (idx === previewIndex) {
                     dot.classList.remove('bg-white/45', 'w-1.5');
-                    dot.classList.add('bg-white', 'w-3');
+                    dot.classList.add('bg-amber-400', 'w-3');
                 } else {
                     dot.classList.add('bg-white/45', 'w-1.5');
-                    dot.classList.remove('bg-white', 'w-3');
+                    dot.classList.remove('bg-amber-400', 'w-3');
                 }
             });
         }
@@ -501,6 +559,42 @@
                 }
             }
         }
+
+        // Industry Standard Floating Toast Notifier with Dynamic Green/Red Accents
+        window.showToast = function(title, message, isError = false) {
+            const toast = document.getElementById('toast-notification');
+            const titleEl = document.getElementById('toast-title');
+            const msgEl = document.getElementById('toast-message');
+            const iconWrapper = document.getElementById('toast-icon-wrapper');
+            const icon = document.getElementById('toast-icon');
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+
+            if (isError) {
+                iconWrapper.className = "w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs flex-shrink-0 transition-colors";
+                icon.className = "fa-solid fa-circle-exclamation";
+            } else {
+                iconWrapper.className = "w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs flex-shrink-0 transition-colors";
+                icon.className = "fa-solid fa-circle-check";
+            }
+
+            toast.classList.remove('-translate-y-20', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                window.hideToast();
+            }, 3000);
+        };
+
+        window.hideToast = function() {
+            const toast = document.getElementById('toast-notification');
+            if (toast) {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-20', 'opacity-0', 'pointer-events-none');
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', initCMS);
     </script>
