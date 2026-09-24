@@ -78,7 +78,7 @@
             </div>
 
             <!-- Queue List Container -->
-            <div id="banner-queue-container" class="space-y-2.5 min-h-[140px] max-h-[500px] overflow-y-auto pr-1">
+            <div id="banner-queue-container" class="space-y-3 min-h-[140px] max-h-[500px] overflow-y-auto pr-1">
                 <div class="p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
                     <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-base mb-2"></i>
                     <p>Loading banners...</p>
@@ -347,7 +347,7 @@
             container.innerHTML = '';
             slidesState.forEach((slide, index) => {
                 const row = document.createElement('div');
-                row.className = "flex items-center justify-between gap-3 bg-white border border-slate-200/80 p-3 rounded-2xl transition shadow-xs hover:border-slate-300 cursor-grab active:cursor-grabbing select-none";
+                row.className = "flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 bg-white border border-slate-200/80 p-3.5 rounded-2xl transition shadow-xs hover:border-slate-300 cursor-grab active:cursor-grabbing select-none";
                 row.draggable = true;
                 row.dataset.id = slide.id;
 
@@ -375,22 +375,24 @@
                 });
 
                 row.innerHTML = `
-                    <div class="flex items-center gap-3 min-w-0 flex-1 pr-2">
-                        <div class="row-index text-xs font-bold text-slate-400 w-4 text-center shrink-0">${index + 1}</div>
-                        <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
+                    <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                        <div class="row-index text-xs font-bold text-slate-400 w-4 text-center shrink-0 pt-1 sm:pt-0">${index + 1}</div>
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                             <i class="fa-solid fa-grip-vertical text-xs"></i>
                         </div>
-                        <div class="w-14 h-10 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                        <div class="w-16 h-11 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200 mt-0.5 sm:mt-0">
                             <img src="${window.formatDriveUrl(slide.image)}" alt="Thumbnail" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
                         </div>
-                        <div class="flex items-center gap-2 min-w-0 flex-1">
-                            <span class="inline-block text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60 shrink-0">${slide.badge}</span>
-                            <h4 class="text-xs font-semibold text-slate-900 truncate flex-1">${slide.title}</h4>
+                        <div class="flex flex-col min-w-0 flex-1 pr-1">
+                            <div>
+                                <span class="inline-block text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60 mb-1">${slide.badge}</span>
+                            </div>
+                            <h4 class="text-xs font-semibold text-slate-900 leading-snug break-words">${slide.title}</h4>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0" onclick="event.stopPropagation()">
-                        <button type="button" onclick="editSlide('${slide.id}')" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-amber-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
-                        <button type="button" onclick="deleteSlide('${slide.id}')" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
+                    <div class="flex items-center justify-end sm:justify-start gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100" onclick="event.stopPropagation()">
+                        <button type="button" onclick="editSlide('${slide.id}')" class="flex-1 sm:flex-none px-3 py-1.5 sm:w-8 sm:h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-amber-600 transition flex items-center justify-center gap-1.5 text-xs font-semibold sm:font-normal"><i class="fa-solid fa-pen text-[11px]"></i><span class="sm:hidden">Edit</span></button>
+                        <button type="button" onclick="deleteSlide('${slide.id}')" class="flex-1 sm:flex-none px-3 py-1.5 sm:w-8 sm:h-8 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center gap-1.5 text-xs font-semibold sm:font-normal"><i class="fa-solid fa-trash text-[11px]"></i><span class="sm:hidden">Delete</span></button>
                     </div>
                 `;
                 container.appendChild(row);
