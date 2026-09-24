@@ -2,7 +2,7 @@
 <html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Banner Manager & CMS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,10 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .sortable-ghost { opacity: 0.4; background: #e0e7ff !important; border: 2px dashed #6366f1 !important; }
-        .sortable-chosen { background: #ffffff !important; box-shadow: 0 10px 25px -5px rgb(0 0 / 0.1); }
-        .drag-handle { cursor: grab; }
-        .drag-handle:active { cursor: grabbing; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
@@ -46,13 +42,18 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <div>
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Active Queue</h2>
-                    <p class="text-[10px] text-slate-400">Hold handle to reorder up & down</p>
+                    <p class="text-[10px] text-slate-400">Drag items up/down to reorder instantly</p>
                 </div>
-                <span id="banner-count-badge" class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">0 Banners</span>
+                <div class="flex items-center gap-2">
+                    <span id="autoSaveIndicator" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md hidden">
+                        <i class="fa-solid fa-circle-check mr-0.5"></i> Saved
+                    </span>
+                    <span id="banner-count-badge" class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">0 Banners</span>
+                </div>
             </div>
 
             <!-- Queue List Container -->
-            <div id="banner-queue-container" class="space-y-3 min-h-[140px]">
+            <div id="banner-queue-container" class="space-y-2.5 min-h-[140px] max-h-[450px] overflow-y-auto pr-1">
                 <div class="p-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-xl border border-slate-200 border-dashed">
                     <i class="fa-solid fa-circle-notch fa-spin text-indigo-600 text-sm mb-2"></i>
                     <p>Loading banners...</p>
@@ -128,13 +129,10 @@
         <p>&copy; 2026 Munchirai YMCA & MY Store</p>
     </footer>
 
-    <!-- SortableJS CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/SortableJS/1.15.0/Sortable.min.js"></script>
-
     <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -150,16 +148,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let slidesState = [];
+        window.slidesState = [];
         let previewIndex = 0;
         let previewTimer = null;
-        let sortableInstance = null;
+        let draggedItemNode = null;
 
-        // Preview Slider Gestures
+        // Preview Slider Gestures state
         let startX = 0;
         let currentTranslate = 0;
         let prevTranslate = 0;
-        let isDragging = false;
+        let isDraggingPreview = false;
         let animationID = 0;
 
         function parseAssetURL(url) {
@@ -183,16 +181,25 @@
         async function initCMS() {
             try {
                 const snapshot = await get(ref(db, 'heroicBanners'));
-                if (snapshot.exists() && Array.isArray(snapshot.val())) {
-                    slidesState = snapshot.val();
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    if (Array.isArray(data)) {
+                        slidesState = data;
+                    } else if (typeof data === 'object') {
+                        slidesState = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    }
                 } else {
                     slidesState = [{
                         id: generateUUID(),
                         badge: "Featured",
                         title: "Community Sports Program",
-                        image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600"
+                        image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600",
+                        order: 0
                     }];
                 }
+                
+                // Sort by order property if available
+                slidesState.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
                 renderWorkspace();
             } catch (err) {
                 console.error("Error loading banners:", err);
@@ -227,7 +234,8 @@
                 id: id || generateUUID(),
                 badge: document.getElementById('slide-badge').value.trim(),
                 title: document.getElementById('slide-title').value.trim(),
-                image: document.getElementById('slide-image').value.trim()
+                image: document.getElementById('slide-image').value.trim(),
+                order: id && slidesState.find(s => s.id === id)?.order !== undefined ? slidesState.find(s => s.id === id).order : slidesState.length
             };
 
             if (id) {
@@ -276,17 +284,47 @@
 
             if (slidesState.length === 0) {
                 container.innerHTML = `<div class="p-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-xl border border-slate-200">No banners found. Click 'Add Banner' to start.</div>`;
-                if (sortableInstance) sortableInstance.destroy();
                 return;
             }
 
-            container.innerHTML = slidesState.map((slide) => `
-                <div data-id="${slide.id}" class="flex items-center justify-between gap-3 bg-white border border-slate-200/80 p-3 rounded-xl transition shadow-xs hover:border-slate-300">
+            container.innerHTML = '';
+            slidesState.forEach((slide, index) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between gap-3 bg-white border border-slate-200/80 p-2.5 rounded-xl transition shadow-xs hover:border-slate-300 cursor-grab active:cursor-grabbing select-none";
+                row.draggable = true;
+                row.dataset.id = slide.id;
+
+                // Native Drag & Drop Listeners (Identical pattern to adminnews.html)
+                row.addEventListener('dragstart', (e) => {
+                    draggedItemNode = row;
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => row.classList.add('opacity-40'), 0);
+                });
+
+                row.addEventListener('dragend', () => {
+                    row.classList.remove('opacity-40');
+                    draggedItemNode = null;
+                    autoSaveOrder();
+                });
+
+                row.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    if (afterElement == null) {
+                        container.appendChild(draggedItemNode);
+                    } else {
+                        container.insertBefore(draggedItemNode, afterElement);
+                    }
+                });
+
+                row.innerHTML = `
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="drag-handle w-8 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center shrink-0 transition" title="Touch & hold to reorder">
+                        <div class="row-index text-xs font-bold text-slate-400 w-4 text-center">${index + 1}</div>
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-grip-vertical text-xs"></i>
                         </div>
-                        <div class="w-14 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                        <div class="w-12 h-9 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                             <img src="${parseAssetURL(slide.image)}" alt="Thumbnail" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=ERR'">
                         </div>
                         <div class="min-w-0">
@@ -294,38 +332,69 @@
                             <h4 class="text-xs font-semibold text-slate-900 truncate mt-0.5">${slide.title}</h4>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <button onclick="editSlide('${slide.id}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-indigo-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteSlide('${slide.id}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
+                    <div class="flex items-center gap-1.5 shrink-0" onclick="event.stopPropagation()">
+                        <button type="button" onclick="editSlide('${slide.id}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-indigo-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
+                        <button type="button" onclick="deleteSlide('${slide.id}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
-                </div>
-            `).join('');
-
-            // Initialize SortableJS with direct touch dragging support
-            if (sortableInstance) sortableInstance.destroy();
-            sortableInstance = Sortable.create(container, {
-                handle: '.drag-handle',
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                delay: 0, // Instant drag response enabled
-                onEnd: async function() {
-                    const newOrderIDs = Array.from(container.children).map(el => el.getAttribute('data-id'));
-                    slidesState.sort((a, b) => newOrderIDs.indexOf(a.id) - newOrderIDs.indexOf(b.id));
-                    renderPreviewEngine();
-                    restartPreviewLoop();
-                    await syncToFirebase();
-                }
+                `;
+                container.appendChild(row);
             });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('[draggable="true"]:not(.opacity-40)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        async function autoSaveOrder() {
+            const container = document.getElementById('banner-queue-container');
+            const rows = container.querySelectorAll('[data-id]');
+            if (rows.length === 0) return;
+
+            const indicator = document.getElementById('autoSaveIndicator');
+            const newOrderIDs = Array.from(rows).map(row => row.getAttribute('data-id'));
+
+            // Reorder slidesState array to match DOM order
+            slidesState.sort((a, b) => newOrderIDs.indexOf(a.id) - newOrderIDs.indexOf(b.id));
+            
+            // Update order indices
+            slidesState.forEach((slide, idx) => {
+                slide.order = idx;
+            });
+
+     // Update DOM indices labels
+            rows.forEach((row, idx) => {
+                const idxLabel = row.querySelector('.row-index');
+                if (idxLabel) idxLabel.textContent = idx + 1;
+            });
+
+            renderPreviewEngine();
+            restartPreviewLoop();
+
+            try {
+                await syncToFirebase();
+                indicator.classList.remove('hidden');
+                setTimeout(() => indicator.classList.add('hidden'), 2000);
+            } catch (err) {
+                console.error("Auto-save order failed:", err);
+            }
         }
 
         function renderPreviewEngine() {
             const track = document.getElementById('preview-slider-track');
             const dots = document.getElementById('preview-dots-container');
 
-            if (slidesState.length === 0) {
-                track.innerHTML = `<div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">No preview available</div>`;
-                dots.innerHTML = ``;
+            if (!track || slidesState.length === 0) {
+                if (track) track.innerHTML = `<div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">No preview available</div>`;
+                if (dots) dots.innerHTML = ``;
                 return;
             }
 
@@ -340,7 +409,7 @@
             `).join('');
 
             dots.innerHTML = slidesState.map((_, idx) => `
-                <button onclick="jumpPreview(${idx})" class="w-1.5 h-1.5 rounded-full ${idx === previewIndex ? 'bg-indigo-400 w-3' : 'bg-white/50'} transition preview-dot"></button>
+                <button type="button" onclick="jumpPreview(${idx})" class="w-1.5 h-1.5 rounded-full ${idx === previewIndex ? 'bg-indigo-400 w-3' : 'bg-white/50'} transition preview-dot"></button>
             `).join('');
 
             updateTransform();
@@ -377,7 +446,7 @@
             clearInterval(previewTimer);
             if (slidesState.length <= 1) return;
             previewTimer = setInterval(() => {
-                if (!isDragging) {
+                if (!isDraggingPreview) {
                     previewIndex = (previewIndex + 1) % slidesState.length;
                     updateTransform();
                 }
@@ -389,23 +458,22 @@
             const track = document.getElementById('preview-slider-track');
             if (!container || !track) return;
 
-            container.ontouchstart = null;
-            container.ontouchmove = null;
-            container.ontouchend = null;
-            container.onmousedown = null;
-            container.onmousemove = null;
-            container.onmouseup = null;
-            container.onmouseleave = null;
+            // Remove existing listeners to avoid duplicates
+            const newContainer = container.cloneNode(true);
+            container.parentNode.replaceChild(newContainer, container);
+            
+            const activeContainer = document.getElementById('preview-container');
+            const activeTrack = document.getElementById('preview-slider-track');
 
-            container.addEventListener('touchstart', touchStart, {passive: true});
-            container.addEventListener('touchmove', touchMove, {passive: true});
-            container.addEventListener('touchend', touchEnd);
+            activeContainer.addEventListener('touchstart', touchStart, {passive: true});
+            activeContainer.addEventListener('touchmove', touchMove, {passive: true});
+            activeContainer.addEventListener('touchend', touchEnd);
 
-            container.addEventListener('mousedown', touchStart);
-            container.addEventListener('mousemove', touchMove);
-            container.addEventListener('mouseup', touchEnd);
-            container.addEventListener('mouseleave', () => {
-                if (isDragging) touchEnd();
+            activeContainer.addEventListener('mousedown', touchStart);
+            activeContainer.addEventListener('mousemove', touchMove);
+            activeContainer.addEventListener('mouseup', touchEnd);
+            activeContainer.addEventListener('mouseleave', () => {
+                if (isDraggingPreview) touchEnd();
             });
 
             function getPositionX(event) {
@@ -414,27 +482,27 @@
 
             function touchStart(event) {
                 if (slidesState.length <= 1) return;
-                isDragging = true;
+                isDraggingPreview = true;
                 startX = getPositionX(event);
                 clearInterval(previewTimer);
-                track.style.transition = 'none';
+                activeTrack.style.transition = 'none';
                 animationID = requestAnimationFrame(animation);
             }
 
             function touchMove(event) {
-                if (!isDragging) return;
+                if (!isDraggingPreview) return;
                 const currentPosition = getPositionX(event);
                 const diff = currentPosition - startX;
                 currentTranslate = prevTranslate + diff;
             }
 
             function touchEnd() {
-                if (!isDragging) return;
-                isDragging = false;
+                if (!isDraggingPreview) return;
+                isDraggingPreview = false;
                 cancelAnimationFrame(animationID);
 
                 const movedBy = currentTranslate - prevTranslate;
-                const threshold = container.clientWidth / 4;
+                const threshold = activeContainer.clientWidth / 4;
 
                 if (movedBy < -threshold) {
                     previewIndex = (previewIndex + 1) % slidesState.length;
@@ -447,9 +515,9 @@
             }
 
             function animation() {
-                if (isDragging) {
-                    track.style.transform = `translateX(${currentTranslate}px)`;
-                    requestAnimationFrame(animation);
+                if (isDraggingPreview) {
+                    activeTrack.style.transform = `translateX(${currentTranslate}px)`;
+                    animationID = requestAnimationFrame(animation);
                 }
             }
         }
