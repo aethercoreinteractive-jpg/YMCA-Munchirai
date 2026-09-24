@@ -25,9 +25,6 @@
                 </a>
                 <h1 class="text-sm font-bold text-slate-900">Banner Manager</h1>
             </div>
-            <button onclick="commitStateToFirebase()" id="commit-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Save Changes
-            </button>
         </div>
     </header>
 
@@ -101,7 +98,7 @@
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
                     <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">Save Banner</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">Save</button>
                 </div>
             </form>
         </div>
@@ -172,24 +169,13 @@
             }
         }
 
-        window.commitStateToFirebase = async function() {
-            const btn = document.getElementById('commit-btn');
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
-            btn.disabled = true;
-
+        async function syncToFirebase() {
             try {
                 await set(ref(db, 'heroicBanners'), slidesState);
-                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-300"></i> Saved!`;
-                setTimeout(() => {
-                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Changes`;
-                    btn.disabled = false;
-                }, 2000);
             } catch (err) {
-                alert("Failed to save changes.");
-                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Changes`;
-                btn.disabled = false;
+                console.error("Firebase sync error:", err);
             }
-        };
+        }
 
         window.openCreateModal = function() {
             document.getElementById('modal-title').textContent = "Add Banner";
@@ -204,7 +190,7 @@
             document.getElementById('slide-modal').classList.add('hidden');
         };
 
-        document.getElementById('slide-form').addEventListener('submit', (e) => {
+        document.getElementById('slide-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('modal-slide-id').value;
             const payload = {
@@ -223,6 +209,7 @@
 
             closeModal();
             renderWorkspace();
+            await syncToFirebase();
         });
 
         window.editSlide = function(id) {
@@ -238,20 +225,22 @@
             document.getElementById('slide-modal').classList.add('flex');
         };
 
-        window.deleteSlide = function(id) {
+        window.deleteSlide = async function(id) {
             if (confirm("Delete this banner?")) {
                 slidesState = slidesState.filter(s => s.id !== id);
                 renderWorkspace();
+                await syncToFirebase();
             }
         };
 
-        window.moveSlide = function(index, direction) {
+        window.moveSlide = async function(index, direction) {
             const newIndex = index + direction;
             if (newIndex < 0 || newIndex >= slidesState.length) return;
             const temp = slidesState[index];
             slidesState[index] = slidesState[newIndex];
             slidesState[newIndex] = temp;
             renderWorkspace();
+            await syncToFirebase();
         };
 
         function renderWorkspace() {
