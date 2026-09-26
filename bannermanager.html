@@ -185,7 +185,7 @@
     <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         // SECURITY CHECKPOINT: Enforce Session Token Verification
         function verifyAdminSession() {
@@ -394,6 +394,165 @@
             renderQueueList();
             renderPreviewEngine();
             restartPreviewLoop();
+        }
+
+        function renderQueueList() {
+            const container = document.getElementById('banner-queue-container');
+            const badgeCount = document.getElementById('banner-count-badge');
+            badgeCount.textContent = `${slidesState.length} Banner${slidesState.length === 1 ? '' : 's'}`;
+
+            if (!slidesState.length) {
+                container.innerHTML = `<div class="p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed"><p>No banners found in queue.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            slidesState.forEach((slide, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = "flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 cursor-grab active:cursor-grabbing transition select-none gap-3";
+                itemEl.draggable = true;
+                itemEl.dataset.id = slide.id;
+
+                itemEl.addEventListener('dragstart', (e) => {
+                    draggedItemNode = itemEl;
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => itemEl.classList.add('opacity-40'), 0);
+                });
+
+                itemEl.addEventListener('dragend', () => {
+                    itemEl.classList.remove('opacity-40');
+                    draggedItemNode = null;
+                    updateOrderFromDOM();
+                });
+
+                itemEl.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    if (afterElement == null) {
+                        container.appendChild(draggedItemNode);
+                    } else {
+                        container.insertBefore(draggedItemNode, afterElement);
+                    }
+                });
+
+                const formattedImg = formatDriveUrl(slide.image);
+
+                itemEl.innerHTML = `
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="text-xs font-bold text-slate-400 w-4 text-center">${index + 1}</span>
+                        <i class="fa-solid fa-grip-vertical text-slate-300 text-xs"></i>
+                        <div class="w-12 h-8 rounded-lg bg-slate-200 overflow-hidden shrink-0 border border-slate-300">
+                            <img src="${formattedImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Error'">
+                        </div>
+                        <div class="min-w-0">
+                            <span class="inline-block text-[9px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded mb-0.5">${slide.badge || 'Badge'}</span>
+                            <h4 class="text-xs font-bold text-slate-900 truncate">${slide.title || 'Untitled Banner'}</h4>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button type="button" onclick="editSlide('${slide.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-xs">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button type="button" onclick="openDeleteModal('${slide.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-500 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(itemEl);
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('[draggable="true"]:not(.opacity-40)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        async function updateOrderFromDOM() {
+            const container = document.getElementById('banner-queue-container');
+            const rowNodes = [...container.querySelectorAll('[data-id]')];
+            const newOrderMap = rowNodes.map((node, idx) => {
+                const id = node.dataset.id;
+                const slide = slidesState.find(s => s.id === id);
+                if (slide) slide.order = idx;
+                return slide;
+            }).filter(Boolean);
+
+            slidesState = newOrderMap;
+            renderPreviewEngine();
+            restartPreviewLoop();
+            await syncToFirebase(false);
+        }
+
+        function renderPreviewEngine() {
+            const track = document.getElementById('preview-slider-track');
+            const dotsContainer = document.getElementById('preview-dots-container');
+
+            if (!slidesState.length) {
+                track.innerHTML = `<div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">No preview available</div>`;
+                dotsContainer.innerHTML = '';
+                return;
+            }
+
+            track.innerHTML = '';
+            dotsContainer.innerHTML = '';
+
+            slidesState.forEach((slide, idx) => {
+                const formattedImg = formatDriveUrl(slide.image);
+                const slideDiv = document.createElement('div');
+                slideDiv.className = "min-w-full h-full relative flex items-end p-4 sm:p-5 select-none overflow-hidden shrink-0";
+                slideDiv.innerHTML = `
+                    <div class="absolute inset-0 bg-slate-900">
+                        <img src="${formattedImg}" class="w-full h-full object-cover opacity-70" onerror="this.src='https://via.placeholder.com/800x450?text=Image+Load+Error'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                    </div>
+                    <div class="relative z-10 max-w-full">
+                        <span class="inline-block text-[9px] font-black uppercase tracking-widest text-amber-400 bg-amber-500/20 border border-amber-400/30 px-2 py-0.5 rounded-md mb-1">${slide.badge || ''}</span>
+                        <h3 class="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-snug line-clamp-2">${slide.title || ''}</h3>
+                    </div>
+                `;
+                track.appendChild(slideDiv);
+
+                const dot = document.createElement('button');
+                dot.className = `w-1.5 h-1.5 rounded-full transition-all ${idx === previewIndex ? 'bg-amber-400 w-4' : 'bg-white/40'}`;
+                dot.onclick = () => {
+                    previewIndex = idx;
+                    updatePreviewPosition();
+                    restartPreviewLoop();
+                };
+                dotsContainer.appendChild(dot);
+            });
+
+            updatePreviewPosition();
+        }
+
+        function updatePreviewPosition() {
+            const track = document.getElementById('preview-slider-track');
+            if (!track) return;
+            track.style.transform = `translateX(-${previewIndex * 100}%)`;
+
+            const dots = document.getElementById('preview-dots-container').children;
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].className = `w-1.5 h-1.5 rounded-full transition-all ${i === previewIndex ? 'bg-amber-400 w-4' : 'bg-white/40'}`;
+            }
+        }
+
+        function restartPreviewLoop() {
+            if (previewTimer) clearInterval(previewTimer);
+            if (slidesState.length <= 1) return;
+
+            previewTimer = setInterval(() => {
+                previewIndex = (previewIndex + 1) % slidesState.length;
+                updatePreviewPosition();
+            }, 3500);
         }
 
         window.showToast = function(title, message, isError = false) {
