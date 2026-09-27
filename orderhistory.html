@@ -54,7 +54,7 @@
                 </a>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" onclick="handleNativeBack()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                <button type="button" onclick="window.history.back()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
                     <i class="fa-solid fa-arrow-left text-amber-400"></i>
                     <span>Back</span>
                 </button>
@@ -342,7 +342,7 @@
                             </div>
                         </div>
 
-                        <!-- Customer Details Section -->
+<!-- Customer Details Section -->
                         <div class="bg-amber-50/50 rounded-2xl p-3 border border-amber-100/60 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div>
                                 <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block mb-0.5"><i class="fa-solid fa-user mr-1"></i> Customer Info</span>
@@ -452,7 +452,7 @@
                     closeSecurityModal();
                 } else {
                     errorMsg.textContent = "Incorrect security key or password.";
-                    errorMsg.classList.remove('hidden');
+                    errorMsg.classList.add('hidden');
                     document.getElementById('modal-password-input').focus();
                 }
             } catch (err) {
@@ -476,7 +476,7 @@
                     closeSecurityModal();
                 } else {
                     errorMsg.textContent = "Verification failed. Check network connection.";
-                    errorMsg.classList.remove('hidden');
+                    errorMsg.classList.add('hidden');
                 }
             } finally {
                 confirmBtn.disabled = false;
