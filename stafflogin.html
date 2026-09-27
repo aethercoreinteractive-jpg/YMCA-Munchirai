@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Munchirai YMCA | Staff Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#1e293b', 900: '#0f172a', 950: '#090d16' },
+                        amber: { 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 flex flex-col min-h-screen">
+
+    <!-- LOGIN & SECURITY GATEKEEPER MODAL / OVERLAY -->
+    <div id="staff-auth-overlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+            <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl border border-amber-100 shadow-inner">
+                <i class="fa-solid fa-id-badge"></i>
+            </div>
+            <div class="text-center">
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">Staff Portal</span>
+                <h2 class="font-extrabold text-slate-900 text-base sm:text-lg mt-2">Authentication Required</h2>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Enter staff password or company code (399812) to access operations.</p>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input type="password" id="staff-password-input" placeholder="Enter password..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
+                </div>
+                <p id="staff-error-msg" class="text-[11px] text-rose-600 font-bold hidden flex items-center gap-1 justify-center">
+                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect password or company code.
+                </p>
+            </div>
+
+            <button type="button" onclick="verifyStaffPassword()" id="staff-login-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-3.5 rounded-xl text-xs transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                <span>Access Portal</span>
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Professional Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 shrink-0">
+                <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
+                    <span>MY</span>
+                </div>
+                <span class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white">Staff Dashboard</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="staffsettings.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-xl flex items-center justify-center transition shadow-sm active:scale-95" title="Settings">
+                    <i class="fa-solid fa-gear text-sm"></i>
+                </a>
+                <button type="button" onclick="handleStaffLogout()" class="px-3 py-2 rounded-xl text-xs font-bold bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border border-rose-800/80 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-right-from-bracket text-rose-400"></i>
+                    <span class="hidden xs:inline">Logout</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6 pt-24 sm:pt-28">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Operations Terminal</span>
+                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 mt-1.5">Welcome, Staff Member</h1>
+                <p class="text-xs text-slate-500 mt-1">Manage live queues, track bestselling products, and monitor daily inventory.</p>
+            </div>
+            <div class="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-200/80 text-center shrink-0">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Company Code</span>
+                <span class="font-mono font-black text-slate-900 text-sm">399812</span>
+            </div>
+        </div>
+
+        <!-- Portal Actions Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            <!-- Live Orders Button -->
+            <a href="orders.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="bg-white hover:bg-amber-50/40 border border-slate-200/80 hover:border-amber-300 rounded-3xl p-6 shadow-sm transition group flex flex-col items-center sm:items-start text-center sm:text-left space-y-4">
+                <div class="w-12 h-12 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-lg border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-sm group-hover:text-amber-900 transition">Live Orders</h3>
+                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Manage active queue, process orders, and update statuses.</p>
+                </div>
+                <div class="pt-2 flex items-center gap-1 text-xs font-bold text-amber-600 group-hover:translate-x-1 transition">
+                    <span>Open Queue</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </div>
+            </a>
+
+            <!-- Best Sellers Button -->
+            <a href="bestsellers.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="bg-white hover:bg-amber-50/40 border border-slate-200/80 hover:border-amber-300 rounded-3xl p-6 shadow-sm transition group flex flex-col items-center sm:items-start text-center sm:text-left space-y-4">
+                <div class="w-12 h-12 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-lg border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-sm group-hover:text-amber-900 transition">Best Sellers</h3>
+                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">View top-performing products and customer favorites.</p>
+                </div>
+                <div class="pt-2 flex items-center gap-1 text-xs font-bold text-amber-600 group-hover:translate-x-1 transition">
+                    <span>Open Analytics</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </div>
+            </a>
+
+            <!-- Inventory Button -->
+            <a href="admininventory.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="bg-white hover:bg-amber-50/40 border border-slate-200/80 hover:border-amber-300 rounded-3xl p-6 shadow-sm transition group flex flex-col items-center sm:items-start text-center sm:text-left space-y-4">
+                <div class="w-12 h-12 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-lg border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-sm group-hover:text-amber-900 transition">Inventory</h3>
+                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Check stock levels, update prices, and manage catalog items.</p>
+                </div>
+                <div class="pt-2 flex items-center gap-1 text-xs font-bold text-amber-600 group-hover:translate-x-1 transition">
+                    <span>Open Inventory</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400 mt-auto">
+        Munchirai YMCA Secure Portal &bull; Staff Operations Center
+    </footer>
+
+    <!-- Firebase SDK & Authentication Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const DEFAULT_STAFF_PASSWORD = "Staff@123";
+        const IMMUTABLE_COMPANY_CODE = "399812";
+
+        // Check persistent auth state on load
+        function checkExistingStaffSession() {
+            const isAuth = sessionStorage.getItem("staff_authenticated") === "true";
+            if (isAuth) {
+                document.getElementById('staff-auth-overlay').classList.add('hidden');
+            } else {
+                document.getElementById('staff-auth-overlay').classList.remove('hidden');
+                document.getElementById('staff-password-input').focus();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkExistingStaffSession();
+            fetchExistingLogo();
+
+            document.getElementById('staff-password-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    window.verifyStaffPassword();
+                }
+            });
+        });
+
+        window.verifyStaffPassword = async function() {
+            const inputVal = document.getElementById('staff-password-input').value.trim();
+            const errorMsg = document.getElementById('staff-error-msg');
+            const loginBtn = document.getElementById('staff-login-btn');
+
+            if (!inputVal) {
+                errorMsg.textContent = "Please enter password or company code.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = "Verifying...";
+
+            try {
+                // Fetch custom staff password from database if saved via staffsettings
+                const staffPassRef = ref(db, 'settings/staffPassword');
+                const snap = await get(staffPassRef);
+                let cloudStaffPass = DEFAULT_STAFF_PASSWORD;
+                if (snap.exists() && snap.val()) {
+                    cloudStaffPass = snap.val();
+                }
+
+                if (inputVal === cloudStaffPass || inputVal === IMMUTABLE_COMPANY_CODE || inputVal === DEFAULT_STAFF_PASSWORD) {
+                    sessionStorage.setItem("staff_authenticated", "true");
+                    errorMsg.classList.add('hidden');
+                    document.getElementById('staff-auth-overlay').classList.add('hidden');
+                } else {
+                    errorMsg.textContent = "Incorrect password or company code.";
+                    errorMsg.classList.remove('hidden');
+                    document.getElementById('staff-password-input').focus();
+                }
+            } catch (err) {
+                console.error("Auth check error:", err);
+                if (inputVal === DEFAULT_STAFF_PASSWORD || inputVal === IMMUTABLE_COMPANY_CODE) {
+                    sessionStorage.setItem("staff_authenticated", "true");
+                    errorMsg.classList.add('hidden');
+                    document.getElementById('staff-auth-overlay').classList.add('hidden');
+                } else {
+                    errorMsg.textContent = "Verification failed. Check network.";
+                    errorMsg.classList.remove('hidden');
+                }
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = `<span>Access Portal</span><i class="fa-solid fa-arrow-right text-[10px]"></i>`;
+            }
+        };
+
+        window.handleStaffLogout = function() {
+            sessionStorage.removeItem("staff_authenticated");
+            sessionStorage.removeItem("staff_redirect_token");
+            window.location.reload();
+        };
+
+        window.formatDriveUrl = function(rawUrl) {
+            if (!rawUrl) return "";
+            let url = rawUrl.trim();
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            }
+            return url;
+        };
+
+        async function fetchExistingLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                if (snap.exists() && snap.val()) {
+                    updateHeaderLogo(snap.val());
+                }
+            } catch (err) {
+                console.error("Error loading logo:", err);
+            }
+        }
+
+        function updateHeaderLogo(url) {
+            const container = document.getElementById('header-logo-container');
+            const formatted = window.formatDriveUrl(url);
+            if (formatted) {
+                container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+            } else {
+                container.innerHTML = `MY`;
+            }
+        }
+    </script>
+</body>
+  </html>
+  
