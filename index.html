@@ -163,37 +163,13 @@
     <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div id="heroic-slider-wrapper" class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-lg bg-slate-900 group touch-pan-y">
             <div id="heroic-slider-track" class="flex h-full transition-transform duration-300 ease-out cursor-grab active:cursor-grabbing">
-                <div class="min-w-full h-full relative shrink-0">
-                    <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600" alt="Banner 1" class="w-full h-full object-cover pointer-events-none">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
-                        <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">Featured Initiative</span>
-                        <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">Empowering Youth Through Community Sports</h3>
-                        <p class="text-xs sm:text-sm text-slate-300 font-light line-clamp-2">Join our active sports training programs designed to foster teamwork, health, and leadership.</p>
-                    </div>
-                </div>
-                <div class="min-w-full h-full relative shrink-0">
-                    <img src="https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=1600" alt="Banner 2" class="w-full h-full object-cover pointer-events-none">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
-                        <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">MY Store Special</span>
-                        <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">100% Pure Organic Self-Help Products</h3>
-                        <p class="text-xs sm:text-sm text-slate-300 font-light line-clamp-2">Support local farmers and self-help groups by purchasing unpasteurized wild honey and authentic spices.</p>
-                    </div>
-                </div>
-                <div class="min-w-full h-full relative shrink-0">
-                    <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1600" alt="Banner 3" class="w-full h-full object-cover pointer-events-none">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
-                        <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">Community Welfare</span>
-                        <h3 class="text-lg sm:text-2xl font-black tracking-tight mb-1">Building Stronger Families Together</h3>
-                        <p class="text-xs sm:text-sm text-slate-300 font-light line-clamp-2">Participate in our developmental seminars, spiritual wellness sessions, and social welfare programs.</p>
-                    </div>
+                <div class="min-w-full h-full relative shrink-0 flex items-center justify-center text-slate-400 text-xs bg-slate-900">
+                    Loading banners...
                 </div>
             </div>
 
             <!-- Very small banner dots centered at the bottom -->
-            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10">
-                <button onclick="currentBannerSlide(0)" class="w-1.5 h-1.5 rounded-full bg-white/45 hover:bg-white transition banner-dot" data-index="0"></button>
-                <button onclick="currentBannerSlide(1)" class="w-1.5 h-1.5 rounded-full bg-white/45 hover:bg-white transition banner-dot" data-index="1"></button>
-                <button onclick="currentBannerSlide(2)" class="w-1.5 h-1.5 rounded-full bg-white/45 hover:bg-white transition banner-dot" data-index="2"></button>
+            <div id="preview-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10">
             </div>
         </div>
     </section>
@@ -248,7 +224,7 @@
         </div>
     </section>
 
-   <!-- Professional Footer -->
+  <!-- Professional Footer -->
     <footer id="contact" class="bg-slate-950 text-white pt-14 pb-10 border-t border-slate-800 text-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
@@ -342,6 +318,109 @@
         }
 
         document.addEventListener('DOMContentLoaded', fetchStoreLogo);
+
+        // Real-time Heroic Banners Sync from Firebase (Banner Manager)
+        window.heroicSlidesState = [];
+        let heroPreviewIndex = 0;
+        let heroPreviewTimer = null;
+
+        function initHeroicBannersSync() {
+            const bannersRef = ref(db, 'heroicBanners');
+            onValue(bannersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    if (Array.isArray(data)) {
+                        window.heroicSlidesState = data;
+                    } else if (typeof data === 'object') {
+                        window.heroicSlidesState = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    }
+                    window.heroicSlidesState.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                } else {
+                    window.heroicSlidesState = [{
+                        image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600"
+                    }];
+                }
+                renderHeroicBanners();
+                restartHeroPreviewLoop();
+            });
+        }
+
+        function renderHeroicBanners() {
+            const track = document.getElementById('heroic-slider-track');
+            const dotsContainer = document.getElementById('preview-dots-container');
+
+            if (!track || !dotsContainer) return;
+
+            if (!window.heroicSlidesState.length) {
+                track.innerHTML = `<div class="min-w-full h-full flex items-center justify-center text-slate-400 text-xs">No banners available</div>`;
+                dotsContainer.innerHTML = '';
+                return;
+            }
+
+            if (heroPreviewIndex >= window.heroicSlidesState.length) heroPreviewIndex = 0;
+
+            track.innerHTML = window.heroicSlidesState.map(slide => {
+                const imgSrc = formatImageURL(slide.image);
+                return `
+                    <div class="min-w-full h-full relative shrink-0">
+                        <img src="${imgSrc}" alt="Banner" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
+                    </div>
+                `;
+            }).join('');
+
+            dotsContainer.innerHTML = window.heroicSlidesState.map((_, idx) => `
+                <button type="button" onclick="currentBannerSlide(${idx})" class="w-1.5 h-1.5 rounded-full transition banner-dot ${idx === heroPreviewIndex ? 'bg-white w-3' : 'bg-white/45 hover:bg-white'}" data-index="${idx}"></button>
+            `).join('');
+
+            updateBannerSlider();
+        }
+
+        window.currentBannerSlide = function(index) {
+            heroPreviewIndex = index;
+            updateBannerSlider();
+            restartHeroPreviewLoop();
+        };
+
+        function updateBannerSlider() {
+            const track = document.getElementById('heroic-slider-track');
+            if (!track) return;
+            track.style.transform = `translateX(-${heroPreviewIndex * 100}%)`;
+
+            const dots = document.querySelectorAll('.banner-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === heroPreviewIndex) {
+                    dot.classList.remove('bg-white/45', 'w-1.5');
+                    dot.classList.add('bg-white', 'w-3');
+                } else {
+                    dot.classList.add('bg-white/45', 'w-1.5');
+                    dot.classList.remove('bg-white', 'w-3');
+                }
+            });
+        }
+
+        function nextBannerSlide() {
+            if (!window.heroicSlidesState.length) return;
+            heroPreviewIndex = (heroPreviewIndex + 1) % window.heroicSlidesState.length;
+            updateBannerSlider();
+        }
+
+        function prevBannerSlide() {
+            if (!window.heroicSlidesState.length) return;
+            heroPreviewIndex = (heroPreviewIndex - 1 + window.heroicSlidesState.length) % window.heroicSlidesState.length;
+            updateBannerSlider();
+        }
+
+        function restartHeroPreviewLoop() {
+            if (heroPreviewTimer) clearInterval(heroPreviewTimer);
+            if (window.heroicSlidesState.length <= 1) return;
+
+            heroPreviewTimer = setInterval(() => {
+                heroPreviewIndex = (heroPreviewIndex + 1) % window.heroicSlidesState.length;
+                updateBannerSlider();
+            }, 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', initHeroicBannersSync);
 
         window.getCartActionHTML = function(itemKey, itemName, itemPrice, itemImg, itemCategory) {
             let cart = JSON.parse(localStorage.getItem('ymca_cart')) || [];
@@ -614,51 +693,8 @@
             if (savedSettings.footerDesc) document.getElementById('display-footer-desc').textContent = savedSettings.footerDesc;
         }
 
-        let currentBannerIndex = 0;
-        const totalBanners = 3;
-        let bannerInterval;
-
-        function updateBannerSlider() {
-            const track = document.getElementById('heroic-slider-track');
-            if (!track) return;
-            track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
-
-            document.querySelectorAll('.banner-dot').forEach((dot, idx) => {
-                if (idx === currentBannerIndex) {
-                    dot.classList.remove('bg-white/45', 'w-1.5');
-                    dot.classList.add('bg-white', 'w-3');
-                } else {
-                    dot.classList.add('bg-white/45', 'w-1.5');
-                    dot.classList.remove('bg-white', 'w-3');
-                }
-            });
-        }
-
-        function currentBannerSlide(index) {
-            currentBannerIndex = index;
-            updateBannerSlider();
-            resetBannerTimer();
-        }
-
-        function nextBannerSlide() {
-            currentBannerIndex = (currentBannerIndex + 1) % totalBanners;
-            updateBannerSlider();
-        }
-
-        function prevBannerSlide() {
-            currentBannerIndex = (currentBannerIndex - 1 + totalBanners) % totalBanners;
-            updateBannerSlider();
-        }
-
-        function resetBannerTimer() {
-            clearInterval(bannerInterval);
-            bannerInterval = setInterval(nextBannerSlide, 4000);
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             applyLiveIndexSettings();
-            updateBannerSlider();
-            resetBannerTimer();
 
             window.addEventListener('storage', (e) => {
                 if (e.key === 'ymca_cart' && window.globalInventoryData) {
@@ -691,14 +727,11 @@
             if (sliderWrapper) {
                 sliderWrapper.addEventListener('touchstart', (e) => {
                     touchStartX = e.changedTouches[0].screenX;
-                    clearInterval(bannerInterval);
                 }, { passive: true });
 
-                // FIXED: Changed 'touched' to valid 'touchend' event listener
                 sliderWrapper.addEventListener('touchend', (e) => {
                     touchEndX = e.changedTouches[0].screenX;
                     handleSwipeGesture();
-                    resetBannerTimer();
                 }, { passive: true });
 
                 let isDragging = false;
@@ -707,7 +740,6 @@
                 sliderWrapper.addEventListener('mousedown', (e) => {
                     isDragging = true;
                     startPos = e.clientX;
-                    clearInterval(bannerInterval);
                 });
 
                 window.addEventListener('mouseup', (e) => {
@@ -719,7 +751,6 @@
                     } else if (diff < -50) {
                         nextBannerSlide();
                     }
-                    resetBannerTimer();
                 });
             }
 
