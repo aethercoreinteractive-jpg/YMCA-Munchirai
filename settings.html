@@ -16,6 +16,18 @@
 </head>
 <body class="bg-white text-slate-800 min-h-screen flex flex-col items-center justify-center p-4">
 
+    <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
+    <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
+        <div class="w-12 h-12 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-2xl flex items-center justify-center mb-4 text-lg">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-white text-base font-extrabold mb-1">Unauthorized Access Attempt</h2>
+        <p class="text-slate-400 text-xs max-w-xs mb-5">Please authenticate via the primary admin control center.</p>
+        <a href="admin.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md">
+            Return to Admin Portal
+        </a>
+    </div>
+
     <div class="max-w-md w-full bg-slate-50 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-6">
         
         <!-- Header -->
@@ -102,6 +114,25 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // SECURITY CHECKPOINT: Enforce Session Token Verification
+        function verifyAdminSession() {
+            const isAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const redirectToken = sessionStorage.getItem("ymca_redirect_token");
+            
+            if (!isAuthenticated || redirectToken !== "active") {
+                document.getElementById('security-lock-overlay').classList.remove('hidden');
+                throw new Error("Unauthorized security access blocked.");
+            }
+        }
+
+        // Run security verification immediately
+        try {
+            verifyAdminSession();
+        } catch (e) {
+            // Halt script execution if unauthorized
+            throw e;
+        }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
