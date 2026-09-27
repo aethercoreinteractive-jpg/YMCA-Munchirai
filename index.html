@@ -161,8 +161,8 @@
 
     <!-- 16:9 Ratio Automatic & Swipable Heroic Banners Section -->
     <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div id="heroic-slider-wrapper" class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-lg bg-slate-900 group touch-pan-y">
-            <div id="heroic-slider-track" class="flex h-full transition-transform duration-300 ease-out cursor-grab active:cursor-grabbing">
+        <div id="heroic-slider-wrapper" class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-lg bg-slate-900 group touch-pan-y cursor-grab active:cursor-grabbing select-none">
+            <div id="heroic-slider-track" class="flex h-full transition-transform duration-300 ease-out pointer-events-none">
                 <div class="min-w-full h-full relative shrink-0 flex items-center justify-center text-slate-400 text-xs bg-slate-900">
                     Loading banners...
                 </div>
@@ -363,7 +363,7 @@
                 const imgSrc = formatImageURL(slide.image);
                 return `
                     <div class="min-w-full h-full relative shrink-0">
-                        <img src="${imgSrc}" alt="Banner" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
+                        <img src="${imgSrc}" alt="Banner" class="w-full h-full object-cover pointer-events-none select-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
                     </div>
                 `;
             }).join('');
@@ -398,13 +398,13 @@
             });
         }
 
-        function nextBannerSlide() {
+        window.nextBannerSlide = function() {
             if (!window.heroicSlidesState.length) return;
             heroPreviewIndex = (heroPreviewIndex + 1) % window.heroicSlidesState.length;
             updateBannerSlider();
         }
 
-        function prevBannerSlide() {
+        window.prevBannerSlide = function() {
             if (!window.heroicSlidesState.length) return;
             heroPreviewIndex = (heroPreviewIndex - 1 + window.heroicSlidesState.length) % window.heroicSlidesState.length;
             updateBannerSlider();
@@ -720,11 +720,15 @@
                 }
             });
 
+            // Enhanced Touch & Mouse Drag Slider Controls
             const sliderWrapper = document.getElementById('heroic-slider-wrapper');
             let touchStartX = 0;
             let touchEndX = 0;
+            let isDragging = false;
+            let startPos = 0;
 
             if (sliderWrapper) {
+                // Touch events for mobile phones/tablets
                 sliderWrapper.addEventListener('touchstart', (e) => {
                     touchStartX = e.changedTouches[0].screenX;
                     if (typeof heroPreviewTimer !== 'undefined') clearInterval(heroPreviewTimer);
@@ -732,39 +736,38 @@
 
                 sliderWrapper.addEventListener('touchend', (e) => {
                     touchEndX = e.changedTouches[0].screenX;
-                    handleSwipeGesture();
+                    let threshold = 35;
+                    if (touchEndX < touchStartX - threshold) {
+                        nextBannerSlide();
+                    } else if (touchEndX > touchStartX + threshold) {
+                        prevBannerSlide();
+                    }
                     if (typeof restartHeroPreviewLoop === 'function') restartHeroPreviewLoop();
                 }, { passive: true });
 
-                let isDragging = false;
-                let startPos = 0;
-
+                // Mouse drag events for desktop testing
                 sliderWrapper.addEventListener('mousedown', (e) => {
                     isDragging = true;
                     startPos = e.clientX;
                     if (typeof heroPreviewTimer !== 'undefined') clearInterval(heroPreviewTimer);
+                    e.preventDefault();
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
                 });
 
                 window.addEventListener('mouseup', (e) => {
                     if (!isDragging) return;
                     isDragging = false;
                     let diff = e.clientX - startPos;
-                    if (diff > 50) {
+                    if (diff > 40) {
                         prevBannerSlide();
-                    } else if (diff < -50) {
+                    } else if (diff < -40) {
                         nextBannerSlide();
                     }
                     if (typeof restartHeroPreviewLoop === 'function') restartHeroPreviewLoop();
                 });
-            }
-
-            function handleSwipeGesture() {
-                let threshold = 40;
-                if (touchEndX < touchStartX - threshold) {
-                    nextBannerSlide();
-                } else if (touchEndX > touchStartX + threshold) {
-                    prevBannerSlide();
-                }
             }
         });
     </script>
