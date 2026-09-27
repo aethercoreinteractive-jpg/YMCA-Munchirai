@@ -52,30 +52,30 @@
 
     <!-- LOGIN & SECURITY GATEKEEPER MODAL / OVERLAY -->
     <div id="staff-auth-overlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm sm:max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
-            <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl border border-amber-100 shadow-inner">
-                <i class="fa-solid fa-id-badge"></i>
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm sm:max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6 animate-in fade-in zoom-in duration-200">
+            <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-amber-100 shadow-inner">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
             <div class="text-center">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">Staff Portal</span>
-                <h2 class="font-extrabold text-slate-900 text-base sm:text-lg mt-2">Authentication Required</h2>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Enter staff password or company code (399812) to access operations.</p>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1 rounded-md border border-amber-200">Staff Portal Security</span>
+                <h2 class="font-extrabold text-slate-900 text-lg sm:text-xl mt-2.5">Authentication Required</h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">Please enter your authorized staff security password to proceed.</p>
             </div>
             
             <div class="space-y-3">
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 text-sm">
                         <i class="fa-solid fa-lock"></i>
                     </span>
-                    <input type="password" id="staff-password-input" placeholder="Enter password..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-3.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
+                    <input type="password" id="staff-password-input" placeholder="Enter staff password..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 py-4 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
                 </div>
-                <p id="staff-error-msg" class="text-[11px] text-rose-600 font-bold hidden flex items-center gap-1 justify-center">
-                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect password or company code.
+                <p id="staff-error-msg" class="text-[11px] text-rose-600 font-bold hidden flex items-center gap-1.5 justify-center bg-rose-50 py-2 rounded-xl border border-rose-100">
+                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect security password. Please try again.
                 </p>
             </div>
 
-            <button type="button" onclick="verifyStaffPassword()" id="staff-login-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-3.5 rounded-xl text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                <span>Access Portal</span>
+            <button type="button" onclick="verifyStaffPassword()" id="staff-login-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-4 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                <span>Unlock Terminal</span>
                 <i class="fa-solid fa-arrow-right text-[10px]"></i>
             </button>
         </div>
@@ -114,11 +114,16 @@
             <div class="space-y-2 text-center sm:text-left">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-3 py-1 rounded-md border border-amber-200/60 inline-block">Authorized Terminal</span>
                 <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Welcome back, Staff</h1>
-                <p class="text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">Select an administrative module below to manage customer queues, monitor analytics, or oversee daily stock inventory.</p>
+                <p class="text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">Select an administrative module below to manage customer queues, monitor analytics, or oversee daily stock inventory seamlessly.</p>
             </div>
-            <div class="bg-slate-50 px-5 py-4 rounded-2xl border border-slate-200/80 text-center shrink-0 w-full sm:w-auto">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Company Code</span>
-                <span class="font-mono font-black text-slate-900 text-base sm:text-lg tracking-wider">399812</span>
+            <div class="bg-emerald-50 text-emerald-800 px-5 py-4 rounded-2xl border border-emerald-200 text-center shrink-0 w-full sm:w-auto flex items-center gap-3 justify-center sm:justify-start">
+                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold shadow-inner">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div class="text-left">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 block">System Status</span>
+                    <span class="font-black text-slate-900 text-xs sm:text-sm">Secure & Online</span>
+                </div>
             </div>
         </div>
 
@@ -181,7 +186,7 @@
     <footer class="bg-slate-900 border-t border-slate-800 py-6 px-4 text-center text-xs text-slate-400 mt-auto">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 px-4">
             <p>Munchirai YMCA Secure Portal &bull; Staff Operations Center</p>
-            <p class="text-[11px] text-slate-500">Authorized Personnel Only &bull; Company ID: 399812</p>
+            <p class="text-[11px] text-slate-500">Authorized Personnel Only</p>
         </div>
     </footer>
 
@@ -235,7 +240,7 @@
             const loginBtn = document.getElementById('staff-login-btn');
 
             if (!inputVal) {
-                errorMsg.textContent = "Please enter password or company code.";
+                errorMsg.textContent = "Please enter your staff password.";
                 errorMsg.classList.remove('hidden');
                 return;
             }
@@ -257,13 +262,13 @@
                     errorMsg.classList.add('hidden');
                     document.getElementById('staff-auth-overlay').classList.add('hidden');
                 } else {
-                    errorMsg.textContent = "Incorrect password or company code.";
+                    errorMsg.textContent = "Incorrect security password. Please try again.";
                     errorMsg.classList.remove('hidden');
                     document.getElementById('staff-password-input').focus();
                 }
             } catch (err) {
                 console.error("Auth check error:", err);
-                if (inputVal === DEFAULT_STAFF_PASSWORD || inputVal === IMMUTAGE_COMPANY_CODE || inputVal === IMMUTABLE_COMPANY_CODE) {
+                if (inputVal === DEFAULT_STAFF_PASSWORD || inputVal === IMMUTABLE_COMPANY_CODE) {
                     sessionStorage.setItem("staff_authenticated", "true");
                     errorMsg.classList.add('hidden');
                     document.getElementById('staff-auth-overlay').classList.add('hidden');
@@ -273,7 +278,7 @@
                 }
             } finally {
                 loginBtn.disabled = false;
-                loginBtn.innerHTML = `<span>Access Portal</span><i class="fa-solid fa-arrow-right text-[10px]"></i>`;
+                loginBtn.innerHTML = `<span>Unlock Terminal</span><i class="fa-solid fa-arrow-right text-[10px]"></i>`;
             }
         };
 
