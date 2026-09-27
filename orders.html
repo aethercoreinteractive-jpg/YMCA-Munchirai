@@ -80,6 +80,28 @@
         </div>
     </main>
 
+    <!-- Cancel Confirmation Modal -->
+    <div id="cancel-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-rose-100 shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="font-extrabold text-slate-900 text-sm">Cancel Order?</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Are you sure you want to cancel this order? This action will move it to order history.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button type="button" onclick="closeCancelModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
+                    No, Keep
+                </button>
+                <button type="button" id="confirm-cancel-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
+                    Yes, Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK Imports & Orders Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -119,6 +141,8 @@
         const db = getDatabase(app);
 
         const ordersRef = ref(db, 'orders');
+
+        let orderKeyToCancel = null;
 
         // Convert Google Drive share link into a direct viewable image link
         window.formatDriveUrl = function(rawUrl) {
@@ -163,6 +187,13 @@
         // Initialize logo on load and listen for real-time changes
         document.addEventListener('DOMContentLoaded', () => {
             fetchExistingLogo();
+
+            document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
+                if (orderKeyToCancel) {
+                    window.advanceOrderStatus(orderKeyToCancel, 'Cancelled');
+                    closeCancelModal();
+                }
+            });
         });
 
         onValue(ref(db, 'settings/storeLogo'), (snapshot) => {
@@ -308,7 +339,7 @@
                             </div>
                             
                             <div class="flex items-center gap-2">
-                                <button onclick="window.advanceOrderStatus('${order.firebaseKey}', 'Cancelled')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1">
+                                <button onclick="window.promptCancelOrder('${order.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1">
                                     <i class="fa-solid fa-xmark"></i> Cancel
                                 </button>
                                 ${actionButtonHtml}
@@ -318,6 +349,16 @@
                 `;
             }).join('');
         });
+
+        window.promptCancelOrder = function(firebaseKey) {
+            orderKeyToCancel = firebaseKey;
+            document.getElementById('cancel-confirm-modal').classList.remove('hidden');
+        };
+
+        window.closeCancelModal = function() {
+            document.getElementById('cancel-confirm-modal').classList.add('hidden');
+            orderKeyToCancel = null;
+        };
 
         window.advanceOrderStatus = function(firebaseKey, newStatus) {
             const updatePayload = { status: newStatus };
