@@ -27,6 +27,12 @@
         .toggle-checkbox:checked { right: 0; border-color: #f59e0b; }
         .toggle-checkbox:checked + .toggle-label { background-color: #f59e0b; }
     </style>
+    <!-- Admin Authentication Security Check -->
+    <script>
+        if (sessionStorage.getItem("admin_logged_in") !== "true" && localStorage.getItem("admin_logged_in") !== "true") {
+            window.location.href = "admin.html";
+        }
+    </script>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16 flex flex-col min-h-screen">
 
