@@ -727,11 +727,13 @@
             if (sliderWrapper) {
                 sliderWrapper.addEventListener('touchstart', (e) => {
                     touchStartX = e.changedTouches[0].screenX;
+                    if (typeof heroPreviewTimer !== 'undefined') clearInterval(heroPreviewTimer);
                 }, { passive: true });
 
                 sliderWrapper.addEventListener('touchend', (e) => {
                     touchEndX = e.changedTouches[0].screenX;
                     handleSwipeGesture();
+                    if (typeof restartHeroPreviewLoop === 'function') restartHeroPreviewLoop();
                 }, { passive: true });
 
                 let isDragging = false;
@@ -740,6 +742,7 @@
                 sliderWrapper.addEventListener('mousedown', (e) => {
                     isDragging = true;
                     startPos = e.clientX;
+                    if (typeof heroPreviewTimer !== 'undefined') clearInterval(heroPreviewTimer);
                 });
 
                 window.addEventListener('mouseup', (e) => {
@@ -751,6 +754,7 @@
                     } else if (diff < -50) {
                         nextBannerSlide();
                     }
+                    if (typeof restartHeroPreviewLoop === 'function') restartHeroPreviewLoop();
                 });
             }
 
