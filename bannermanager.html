@@ -131,7 +131,7 @@
 
     </main>
 
-    <!-- Modal Form (Create / Edit) - Only Badge & Image Link -->
+    <!-- Modal Form (Create / Edit) - Only Image Link -->
     <div id="slide-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl transform transition-all scale-100">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
@@ -144,11 +144,6 @@
             <form id="slide-form" class="space-y-4">
                 <input type="hidden" id="modal-slide-id">
                 
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Badge Tag</label>
-                    <input type="text" id="slide-badge" placeholder="e.g. Featured Initiative" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
-                </div>
-
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Image Link (Google Drive / Direct URL)</label>
                     <input type="url" id="slide-image" placeholder="https://..." required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition">
@@ -287,7 +282,6 @@
                 } else {
                     slidesState = [{
                         id: generateUUID(),
-                        badge: "Featured Initiative",
                         image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600",
                         order: 0
                     }];
@@ -346,7 +340,6 @@
                                 <img src="${imgSrc}" alt="Banner" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x60?text=IMG'">
                             </div>
                             <div class="min-w-0">
-                                <span class="text-[9px] font-black uppercase tracking-widest text-amber-600 bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded">${slide.badge || 'Banner'}</span>
                                 <p class="text-xs text-slate-500 truncate mt-0.5 font-mono">${slide.image || ''}</p>
                             </div>
                         </div>
@@ -418,9 +411,6 @@
                 return `
                     <div class="min-w-full h-full relative shrink-0">
                         <img src="${imgSrc}" alt="Banner" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
-                            <span class="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded w-max mb-2">${slide.badge || 'Banner'}</span>
-                        </div>
                     </div>
                 `;
             }).join('');
@@ -519,7 +509,6 @@
         window.openCreateModal = function() {
             document.getElementById('modal-title').textContent = "Add Banner";
             document.getElementById('modal-slide-id').value = "";
-            document.getElementById('slide-badge').value = "";
             document.getElementById('slide-image').value = "";
             document.getElementById('slide-modal').classList.remove('hidden');
             document.getElementById('slide-modal').classList.add('flex');
@@ -530,7 +519,6 @@
             if (!slide) return;
             document.getElementById('modal-title').textContent = "Edit Banner";
             document.getElementById('modal-slide-id').value = slide.id;
-            document.getElementById('slide-badge').value = slide.badge || "";
             document.getElementById('slide-image').value = slide.image || "";
             document.getElementById('slide-modal').classList.remove('hidden');
             document.getElementById('slide-modal').classList.add('flex');
@@ -544,19 +532,16 @@
         document.getElementById('slide-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const id = document.getElementById('modal-slide-id').value;
-            const badge = document.getElementById('slide-badge').value.trim();
             const image = document.getElementById('slide-image').value.trim();
 
             if (id) {
                 const index = slidesState.findIndex(s => s.id === id);
                 if (index > -1) {
-                    slidesState[index].badge = badge;
                     slidesState[index].image = image;
                 }
             } else {
                 slidesState.push({
                     id: generateUUID(),
-                    badge: badge,
                     image: image,
                     order: slidesState.length
                 });
