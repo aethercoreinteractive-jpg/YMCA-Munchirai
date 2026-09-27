@@ -24,13 +24,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Desktop specific enhancements */
+        @media (min-width: 1024px) {
+            .desktop-container {
+                max-width: 1200px;
+            }
+            .desktop-grid-card {
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .desktop-grid-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 640px) {
+            .mobile-padding {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 flex flex-col min-h-screen">
 
     <!-- LOGIN & SECURITY GATEKEEPER MODAL / OVERLAY -->
     <div id="staff-auth-overlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm sm:max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
             <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl border border-amber-100 shadow-inner">
                 <i class="fa-solid fa-id-badge"></i>
             </div>
@@ -45,14 +67,14 @@
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
                         <i class="fa-solid fa-lock"></i>
                     </span>
-                    <input type="password" id="staff-password-input" placeholder="Enter password..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
+                    <input type="password" id="staff-password-input" placeholder="Enter password..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-3.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
                 </div>
                 <p id="staff-error-msg" class="text-[11px] text-rose-600 font-bold hidden flex items-center gap-1 justify-center">
                     <i class="fa-solid fa-circle-exclamation"></i> Incorrect password or company code.
                 </p>
             </div>
 
-            <button type="button" onclick="verifyStaffPassword()" id="staff-login-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-3.5 rounded-xl text-xs transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+            <button type="button" onclick="verifyStaffPassword()" id="staff-login-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-3.5 rounded-xl text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
                 <span>Access Portal</span>
                 <i class="fa-solid fa-arrow-right text-[10px]"></i>
             </button>
@@ -61,91 +83,106 @@
 
     <!-- Professional Fixed Header -->
     <header class="fixed top-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5 shrink-0">
-                <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
+        <div class="max-w-7xl desktop-container mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 shrink-0">
+                <div id="header-logo-container" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs sm:text-sm tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
                     <span>MY</span>
                 </div>
-                <span class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white">Staff Dashboard</span>
+                <div>
+                    <span class="text-xs sm:text-base font-black tracking-tight uppercase text-white block">Staff Terminal</span>
+                    <span class="text-[10px] text-slate-400 font-medium hidden sm:block">Munchirai YMCA Operations</span>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <a href="staffsettings.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-xl flex items-center justify-center transition shadow-sm active:scale-95" title="Settings">
+            
+            <div class="flex items-center gap-2.5 sm:gap-3">
+                <a href="staffsettings.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="h-10 px-3.5 sm:px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-xl flex items-center justify-center gap-2 transition shadow-sm active:scale-95 text-xs font-bold" title="Settings">
                     <i class="fa-solid fa-gear text-sm"></i>
+                    <span class="hidden sm:inline">Settings</span>
                 </a>
-                <button type="button" onclick="handleStaffLogout()" class="px-3 py-2 rounded-xl text-xs font-bold bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border border-rose-800/80 shadow-sm flex items-center gap-1.5 transition active:scale-95">
-                    <i class="fa-solid fa-right-from-bracket text-rose-400"></i>
+                <button type="button" onclick="handleStaffLogout()" class="h-10 px-3.5 sm:px-4 rounded-xl text-xs font-bold bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border border-rose-800/80 shadow-sm flex items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-right-from-bracket text-rose-400 text-sm"></i>
                     <span class="hidden xs:inline">Logout</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Grid -->
-    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6 pt-24 sm:pt-28">
-        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Operations Terminal</span>
-                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 mt-1.5">Welcome, Staff Member</h1>
-                <p class="text-xs text-slate-500 mt-1">Manage live queues, track bestselling products, and monitor daily inventory.</p>
+    <!-- Main Content Wrapper -->
+    <main class="flex-1 max-w-5xl desktop-container w-full mx-auto mobile-padding py-6 sm:py-10 space-y-6 sm:space-y-8 pt-24 sm:pt-32">
+        <!-- Welcome Banner Card -->
+        <div class="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="space-y-2 text-center sm:text-left">
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-3 py-1 rounded-md border border-amber-200/60 inline-block">Authorized Terminal</span>
+                <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Welcome back, Staff</h1>
+                <p class="text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">Select an administrative module below to manage customer queues, monitor analytics, or oversee daily stock inventory.</p>
             </div>
-            <div class="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-200/80 text-center shrink-0">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Company Code</span>
-                <span class="font-mono font-black text-slate-900 text-sm">399812</span>
+            <div class="bg-slate-50 px-5 py-4 rounded-2xl border border-slate-200/80 text-center shrink-0 w-full sm:w-auto">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Company Code</span>
+                <span class="font-mono font-black text-slate-900 text-base sm:text-lg tracking-wider">399812</span>
             </div>
         </div>
 
-        <!-- Portal Actions Grid -->
+        <!-- Portal Navigation Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            <!-- Live Orders Button -->
-            <a href="orders.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="bg-white hover:bg-amber-50/40 border border-slate-200/80 hover:border-amber-300 rounded-3xl p-6 shadow-sm transition group flex flex-col items-center sm:items-start text-center sm:text-left space-y-4">
-                <div class="w-12 h-12 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-lg border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
-                    <i class="fa-solid fa-clipboard-list"></i>
+            <!-- Live Orders Module Card -->
+            <a href="orders.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex flex-col justify-between space-y-6">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-amber-900 transition">Live Orders</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">Monitor customer order queues in real-time, advance processing steps, and fulfill tickets.</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-extrabold text-slate-900 text-sm group-hover:text-amber-900 transition">Live Orders</h3>
-                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Manage active queue, process orders, and update statuses.</p>
-                </div>
-                <div class="pt-2 flex items-center gap-1 text-xs font-bold text-amber-600 group-hover:translate-x-1 transition">
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600 group-hover:text-amber-700">
                     <span>Open Queue</span>
-                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1.5 transition"></i>
                 </div>
             </a>
 
-            <!-- Best Sellers Button -->
-            <a href="bestsellers.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="bg-white hover:bg-amber-50/40 border border-slate-200/80 hover:border-amber-300 rounded-3xl p-6 shadow-sm transition group flex flex-col items-center sm:items-start text-center sm:text-left space-y-4">
-                <div class="w-12 h-12 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-lg border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
-                    <i class="fa-solid fa-fire"></i>
+            <!-- Best Sellers Module Card -->
+            <a href="bestsellers.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex flex-col justify-between space-y-6">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-amber-900 transition">Best Sellers</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">Analyze top-performing products, customer favorites, and demand metrics.</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-extrabold text-slate-900 text-sm group-hover:text-amber-900 transition">Best Sellers</h3>
-                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">View top-performing products and customer favorites.</p>
-                </div>
-                <div class="pt-2 flex items-center gap-1 text-xs font-bold text-amber-600 group-hover:translate-x-1 transition">
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600 group-hover:text-amber-700">
                     <span>Open Analytics</span>
-                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1.5 transition"></i>
                 </div>
             </a>
 
-            <!-- Inventory Button -->
-            <a href="admininventory.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="bg-white hover:bg-amber-50/40 border border-slate-200/80 hover:border-amber-300 rounded-3xl p-6 shadow-sm transition group flex flex-col items-center sm:items-start text-center sm:text-left space-y-4">
-                <div class="w-12 h-12 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-lg border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
-                    <i class="fa-solid fa-boxes-stacked"></i>
+            <!-- Inventory Module Card -->
+            <a href="admininventory.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex flex-col justify-between space-y-6">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-amber-900 transition">Inventory</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">Check current stock levels, adjust product catalog items, and update pricing.</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-extrabold text-slate-900 text-sm group-hover:text-amber-900 transition">Inventory</h3>
-                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Check stock levels, update prices, and manage catalog items.</p>
-                </div>
-                <div class="pt-2 flex items-center gap-1 text-xs font-bold text-amber-600 group-hover:translate-x-1 transition">
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600 group-hover:text-amber-700">
                     <span>Open Inventory</span>
-                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1.5 transition"></i>
                 </div>
             </a>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400 mt-auto">
-        Munchirai YMCA Secure Portal &bull; Staff Operations Center
+    <!-- Professional Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 px-4 text-center text-xs text-slate-400 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 px-4">
+            <p>Munchirai YMCA Secure Portal &bull; Staff Operations Center</p>
+            <p class="text-[11px] text-slate-500">Authorized Personnel Only &bull; Company ID: 399812</p>
+        </div>
     </footer>
 
     <!-- Firebase SDK & Authentication Logic -->
@@ -226,12 +263,12 @@
                 }
             } catch (err) {
                 console.error("Auth check error:", err);
-                if (inputVal === DEFAULT_STAFF_PASSWORD || inputVal === IMMUTABLE_COMPANY_CODE) {
+                if (inputVal === DEFAULT_STAFF_PASSWORD || inputVal === IMMUTAGE_COMPANY_CODE || inputVal === IMMUTABLE_COMPANY_CODE) {
                     sessionStorage.setItem("staff_authenticated", "true");
                     errorMsg.classList.add('hidden');
                     document.getElementById('staff-auth-overlay').classList.add('hidden');
                 } else {
-                    errorMsg.textContent = "Verification failed. Check network.";
+                    errorMsg.textContent = "Verification failed. Check network connection.";
                     errorMsg.classList.remove('hidden');
                 }
             } finally {
@@ -283,5 +320,4 @@
         }
     </script>
 </body>
-  </html>
-  
+</html>
