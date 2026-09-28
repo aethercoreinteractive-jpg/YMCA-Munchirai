@@ -104,14 +104,6 @@
 
     <main class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-8">
         
-        <!-- Separate 3D Logo Section -->
-        <section class="mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg flex flex-col items-center justify-center text-center relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
-            <model-viewer src="logo.glb" alt="Munchirai YMCA Logo" auto-rotate camera-controls disable-zoom style="width: 160px; height: 160px; background: transparent;"></model-viewer>
-            <h2 class="text-white font-extrabold text-sm sm:text-base tracking-tight mt-2 uppercase">Munchirai YMCA</h2>
-            <p class="text-amber-400 text-[10px] sm:text-xs font-semibold tracking-wide">MY Food Store & Healthy Living Essentials</p>
-        </section>
-
         <div id="catalog-main-wrapper">
             <div class="mb-4 sm:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3 border-b pb-3 border-gray-200">
                 <div>
@@ -170,6 +162,22 @@
                 <p class="text-[11px] text-gray-500 mt-0.5">Add items via your admin dashboard to display them here.</p>
             </div>
         </div>
+
+        <!-- Separate White 3D Logo Section Placed Below All Categories/Content -->
+        <section class="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
+            
+            <model-viewer id="ymca-model-viewer" src="logo.glb" alt="Munchirai YMCA Logo" auto-rotate camera-controls disable-zoom style="width: 160px; height: 160px; background: transparent;"></model-viewer>
+            
+            <div class="mt-2 flex flex-col items-center gap-2">
+                <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">Munchirai YMCA</h2>
+                <p class="text-amber-600 text-[10px] sm:text-xs font-semibold tracking-wide">MY Food Store & Healthy Living Essentials</p>
+                <button onclick="revertLogoPosition()" class="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-[11px] font-bold px-3.5 py-1.5 rounded-lg border border-gray-300 shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-rotate-left text-amber-600 text-xs"></i> Reset View
+                </button>
+            </div>
+        </section>
+
     </main>
 
     <script type="module">
@@ -203,6 +211,43 @@
         let currentAds = [];
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
+
+        // Model Viewer Touch Interaction & Immediate Auto-Rotate Resumption
+        window.revertLogoPosition = function() {
+            const viewer = document.getElementById('ymca-model-viewer');
+            if (viewer) {
+                viewer.cameraOrbit = 'auto auto auto';
+                viewer.interactionPrompt = 'auto';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const viewer = document.getElementById('ymca-model-viewer');
+            if (viewer) {
+                let interactionTimeout = null;
+
+                const resumeRotation = () => {
+                    if (interactionTimeout) clearTimeout(interactionTimeout);
+                    viewer.removeAttribute('interaction-prompt');
+                    viewer.setAttribute('auto-rotate', '');
+                };
+
+                // When user starts interacting (touch or mouse down)
+                viewer.addEventListener('pointerdown', () => {
+                    if (interactionTimeout) clearTimeout(interactionTimeout);
+                    viewer.removeAttribute('auto-rotate');
+                });
+
+                // Immediately when user stops interacting (touch up or mouse up)
+                viewer.addEventListener('pointerup', () => {
+                    resumeRotation();
+                });
+
+                viewer.addEventListener('touchend', () => {
+                    resumeRotation();
+                });
+            }
+        });
 
         // Real-time Cart Sync Listener
         window.addEventListener('storage', (e) => {
@@ -361,7 +406,7 @@
             });
         };
 
-    // Helper to generate the Ribbon Offer Badge HTML if enabled
+        // Helper to generate the Ribbon Offer Badge HTML if enabled
         function getOfferBadgeHTML(item) {
             if (item.hasOffer && item.offerPercent) {
                 return `
@@ -863,6 +908,7 @@
             const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
             htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
 
+            // Append all dynamically added subsequent categories so they sit strictly ABOVE the logo section
             for (let i = 5; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
