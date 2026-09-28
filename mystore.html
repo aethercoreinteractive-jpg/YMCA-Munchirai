@@ -13,24 +13,21 @@
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             -webkit-tap-highlight-color: transparent; 
-            -webkit-user-select: none; /* Safari */
-            -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Standard syntax */
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none; 
         }
-        /* Custom styling for clean horizontal scrollbar */
         .no-scrollbar::-webkit-scrollbar { height: 3px; }
         .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
         .no-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
         
-        /* Forces exactly 3 items visible simultaneously in catalog slider */
         .mobile-triple-card {
             flex: 0 0 calc(33.333% - 6px);
             width: calc(33.333% - 6px);
             max-width: calc(33.333% - 6px);
         }
 
-        /* Professional Corner Ribbon Offer Banner */
         .ribbon-wrap {
             position: absolute;
             top: 0;
@@ -58,7 +55,6 @@
             text-transform: uppercase;
         }
 
-        /* Ad Preview & Sound Badge Styles */
         .speaker-badge-container {
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
         }
@@ -66,7 +62,6 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Category Drawer Slide Transition */
         #category-drawer {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -105,12 +100,10 @@
                 <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
-        <div id="category-drawer-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-            </div>
+        <div id="category-drawer-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
     </div>
 
     <main class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-8">
-        
         <div id="catalog-main-wrapper">
             <div class="mb-4 sm:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3 border-b pb-3 border-gray-200">
                 <div>
@@ -152,8 +145,7 @@
                             <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results
                         </h2>
                     </div>
-                    <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
-                        </div>
+                    <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5"></div>
                 </div>
             </div>
 
@@ -169,7 +161,6 @@
                 <p class="text-[11px] text-gray-500 mt-0.5">Add items via your admin dashboard to display them here.</p>
             </div>
         </div>
-
     </main>
 
     <script type="module">
@@ -201,12 +192,13 @@
         let isCategoryDrawerOpen = false;
         let isSearchActive = false;
 
-        // Ad Management Variables
         let currentAds = [];
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Model Viewer Touch Interaction & Immediate Auto-Rotate Resumption with full reset capability
+        // Push a sentinel history state on first page load so we can safely intercept the *first* native back press
+        window.history.replaceState({ pageBase: true }, "");
+
         window.revertLogoPosition = function() {
             const viewer = document.getElementById('ymca-model-viewer');
             if (viewer) {
@@ -222,29 +214,20 @@
             const viewer = document.getElementById('ymca-model-viewer');
             if (viewer) {
                 let interactionTimeout = null;
-
                 const resumeRotation = () => {
                     if (interactionTimeout) clearTimeout(interactionTimeout);
                     viewer.removeAttribute('interaction-prompt');
                     viewer.setAttribute('auto-rotate', '');
                 };
-
                 viewer.addEventListener('pointerdown', () => {
                     if (interactionTimeout) clearTimeout(interactionTimeout);
                     viewer.removeAttribute('auto-rotate');
                 });
-
-                viewer.addEventListener('pointerup', () => {
-                    resumeRotation();
-                });
-
-                viewer.addEventListener('touchend', () => {
-                    resumeRotation();
-                });
+                viewer.addEventListener('pointerup', resumeRotation);
+                viewer.addEventListener('touchend', resumeRotation);
             }
         });
 
-        // Real-time Cart Sync Listener
         window.addEventListener('storage', (e) => {
             if (e.key === 'ymca_cart') {
                 cart = JSON.parse(e.newValue) || [];
@@ -259,8 +242,7 @@
             updateCartCount();
         });
 
-        const categoriesRef = ref(db, 'categories');
-        onValue(categoriesRef, (snapshot) => {
+        onValue(ref(db, 'categories'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
@@ -272,14 +254,12 @@
             renderCatalog(liveInventory);
         });
 
-        const bestsellersRef = ref(db, 'bestsellers');
-        onValue(bestsellersRef, (snapshot) => {
+        onValue(ref(db, 'bestsellers'), (snapshot) => {
             savedBestSellers = snapshot.val() || {};
             renderCatalog(liveInventory);
         });
 
-        const inventoryRef = ref(db, 'inventory');
-        onValue(inventoryRef, (snapshot) => {
+        onValue(ref(db, 'inventory'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 liveInventory = Object.keys(data).map(key => ({
@@ -294,9 +274,7 @@
             updateCartCount();
         });
 
-        // Fetch Live Ads from Database
-        const adsReference = ref(db, 'ads');
-        onValue(adsReference, (snapshot) => {
+        onValue(ref(db, 'ads'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 if (Array.isArray(data)) {
@@ -317,7 +295,6 @@
             setupAutoSlide();
         });
 
-        // Custom Sort Menu Functions
         window.toggleCustomSortMenu = function(event) {
             event.stopPropagation();
             const dropdown = document.getElementById('custom-sort-dropdown');
@@ -329,8 +306,9 @@
             document.getElementById('custom-sort-label').textContent = labelText;
             document.getElementById('custom-sort-dropdown').classList.add('hidden');
             
-            if (pushState) {
-                history.pushState({ category: selectedCategoryFilter, sort: value, searchActive: isSearchActive }, "");
+            if (pushState && !isSearchActive) {
+                isSearchActive = true;
+                window.history.pushState({ searchActive: true, category: selectedCategoryFilter, sort: value }, "");
             }
             
             filterProducts(false);
@@ -343,7 +321,6 @@
             }
         });
 
-        // Toggle Category Drawer Animation & Visibility with History Back Support
         window.toggleCategoryDrawer = function() {
             if (isCategoryDrawerOpen) {
                 window.history.back();
@@ -377,7 +354,6 @@
             setTimeout(() => backdrop.classList.add('hidden'), 300);
         }
 
-         // Render Category Drawer List
         function renderCategoryDrawer() {
             const listContainer = document.getElementById('category-drawer-list');
             if (!listContainer) return;
@@ -416,63 +392,47 @@
             selectedCategoryFilter = catName;
             
             if (isCategoryDrawerOpen) {
-                window.history.back();
+                hideDrawerDOM();
             }
 
-            if (pushState) {
+            if (pushState && !isSearchActive) {
                 isSearchActive = true;
-                history.pushState({ category: catName, sort: currentSortValue, searchActive: true }, "");
+                window.history.pushState({ searchActive: true, category: catName, sort: currentSortValue }, "");
             }
 
             renderCategoryDrawer();
             renderCatalog(liveInventory);
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // Handle browser back button state restoration
+        // Advanced Native Back Button Controller
         window.addEventListener('popstate', (event) => {
+            // 1. If Category Drawer is open, close it cleanly
             if (isCategoryDrawerOpen) {
                 hideDrawerDOM();
+                window.history.pushState({ pageBase: true }, ""); // Re-add base guard state
                 return;
             }
 
-            if (event.state && event.state.drawerOpen) {
-                isCategoryDrawerOpen = true;
-                showDrawerDOM();
-                return;
-            }
-
-            if (event.state) {
-                selectedCategoryFilter = event.state.category !== undefined ? event.state.category : null;
-                isSearchActive = event.state.searchActive || false;
-                
-                if (!isSearchActive) {
-                    const searchBar = document.getElementById('search-bar');
-                    if (searchBar) searchBar.value = '';
-                }
-
-                const sortVal = event.state.sort || 'default';
-                let sortLabel = 'Sort: Featured';
-                if (sortVal === 'price-low') sortLabel = 'Price: Low to High';
-                else if (sortVal === 'price-high') sortLabel = 'Price: High to Low';
-                else if (sortVal === 'offers') sortLabel = 'Top Offers';
-                
-                selectCustomSort(sortVal, sortLabel, false);
-            } else {
-                selectedCategoryFilter = null;
+            // 2. If search results / category filter view is active, close it and reset view
+            if (isSearchActive) {
                 isSearchActive = false;
+                selectedCategoryFilter = null;
                 const searchBar = document.getElementById('search-bar');
                 if (searchBar) searchBar.value = '';
                 selectCustomSort('default', 'Sort: Featured', false);
+                renderCategoryDrawer();
+                renderCatalog(liveInventory);
+                
+                // Re-add base guard state so next back press leaves the page entirely
+                window.history.replaceState({ pageBase: true }, "");
+                return;
             }
-            renderCategoryDrawer();
-            renderCatalog(liveInventory);
+
+            // 3. If everything is already closed, let the browser execute the native back action
+            window.history.back();
         });
 
-        // Helper to generate the Ribbon Offer Badge HTML if enabled
         function getOfferBadgeHTML(item) {
             if (item.hasOffer && item.offerPercent) {
                 return `
@@ -484,7 +444,6 @@
             return '';
         }
 
-        // Helper to generate Price HTML with strike-out original price & active offer price
         function getPriceDisplayHTML(item, isDarkTheme = false) {
             const rawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
             const hasOffer = item.hasOffer === true;
@@ -515,7 +474,6 @@
             }
         }
 
-        // Helper to generate Add to Cart / Stepper / Out of Stock actions
         function getCartActionHTML(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             
@@ -553,13 +511,10 @@
 
         function sortProductsList(list) {
             let sorted = [...list];
-
             sorted.sort((a, b) => {
                 const aStock = a.inStock !== false ? 1 : 0;
                 const bStock = b.inStock !== false ? 1 : 0;
-                if (aStock !== bStock) {
-                    return bStock - aStock;
-                }
+                if (aStock !== bStock) return bStock - aStock;
 
                 if (currentSortValue === 'price-low') {
                     return Number(a.price || 0) - Number(b.price || 0);
@@ -570,7 +525,6 @@
                 }
                 return 0;
             });
-
             return sorted;
         }
 
@@ -609,11 +563,7 @@
                     return matchesQuery && matchesCat;
                 });
                 
-                chosenItems.sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
+                chosenItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
                 if (chosenItems.length === 0) {
                     searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No products found matching your criteria.</div>`;
@@ -642,9 +592,7 @@
                                         ${priceDisplayHtml}
                                         <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                     </div>
-                                    <div id="action-container-${item.firebaseKey}">
-                                        ${actionButtonHtml}
-                                    </div>
+                                    <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
                                 </div>
                             </div>
                         `;
@@ -656,25 +604,13 @@
             }
 
             let categoryGroups = {};
-            categoriesCache.forEach(cat => {
-                categoryGroups[cat.name] = [];
-            });
+            categoriesCache.forEach(cat => { categoryGroups[cat.name] = []; });
             categoryGroups["Uncategorized"] = [];
 
             sortedProducts.forEach(item => {
                 const cat = item.category || "Uncategorized";
-                if (!categoryGroups[cat]) {
-                    categoryGroups[cat] = [];
-                }
+                if (!categoryGroups[cat]) categoryGroups[cat] = [];
                 categoryGroups[cat].push(item);
-            });
-
-            Object.keys(categoryGroups).forEach(cat => {
-                categoryGroups[cat].sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
             });
 
             let displayCategories = categoriesCache.map(c => c.name);
@@ -688,20 +624,11 @@
             const generateBestSellersHTML = () => {
                 let bsList = [];
                 const bsKeys = Object.keys(savedBestSellers).filter(k => savedBestSellers[k] === true);
-                if (bsKeys.length > 0) {
-                    bsList = sortedProducts.filter(item => bsKeys.includes(item.firebaseKey));
-                }
-                if (bsList.length === 0) {
-                    bsList = [...sortedProducts].slice(0, 6);
-                }
-
+                if (bsKeys.length > 0) bsList = sortedProducts.filter(item => bsKeys.includes(item.firebaseKey));
+                if (bsList.length === 0) bsList = [...sortedProducts].slice(0, 6);
                 if (bsList.length === 0) return '';
 
-                bsList.sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
+                bsList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
                 let bsHtml = `
                     <div class="space-y-2.5">
@@ -737,14 +664,11 @@
                                     ${priceDisplayHtml}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
-                                <div id="action-container-${item.firebaseKey}">
-                                    ${actionButtonHtml}
-                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
                             </div>
                         </div>
                     `;
                 });
-
                 bsHtml += `</div></div>`;
                 return bsHtml;
             };
@@ -752,12 +676,7 @@
             const generateSliderRowHTML = (catName) => {
                 const groupItems = categoryGroups[catName] || [];
                 if (groupItems.length === 0) return '';
-
-                groupItems.sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
+                groupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
                 let rowHtml = `
                     <div class="space-y-2.5">
@@ -793,14 +712,11 @@
                                     ${priceDisplayHtml}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
-                                <div id="action-container-${item.firebaseKey}">
-                                    ${actionButtonHtml}
-                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
                             </div>
                         </div>
                     `;
                 });
-
                 rowHtml += `</div></div>`;
                 return rowHtml;
             };
@@ -809,12 +725,7 @@
                 const shuffled = [...sortedProducts].sort(() => 0.5 - Math.random());
                 const recommendedList = shuffled.slice(0, 4);
                 if (recommendedList.length === 0) return '';
-
-                recommendedList.sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
+                recommendedList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
                 let recHtml = `
                     <div class="space-y-2.5">
@@ -850,14 +761,11 @@
                                     ${priceDisplayHtml}
                                     <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
-                                <div id="action-container-${item.firebaseKey}">
-                                    ${actionButtonHtml}
-                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
                             </div>
                         </div>
                     `;
                 });
-
                 recHtml += `</div></div>`;
                 return recHtml;
             };
@@ -866,12 +774,7 @@
                 const fullGroupItems = categoryGroups[catName] || [];
                 const displayGroupItems = fullGroupItems.slice(0, 8);
                 if (displayGroupItems.length === 0) return '';
-
-                displayGroupItems.sort((a, b) => {
-                    const aStock = a.inStock !== false ? 1 : 0;
-                    const bStock = b.inStock !== false ? 1 : 0;
-                    return bStock - aStock;
-                });
+                displayGroupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
                 let darkHtml = `
                     <div class="bg-slate-900 rounded-xl p-3 sm:p-4 shadow-xl border border-slate-800 my-4 space-y-3">
@@ -910,14 +813,11 @@
                                     ${priceDisplayHtml}
                                     <span class="text-[8px] text-slate-400 font-semibold truncate max-w-[35px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
-                                <div id="action-container-${item.firebaseKey}">
-                                    ${actionButtonHtml}
-                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
                             </div>
                         </div>
                     `;
                 });
-
                 darkHtml += `</div></div>`;
                 return darkHtml;
             };
@@ -926,9 +826,7 @@
                 return `
                     <section class="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center text-center relative overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
-                        
                         <model-viewer id="ymca-model-viewer" src="logo.glb" alt="MY Food Products Logo" auto-rotate camera-controls disable-zoom camera-target="auto" style="width: 160px; height: 160px; background: transparent;"></model-viewer>
-                        
                         <div class="mt-2 flex flex-col items-center gap-2">
                             <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">MY Food Products</h2>
                             <p class="text-amber-600 text-[10px] sm:text-xs font-semibold tracking-wide">Healthy Living Essentials</p>
@@ -943,9 +841,7 @@
             const adViewportHTML = `
                 <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
                     <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
-                        <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">
-                            Loading ads...
-                        </div>
+                        <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">Loading ads...</div>
                     </div>
                     <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
                 </div>
@@ -963,7 +859,6 @@
             
             const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
             htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
-
             htmlOutput += generateLogoModelViewerHTML();
 
             for (let i = 5; i < validCategories.length; i++) {
@@ -993,7 +888,7 @@
                 const slideDiv = document.createElement('div');
                 slideDiv.className = "w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center bg-black overflow-hidden cursor-pointer";
 
-               if (ad.type === 'video') {
+                if (ad.type === 'video') {
                     const videoEl = document.createElement('video');
                     videoEl.src = ad.link;
                     videoEl.autoplay = true;
@@ -1014,7 +909,6 @@
                         videoEl.muted = !videoEl.muted;
                         const iconBox = badge.firstElementChild;
                         const icon = iconBox.querySelector('i');
-
                         badge.style.opacity = '1';
                         badge.style.transform = 'scale(1)';
 
@@ -1027,12 +921,6 @@
                                 badge.style.opacity = '0';
                             }, 50);
                         }
-
-                        iconBox.style.transform = 'scale(1.15)';
-                        setTimeout(() => {
-                            if (!videoEl.muted) return;
-                            iconBox.style.transform = 'scale(1)';
-                        }, 200);
                     });
 
                     slideDiv.appendChild(videoEl);
@@ -1057,7 +945,6 @@
                 clearInterval(autoSlideInterval);
                 autoSlideInterval = null;
             }
-
             if (currentAds.length <= 1) return;
 
             const slider = document.getElementById('ad-preview-slider');
@@ -1075,11 +962,7 @@
         function updateDots(activeIdx) {
             const dots = document.querySelectorAll('#ad-indicators span');
             dots.forEach((dot, idx) => {
-                if (idx === activeIdx) {
-                    dot.className = "w-4 h-2 rounded-full bg-amber-500 transition-all duration-300 inline-block";
-                } else {
-                    dot.className = "w-2 h-2 rounded-full bg-white/50 transition-all duration-300 inline-block";
-                }
+                dot.className = idx === activeIdx ? "w-4 h-2 rounded-full bg-amber-500 transition-all duration-300 inline-block" : "w-2 h-2 rounded-full bg-white/50 transition-all duration-300 inline-block";
             });
         }
 
@@ -1087,7 +970,6 @@
             const query = document.getElementById('search-bar').value.toLowerCase().trim();
             const searchResultsSection = document.getElementById('search-results-section');
             const searchResultsGrid = document.getElementById('search-results-grid');
-            const searchResultsTitle = document.getElementById('search-results-title');
 
             if (!query && selectedCategoryFilter === null && currentSortValue === 'default') {
                 isSearchActive = false;
@@ -1097,9 +979,11 @@
                 return;
             }
 
-            isSearchActive = true;
-            if (pushState) {
-                history.pushState({ category: selectedCategoryFilter, sort: currentSortValue, searchActive: true }, "");
+            if (!isSearchActive) {
+                isSearchActive = true;
+                if (pushState) {
+                    window.history.pushState({ searchActive: true, category: selectedCategoryFilter, sort: currentSortValue }, "");
+                }
             }
 
             renderCatalog(liveInventory);
@@ -1134,9 +1018,7 @@
         function saveAndRefreshUI(firebaseKey) {
             localStorage.setItem("ymca_cart", JSON.stringify(cart));
             updateCartCount();
-
             const newActionHtml = getCartActionHTML(firebaseKey);
-            
             document.querySelectorAll(`[id="action-container-${firebaseKey}"]`).forEach(el => {
                 el.innerHTML = newActionHtml;
             });
@@ -1147,17 +1029,13 @@
             const badge = document.getElementById('cart-badge');
             if (badge) {
                 badge.textContent = totalCount;
-                if (totalCount > 0) {
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
+                if (totalCount > 0) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             updateCartCount();
-            
             const slider = document.getElementById('ad-preview-slider');
             if (slider) {
                 slider.addEventListener('scroll', () => {
