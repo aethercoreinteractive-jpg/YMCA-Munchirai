@@ -79,7 +79,7 @@
                     <i class="fa-solid fa-store text-amber-400"></i>
                     <span class="hidden xs:inline">Store</span>
                 </a>
-                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token');" class="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
+                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token'); sessionStorage.removeItem('staff_redirect_token');" class="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
                     <i class="fa-solid fa-arrow-left text-xs"></i>
                     <span class="hidden xs:inline">Dashboard</span>
                 </a>
@@ -194,12 +194,18 @@
         import { getDatabase, ref, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
-        // SECURITY CHECKPOINT: Enforce Session Token Verification
+        // SECURITY CHECKPOINT: Enforce Session Token Verification for Admin or Staff
         function verifyAdminSession() {
-            const isAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
-            const redirectToken = sessionStorage.getItem("ymca_redirect_token");
+            const isAdminAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const adminRedirectToken = sessionStorage.getItem("ymca_redirect_token");
             
-            if (!isAuthenticated || redirectToken !== "active") {
+            const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true";
+            const staffRedirectToken = sessionStorage.getItem("staff_redirect_token");
+            
+            const isAdminValid = isAdminAuthenticated && adminRedirectToken === "active";
+            const isStaffValid = isStaffAuthenticated && staffRedirectToken === "active";
+
+            if (!isAdminValid && !isStaffValid) {
                 document.getElementById('security-lock-overlay').classList.remove('hidden');
                 throw new Error("Unauthorized security access blocked.");
             }
