@@ -39,7 +39,16 @@
 
     <!-- SECURITY GATEKEEPER & REDIRECT CHECK -->
     <script>
-        if (!sessionStorage.getItem("admin_authenticated") || !sessionStorage.getItem("ymca_redirect_token")) {
+        const isAdminAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+        const adminRedirectToken = sessionStorage.getItem("ymca_redirect_token");
+        
+        const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true";
+        const staffRedirectToken = sessionStorage.getItem("staff_redirect_token");
+        
+        const isAdminValid = isAdminAuthenticated && adminRedirectToken === "active";
+        const isStaffValid = isStaffAuthenticated && staffRedirectToken === "active";
+
+        if (!isAdminValid && !isStaffValid) {
             window.location.href = "admin.html";
         }
     </script>
@@ -85,7 +94,7 @@
                     <i class="fa-solid fa-arrow-left text-amber-400"></i>
                     <span>Back</span>
                 </button>
-                <a href="productmanagement.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="w-9 h-9 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center justify-center active:scale-95" title="Product Management">
+                <a href="productmanagement.html" onclick="if(sessionStorage.getItem('staff_authenticated') === 'true') { sessionStorage.setItem('staff_redirect_token', 'active'); } else { sessionStorage.setItem('ymca_redirect_token', 'active'); }" class="w-9 h-9 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center justify-center active:scale-95" title="Product Management">
                     <i class="fa-solid fa-database"></i>
                 </a>
             </div>
@@ -201,7 +210,11 @@
     <!-- Native Back Handler Function -->
     <script>
         function handleNativeBack() {
-            sessionStorage.setItem('ymca_redirect_token', 'active');
+            if (sessionStorage.getItem('staff_authenticated') === 'true') {
+                sessionStorage.setItem('staff_redirect_token', 'active');
+            } else {
+                sessionStorage.setItem('ymca_redirect_token', 'active');
+            }
             if (window.history.length > 1) {
                 window.history.back();
             } else {
@@ -301,7 +314,11 @@
         // Discard Modal Control Functions
         window.openDiscardModal = function() {
             if (!isAnyFieldFilled()) {
-                sessionStorage.setItem('ymca_redirect_token', 'active');
+                if (sessionStorage.getItem('staff_authenticated') === 'true') {
+                    sessionStorage.setItem('staff_redirect_token', 'active');
+                } else {
+                    sessionStorage.setItem('ymca_redirect_token', 'active');
+                }
                 window.location.href = 'productmanagement.html';
                 return;
             }
@@ -315,7 +332,11 @@
         };
 
         window.confirmDiscard = function() {
-            sessionStorage.setItem('ymca_redirect_token', 'active');
+            if (sessionStorage.getItem('staff_authenticated') === 'true') {
+                sessionStorage.setItem('staff_redirect_token', 'active');
+            } else {
+                sessionStorage.setItem('ymca_redirect_token', 'active');
+            }
             window.location.href = 'productmanagement.html';
         };
 
@@ -438,7 +459,11 @@
                         showStatus("Product updated successfully!");
                         sessionStorage.setItem("product_action_status", "success");
                         sessionStorage.setItem("product_action_message", "The product details have been saved successfully.");
-                        sessionStorage.setItem('ymca_redirect_token', 'active');
+                        if (sessionStorage.getItem('staff_authenticated') === 'true') {
+                            sessionStorage.setItem('staff_redirect_token', 'active');
+                        } else {
+                            sessionStorage.setItem('ymca_redirect_token', 'active');
+                        }
                         setTimeout(() => { window.location.href = 'productmanagement.html'; }, 1500);
                     })
                     .catch((err) => showStatus("Failed to update: " + err.message, true));
@@ -452,7 +477,11 @@
                         document.getElementById('product-form').reset();
                         updateImagePreview('');
                         loadCategories();
-                        sessionStorage.setItem('ymca_redirect_token', 'active');
+                        if (sessionStorage.getItem('staff_authenticated') === 'true') {
+                            sessionStorage.setItem('staff_redirect_token', 'active');
+                        } else {
+                            sessionStorage.setItem('ymca_redirect_token', 'active');
+                        }
                         setTimeout(() => { window.location.href = 'productmanagement.html'; }, 1500);
                     })
                     .catch((err) => showStatus("Failed to add product: " + err.message, true));
