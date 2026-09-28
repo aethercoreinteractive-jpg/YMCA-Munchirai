@@ -134,12 +134,18 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // SECURITY CHECKPOINT: Enforce Session Token Verification
+        // SECURITY CHECKPOINT: Enforce Session Token Verification for Admin or Staff
         function verifyAdminSession() {
-            const isAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
-            const redirectToken = sessionStorage.getItem("ymca_redirect_token");
+            const isAdminAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const adminRedirectToken = sessionStorage.getItem("ymca_redirect_token");
             
-            if (!isAuthenticated || redirectToken !== "active") {
+            const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true";
+            const staffRedirectToken = sessionStorage.getItem("staff_redirect_token");
+            
+            const isAdminValid = isAdminAuthenticated && adminRedirectToken === "active";
+            const isStaffValid = isStaffAuthenticated && staffRedirectToken === "active";
+
+            if (!isAdminValid && !isStaffValid) {
                 document.getElementById('security-lock-overlay').classList.remove('hidden');
                 throw new Error("Unauthorized security access blocked.");
             }
