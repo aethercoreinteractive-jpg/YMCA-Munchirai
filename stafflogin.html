@@ -67,7 +67,10 @@
                     <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 text-sm">
                         <i class="fa-solid fa-lock"></i>
                     </span>
-                    <input type="password" id="staff-password-input" placeholder="Enter staff password..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 py-4 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
+                    <input type="password" id="staff-password-input" placeholder="Enter staff password..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-12 py-4 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition focus:outline-none" title="Toggle Password Visibility">
+                        <i id="password-toggle-icon" class="fa-solid fa-eye text-sm"></i>
+                    </button>
                 </div>
                 <p id="staff-error-msg" class="text-[11px] text-rose-600 font-bold hidden flex items-center gap-1.5 justify-center bg-rose-50 py-2 rounded-xl border border-rose-100">
                     <i class="fa-solid fa-circle-exclamation"></i> Incorrect security password. Please try again.
@@ -130,10 +133,14 @@
         <!-- Portal Navigation Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             <!-- Live Orders Module Card -->
-            <a href="orders.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex flex-col justify-between space-y-6">
+            <a href="orders.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex flex-col justify-between space-y-6 relative">
                 <div class="space-y-4">
-                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
-                        <i class="fa-solid fa-clipboard-list"></i>
+                    <div class="flex items-center justify-between">
+                        <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                        </div>
+                        <!-- Live Orders Badge Container -->
+                        <div id="live-orders-badge-container"></div>
                     </div>
                     <div>
                         <h3 class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-amber-900 transition">Live Orders</h3>
@@ -193,7 +200,7 @@
     <!-- Firebase SDK & Authentication Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -226,6 +233,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkExistingStaffSession();
             fetchExistingLogo();
+            listenToLiveOrdersCount();
 
             document.getElementById('staff-password-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
@@ -233,6 +241,21 @@
                 }
             });
         });
+
+        // Toggle password visibility function
+        window.togglePasswordVisibility = function() {
+            const passwordInput = document.getElementById('staff-password-input');
+            const toggleIcon = document.getElementById('password-toggle-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        };
 
         window.verifyStaffPassword = async function() {
             const inputVal = document.getElementById('staff-password-input').value.trim();
@@ -281,6 +304,43 @@
                 loginBtn.innerHTML = `<span>Unlock Terminal</span><i class="fa-solid fa-arrow-right text-[10px]"></i>`;
             }
         };
+
+        // Real-time listener for live orders count badge
+        function listenToLiveOrdersCount() {
+            const ordersRef = ref(db, 'orders');
+            onValue(ordersRef, (snapshot) => {
+                const data = snapshot.val();
+                const badgeContainer = document.getElementById('live-orders-badge-container');
+                
+                if (!data) {
+                    badgeContainer.innerHTML = "";
+                    return;
+                }
+
+                const ordersList = Object.keys(data).map(key => ({
+                    firebaseKey: key,
+                    ...data[key]
+                }));
+
+                // Filter live orders (exclude Delivered and Cancelled)
+                const liveOrders = ordersList.filter(order => {
+                    const status = order.status || 'Pending Confirmation';
+                    return status !== 'Delivered' && status !== 'Cancelled';
+                });
+
+                const count = liveOrders.length;
+
+                if (count > 0) {
+                    badgeContainer.innerHTML = `
+                        <span class="bg-rose-600 text-white text-xs font-black px-2.5 py-1 rounded-xl shadow-md border border-rose-500 animate-pulse">
+                            ${count}
+                        </span>
+                    `;
+                } else {
+                    badgeContainer.innerHTML = "";
+                }
+            });
+        }
 
         window.handleStaffLogout = function() {
             sessionStorage.removeItem("staff_authenticated");
