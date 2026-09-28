@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | MY Food Store Catalog</title>
+    <title>MY Food Products | Catalog</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Include Model Viewer for .glb files -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Standard syntax */
+        }
         /* Custom styling for clean horizontal scrollbar */
         .no-scrollbar::-webkit-scrollbar { height: 3px; }
         .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
@@ -167,11 +174,11 @@
         <section class="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center text-center relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
             
-            <model-viewer id="ymca-model-viewer" src="logo.glb" alt="Munchirai YMCA Logo" auto-rotate camera-controls disable-zoom style="width: 160px; height: 160px; background: transparent;"></model-viewer>
+            <model-viewer id="ymca-model-viewer" src="logo.glb" alt="MY Food Products Logo" auto-rotate camera-controls disable-zoom style="width: 160px; height: 160px; background: transparent;"></model-viewer>
             
             <div class="mt-2 flex flex-col items-center gap-2">
-                <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">Munchirai YMCA</h2>
-                <p class="text-amber-600 text-[10px] sm:text-xs font-semibold tracking-wide">MY Food Store & Healthy Living Essentials</p>
+                <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">MY Food Products</h2>
+                <p class="text-amber-600 text-[10px] sm:text-xs font-semibold tracking-wide">Healthy Living Essentials</p>
                 <button onclick="revertLogoPosition()" class="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-[11px] font-bold px-3.5 py-1.5 rounded-lg border border-gray-300 shadow-sm transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-rotate-left text-amber-600 text-xs"></i> Reset View
                 </button>
@@ -216,8 +223,10 @@
         window.revertLogoPosition = function() {
             const viewer = document.getElementById('ymca-model-viewer');
             if (viewer) {
-                viewer.cameraOrbit = 'auto auto auto';
-                viewer.interactionPrompt = 'auto';
+                viewer.cameraOrbit = '0deg 75deg 105%';
+                viewer.fieldOfView = '30deg';
+                viewer.removeAttribute('interaction-prompt');
+                viewer.setAttribute('auto-rotate', '');
             }
         };
 
@@ -329,10 +338,15 @@
             dropdown.classList.toggle('hidden');
         };
 
-        window.selectCustomSort = function(value, labelText) {
+        window.selectCustomSort = function(value, labelText, pushState = true) {
             currentSortValue = value;
             document.getElementById('custom-sort-label').textContent = labelText;
             document.getElementById('custom-sort-dropdown').classList.add('hidden');
+            
+            if (pushState && (value !== 'default' || selectedCategoryFilter !== null)) {
+                history.pushState({ category: selectedCategoryFilter, sort: value }, "");
+            }
+            
             filterProducts();
         };
 
@@ -362,6 +376,9 @@
         };
 
         // Render Category Drawer List
+        function renderCategoryDrawer() {
+            const listContainer = document.getElementById('category-drawer-list');
+            if (!listContainer) return; // Render Category Drawer List
         function renderCategoryDrawer() {
             const listContainer = document.getElementById('category-drawer-list');
             if (!listContainer) return;
@@ -396,8 +413,13 @@
             listContainer.innerHTML = html;
         }
 
-        window.selectCategory = function(catName) {
+        window.selectCategory = function(catName, pushState = true) {
             selectedCategoryFilter = catName;
+            
+            if (pushState) {
+                history.pushState({ category: catName, sort: currentSortValue }, "");
+            }
+
             renderCategoryDrawer();
             renderCatalog(liveInventory);
             window.scrollTo({
@@ -405,6 +427,25 @@
                 behavior: 'smooth'
             });
         };
+
+        // Handle browser back button state restoration
+        window.addEventListener('popstate', (event) => {
+            if (event.state) {
+                selectedCategoryFilter = event.state.category !== undefined ? event.state.category : null;
+                const sortVal = event.state.sort || 'default';
+                let sortLabel = 'Sort: Featured';
+                if (sortVal === 'price-low') sortLabel = 'Price: Low to High';
+                else if (sortVal === 'price-high') sortLabel = 'Price: High to Low';
+                else if (sortVal === 'offers') sortLabel = 'Top Offers';
+                
+                selectCustomSort(sortVal, sortLabel, false);
+            } else {
+                selectedCategoryFilter = null;
+                selectCustomSort('default', 'Sort: Featured', false);
+            }
+            renderCategoryDrawer();
+            renderCatalog(liveInventory);
+        });
 
         // Helper to generate the Ribbon Offer Badge HTML if enabled
         function getOfferBadgeHTML(item) {
