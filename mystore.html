@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Include Model Viewer for .glb files -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
         body { 
@@ -196,7 +195,7 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Push a sentinel history state on first page load so we can safely intercept the *first* native back press
+        // Initialize base history state
         window.history.replaceState({ pageBase: true }, "");
 
         window.revertLogoPosition = function() {
@@ -393,11 +392,15 @@
             
             if (isCategoryDrawerOpen) {
                 hideDrawerDOM();
+                isCategoryDrawerOpen = false; // ensure drawer flag is reset
             }
 
             if (pushState && !isSearchActive) {
                 isSearchActive = true;
                 window.history.pushState({ searchActive: true, category: catName, sort: currentSortValue }, "");
+            } else if (pushState && isSearchActive) {
+                // Update current state if we are already inside a search/filter history node
+                window.history.replaceState({ searchActive: true, category: catName, sort: currentSortValue }, "");
             }
 
             renderCategoryDrawer();
@@ -405,12 +408,11 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // Advanced Native Back Button Controller
+        // Robust Native Back Button Controller
         window.addEventListener('popstate', (event) => {
             // 1. If Category Drawer is open, close it cleanly
             if (isCategoryDrawerOpen) {
                 hideDrawerDOM();
-                window.history.pushState({ pageBase: true }, ""); // Re-add base guard state
                 return;
             }
 
@@ -424,7 +426,6 @@
                 renderCategoryDrawer();
                 renderCatalog(liveInventory);
                 
-                // Re-add base guard state so next back press leaves the page entirely
                 window.history.replaceState({ pageBase: true }, "");
                 return;
             }
