@@ -83,17 +83,28 @@
             <i class="fa-solid fa-shield-halved"></i>
         </div>
         <h2 class="text-white text-base font-extrabold mb-1">Unauthorized Access Attempt</h2>
-        <p class="text-slate-400 text-xs max-w-xs mb-5">Please authenticate via the primary admin control center.</p>
-        <a href="admin.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md">
-            Return to Admin Portal
-        </a>
+        <p class="text-slate-400 text-xs max-w-xs mb-5">Please authenticate via the admin or staff control portal.</p>
+        <div class="flex flex-col sm:flex-row gap-2.5">
+            <a href="admin.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md">
+                Admin Portal
+            </a>
+            <a href="stafflogin.html" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md border border-slate-700">
+                Staff Login
+            </a>
+        </div>
     </div>
 
-    <!-- SECURITY GATEKEEPER & REDIRECT CHECK -->
+    <!-- SECURITY GATEKEEPER & REDIRECT CHECK (Fixed to accept Admin or Staff login) -->
     <script>
         function verifyAdminSession() {
+            // Ensure redirection token exists or automatically establish it for valid authenticated sessions
             const isAdminAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
-            const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true";
+            const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true" || sessionStorage.getItem("staffLoggedIn") === "true";
+            
+            if (isAdminAuthenticated || isStaffAuthenticated) {
+                sessionStorage.setItem("ymca_redirect_token", "active");
+            }
+
             const redirectToken = sessionStorage.getItem("ymca_redirect_token");
             
             if ((!isAdminAuthenticated && !isStaffAuthenticated) || redirectToken !== "active") {
@@ -266,7 +277,7 @@
             return url;
         };
 
-        // Load Header Circular Logo Dynamically from Firebase Settings (news.html logic)
+        // Load Header Circular Logo Dynamically from Firebase Settings
         async function fetchHeaderLogo() {
             try {
                 const logoRef = ref(db, 'settings/storeLogo');
@@ -359,7 +370,7 @@
             }
         });
 
-              // Fetch categories for modal pop-up list
+        // Fetch categories for modal pop-up list
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
             const data = snapshot.val();
