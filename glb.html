@@ -170,21 +170,6 @@
             </div>
         </div>
 
-        <!-- Separate White 3D Logo Section Placed Below All Categories/Content -->
-        <section class="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center text-center relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
-            
-            <model-viewer id="ymca-model-viewer" src="logo.glb" alt="MY Food Products Logo" auto-rotate camera-controls disable-zoom camera-target="auto" style="width: 160px; height: 160px; background: transparent;"></model-viewer>
-            
-            <div class="mt-2 flex flex-col items-center gap-2">
-                <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">MY Food Products</h2>
-                <p class="text-amber-600 text-[10px] sm:text-xs font-semibold tracking-wide">Healthy Living Essentials</p>
-                <button onclick="revertLogoPosition()" class="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-[11px] font-bold px-3.5 py-1.5 rounded-lg border border-gray-300 shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-rotate-left text-amber-600 text-xs"></i> Reset View
-                </button>
-            </div>
-        </section>
-
     </main>
 
     <script type="module">
@@ -219,7 +204,7 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
-        // Model Viewer Touch Interaction & Immediate Auto-Rotate Resumption
+        // Model Viewer Touch Interaction & Immediate Auto-Rotate Resumption with full reset capability
         window.revertLogoPosition = function() {
             const viewer = document.getElementById('ymca-model-viewer');
             if (viewer) {
@@ -376,7 +361,7 @@
             }
         };
 
-         // Render Category Drawer List
+        // Render Category Drawer List
         function renderCategoryDrawer() {
             const listContainer = document.getElementById('category-drawer-list');
             if (!listContainer) return;
@@ -923,6 +908,24 @@
                 return darkHtml;
             };
 
+            const generateLogoModelViewerHTML = () => {
+                return `
+                    <section class="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center text-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
+                        
+                        <model-viewer id="ymca-model-viewer" src="logo.glb" alt="MY Food Products Logo" auto-rotate camera-controls disable-zoom camera-target="auto" style="width: 160px; height: 160px; background: transparent;"></model-viewer>
+                        
+                        <div class="mt-2 flex flex-col items-center gap-2">
+                            <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">MY Food Products</h2>
+                            <p class="text-amber-600 text-[10px] sm:text-xs font-semibold tracking-wide">Healthy Living Essentials</p>
+                            <button onclick="revertLogoPosition()" class="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-[11px] font-bold px-3.5 py-1.5 rounded-lg border border-gray-300 shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-rotate-left text-amber-600 text-xs"></i> Reset View
+                            </button>
+                        </div>
+                    </section>
+                `;
+            };
+
             const adViewportHTML = `
                 <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
                     <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
@@ -947,7 +950,10 @@
             const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
             htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
 
-            // Append all dynamically added subsequent categories so they sit strictly ABOVE the logo section
+            // Place logo.glb viewer directly below the dark section
+            htmlOutput += generateLogoModelViewerHTML();
+
+            // Append all remaining product category rows below the 3D logo section
             for (let i = 5; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
@@ -975,7 +981,7 @@
                 const slideDiv = document.createElement('div');
                 slideDiv.className = "w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center bg-black overflow-hidden cursor-pointer";
 
-                if (ad.type === 'video') {
+                   if (ad.type === 'video') {
                     const videoEl = document.createElement('video');
                     videoEl.src = ad.link;
                     videoEl.autoplay = true;
