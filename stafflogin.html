@@ -28,7 +28,7 @@
         /* Desktop specific enhancements */
         @media (min-width: 1024px) {
             .desktop-container {
-                max-width: 1200px;
+                max-width: 1000px;
             }
             .desktop-grid-card {
                 transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -102,89 +102,77 @@
                     <i class="fa-solid fa-gear text-sm"></i>
                     <span class="hidden sm:inline">Settings</span>
                 </a>
-                <button type="button" onclick="handleStaffLogout()" class="h-10 px-3.5 sm:px-4 rounded-xl text-xs font-bold bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border border-rose-800/80 shadow-sm flex items-center gap-2 transition active:scale-95">
-                    <i class="fa-solid fa-right-from-bracket text-rose-400 text-sm"></i>
-                    <span class="hidden xs:inline">Logout</span>
+                <button type="button" onclick="handleStaffLogout()" class="w-10 h-10 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border border-rose-800/80 shadow-sm flex items-center justify-center transition active:scale-95" title="Shutdown Session">
+                    <i class="fa-solid fa-power-off text-rose-400 text-sm"></i>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Content Wrapper -->
-    <main class="flex-1 max-w-5xl desktop-container w-full mx-auto mobile-padding py-6 sm:py-10 space-y-6 sm:space-y-8 pt-24 sm:pt-32">
-        <!-- Welcome Banner Card -->
-        <div class="bg-white p-6 sm:p-8 lg:p-10 rounded-3xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div class="space-y-2 text-center sm:text-left">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-3 py-1 rounded-md border border-amber-200/60 inline-block">Authorized Terminal</span>
-                <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Welcome back, Staff</h1>
-                <p class="text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">Select an administrative module below to manage customer queues, monitor analytics, or oversee daily stock inventory seamlessly.</p>
+    <main class="flex-1 max-w-4xl desktop-container w-full mx-auto mobile-padding py-8 sm:py-12 space-y-6 sm:space-y-8 pt-24 sm:pt-32 flex flex-col justify-center">
+        <!-- Welcome Header Banner -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 flex items-center justify-between gap-4">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-3 py-1 rounded-md border border-amber-200/60 inline-block mb-1.5">Staff Console</span>
+                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">Select Module</h1>
             </div>
-            <div class="bg-emerald-50 text-emerald-800 px-5 py-4 rounded-2xl border border-emerald-200 text-center shrink-0 w-full sm:w-auto flex items-center gap-3 justify-center sm:justify-start">
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold shadow-inner">
+            <div class="bg-emerald-50 text-emerald-800 px-4 py-3 rounded-2xl border border-emerald-200 text-center shrink-0 hidden sm:flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shadow-inner">
                     <i class="fa-solid fa-circle-check"></i>
                 </div>
                 <div class="text-left">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 block">System Status</span>
-                    <span class="font-black text-slate-900 text-xs sm:text-sm">Secure & Online</span>
+                    <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-600 block">System</span>
+                    <span class="font-black text-slate-900 text-xs">Online</span>
                 </div>
             </div>
         </div>
 
-        <!-- Portal Navigation Grid -->
+        <!-- Portal Navigation Action Buttons -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            <!-- Live Orders Module Card -->
-            <a href="orders.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex flex-col justify-between space-y-6 relative">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
-                            <i class="fa-solid fa-clipboard-list"></i>
-                        </div>
-                        <!-- Live Orders Badge Container -->
-                        <div id="live-orders-badge-container"></div>
+            <!-- Live Orders Button -->
+            <a href="orders.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex items-center sm:flex-col justify-between sm:justify-center sm:text-center gap-4 relative">
+                <div class="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-3">
+                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner shrink-0">
+                        <i class="fa-solid fa-clipboard-list"></i>
                     </div>
-                    <div>
-                        <h3 class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-amber-900 transition">Live Orders</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">Monitor customer order queues in real-time, advance processing steps, and fulfill tickets.</p>
+                    <div class="text-left sm:text-center">
+                        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-amber-900 transition">Live Orders</h3>
+                        <p class="text-xs text-slate-400 font-medium sm:hidden mt-0.5">Manage customer queue</p>
                     </div>
                 </div>
-                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600 group-hover:text-amber-700">
-                    <span>Open Queue</span>
-                    <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1.5 transition"></i>
+                <div class="flex items-center gap-3">
+                    <div id="live-orders-badge-container"></div>
+                    <i class="fa-solid fa-arrow-right text-xs text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition hidden sm:block"></i>
                 </div>
             </a>
 
-            <!-- Best Sellers Module Card -->
-            <a href="bestsellers.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex flex-col justify-between space-y-6">
-                <div class="space-y-4">
-                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+            <!-- Best Sellers Button -->
+            <a href="bestsellers.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex items-center sm:flex-col justify-between sm:justify-center sm:text-center gap-4">
+                <div class="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-3">
+                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner shrink-0">
                         <i class="fa-solid fa-fire"></i>
                     </div>
-                    <div>
-                        <h3 class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-amber-900 transition">Best Sellers</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">Analyze top-performing products, customer favorites, and demand metrics.</p>
+                    <div class="text-left sm:text-center">
+                        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-amber-900 transition">Best Sellers</h3>
+                        <p class="text-xs text-slate-400 font-medium sm:hidden mt-0.5">Top product analytics</p>
                     </div>
                 </div>
-                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600 group-hover:text-amber-700">
-                    <span>Open Analytics</span>
-                    <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1.5 transition"></i>
-                </div>
+                <i class="fa-solid fa-arrow-right text-xs text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition hidden sm:block"></i>
             </a>
 
-            <!-- Inventory Module Card -->
-            <a href="admininventory.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex flex-col justify-between space-y-6">
-                <div class="space-y-4">
-                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner">
+            <!-- Inventory Button -->
+            <a href="admininventory.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex items-center sm:flex-col justify-between sm:justify-center sm:text-center gap-4">
+                <div class="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-3">
+                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner shrink-0">
                         <i class="fa-solid fa-boxes-stacked"></i>
                     </div>
-                    <div>
-                        <h3 class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-amber-900 transition">Inventory</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">Check current stock levels, adjust product catalog items, and update pricing.</p>
+                    <div class="text-left sm:text-center">
+                        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-amber-900 transition">Inventory</h3>
+                        <p class="text-xs text-slate-400 font-medium sm:hidden mt-0.5">Manage stock & catalog</p>
                     </div>
                 </div>
-                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600 group-hover:text-amber-700">
-                    <span>Open Inventory</span>
-                    <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1.5 transition"></i>
-                </div>
+                <i class="fa-solid fa-arrow-right text-xs text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition hidden sm:block"></i>
             </a>
         </div>
     </main>
