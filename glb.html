@@ -174,7 +174,7 @@
         <section class="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center text-center relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
             
-            <model-viewer id="ymca-model-viewer" src="logo.glb" alt="MY Food Products Logo" auto-rotate camera-controls disable-zoom style="width: 160px; height: 160px; background: transparent;"></model-viewer>
+            <model-viewer id="ymca-model-viewer" src="logo.glb" alt="MY Food Products Logo" auto-rotate camera-controls disable-zoom camera-target="auto" style="width: 160px; height: 160px; background: transparent;"></model-viewer>
             
             <div class="mt-2 flex flex-col items-center gap-2">
                 <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">MY Food Products</h2>
@@ -223,8 +223,9 @@
         window.revertLogoPosition = function() {
             const viewer = document.getElementById('ymca-model-viewer');
             if (viewer) {
-                viewer.cameraOrbit = '0deg 75deg 105%';
-                viewer.fieldOfView = '30deg';
+                viewer.cameraTarget = 'auto';
+                viewer.cameraOrbit = 'auto';
+                viewer.fieldOfView = 'auto';
                 viewer.removeAttribute('interaction-prompt');
                 viewer.setAttribute('auto-rotate', '');
             }
@@ -343,7 +344,7 @@
             document.getElementById('custom-sort-label').textContent = labelText;
             document.getElementById('custom-sort-dropdown').classList.add('hidden');
             
-            if (pushState && (value !== 'default' || selectedCategoryFilter !== null)) {
+            if (pushState) {
                 history.pushState({ category: selectedCategoryFilter, sort: value }, "");
             }
             
@@ -375,10 +376,7 @@
             }
         };
 
-        // Render Category Drawer List
-        function renderCategoryDrawer() {
-            const listContainer = document.getElementById('category-drawer-list');
-            if (!listContainer) return; // Render Category Drawer List
+         // Render Category Drawer List
         function renderCategoryDrawer() {
             const listContainer = document.getElementById('category-drawer-list');
             if (!listContainer) return;
@@ -1096,10 +1094,6 @@
             searchResultsSection.classList.remove('hidden');
             let titleText = selectedCategoryFilter || (query ? `Search Results (${query})` : `Sorted Catalog View`);
             searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${titleText}</span>`;
-            
-            if (filtered.length === 0) {
-                searchResultsGrid.innerHTML = resHtml;
-            }
 
             renderCatalog(liveInventory);
         };
