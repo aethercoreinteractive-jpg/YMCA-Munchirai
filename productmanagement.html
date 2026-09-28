@@ -92,10 +92,11 @@
     <!-- SECURITY GATEKEEPER & REDIRECT CHECK -->
     <script>
         function verifyAdminSession() {
-            const isAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const isAdminAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true";
             const redirectToken = sessionStorage.getItem("ymca_redirect_token");
             
-            if (!isAuthenticated || redirectToken !== "active") {
+            if ((!isAdminAuthenticated && !isStaffAuthenticated) || redirectToken !== "active") {
                 document.getElementById('security-lock-overlay').classList.remove('hidden');
                 throw new Error("Unauthorized security access blocked.");
             }
@@ -358,7 +359,7 @@
             }
         });
 
-        // Fetch categories for modal pop-up list
+              // Fetch categories for modal pop-up list
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
             const data = snapshot.val();
