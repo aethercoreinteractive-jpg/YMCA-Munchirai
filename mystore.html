@@ -3,12 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | MY Food Store Catalog</title>
+    <title>MY Food Products | Catalog</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Include Model Viewer for .glb files -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Standard syntax */
+        }
         /* Custom styling for clean horizontal scrollbar */
         .no-scrollbar::-webkit-scrollbar { height: 3px; }
         .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
@@ -86,13 +95,13 @@
         </div>
     </header>
 
-    <div id="category-drawer-backdrop" class="fixed inset-0 bg-black/30 z-50 hidden transition-opacity opacity-0" onclick="toggleCategoryDrawer()"></div>
+    <div id="category-drawer-backdrop" class="fixed inset-0 bg-black/30 z-50 hidden transition-opacity opacity-0" onclick="closeCategoryDrawerViaUser()"></div>
     <div id="category-drawer" class="fixed top-0 left-0 bottom-0 w-48 sm:w-60 bg-slate-900 text-white z-50 shadow-2xl transform -translate-x-full flex flex-col border-r border-slate-800">
         <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-950">
             <h3 class="font-black text-[11px] uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
                 <i class="fa-solid fa-list"></i> Categories
             </h3>
-            <button onclick="toggleCategoryDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+            <button onclick="closeCategoryDrawerViaUser()" class="text-slate-400 hover:text-white p-1 rounded-lg">
                 <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
@@ -160,6 +169,7 @@
                 <p class="text-[11px] text-gray-500 mt-0.5">Add items via your admin dashboard to display them here.</p>
             </div>
         </div>
+
     </main>
 
     <script type="module">
@@ -188,11 +198,50 @@
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let selectedCategoryFilter = null;
         let currentSortValue = 'default';
+        let isCategoryDrawerOpen = false;
 
         // Ad Management Variables
         let currentAds = [];
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
+
+        // Model Viewer Touch Interaction & Immediate Auto-Rotate Resumption with full reset capability
+        window.revertLogoPosition = function() {
+            const viewer = document.getElementById('ymca-model-viewer');
+            if (viewer) {
+                viewer.cameraTarget = 'auto';
+                viewer.cameraOrbit = 'auto';
+                viewer.fieldOfView = 'auto';
+                viewer.removeAttribute('interaction-prompt');
+                viewer.setAttribute('auto-rotate', '');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const viewer = document.getElementById('ymca-model-viewer');
+            if (viewer) {
+                let interactionTimeout = null;
+
+                const resumeRotation = () => {
+                    if (interactionTimeout) clearTimeout(interactionTimeout);
+                    viewer.removeAttribute('interaction-prompt');
+                    viewer.setAttribute('auto-rotate', '');
+                };
+
+                viewer.addEventListener('pointerdown', () => {
+                    if (interactionTimeout) clearTimeout(interactionTimeout);
+                    viewer.removeAttribute('auto-rotate');
+                });
+
+                viewer.addEventListener('pointerup', () => {
+                    resumeRotation();
+                });
+
+                viewer.addEventListener('touchend', () => {
+                    resumeRotation();
+                });
+            }
+        });
 
         // Real-time Cart Sync Listener
         window.addEventListener('storage', (e) => {
@@ -274,14 +323,18 @@
             dropdown.classList.toggle('hidden');
         };
 
-        window.selectCustomSort = function(value, labelText) {
+        window.selectCustomSort = function(value, labelText, pushState = true) {
             currentSortValue = value;
             document.getElementById('custom-sort-label').textContent = labelText;
             document.getElementById('custom-sort-dropdown').classList.add('hidden');
+            
+            if (pushState) {
+                history.pushState({ category: selectedCategoryFilter, sort: value }, "");
+            }
+            
             filterProducts();
         };
 
-        // Close dropdown when clicking outside
         window.addEventListener('click', () => {
             const dropdown = document.getElementById('custom-sort-dropdown');
             if (dropdown && !dropdown.classList.contains('hidden')) {
@@ -289,22 +342,41 @@
             }
         });
 
-        // Toggle Category Drawer Animation & Visibility
+        // Toggle Category Drawer Animation & Visibility with History Back Support
         window.toggleCategoryDrawer = function() {
-            const drawer = document.getElementById('category-drawer');
-            const backdrop = document.getElementById('category-drawer-backdrop');
-            
-            const isOpen = !drawer.classList.contains('-translate-x-full');
-            if (isOpen) {
-                drawer.classList.add('-translate-x-full');
-                backdrop.classList.add('opacity-0');
-                setTimeout(() => backdrop.classList.add('hidden'), 300);
+            if (isCategoryDrawerOpen) {
+                // If already open, going back pops the history state which closes it
+                window.history.back();
             } else {
-                backdrop.classList.remove('hidden');
-                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
-                drawer.classList.remove('-translate-x-full');
+                // Open drawer and push history state so native back closes it
+                isCategoryDrawerOpen = true;
+                window.history.pushState({ drawerOpen: true }, "");
+                showDrawerDOM();
             }
         };
+
+        function showDrawerDOM() {
+            const drawer = document.getElementById('category-drawer');
+            const backdrop = document.getElementById('category-drawer-backdrop');
+            backdrop.classList.remove('hidden');
+            setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+            drawer.classList.remove('-translate-x-full');
+        }
+
+        window.closeCategoryDrawerViaUser = function() {
+            if (isCategoryDrawerOpen) {
+                window.history.back();
+            }
+        };
+
+        function hideDrawerDOM() {
+            isCategoryDrawerOpen = false;
+            const drawer = document.getElementById('category-drawer');
+            const backdrop = document.getElementById('category-drawer-backdrop');
+            drawer.classList.add('-translate-x-full');
+            backdrop.classList.add('opacity-0');
+            setTimeout(() => backdrop.classList.add('hidden'), 300);
+        }
 
         // Render Category Drawer List
         function renderCategoryDrawer() {
@@ -341,8 +413,18 @@
             listContainer.innerHTML = html;
         }
 
-        window.selectCategory = function(catName) {
+        window.selectCategory = function(catName, pushState = true) {
             selectedCategoryFilter = catName;
+            
+            // Close drawer first if open via history back
+            if (isCategoryDrawerOpen) {
+                window.history.back();
+            }
+
+            if (pushState) {
+                history.pushState({ category: catName, sort: currentSortValue }, "");
+            }
+
             renderCategoryDrawer();
             renderCatalog(liveInventory);
             window.scrollTo({
@@ -350,6 +432,37 @@
                 behavior: 'smooth'
             });
         };
+
+        // Handle browser back button state restoration
+        window.addEventListener('popstate', (event) => {
+            if (isCategoryDrawerOpen) {
+                // Drawer was open, user pressed back -> close drawer only
+                hideDrawerDOM();
+                return;
+            }
+
+            if (event.state && event.state.drawerOpen) {
+                isCategoryDrawerOpen = true;
+                showDrawerDOM();
+                return;
+            }
+
+            if (event.state) {
+                selectedCategoryFilter = event.state.category !== undefined ? event.state.category : null;
+                const sortVal = event.state.sort || 'default';
+                let sortLabel = 'Sort: Featured';
+                if (sortVal === 'price-low') sortLabel = 'Price: Low to High';
+                else if (sortVal === 'price-high') sortLabel = 'Price: High to Low';
+                else if (sortVal === 'offers') sortLabel = 'Top Offers';
+                
+                selectCustomSort(sortVal, sortLabel, false);
+            } else {
+                selectedCategoryFilter = null;
+                selectCustomSort('default', 'Sort: Featured', false);
+            }
+            renderCategoryDrawer();
+            renderCatalog(liveInventory);
+        });
 
         // Helper to generate the Ribbon Offer Badge HTML if enabled
         function getOfferBadgeHTML(item) {
@@ -430,7 +543,6 @@
             }
         }
 
-        // Apply sorting rules and ensure out-of-stock items are always sorted last
         function sortProductsList(list) {
             let sorted = [...list];
 
@@ -438,7 +550,7 @@
                 const aStock = a.inStock !== false ? 1 : 0;
                 const bStock = b.inStock !== false ? 1 : 0;
                 if (aStock !== bStock) {
-                    return bStock - aStock; // In stock first, out of stock last
+                    return bStock - aStock;
                 }
 
                 if (currentSortValue === 'price-low') {
@@ -829,6 +941,24 @@
                 return darkHtml;
             };
 
+            const generateLogoModelViewerHTML = () => {
+                return `
+                    <section class="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center text-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
+                        
+                        <model-viewer id="ymca-model-viewer" src="logo.glb" alt="MY Food Products Logo" auto-rotate camera-controls disable-zoom camera-target="auto" style="width: 160px; height: 160px; background: transparent;"></model-viewer>
+                        
+                        <div class="mt-2 flex flex-col items-center gap-2">
+                            <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">MY Food Products</h2>
+                            <p class="text-amber-600 text-[10px] sm:text-xs font-semibold tracking-wide">Healthy Living Essentials</p>
+                            <button onclick="revertLogoPosition()" class="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-[11px] font-bold px-3.5 py-1.5 rounded-lg border border-gray-300 shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-rotate-left text-amber-600 text-xs"></i> Reset View
+                            </button>
+                        </div>
+                    </section>
+                `;
+            };
+
             const adViewportHTML = `
                 <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
                     <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
@@ -853,6 +983,10 @@
             const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
             htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
 
+            // 3D Logo Viewer directly below the dark section
+            htmlOutput += generateLogoModelViewerHTML();
+
+            // Remaining product categories underneath the 3D logo section
             for (let i = 5; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
@@ -999,43 +1133,6 @@
             searchResultsSection.classList.remove('hidden');
             let titleText = selectedCategoryFilter || (query ? `Search Results (${query})` : `Sorted Catalog View`);
             searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${titleText}</span>`;
-            
-            if (filtered.length === 0) {
-                searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No matching products found.</div>`;
-            } else {
-                let resHtml = '';
-                filtered.forEach(item => {
-                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
-                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const offerBadgeHtml = getOfferBadgeHTML(item);
-                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
-                    const isInStock = item.inStock !== false;
-
-                    resHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
-                            ${offerBadgeHtml}
-                            <div>
-                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Result' : 'Out'}</span>
-                                </div>
-                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
-                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
-                            </div>
-                            <div>
-                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                    ${priceDisplayHtml}
-                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
-                                </div>
-                                <div id="action-container-${item.firebaseKey}">
-                                    ${actionButtonHtml}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                searchResultsGrid.innerHTML = resHtml;
-            }
 
             renderCatalog(liveInventory);
         };
