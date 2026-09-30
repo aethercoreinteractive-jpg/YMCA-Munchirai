@@ -99,7 +99,7 @@
         </div>
     </footer>
 
-    <!-- Script with Strict Symbol Stripper & Repo/Firebase Scraper -->
+    <!-- Script with Proper Text Filtering & Emoji Skip for Speech -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -158,15 +158,33 @@
             }
         }
 
-        // Completely strip all markdown symbols, table dividers, pipes, and code artifacts for human speech and display
-        function cleanHumanText(text) {
+        // Clean text for screen display (removes markdown tables, pipes, stars, etc.)
+        function formatDisplayContent(text) {
+            if (!text) return "";
+            
+            // Remove markdown table divider lines and pipes
+            let clean = text.replace(/\|/g, ' ').replace(/-{3,}/g, ' ');
+            
+            // Convert bold formatting tags cleanly to HTML bold tags
+            clean = clean.replace(/\*\*(.*?\*\*)/g, '<strong class="text-cyan-300">$1</strong>').replace(/\*\*/g, '');
+            
+            // Clean file extensions
+            clean = clean.replace(/\.html/gi, ' page');
+            
+            return clean;
+        }
+
+        // Clean text for text-to-speech (removes emojis, markdown formatting, symbols)
+        function formatSpeechContent(text) {
             if (!text) return "";
             return text
-                .replace(/\|/g, ' ')             // Remove table pipes
-                .replace(/-{3,}/g, ' ')          // Remove table separator lines like ---
-                .replace(/[*_#`~>\[\]()]/g, '')  // Remove markdown symbols like **, *, _, #, etc.
-                .replace(/\.html/gi, ' page')    // Replace file extensions cleanly
-                .replace(/\s+/g, ' ')            // Normalize multiple spaces
+                // Regex pattern to strip out emojis completely so they are skipped during speech
+                .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+                .replace(/\|/g, ' ')
+                .replace(/-{3,}/g, ' ')
+                .replace(/[*_#`~>\[\]()]/g, '')
+                .replace(/\.html/gi, ' page')
+                .replace(/\s+/g, ' ')
                 .trim();
         }
 
@@ -191,20 +209,21 @@
             appendMessage('Aria', "Chat history cleared. How can I help you today?", true, true);
         });
 
-        // Add message to chat log with clean human text formatting
+        // Add message to chat log
         function appendMessage(sender, text, speak = true, save = true) {
             const isUser = sender === 'You';
-            const cleanedText = cleanHumanText(text);
+            let formattedText = isUser ? text.replace(/</g, "&lt;").replace(/>/g, "&gt;") : formatDisplayContent(text);
+            let speechText = formatSpeechContent(text);
 
             const msgDiv = document.createElement('div');
             msgDiv.className = `p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
-            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${cleanedText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`;
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${formattedText}`;
             
             chatLog.appendChild(msgDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
             
             if (save) saveChatHistory();
-            if (speak && !isUser) speakAloud(cleanedText);
+            if (speak && !isUser) speakAloud(speechText);
         }
 
         // Text-to-Speech Engine
@@ -257,9 +276,9 @@
                                 Key business facts: 1) We deliver all over India. 2) Free delivery is available (subject to change based on location). 3) All payment methods accepted. 4) MY Food Products is an organic food business that directs profits toward charity initiatives run by Munchirai YMCA. 5) For complex issues, complaints, or bulk orders, direct customers to call our support line at +91-9943021998.
 
                                 STRICT INSTRUCTIONS: 
-                                - Talk ONLY in normal, plain paragraphs like a real human. 
-                                - NEVER use markdown tables, pipes (|), dashes for table separation (---), or bold asterisks (**). 
-                                - Keep sentences clean and conversational.`
+                                - Talk ONLY in normal human sentences. 
+                                - DO NOT use markdown tables or table formatting pipes (|). 
+                                - Keep your style plain, direct, and conversational.`
                             },
                             {
                                 role: "user",
@@ -350,5 +369,4 @@
         window.addEventListener('touchend', () => { isDragging = false; });
     </script>
 </body>
-            </html>
-            
+</html>
