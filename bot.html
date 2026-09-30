@@ -90,7 +90,6 @@
         let recognition = null;
         let isAiSpeaking = false;
         let repositoryKnowledge = "";
-        let isRepositoryLoaded = false;
 
         async function fetchAllWebsitePages() {
             let combinedContent = "";
@@ -105,7 +104,8 @@
                 'news.html',
                 'privacypolicy.html',
                 'scaledup.html',
-                'termsofservice.html'
+                'termsofservice.html',
+                'aidictionary.html'
             ];
 
             for (const file of targetFiles) {
@@ -120,7 +120,6 @@
                 } catch (e) {}
             }
             repositoryKnowledge = combinedContent;
-            isRepositoryLoaded = true;
         }
 
         function cleanDisplayContent(text) {
@@ -201,20 +200,20 @@
                         "Authorization": `Bearer ${GROQ_API_KEY}`
                     },
                     body: JSON.stringify({
-                        model: "openai/gpt-oss-20b",
+                        model: "llama-3.3-70b-versatile",
                         messages: [
                             {
                                 role: "system",
                                 content: `You are Aria, a super warm, friendly, casual, and chatty human-like companion for MY Food Products. 
 
-                                WEBSITE REPOSITORY CONTENT (Scan only when relevant to the user's question):
+                                REPOSITORY CONTENT (Includes website pages and aidictionary.html):
                                 ${repositoryKnowledge}
 
                                 INSTRUCTIONS:
-                                - Respond like a real human being. If the user says hi or casual greetings, chat back warmly and naturally without scanning the website files.
-                                - If the user asks a specific question about products, employee registration, bank details, store info, or pages, scan the repository files. If it matches anything in the website, explain it clearly and conversationally (e.g., telling them to visit index.html or click a specific button).
-                                - If the user asks something completely unrelated to the website, just chat normally and answer like a friend without forcing website links.
-                                - Speak in normal plain text sentences. Do not use markdown symbols, asterisks, hashtags, or code blocks.`
+                                - Respond like a real human being. If the user says hi or casual greetings, chat back warmly and naturally without mentioning code files.
+                                - If the user asks a specific question, thoroughly scan the repository content above (including aidictionary.html and all HTML files). If it matches anything stored there, explain it clearly and conversationally.
+                                - If the user asks something completely unrelated to your website or dictionary, just chat normally and answer like a friend.
+                                - Speak in plain text sentences. Do not use markdown symbols, asterisks, hashtags, or code blocks.`
                             },
                             {
                                 role: "user",
@@ -239,8 +238,7 @@
 
         window.addEventListener('load', async () => {
             loadChatHistory();
-            // Fetch website files quietly in the background so they are ready when asked
-            fetchAllWebsitePages();
+            await fetchAllWebsitePages();
             startContinuousListening();
         });
 
