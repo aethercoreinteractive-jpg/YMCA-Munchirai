@@ -91,7 +91,6 @@
         let isAiSpeaking = false;
         let dictionaryKnowledge = "Loading product dictionary...";
 
-        // Strictly fetch ONLY aidictionary.html and nothing else
         async function fetchDictionaryData() {
             try {
                 const response = await fetch('aidictionary.html');
@@ -200,9 +199,10 @@
                                 ${dictionaryKnowledge}
 
                                 STRICT ENFORCEMENT RULES:
-                                - You ONLY have access to the aidictionary.html data provided above. You have NO access to Firebase, other files, or outside knowledge.
-                                - When asked about any product name, quantity, price, offer percentage, rating, or description, you MUST read and answer using ONLY the exact data inside aidictionary.html.
-                                - NEVER guess, estimate, or make up product details. If the product or detail is not explicitly written in aidictionary.html, state that you do not have that record and tell them to call support at +91-9943021998.
+                                - You ONLY have access to the aidictionary.html data provided above.
+                                - When asked about any product name, quantity, price, offer percentage, rating, or description, you MUST look inside aidictionary.html.
+                                - If the requested product, price, or details cannot be explicitly found in aidictionary.html, you must output exactly: "Not available".
+                                - NEVER guess, estimate, or make up product details.
                                 - Speak strictly in normal conversational sentences.
                                 - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. Only plain text letters, numbers, and basic punctuation.`
                             },
@@ -219,11 +219,11 @@
                     const aiReply = data.choices[0].message.content.trim();
                     appendMessage('Aria', aiReply, true, true);
                 } else {
-                    appendMessage('Aria', "I am having trouble connecting right now. Please call support at +91-9943021998.", true, true);
+                    appendMessage('Aria', "Not available", true, true);
                 }
             } catch (err) {
                 console.error(err);
-                appendMessage('Aria', "Network glitch on my end! Please call us at +91-9943021998.", true, true);
+                appendMessage('Aria', "Not available", true, true);
             }
         }
 
