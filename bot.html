@@ -204,16 +204,9 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a super warm, friendly, casual, and chatty human-like companion for MY Food Products. 
-
-                                REPOSITORY CONTENT (Includes website pages and aidictionary.html):
+                                content: `You are Aria, a friendly assistant for MY Food Products. You have access to the following website text and aidictionary.html data:
                                 ${repositoryKnowledge}
-
-                                INSTRUCTIONS:
-                                - Respond like a real human being. If the user says hi or casual greetings, chat back warmly and naturally without mentioning code files.
-                                - If the user asks a specific question, thoroughly scan the repository content above (including aidictionary.html and all HTML files). If it matches anything stored there, explain it clearly and conversationally.
-                                - If the user asks something completely unrelated to your website or dictionary, just chat normally and answer like a friend.
-                                - Speak in plain text sentences. Do not use markdown symbols, asterisks, hashtags, or code blocks.`
+                                Speak naturally and helpfully.`
                             },
                             {
                                 role: "user",
@@ -228,7 +221,7 @@
                     const aiReply = data.choices[0].message.content.trim();
                     appendMessage('Aria', aiReply, true, true);
                 } else {
-                    appendMessage('Aria', "I am here! What would you like to chat about?", true, true);
+                    appendMessage('Aria', "I'm here! What can I help you with?", true, true);
                 }
             } catch (err) {
                 console.error(err);
