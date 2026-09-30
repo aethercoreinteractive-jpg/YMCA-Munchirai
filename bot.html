@@ -27,11 +27,6 @@
         .is-talking .anime-mouth { animation: animeTalk 0.2s ease-in-out infinite; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        
-        /* Clean styling for parsed tables inside chat */
-        .chat-bubble table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11px; }
-        .chat-bubble th, .chat-bubble td { border: 1px solid #334155; padding: 4px 6px; text-align: left; }
-        .chat-bubble th { background-color: #1e293b; color: #38bdf8; }
     </style>
 </head>
 <body class="bg-slate-950 text-white h-[100dvh] w-screen overflow-hidden flex flex-col justify-between select-none font-sans m-0 p-0 box-border">
@@ -104,7 +99,7 @@
         </div>
     </footer>
 
-    <!-- Script with Markdown Parser and Repo/Firebase Scraper -->
+    <!-- Script with Strict Symbol Stripper & Repo/Firebase Scraper -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -163,49 +158,16 @@
             }
         }
 
-        // Convert raw markdown/tables into clean formatted HTML for display
-        function formatMarkdownToHTML(text) {
+        // Completely strip all markdown symbols, table dividers, pipes, and code artifacts for human speech and display
+        function cleanHumanText(text) {
             if (!text) return "";
-            
-            // Clean up syntax for voice reading
-            let speechCleanText = text.replace(/[*_#`~>\[\]()|]/g, '').replace(/\.html/gi, ' page');
-
-            // Simple Markdown parser for display bubble
-            let formatted = text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                // Bold
-                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-cyan-300">$1</strong>')
-                // Italic
-                .replace(/\*(.*?)\*/g, '<em>$1</em>');
-
-            // Handle markdown tables if present
-            if (formatted.includes('|')) {
-                let rows = formatted.split('\n');
-                let htmlTable = '<table class="border border-slate-700 my-2 rounded text-[11px]"><tbody>';
-                let inTable = false;
-                
-                for (let row of rows) {
-                    if (row.includes('|') && !row.includes('---')) {
-                        inTable = true;
-                        let cols = row.split('|').filter(c => c.trim() !== '');
-                        htmlTable += '<tr>' + cols.map(c => `<td class="border border-slate-700 p-1">${c.trim()}</td>`).join('') + '</tr>';
-                    } else if (row.includes('---')) {
-                        // skip table divider line
-                    } else {
-                        if (inTable) {
-                            htmlTable += '</tbody></table>';
-                            inTable = false;
-                        }
-                        htmlTable += `<div class="my-1">${row}</div>`;
-                    }
-                }
-                if (inTable) htmlTable += '</tbody></table>';
-                formatted = htmlTable;
-            }
-
-            return { displayHTML: formatted, speechText: speechCleanText };
+            return text
+                .replace(/\|/g, ' ')             // Remove table pipes
+                .replace(/-{3,}/g, ' ')          // Remove table separator lines like ---
+                .replace(/[*_#`~>\[\]()]/g, '')  // Remove markdown symbols like **, *, _, #, etc.
+                .replace(/\.html/gi, ' page')    // Replace file extensions cleanly
+                .replace(/\s+/g, ' ')            // Normalize multiple spaces
+                .trim();
         }
 
         // Load chat history from localStorage
@@ -229,29 +191,20 @@
             appendMessage('Aria', "Chat history cleared. How can I help you today?", true, true);
         });
 
-        // Add message to chat log
+        // Add message to chat log with clean human text formatting
         function appendMessage(sender, text, speak = true, save = true) {
             const isUser = sender === 'You';
-            let contentHTML = '';
-            let speechText = text;
-
-            if (isUser) {
-                contentHTML = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            } else {
-                const parsed = formatMarkdownToHTML(text);
-                contentHTML = parsed.displayHTML;
-                speechText = parsed.speechText;
-            }
+            const cleanedText = cleanHumanText(text);
 
             const msgDiv = document.createElement('div');
-            msgDiv.className = `chat-bubble p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
-            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${contentHTML}`;
+            msgDiv.className = `p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${cleanedText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`;
             
             chatLog.appendChild(msgDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
             
             if (save) saveChatHistory();
-            if (speak && !isUser) speakAloud(speechText);
+            if (speak && !isUser) speakAloud(cleanedText);
         }
 
         // Text-to-Speech Engine
@@ -303,7 +256,10 @@
 
                                 Key business facts: 1) We deliver all over India. 2) Free delivery is available (subject to change based on location). 3) All payment methods accepted. 4) MY Food Products is an organic food business that directs profits toward charity initiatives run by Munchirai YMCA. 5) For complex issues, complaints, or bulk orders, direct customers to call our support line at +91-9943021998.
 
-                                INSTRUCTIONS: Talk strictly like a helpful human support agent. Provide direct, natural answers without looking like raw code.`
+                                STRICT INSTRUCTIONS: 
+                                - Talk ONLY in normal, plain paragraphs like a real human. 
+                                - NEVER use markdown tables, pipes (|), dashes for table separation (---), or bold asterisks (**). 
+                                - Keep sentences clean and conversational.`
                             },
                             {
                                 role: "user",
@@ -394,4 +350,5 @@
         window.addEventListener('touchend', () => { isDragging = false; });
     </script>
 </body>
-</html>
+            </html>
+            
