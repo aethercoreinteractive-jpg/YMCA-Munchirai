@@ -68,7 +68,7 @@
 
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Ask about products, employee registration, or website doubts..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="user-input" placeholder="Ask about products, employee registration, or anything..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
         </form>
         <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
@@ -89,35 +89,23 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let repositoryKnowledge = "Loading all repository files...";
+        let dictionaryKnowledge = "Loading dictionary...";
 
-        // Automatically fetch EVERY HTML file in your repository
-        async function fetchRepositoryData() {
-            let combinedContent = "";
-            const targetFiles = [
-                'aidictionary.html',
-                'employeeregistration.html',
-                'bankdetails.html',
-                'productmanagement.html',
-                'mystore.html',
-                'testmerchandise.html',
-                'testfood.html',
-                'news.html',
-                'index.html'
-            ];
-
-            for (const file of targetFiles) {
-                try {
-                    const response = await fetch(file);
-                    if (response.ok) {
-                        const htmlText = await response.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(htmlText, 'text/html');
-                        combinedContent += `\n[Source File: ${file}]\n` + doc.body.innerText.replace(/\s+/g, ' ') + "\n";
-                    }
-                } catch (e) {}
+        // Fetch everything from the single aidictionary.html file
+        async function fetchDictionaryData() {
+            try {
+                const response = await fetch('aidictionary.html');
+                if (response.ok) {
+                    const htmlText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    dictionaryKnowledge = doc.body.innerText.replace(/\s+/g, ' ').trim();
+                } else {
+                    dictionaryKnowledge = "Dictionary file not found.";
+                }
+            } catch (e) {
+                dictionaryKnowledge = "Error loading dictionary.";
             }
-            repositoryKnowledge = combinedContent || "MY Food Products active store.";
         }
 
         function cleanDisplayContent(text) {
@@ -136,7 +124,7 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hey there! Welcome to MY Food Products. Looking for a specific product or need help with employee registration or the website?", false, false);
+                appendMessage('Aria', "Hey there! Welcome to MY Food Products. What can I help you find today?", false, false);
             }
         }
 
@@ -206,14 +194,15 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a friendly, casual, and warm shopping buddy and helper for MY Food Products. Your tone is relaxed, chatty, and very friendly, never robotic or overly professional.
+                                content: `You are Aria, a very warm, friendly, casual, and chatty helper for MY Food Products. 
 
-                                COMPLETE REPOSITORY FILES LOADED:
-                                ${repositoryKnowledge}
+                                COMPLETE DICTIONARY CONTENT (aidictionary.html):
+                                ${dictionaryKnowledge}
 
                                 RULES:
-                                - For products: Check [Source File: aidictionary.html]. If the product is found, share its info in a friendly way. If nothing is found or it is not listed there, simply say "we don't have it".
-                                - For employee registration, bank details, product management, or website doubts: Scan and analyze the rest of the loaded repository files (like employeeregistration.html, bankdetails.html, productmanagement.html, etc.) and explain how it works clearly and conversationally.
+                                - Your tone must always be super friendly, warm, and conversational like a close friend helping out, never robotic or overly formal.
+                                - When asked about any product: Check the dictionary content above. If it is found, share its details in a friendly way. If the product is not found or not listed there, reply warmly with: "we don't have it".
+                                - When asked about employee registration, website doubts, or anything else: Check the dictionary content above and explain it in a casual, helpful way. If it's missing, just let them know nicely.
                                 - Speak strictly in normal conversational sentences.
                                 - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. Only plain text letters, numbers, and basic punctuation.`
                             },
@@ -239,7 +228,7 @@
         }
 
         window.addEventListener('load', async () => {
-            await fetchRepositoryData();
+            await fetchDictionaryData();
             loadChatHistory();
             startContinuousListening();
         });
