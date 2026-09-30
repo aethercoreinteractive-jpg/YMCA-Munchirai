@@ -90,6 +90,7 @@
         let recognition = null;
         let isAiSpeaking = false;
         let repositoryKnowledge = "";
+        let messageHistory = [];
 
         async function fetchAllWebsitePages() {
             let combinedContent = "";
@@ -128,13 +129,14 @@
             return sanitized.replace(/\s+/g, ' ').trim();
         }
 
-        function loadChatHistory() {
+        async function loadChatHistory() {
             const savedHistory = localStorage.getItem('aria_chat_history');
             if (savedHistory) {
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hey there! Welcome to MY Food Products. How are you doing today?", true, false);
+                // Instantly call Groq for a unique dynamic greeting!
+                await callGroq("Hello Aria, please greet the customer warmly and ask how you can help them today with MY Food Products.", true);
             }
         }
 
@@ -142,10 +144,11 @@
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
 
-        clearChatBtn.addEventListener('click', () => {
+        clearChatBtn.addEventListener('click', async () => {
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Chat cleared! What's on your mind?", true, true);
+            messageHistory = [];
+            await callGroq("The chat was cleared. Please give a fresh, friendly greeting.", true);
         });
 
         function appendMessage(sender, text, speak = true, save = true) {
@@ -189,8 +192,11 @@
             }
         }
 
-        async function callGroq(promptText) {
-            appendMessage('You', promptText, false, true);
+        async function callGroq(promptText, isGreeting = false) {
+            if (!isGreeting) {
+                appendMessage('You', promptText, false, true);
+                messageHistory.push({ role: "user", content: promptText });
+            }
 
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -206,12 +212,9 @@
                                 role: "system",
                                 content: `You are Aria, a friendly assistant for MY Food Products. You have access to the following website text and aidictionary.html data:
                                 ${repositoryKnowledge}
-                                Speak naturally and helpfully.`
+                                Speak naturally, randomly, and helpfully with infinite variety.`
                             },
-                            {
-                                role: "user",
-                                content: promptText
-                            }
+                            ...messageHistory
                         ]
                     })
                 });
@@ -219,19 +222,21 @@
                 const data = await response.json();
                 if (data.choices && data.choices[0].message.content) {
                     const aiReply = data.choices[0].message.content.trim();
+                    messageHistory.push({ role: "assistant", content: aiReply });
                     appendMessage('Aria', aiReply, true, true);
                 } else {
-                    appendMessage('Aria', "I'm here! What can I help you with?", true, true);
+                    // Dynamic fallback via Groq retry if ever needed
+                    appendMessage('Aria', "Hey there! What's on your mind today?", true, true);
                 }
             } catch (err) {
                 console.error(err);
-                appendMessage('Aria', "Hey, I'm listening! What can I help you with?", true, true);
+                appendMessage('Aria', "Hi! I'm listening, tell me what you'd like to check out.", true, true);
             }
         }
 
         window.addEventListener('load', async () => {
-            loadChatHistory();
             await fetchAllWebsitePages();
+            await loadChatHistory();
             startContinuousListening();
         });
 
