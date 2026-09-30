@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MY Food Products - Customer Support</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs for reading live database records -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
@@ -31,7 +29,6 @@
 </head>
 <body class="bg-slate-950 text-white h-[100dvh] w-screen overflow-hidden flex flex-col justify-between select-none font-sans m-0 p-0 box-border">
 
-    <!-- Top Status Bar Branded for MY Food Products -->
     <header class="w-full px-4 py-2.5 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0">
         <span class="text-xs font-semibold tracking-wide text-cyan-400 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food Products Support
@@ -39,47 +36,31 @@
         <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Active</span>
     </header>
 
-    <!-- Main Workspace Area with Persistent Chat Log -->
     <main class="flex-1 flex flex-col justify-end p-3 relative overflow-hidden">
-        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-2 mb-2 pr-1 flex flex-col justify-end">
-            <!-- Chat history will load here -->
-        </div>
+        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-2 mb-2 pr-1 flex flex-col justify-end"></div>
     </main>
 
-    <!-- Floating Draggable Anime Companion Widget -->
     <div id="companion" class="absolute bottom-28 right-4 cursor-grab active:cursor-grabbing z-50 animate-float flex flex-col items-center touch-none">
-        
-        <!-- High-End Anime SVG Avatar Container -->
         <div id="avatar-container" class="w-16 h-16 bg-gradient-to-b from-slate-900 to-indigo-950 rounded-2xl p-1 shadow-2xl shadow-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center relative overflow-hidden">
-            
             <svg viewBox="0 0 100 100" class="w-full h-full">
-                <!-- Hair Background Base -->
                 <path d="M20,40 Q50,15 80,40 Q90,70 85,90 Q50,95 15,90 Q10,70 20,40 Z" fill="#1e1b4b"/>
-                <!-- Face Skin Tone -->
                 <path d="M28,35 Q50,25 72,35 Q80,60 72,82 Q50,90 28,82 Q20,60 28,35 Z" fill="#fed7aa"/>
-                <!-- Anime Eye Left -->
                 <g class="anime-eyes">
                     <ellipse cx="38" cy="55" rx="7" ry="9" fill="#0f172a"/>
                     <ellipse cx="38" cy="56" rx="5" ry="7" fill="#0284c7"/>
                     <circle cx="36" cy="53" r="2" fill="#ffffff"/>
                 </g>
-                <!-- Anime Eye Right -->
                 <g class="anime-eyes">
                     <ellipse cx="62" cy="55" rx="7" ry="9" fill="#0f172a"/>
                     <ellipse cx="62" cy="56" rx="5" ry="7" fill="#0284c7"/>
                     <circle cx="60" cy="53" r="2" fill="#ffffff"/>
                 </g>
-                <!-- Eyelashes / Eyebrows -->
                 <path d="M30,46 Q38,43 46,47" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
                 <path d="M54,47 Q62,43 70,46" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <!-- Blush -->
                 <ellipse cx="32" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
                 <ellipse cx="68" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
-                <!-- Nose -->
                 <circle cx="50" cy="64" r="0.8" fill="#c2410c"/>
-                <!-- Mouth -->
                 <path id="anime-mouth" class="anime-mouth" d="M45,72 Q50,76 55,72" stroke="#e11d48" stroke-width="2" fill="none" stroke-linecap="round" transform-origin="50 73"/>
-                <!-- Front Bangs -->
                 <path d="M25,32 Q50,18 75,32 Q65,45 50,38 Q35,45 25,32 Z" fill="#312e81"/>
                 <path d="M35,35 Q50,50 42,32 Z" fill="#312e81"/>
                 <path d="M65,35 Q50,50 58,32 Z" fill="#312e81"/>
@@ -87,7 +68,6 @@
         </div>
     </div>
 
-    <!-- Bottom Controls & Text Input Footer -->
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
             <input type="text" id="user-input" placeholder="Type your doubt or question..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
@@ -99,7 +79,6 @@
         </div>
     </footer>
 
-    <!-- Script with Triple-Pass Strict Cleaner -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -114,11 +93,9 @@
         let isAiSpeaking = false;
         let repositoryKnowledge = "Loading store and repository records...";
 
-        // 1. Scrape repository pages
         async function fetchRepositoryPages() {
             let pagesContent = "";
             const targetFiles = ['index.html', 'mystore.html', 'news.html', 'testmerchandise.html', 'testfood.html'];
-            
             for (const file of targetFiles) {
                 try {
                     const response = await fetch(file);
@@ -133,7 +110,6 @@
             return pagesContent;
         }
 
-        // 2. Read live data from Firebase database
         async function fetchFirebaseData() {
             let firebaseContent = "";
             try {
@@ -158,36 +134,21 @@
             }
         }
 
-        // TRIPLE-PASS STRICT CLEANER FOR DISPLAY
+        // ABSOLUTE CLEANER: Strips any character that is not a letter, number, space, or basic punctuation (. , ? ! + - for numbers)
         function cleanDisplayContent(text) {
             if (!text) return "";
-            let cleaned = text;
-            for (let pass = 0; pass < 3; pass++) {
-                cleaned = cleaned
-                    .replace(/[#*|\-_`~[\]()><{}]/g, '') // Strips out #, *, |, -, _, ~, etc.
-                    .replace(/\.html/gi, ' page')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-            }
-            return cleaned;
+            return text
+                .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '') // Remove Emojis
+                .replace(/[#*|\-_`~[\]()><{}]/g, ' ') // Replace unwanted markdown and symbols with spaces
+                .replace(/\.html/gi, ' page')
+                .replace(/\s+/g, ' ')
+                .trim();
         }
 
-        // TRIPLE-PASS STRICT CLEANER FOR SPEECH (Removes Emojis + Symbols)
         function cleanSpeechContent(text) {
-            if (!text) return "";
-            let cleaned = text;
-            for (let pass = 0; pass < 3; pass++) {
-                cleaned = cleaned
-                    .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '') // Strip Emojis
-                    .replace(/[#*|\-_`~[\]()><{}]/g, '') // Strip symbols
-                    .replace(/\.html/gi, ' page')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-            }
-            return cleaned;
+            return cleanDisplayContent(text);
         }
 
-        // Load chat history from localStorage
         function loadChatHistory() {
             const savedHistory = localStorage.getItem('aria_chat_history');
             if (savedHistory) {
@@ -208,7 +169,6 @@
             appendMessage('Aria', "Chat history cleared. How can I help you today?", true, true);
         });
 
-        // Add message to chat log
         function appendMessage(sender, text, speak = true, save = true) {
             const isUser = sender === 'You';
             let formattedText = isUser ? text.replace(/</g, "&lt;").replace(/>/g, "&gt;") : cleanDisplayContent(text);
@@ -225,7 +185,6 @@
             if (speak && !isUser) speakAloud(speechText);
         }
 
-        // Text-to-Speech Engine
         function speakAloud(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -251,7 +210,6 @@
             }
         }
 
-        // Groq API Call
         async function callGroq(promptText) {
             appendMessage('You', promptText, false, true);
 
@@ -300,7 +258,6 @@
             }
         }
 
-        // Initialize on load
         window.addEventListener('load', async () => {
             await loadAllKnowledgeSources();
             loadChatHistory();
@@ -345,7 +302,6 @@
             callGroq(text);
         });
 
-        // Mobile Drag Logic
         let startX, startY, initialX, initialY, isDragging = false;
         companion.addEventListener('touchstart', (e) => {
             isDragging = true;
