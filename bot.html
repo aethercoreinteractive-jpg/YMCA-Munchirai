@@ -68,7 +68,7 @@
 
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Ask about bestsellers, products, or registration..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="user-input" placeholder="Ask about products, employee registration, bank details..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
         </form>
         <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
@@ -89,13 +89,13 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let repositoryKnowledge = "Loading website files...";
+        let repositoryKnowledge = "";
 
         async function fetchAllWebsitePages() {
             let combinedContent = "";
             const targetFiles = [
-                'mystore.html',
                 'index.html',
+                'mystore.html',
                 'aboutus.html',
                 'bankdetails.html',
                 'contact.html',
@@ -114,11 +114,11 @@
                         const htmlText = await response.text();
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(htmlText, 'text/html');
-                        combinedContent += `\n[Source File: ${file}]\n` + doc.body.innerText.replace(/\s+/g, ' ') + "\n";
+                        combinedContent += `\n\n--- FILE: ${file} ---\n` + doc.body.innerText.replace(/\s+/g, ' ');
                     }
                 } catch (e) {}
             }
-            repositoryKnowledge = combinedContent || "MY Food Products active website.";
+            repositoryKnowledge = combinedContent;
         }
 
         function cleanDisplayContent(text) {
@@ -127,17 +127,13 @@
             return sanitized.replace(/\s+/g, ' ').trim();
         }
 
-        function cleanSpeechContent(text) {
-            return cleanDisplayContent(text);
-        }
-
         function loadChatHistory() {
             const savedHistory = localStorage.getItem('aria_chat_history');
             if (savedHistory) {
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hey there! Welcome to MY Food Products. What can I help you find today?", false, false);
+                appendMessage('Aria', "Hey there! Welcome to MY Food Products. What can I help you find or look up today?", false, false);
             }
         }
 
@@ -154,7 +150,7 @@
         function appendMessage(sender, text, speak = true, save = true) {
             const isUser = sender === 'You';
             let formattedText = isUser ? text.replace(/</g, "&lt;").replace(/>/g, "&gt;") : cleanDisplayContent(text);
-            let speechText = cleanSpeechContent(text);
+            let speechText = cleanDisplayContent(text);
 
             const msgDiv = document.createElement('div');
             msgDiv.className = `p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
@@ -207,16 +203,16 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a warm, friendly, casual, and helpful assistant for MY Food Products. 
+                                content: `You are Aria, a super warm, friendly, casual, and chatty helper for MY Food Products. 
 
-                                COMPLETE REPOSITORY WEBSITE CONTENT:
+                                FULL WEBSITE REPOSITORY CONTENT (Read every file carefully):
                                 ${repositoryKnowledge}
 
-                                INSTRUCTIONS:
-                                - Read and analyze all loaded page contents completely. Look at sections, headings (like bestsellers), products in mystore.html, and page instructions (like employee registration, bank details, etc.).
-                                - Answer user questions directly and conversationally by pulling the real info from the appropriate page sections. If they ask about bestsellers, look under the bestseller section in mystore.html and share what items are there.
-                                - Keep your tone totally natural, warm, and friendly like a helpful human companion. 
-                                - Speak in normal plain text sentences without markdown formatting symbols.`
+                                YOUR MANDATORY INSTRUCTIONS:
+                                - Every single time a user asks a question, thoroughly analyze all the loaded files (index.html, mystore.html, aboutus.html, bankdetails.html, contact.html, employeeregistration.html, employeeregistrationtermsandconditions.html, news.html, privacypolicy.html, scaledup.html, termsofservice.html).
+                                - Match what the customer is asking directly to the contents of these files. For example, if they ask how to register for an employee, look at index.html and employeeregistration.html, then give clear step-by-step guidance (like telling them to go to the home page, tap the employee registration button, and fill out the form).
+                                - Speak like a close, helpful human friend—never sound like a robotic script.
+                                - Use normal conversational sentences. Do not use any markdown formatting symbols, asterisks, hashtags, or code blocks in your answer.`
                             },
                             {
                                 role: "user",
@@ -231,11 +227,11 @@
                     const aiReply = data.choices[0].message.content.trim();
                     appendMessage('Aria', aiReply, true, true);
                 } else {
-                    appendMessage('Aria', "we don't have it", true, true);
+                    appendMessage('Aria', "Hmm, I couldn't find that right now, but feel free to check our other pages or reach out to us at +91-9943021998!", true, true);
                 }
             } catch (err) {
                 console.error(err);
-                appendMessage('Aria', "we don't have it", true, true);
+                appendMessage('Aria', "Oops, something went wrong connecting to my notes, but you can always check out our store or home page for details!", true, true);
             }
         }
 
