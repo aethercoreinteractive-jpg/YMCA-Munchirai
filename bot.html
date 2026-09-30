@@ -6,6 +6,9 @@
     <title>MY Food Products - Customer Support</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs for reading live database records (Products, News, etc.) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @keyframes floatAnime {
             0%, 100% { transform: translateY(0px); }
@@ -96,7 +99,7 @@
         </div>
     </footer>
 
-    <!-- Script with Repo Auto-Inestion, Firebase Reader, and Pure Human Text -->
+    <!-- Script with Multi-Page Repo Ingestion, Live Firebase Sync, and Pure Human Text -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -109,33 +112,64 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let repoContextData = "Loading repository and store details...";
+        let repositoryKnowledge = "Loading repository and database records...";
 
-        // Automatically fetch repo files (like mystore.html or product lists) to ingest live knowledge
-        async function fetchRepositoryData() {
+        // 1. Automatically scrape multiple repository pages (index, store, news)
+        async function fetchRepositoryPages() {
+            let pagesContent = "";
+            const targetFiles = ['index.html', 'mystore.html', 'news.html', 'testmerchandise.html', 'testfood.html'];
+            
+            for (const file of targetFiles) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        const htmlText = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(htmlText, 'text/html');
+                        pagesContent += `\n[Page Source: ${file}]\n` + doc.body.innerText.replace(/\s+/g, ' ') + "\n";
+                    }
+                } catch (e) {
+                    // Skip files that don't exist in current directory silently
+                }
+            }
+            return pagesContent;
+        }
+
+        // 2. Automatically read all customer view data & records from Firebase database
+        async function fetchFirebaseData() {
+            let firebaseContent = "";
             try {
-                // Fetching store catalog / mystore page content from the repository
-                const response = await fetch('mystore.html');
-                if (response.ok) {
-                    const htmlText = await response.text();
-                    // Extract text snippets from html to keep it lightweight for AI prompt
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlText, 'text/html');
-                    repoContextData = doc.body.innerText.replace(/\s+/g, ' ').substring(0, 4000); // Grab store products & details
-                } else {
-                    repoContextData = "MY Food Products online store active.";
+                // Connects if firebase is configured in your project environment
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const dbRef = firebase.database().ref();
+                    const snapshot = await dbRef.once('value');
+                    const dbVal = snapshot.val();
+                    if (dbVal) {
+                        firebaseContent = "\n[Live Firebase Database Records]\n" + JSON.stringify(dbVal);
+                    }
                 }
             } catch (e) {
-                repoContextData = "MY Food Products organic goods catalog active.";
+                // Fallback if database rules or initialization require specific path
+            }
+            return firebaseContent;
+        }
+
+        // Initialize and aggregate all repo & database knowledge
+        async function loadAllKnowledgeSources() {
+            const repoText = await fetchRepositoryPages();
+            const firebaseText = await fetchFirebaseData();
+            repositoryKnowledge = repoText + "\n" + firebaseText;
+            if (!repositoryKnowledge.trim()) {
+                repositoryKnowledge = "MY Food Products active organic store.";
             }
         }
 
-        // Clean text to remove any accidental computer markdown symbols or code tags
+        // Clean text to completely remove markdown symbols, code tags, and file extensions
         function sanitizeText(text) {
             if (!text) return "";
             return text
-                .replace(/[*_#`~>\[\]()]/g, '') // Removes markdown symbols like **, __, *, _, #, `, etc.
-                .replace(/\.html/gi, ' store page') // Replaces technical file extensions with natural words
+                .replace(/[*_#`~>\[\]()]/g, '') // Removes all markdown symbols like **, __, *, _, #, `, etc.
+                .replace(/\.html/gi, ' page') // Replaces file extensions with natural words
                 .trim();
         }
 
@@ -146,7 +180,7 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Welcome to MY Food Products! How can I help you with our organic goods or support today?", false);
+                appendMessage('Aria', "Welcome to MY Food Products! How can I help you with our organic products, news, or support today?", false);
             }
         }
 
@@ -161,7 +195,7 @@
             appendMessage('Aria', "Chat history cleared. How can I help you today?", true);
         });
 
-        // Add message to persistent chat log & save state
+        // Add message to chat log & save state
         function appendMessage(sender, text, save = true) {
             const cleanText = sanitizeText(text);
             const msgDiv = document.createElement('div');
@@ -206,7 +240,7 @@
             }
         }
 
-        // Fast Groq API Connection Function with Repository Data Ingested
+        // Fast Groq API Connection Function with Full Repo & Firebase Knowledge
         async function callGroq(promptText) {
             appendMessage('You', promptText);
 
@@ -222,13 +256,17 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a warm, helpful, and natural human customer service and sales executive for MY Food Products. 
-                                LIVE REPOSITORY & STORE DATA LOADED: ${repoContextData}
+                                content: `You are Aria, a warm, helpful, and natural human customer service and sales executive for MY Food Products.
+                                
+                                FULL REPOSITORY & LIVE FIREBASE DATA LOADED:
+                                ${repositoryKnowledge}
+
                                 Key business facts: 1) We deliver all over India. 2) Free delivery is available (subject to change based on exact location). 3) All payment methods are accepted. 4) MY Food Products is an organic food business that directs its profits toward charity initiatives run by Munchirai YMCA. 5) For complex issues, complaints, or bulk orders, direct customers to call our support line at +91-9943021998.
-                                CRITICAL RULES: 
+
+                                CRITICAL RULES:
                                 - Speak ONLY in normal, conversational human language. 
                                 - NEVER use markdown symbols like asterisks (*), bold signs (**), underscores (_), code blocks, or file extensions like .html. 
-                                - Use the loaded repository and store product data above to give exact, correct answers to customer questions.`
+                                - Use the loaded repository files (index, store, news) and live Firebase data above to provide precise answers.`
                             },
                             {
                                 role: "user",
@@ -258,7 +296,7 @@
 
         // Initialize on page load
         window.addEventListener('load', async () => {
-            await fetchRepositoryData();
+            await loadAllKnowledgeSources();
             loadChatHistory();
             startContinuousListening();
         });
