@@ -134,15 +134,12 @@
             }
         }
 
-        // ABSOLUTE CLEANER: Strips any character that is not a letter, number, space, or basic punctuation (. , ? ! + - for numbers)
+        // STRICT WHITELIST CODE LEVEL FILTER: Only keeps standard letters, numbers, spaces, and basic terminal punctuation. Absolutely blocks symbols, dashes, asterisks, pipes, and emojis.
         function cleanDisplayContent(text) {
             if (!text) return "";
-            return text
-                .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '') // Remove Emojis
-                .replace(/[#*|\-_`~[\]()><{}]/g, ' ') // Replace unwanted markdown and symbols with spaces
-                .replace(/\.html/gi, ' page')
-                .replace(/\s+/g, ' ')
-                .trim();
+            // Keep only alphanumeric characters, spaces, and safe punctuation (. , ? ! + -)
+            let sanitized = text.replace(/[^a-zA-Z0-9\s.,?!+\-]/g, ' ');
+            return sanitized.replace(/\s+/g, ' ').trim();
         }
 
         function cleanSpeechContent(text) {
@@ -232,10 +229,10 @@
 
                                 Key business facts: 1) We deliver all over India. 2) Free delivery is available (subject to change based on location). 3) All payment methods accepted. 4) MY Food Products is an organic food business that directs profits toward charity initiatives run by Munchirai YMCA. 5) For complex issues, complaints, or bulk orders, direct customers to call our support line at +91-9943021998.
 
-                                STRICT RULES:
-                                - Speak strictly in normal conversational paragraphs like a real human.
-                                - NEVER use markdown tables, asterisks (*), dashes (--), hashes (#), pipes (|), or code blocks.
-                                - Keep text completely plain and clean.`
+                                ABSOLUTE TRAINING RULES:
+                                - Speak strictly in normal conversational sentences.
+                                - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. 
+                                - Only plain text letters, numbers, and basic punctuation are allowed.`
                             },
                             {
                                 role: "user",
