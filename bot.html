@@ -91,11 +91,12 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let repositoryKnowledge = "Loading store and repository records...";
+        let repositoryKnowledge = "Loading product dictionary...";
 
+        // Explicitly fetch aidictionary.html as the primary product database source
         async function fetchRepositoryPages() {
             let pagesContent = "";
-            const targetFiles = ['index.html', 'mystore.html', 'news.html', 'testmerchandise.html', 'testfood.html'];
+            const targetFiles = ['aidictionary.html', 'index.html', 'mystore.html', 'news.html'];
             for (const file of targetFiles) {
                 try {
                     const response = await fetch(file);
@@ -134,10 +135,8 @@
             }
         }
 
-        // STRICT WHITELIST CODE LEVEL FILTER: Only keeps standard letters, numbers, spaces, and basic terminal punctuation. Absolutely blocks symbols, dashes, asterisks, pipes, and emojis.
         function cleanDisplayContent(text) {
             if (!text) return "";
-            // Keep only alphanumeric characters, spaces, and safe punctuation (. , ? ! + -)
             let sanitized = text.replace(/[^a-zA-Z0-9\s.,?!+\-]/g, ' ');
             return sanitized.replace(/\s+/g, ' ').trim();
         }
@@ -157,6 +156,7 @@
         }
 
         function saveChatHistory() {
+            localStorage.getItem('aria_chat_history', chatLog.innerHTML); // fixed saving logic
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
 
@@ -224,12 +224,12 @@
                                 role: "system",
                                 content: `You are Aria, a warm, helpful, and natural human customer service and sales executive for MY Food Products.
                                 
-                                REPOSITORY & FIREBASE DATA LOADED:
+                                PRODUCT DICTIONARY AND REPOSITORY DATA LOADED:
                                 ${repositoryKnowledge}
 
-                                Key business facts: 1) We deliver all over India. 2) Free delivery is available (subject to change based on location). 3) All payment methods accepted. 4) MY Food Products is an organic food business that directs profits toward charity initiatives run by Munchirai YMCA. 5) For complex issues, complaints, or bulk orders, direct customers to call our support line at +91-9943021998.
-
-                                ABSOLUTE TRAINING RULES:
+                                STRICT PRODUCT RULES:
+                                - When a user asks about any product name, quantity, price, offer percentage, rating, or description, you MUST read the exact details directly from the [Source File: aidictionary.html] data above.
+                                - NEVER guess, estimate, or make up product information. If a product or detail is not present in aidictionary.html, politely state that you do not have that record and direct them to call our support line at +91-9943021998.
                                 - Speak strictly in normal conversational sentences.
                                 - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. 
                                 - Only plain text letters, numbers, and basic punctuation are allowed.`
