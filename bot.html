@@ -135,8 +135,7 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                // Instantly call Groq for a unique dynamic greeting!
-                await callGroq("Hello Aria, please greet the customer warmly and ask how you can help them today with MY Food Products.", true);
+                await callGroq("Give a brand new, completely random, friendly welcome greeting to the customer for MY Food Products.", true);
             }
         }
 
@@ -148,7 +147,7 @@
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
             messageHistory = [];
-            await callGroq("The chat was cleared. Please give a fresh, friendly greeting.", true);
+            await callGroq("Give a fresh random greeting to start over.", true);
         });
 
         function appendMessage(sender, text, speak = true, save = true) {
@@ -192,8 +191,8 @@
             }
         }
 
-        async function callGroq(promptText, isGreeting = false) {
-            if (!isGreeting) {
+        async function callGroq(promptText, isSystemTrigger = false) {
+            if (!isSystemTrigger) {
                 appendMessage('You', promptText, false, true);
                 messageHistory.push({ role: "user", content: promptText });
             }
@@ -207,14 +206,15 @@
                     },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
+                        temperature: 0.9,
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a friendly assistant for MY Food Products. You have access to the following website text and aidictionary.html data:
+                                content: `You are Aria, a friendly human-like assistant for MY Food Products. You analyze all website files and aidictionary.html data provided below to answer questions:
                                 ${repositoryKnowledge}
-                                Speak naturally, randomly, and helpfully with infinite variety.`
+                                Be dynamic, conversational, and avoid repeating the same canned phrases.`
                             },
-                            ...messageHistory
+                            ...(isSystemTrigger ? [{ role: "user", content: promptText }] : messageHistory)
                         ]
                     })
                 });
@@ -222,15 +222,16 @@
                 const data = await response.json();
                 if (data.choices && data.choices[0].message.content) {
                     const aiReply = data.choices[0].message.content.trim();
-                    messageHistory.push({ role: "assistant", content: aiReply });
+                    if (!isSystemTrigger) {
+                        messageHistory.push({ role: "assistant", content: aiReply });
+                    }
                     appendMessage('Aria', aiReply, true, true);
                 } else {
-                    // Dynamic fallback via Groq retry if ever needed
-                    appendMessage('Aria', "Hey there! What's on your mind today?", true, true);
+                    appendMessage('Aria', "Hey! How can I assist you right now?", true, true);
                 }
             } catch (err) {
                 console.error(err);
-                appendMessage('Aria', "Hi! I'm listening, tell me what you'd like to check out.", true, true);
+                appendMessage('Aria', "Hello there! What would you like to check out today?", true, true);
             }
         }
 
