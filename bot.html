@@ -68,7 +68,7 @@
 
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Ask about products, employee registration, bank details..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="user-input" placeholder="Say hi or ask anything..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
         </form>
         <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
@@ -90,6 +90,7 @@
         let recognition = null;
         let isAiSpeaking = false;
         let repositoryKnowledge = "";
+        let isRepositoryLoaded = false;
 
         async function fetchAllWebsitePages() {
             let combinedContent = "";
@@ -119,6 +120,7 @@
                 } catch (e) {}
             }
             repositoryKnowledge = combinedContent;
+            isRepositoryLoaded = true;
         }
 
         function cleanDisplayContent(text) {
@@ -133,7 +135,7 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hey there! Welcome to MY Food Products. What can I help you find or look up today?", false, false);
+                appendMessage('Aria', "Hey there! Welcome to MY Food Products. How are you doing today?", true, false);
             }
         }
 
@@ -144,7 +146,7 @@
         clearChatBtn.addEventListener('click', () => {
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Chat cleared! What else can I help you with?", true, true);
+            appendMessage('Aria', "Chat cleared! What's on your mind?", true, true);
         });
 
         function appendMessage(sender, text, speak = true, save = true) {
@@ -203,16 +205,16 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a super warm, friendly, casual, and chatty helper for MY Food Products. 
+                                content: `You are Aria, a super warm, friendly, casual, and chatty human-like companion for MY Food Products. 
 
-                                FULL WEBSITE REPOSITORY CONTENT (Read every file carefully):
+                                WEBSITE REPOSITORY CONTENT (Scan only when relevant to the user's question):
                                 ${repositoryKnowledge}
 
-                                YOUR MANDATORY INSTRUCTIONS:
-                                - Every single time a user asks a question, thoroughly analyze all the loaded files (index.html, mystore.html, aboutus.html, bankdetails.html, contact.html, employeeregistration.html, employeeregistrationtermsandconditions.html, news.html, privacypolicy.html, scaledup.html, termsofservice.html).
-                                - Match what the customer is asking directly to the contents of these files. For example, if they ask how to register for an employee, look at index.html and employeeregistration.html, then give clear step-by-step guidance (like telling them to go to the home page, tap the employee registration button, and fill out the form).
-                                - Speak like a close, helpful human friend—never sound like a robotic script.
-                                - Use normal conversational sentences. Do not use any markdown formatting symbols, asterisks, hashtags, or code blocks in your answer.`
+                                INSTRUCTIONS:
+                                - Respond like a real human being. If the user says hi or casual greetings, chat back warmly and naturally without scanning the website files.
+                                - If the user asks a specific question about products, employee registration, bank details, store info, or pages, scan the repository files. If it matches anything in the website, explain it clearly and conversationally (e.g., telling them to visit index.html or click a specific button).
+                                - If the user asks something completely unrelated to the website, just chat normally and answer like a friend without forcing website links.
+                                - Speak in normal plain text sentences. Do not use markdown symbols, asterisks, hashtags, or code blocks.`
                             },
                             {
                                 role: "user",
@@ -227,17 +229,18 @@
                     const aiReply = data.choices[0].message.content.trim();
                     appendMessage('Aria', aiReply, true, true);
                 } else {
-                    appendMessage('Aria', "Hmm, I couldn't find that right now, but feel free to check our other pages or reach out to us at +91-9943021998!", true, true);
+                    appendMessage('Aria', "I am here! What would you like to chat about?", true, true);
                 }
             } catch (err) {
                 console.error(err);
-                appendMessage('Aria', "Oops, something went wrong connecting to my notes, but you can always check out our store or home page for details!", true, true);
+                appendMessage('Aria', "Hey, I'm listening! What can I help you with?", true, true);
             }
         }
 
         window.addEventListener('load', async () => {
-            await fetchAllWebsitePages();
             loadChatHistory();
+            // Fetch website files quietly in the background so they are ready when asked
+            fetchAllWebsitePages();
             startContinuousListening();
         });
 
