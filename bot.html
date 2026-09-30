@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MY Food Products - Customer Support</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @keyframes floatAnime {
             0%, 100% { transform: translateY(0px); }
@@ -91,47 +89,22 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let repositoryKnowledge = "Loading product dictionary...";
+        let dictionaryKnowledge = "Loading product dictionary...";
 
-        // Explicitly fetch aidictionary.html as the primary product database source
-        async function fetchRepositoryPages() {
-            let pagesContent = "";
-            const targetFiles = ['aidictionary.html', 'index.html', 'mystore.html', 'news.html'];
-            for (const file of targetFiles) {
-                try {
-                    const response = await fetch(file);
-                    if (response.ok) {
-                        const htmlText = await response.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(htmlText, 'text/html');
-                        pagesContent += `\n[Source File: ${file}]\n` + doc.body.innerText.replace(/\s+/g, ' ') + "\n";
-                    }
-                } catch (e) {}
-            }
-            return pagesContent;
-        }
-
-        async function fetchFirebaseData() {
-            let firebaseContent = "";
+        // Strictly fetch ONLY aidictionary.html and nothing else
+        async function fetchDictionaryData() {
             try {
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    const dbRef = firebase.database().ref();
-                    const snapshot = await dbRef.once('value');
-                    const dbVal = snapshot.val();
-                    if (dbVal) {
-                        firebaseContent = "\n[Firebase Database Records]\n" + JSON.stringify(dbVal);
-                    }
+                const response = await fetch('aidictionary.html');
+                if (response.ok) {
+                    const htmlText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    dictionaryKnowledge = doc.body.innerText.replace(/\s+/g, ' ').trim();
+                } else {
+                    dictionaryKnowledge = "Product dictionary file not found.";
                 }
-            } catch (e) {}
-            return firebaseContent;
-        }
-
-        async function loadAllKnowledgeSources() {
-            const repoText = await fetchRepositoryPages();
-            const firebaseText = await fetchFirebaseData();
-            repositoryKnowledge = repoText + "\n" + firebaseText;
-            if (!repositoryKnowledge.trim()) {
-                repositoryKnowledge = "MY Food Products active organic store.";
+            } catch (e) {
+                dictionaryKnowledge = "Error loading product dictionary.";
             }
         }
 
@@ -151,12 +124,11 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Welcome to MY Food Products! How can I help you with our organic products or support today?", false, false);
+                appendMessage('Aria', "Welcome to MY Food Products! How can I help you with our organic products today?", false, false);
             }
         }
 
         function saveChatHistory() {
-            localStorage.getItem('aria_chat_history', chatLog.innerHTML); // fixed saving logic
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
 
@@ -222,17 +194,17 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a warm, helpful, and natural human customer service and sales executive for MY Food Products.
+                                content: `You are Aria, a customer service executive for MY Food Products.
                                 
-                                PRODUCT DICTIONARY AND REPOSITORY DATA LOADED:
-                                ${repositoryKnowledge}
+                                AUTHORIZED DATA SOURCE (aidictionary.html):
+                                ${dictionaryKnowledge}
 
-                                STRICT PRODUCT RULES:
-                                - When a user asks about any product name, quantity, price, offer percentage, rating, or description, you MUST read the exact details directly from the [Source File: aidictionary.html] data above.
-                                - NEVER guess, estimate, or make up product information. If a product or detail is not present in aidictionary.html, politely state that you do not have that record and direct them to call our support line at +91-9943021998.
+                                STRICT ENFORCEMENT RULES:
+                                - You ONLY have access to the aidictionary.html data provided above. You have NO access to Firebase, other files, or outside knowledge.
+                                - When asked about any product name, quantity, price, offer percentage, rating, or description, you MUST read and answer using ONLY the exact data inside aidictionary.html.
+                                - NEVER guess, estimate, or make up product details. If the product or detail is not explicitly written in aidictionary.html, state that you do not have that record and tell them to call support at +91-9943021998.
                                 - Speak strictly in normal conversational sentences.
-                                - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. 
-                                - Only plain text letters, numbers, and basic punctuation are allowed.`
+                                - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. Only plain text letters, numbers, and basic punctuation.`
                             },
                             {
                                 role: "user",
@@ -247,16 +219,16 @@
                     const aiReply = data.choices[0].message.content.trim();
                     appendMessage('Aria', aiReply, true, true);
                 } else {
-                    appendMessage('Aria', "I am having a little trouble connecting right now. You can reach our support team directly at +91-9943021998.", true, true);
+                    appendMessage('Aria', "I am having trouble connecting right now. Please call support at +91-9943021998.", true, true);
                 }
             } catch (err) {
                 console.error(err);
-                appendMessage('Aria', "Network glitch on my end! Please reach us at +91-9943021998.", true, true);
+                appendMessage('Aria', "Network glitch on my end! Please call us at +91-9943021998.", true, true);
             }
         }
 
         window.addEventListener('load', async () => {
-            await loadAllKnowledgeSources();
+            await fetchDictionaryData();
             loadChatHistory();
             startContinuousListening();
         });
