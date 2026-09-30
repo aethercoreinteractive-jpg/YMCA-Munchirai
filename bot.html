@@ -89,23 +89,36 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let dictionaryKnowledge = "Loading dictionary...";
+        let repositoryKnowledge = "Loading website files...";
 
-        // Fetch everything from the single aidictionary.html file
-        async function fetchDictionaryData() {
-            try {
-                const response = await fetch('aidictionary.html');
-                if (response.ok) {
-                    const htmlText = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlText, 'text/html');
-                    dictionaryKnowledge = doc.body.innerText.replace(/\s+/g, ' ').trim();
-                } else {
-                    dictionaryKnowledge = "Dictionary file not found.";
-                }
-            } catch (e) {
-                dictionaryKnowledge = "Error loading dictionary.";
+        async function fetchAllWebsitePages() {
+            let combinedContent = "";
+            const targetFiles = [
+                'mystore.html',
+                'index.html',
+                'aboutus.html',
+                'bankdetails.html',
+                'contact.html',
+                'employeeregistration.html',
+                'employeeregistrationtermsandconditions.html',
+                'news.html',
+                'privacypolicy.html',
+                'scaledup.html',
+                'termsofservice.html'
+            ];
+
+            for (const file of targetFiles) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        const htmlText = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(htmlText, 'text/html');
+                        combinedContent += `\n[Source File: ${file}]\n` + doc.body.innerText.replace(/\s+/g, ' ') + "\n";
+                    }
+                } catch (e) {}
             }
+            repositoryKnowledge = combinedContent || "MY Food Products active website.";
         }
 
         function cleanDisplayContent(text) {
@@ -124,7 +137,7 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hey there! Welcome to MY Food Products. What can I help you find today?", false, false);
+                appendMessage('Aria', "Hey there! Welcome to MY Food Products. What can I help you find or figure out today?", false, false);
             }
         }
 
@@ -196,13 +209,13 @@
                                 role: "system",
                                 content: `You are Aria, a very warm, friendly, casual, and chatty helper for MY Food Products. 
 
-                                COMPLETE DICTIONARY CONTENT (aidictionary.html):
-                                ${dictionaryKnowledge}
+                                COMPLETE WEBSITE REPOSITORY CONTENT LOADED:
+                                ${repositoryKnowledge}
 
                                 RULES:
-                                - Your tone must always be super friendly, warm, and conversational like a close friend helping out, never robotic or overly formal.
-                                - When asked about any product: Check the dictionary content above. If it is found, share its details in a friendly way. If the product is not found or not listed there, reply warmly with: "we don't have it".
-                                - When asked about employee registration, website doubts, or anything else: Check the dictionary content above and explain it in a casual, helpful way. If it's missing, just let them know nicely.
+                                - Your tone must always be super friendly, warm, conversational, and helpful like a close friend, never robotic or overly formal.
+                                - For product questions: Check [Source File: mystore.html]. If the product is found, share its details nicely. If it is not found there, simply say "we don't have it".
+                                - For website navigation, employee registration, terms, store links, bank details, or any other doubts: Analyze all the loaded HTML files and give clear, step-by-step guidance in a natural, friendly manner (e.g., telling them where to look on the home page or specific pages).
                                 - Speak strictly in normal conversational sentences.
                                 - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. Only plain text letters, numbers, and basic punctuation.`
                             },
@@ -228,7 +241,7 @@
         }
 
         window.addEventListener('load', async () => {
-            await fetchDictionaryData();
+            await fetchAllWebsitePages();
             loadChatHistory();
             startContinuousListening();
         });
