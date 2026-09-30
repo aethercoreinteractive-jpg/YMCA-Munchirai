@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MY Food Products - Customer Support</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs for reading live database records (Products, News, etc.) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @keyframes floatAnime {
             0%, 100% { transform: translateY(0px); }
@@ -31,7 +27,6 @@
 </head>
 <body class="bg-slate-950 text-white h-[100dvh] w-screen overflow-hidden flex flex-col justify-between select-none font-sans m-0 p-0 box-border">
 
-    <!-- Top Status Bar Branded for MY Food Products -->
     <header class="w-full px-4 py-2.5 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0">
         <span class="text-xs font-semibold tracking-wide text-cyan-400 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food Products Support
@@ -39,47 +34,31 @@
         <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Active</span>
     </header>
 
-    <!-- Main Workspace Area with Persistent Chat Log -->
     <main class="flex-1 flex flex-col justify-end p-3 relative overflow-hidden">
-        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-2 mb-2 pr-1 flex flex-col justify-end">
-            <!-- Chat history will load here -->
-        </div>
+        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-2 mb-2 pr-1 flex flex-col justify-end"></div>
     </main>
 
-    <!-- Floating Draggable Anime Companion Widget -->
     <div id="companion" class="absolute bottom-28 right-4 cursor-grab active:cursor-grabbing z-50 animate-float flex flex-col items-center touch-none">
-        
-        <!-- High-End Anime SVG Avatar Container -->
         <div id="avatar-container" class="w-16 h-16 bg-gradient-to-b from-slate-900 to-indigo-950 rounded-2xl p-1 shadow-2xl shadow-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center relative overflow-hidden">
-            
             <svg viewBox="0 0 100 100" class="w-full h-full">
-                <!-- Hair Background Base -->
                 <path d="M20,40 Q50,15 80,40 Q90,70 85,90 Q50,95 15,90 Q10,70 20,40 Z" fill="#1e1b4b"/>
-                <!-- Face Skin Tone -->
                 <path d="M28,35 Q50,25 72,35 Q80,60 72,82 Q50,90 28,82 Q20,60 28,35 Z" fill="#fed7aa"/>
-                <!-- Anime Eye Left -->
                 <g class="anime-eyes">
                     <ellipse cx="38" cy="55" rx="7" ry="9" fill="#0f172a"/>
                     <ellipse cx="38" cy="56" rx="5" ry="7" fill="#0284c7"/>
                     <circle cx="36" cy="53" r="2" fill="#ffffff"/>
                 </g>
-                <!-- Anime Eye Right -->
                 <g class="anime-eyes">
                     <ellipse cx="62" cy="55" rx="7" ry="9" fill="#0f172a"/>
                     <ellipse cx="62" cy="56" rx="5" ry="7" fill="#0284c7"/>
                     <circle cx="60" cy="53" r="2" fill="#ffffff"/>
                 </g>
-                <!-- Eyelashes / Eyebrows -->
                 <path d="M30,46 Q38,43 46,47" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
                 <path d="M54,47 Q62,43 70,46" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <!-- Blush -->
                 <ellipse cx="32" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
                 <ellipse cx="68" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
-                <!-- Nose -->
                 <circle cx="50" cy="64" r="0.8" fill="#c2410c"/>
-                <!-- Mouth -->
                 <path id="anime-mouth" class="anime-mouth" d="M45,72 Q50,76 55,72" stroke="#e11d48" stroke-width="2" fill="none" stroke-linecap="round" transform-origin="50 73"/>
-                <!-- Front Bangs -->
                 <path d="M25,32 Q50,18 75,32 Q65,45 50,38 Q35,45 25,32 Z" fill="#312e81"/>
                 <path d="M35,35 Q50,50 42,32 Z" fill="#312e81"/>
                 <path d="M65,35 Q50,50 58,32 Z" fill="#312e81"/>
@@ -87,7 +66,6 @@
         </div>
     </div>
 
-    <!-- Bottom Controls & Text Input Footer -->
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
             <input type="text" id="user-input" placeholder="Type your doubt or question..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
@@ -99,7 +77,6 @@
         </div>
     </footer>
 
-    <!-- Script with Multi-Page Repo Ingestion, Live Firebase Sync, and Pure Human Text -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -112,79 +89,44 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let repositoryKnowledge = "Loading repository and database records...";
+        let dictionaryKnowledge = "Loading product dictionary...";
 
-        // 1. Automatically scrape multiple repository pages (index, store, news)
-        async function fetchRepositoryPages() {
-            let pagesContent = "";
-            const targetFiles = ['index.html', 'mystore.html', 'news.html', 'testmerchandise.html', 'testfood.html'];
-            
-            for (const file of targetFiles) {
-                try {
-                    const response = await fetch(file);
-                    if (response.ok) {
-                        const htmlText = await response.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(htmlText, 'text/html');
-                        pagesContent += `\n[Page Source: ${file}]\n` + doc.body.innerText.replace(/\s+/g, ' ') + "\n";
-                    }
-                } catch (e) {
-                    // Skip files that don't exist in current directory silently
-                }
-            }
-            return pagesContent;
-        }
-
-        // 2. Automatically read all customer view data & records from Firebase database
-        async function fetchFirebaseData() {
-            let firebaseContent = "";
+        async function fetchDictionaryData() {
             try {
-                // Connects if firebase is configured in your project environment
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    const dbRef = firebase.database().ref();
-                    const snapshot = await dbRef.once('value');
-                    const dbVal = snapshot.val();
-                    if (dbVal) {
-                        firebaseContent = "\n[Live Firebase Database Records]\n" + JSON.stringify(dbVal);
-                    }
+                const response = await fetch('aidictionary.html');
+                if (response.ok) {
+                    const htmlText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    dictionaryKnowledge = doc.body.innerText.replace(/\s+/g, ' ').trim();
+                } else {
+                    dictionaryKnowledge = "Product dictionary file not found.";
                 }
             } catch (e) {
-                // Fallback if database rules or initialization require specific path
-            }
-            return firebaseContent;
-        }
-
-        // Initialize and aggregate all repo & database knowledge
-        async function loadAllKnowledgeSources() {
-            const repoText = await fetchRepositoryPages();
-            const firebaseText = await fetchFirebaseData();
-            repositoryKnowledge = repoText + "\n" + firebaseText;
-            if (!repositoryKnowledge.trim()) {
-                repositoryKnowledge = "MY Food Products active organic store.";
+                dictionaryKnowledge = "Error loading product dictionary.";
             }
         }
 
-        // Clean text to completely remove markdown symbols, code tags, and file extensions
-        function sanitizeText(text) {
+        function cleanDisplayContent(text) {
             if (!text) return "";
-            return text
-                .replace(/[*_#`~>\[\]()]/g, '') // Removes all markdown symbols like **, __, *, _, #, `, etc.
-                .replace(/\.html/gi, ' page') // Replaces file extensions with natural words
-                .trim();
+            let sanitized = text.replace(/[^a-zA-Z0-9\s.,?!+\-]/g, ' ');
+            return sanitized.replace(/\s+/g, ' ').trim();
         }
 
-        // Load chat history from localStorage on startup
+        function cleanSpeechContent(text) {
+            return cleanDisplayContent(text);
+        }
+
         function loadChatHistory() {
             const savedHistory = localStorage.getItem('aria_chat_history');
             if (savedHistory) {
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Welcome to MY Food Products! How can I help you with our organic products, news, or support today?", false);
+                appendMessage('Aria', "Welcome to MY Food Products! How can I help you with our organic products today?", false, false);
             }
         }
 
-        // Save chat history to localStorage
         function saveChatHistory() {
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
@@ -192,47 +134,43 @@
         clearChatBtn.addEventListener('click', () => {
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Chat history cleared. How can I help you today?", true);
+            appendMessage('Aria', "Chat history cleared. How can I help you today?", true, true);
         });
 
-        // Add message to chat log & save state
-        function appendMessage(sender, text, save = true) {
-            const cleanText = sanitizeText(text);
-            const msgDiv = document.createElement('div');
+        function appendMessage(sender, text, speak = true, save = true) {
             const isUser = sender === 'You';
+            let formattedText = isUser ? text.replace(/</g, "&lt;").replace(/>/g, "&gt;") : cleanDisplayContent(text);
+            let speechText = cleanSpeechContent(text);
+
+            const msgDiv = document.createElement('div');
             msgDiv.className = `p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
-            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${cleanText}`;
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${formattedText}`;
+            
             chatLog.appendChild(msgDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
-            if (save) {
-                saveChatHistory();
-            }
+            
+            if (save) saveChatHistory();
+            if (speak && !isUser) speakAloud(speechText);
         }
 
-        // Text-to-Speech Speaker Engine & Mouth Animation
         function speakAloud(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const cleanSpeechText = sanitizeText(text);
-                const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
+                const utterance = new SpeechSynthesisUtterance(text);
                 utterance.rate = 1.0;
                 utterance.pitch = 1.2;
                 utterance.volume = 1.0;
                 
                 utterance.onstart = () => {
                     isAiSpeaking = true;
-                    if (recognition) {
-                        try { recognition.stop(); } catch(e) {}
-                    }
+                    if (recognition) { try { recognition.stop(); } catch(e) {} }
                     avatarContainer.classList.add('is-talking', 'border-red-400');
                 };
                 utterance.onend = () => {
                     avatarContainer.classList.remove('is-talking', 'border-red-400');
                     setTimeout(() => {
                         isAiSpeaking = false;
-                        if (recognition) {
-                            try { recognition.start(); } catch(e) {}
-                        }
+                        if (recognition) { try { recognition.start(); } catch(e) {} }
                     }, 500);
                 };
 
@@ -240,9 +178,8 @@
             }
         }
 
-        // Fast Groq API Connection Function with Full Repo & Firebase Knowledge
         async function callGroq(promptText) {
-            appendMessage('You', promptText);
+            appendMessage('You', promptText, false, true);
 
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -256,17 +193,18 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a warm, helpful, and natural human customer service and sales executive for MY Food Products.
+                                content: `You are Aria, a customer service executive for MY Food Products.
                                 
-                                FULL REPOSITORY & LIVE FIREBASE DATA LOADED:
-                                ${repositoryKnowledge}
+                                AUTHORIZED DATA SOURCE (aidictionary.html):
+                                ${dictionaryKnowledge}
 
-                                Key business facts: 1) We deliver all over India. 2) Free delivery is available (subject to change based on exact location). 3) All payment methods are accepted. 4) MY Food Products is an organic food business that directs its profits toward charity initiatives run by Munchirai YMCA. 5) For complex issues, complaints, or bulk orders, direct customers to call our support line at +91-9943021998.
-
-                                CRITICAL RULES:
-                                - Speak ONLY in normal, conversational human language. 
-                                - NEVER use markdown symbols like asterisks (*), bold signs (**), underscores (_), code blocks, or file extensions like .html. 
-                                - Use the loaded repository files (index, store, news) and live Firebase data above to provide precise answers.`
+                                STRICT ENFORCEMENT RULES:
+                                - You ONLY have access to the aidictionary.html data provided above.
+                                - When asked about any product name, quantity, price, offer percentage, rating, or description, you MUST look inside aidictionary.html.
+                                - If the requested product, price, or details cannot be explicitly found in aidictionary.html, you must output exactly: "Not available".
+                                - NEVER guess, estimate, or make up product details.
+                                - Speak strictly in normal conversational sentences.
+                                - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. Only plain text letters, numbers, and basic punctuation.`
                             },
                             {
                                 role: "user",
@@ -278,30 +216,23 @@
 
                 const data = await response.json();
                 if (data.choices && data.choices[0].message.content) {
-                    const aiReply = sanitizeText(data.choices[0].message.content);
-                    appendMessage('Aria', aiReply);
-                    speakAloud(aiReply);
+                    const aiReply = data.choices[0].message.content.trim();
+                    appendMessage('Aria', aiReply, true, true);
                 } else {
-                    const errorMsg = "I am having a little trouble connecting right now. You can reach our support team directly at +91-9943021998.";
-                    appendMessage('Aria', errorMsg);
-                    speakAloud(errorMsg);
+                    appendMessage('Aria', "Not available", true, true);
                 }
             } catch (err) {
                 console.error(err);
-                const netMsg = "Network glitch on my end! Please reach us at +91-9943021998.";
-                appendMessage('Aria', netMsg);
-                speakAloud(netMsg);
+                appendMessage('Aria', "Not available", true, true);
             }
         }
 
-        // Initialize on page load
         window.addEventListener('load', async () => {
-            await loadAllKnowledgeSources();
+            await fetchDictionaryData();
             loadChatHistory();
             startContinuousListening();
         });
 
-        // Always-On Voice Detection with Self-Speech Protection
         function startContinuousListening() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (SpeechRecognition) {
@@ -332,19 +263,15 @@
             }
         }
 
-        // Handle Text Box Form Submission
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const text = userInput.value.trim();
             if(!text) return;
             userInput.value = '';
-            
             callGroq(text);
         });
 
-        // Mobile Touch & Drag Logic
         let startX, startY, initialX, initialY, isDragging = false;
-
         companion.addEventListener('touchstart', (e) => {
             isDragging = true;
             startX = e.touches[0].clientX;
