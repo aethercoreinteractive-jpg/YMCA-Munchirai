@@ -99,7 +99,7 @@
         </div>
     </footer>
 
-    <!-- Script with Absolute Symbol and Markdown Stripper -->
+    <!-- Script with Triple-Pass Strict Cleaner -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -158,34 +158,33 @@
             }
         }
 
-        // Ultimate text cleaning filter to eliminate all markdown stars, lines, pipes, and code symbols for UI view
+        // TRIPLE-PASS STRICT CLEANER FOR DISPLAY
         function cleanDisplayContent(text) {
             if (!text) return "";
-            return text
-                .replace(/\|/g, '')             // Remove table pipes
-                .replace(/-{2,}/g, '')          // Remove double or more hyphens/dashes (-- or ---)
-                .replace(/\*{1,3}/g, '')        // Remove single, double, or triple asterisks (*, **, ***)
-                .replace(/#{1,6}/g, '')         // Remove header hashes (#)
-                .replace(/`{1,3}/g, '')         // Remove code block ticks
-                .replace(/\.html/gi, ' page')   // Clean file extensions
-                .replace(/\s+/g, ' ')           // Normalize spaces
-                .trim();
+            let cleaned = text;
+            for (let pass = 0; pass < 3; pass++) {
+                cleaned = cleaned
+                    .replace(/[#*|\-_`~[\]()><{}]/g, '') // Strips out #, *, |, -, _, ~, etc.
+                    .replace(/\.html/gi, ' page')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+            return cleaned;
         }
 
-        // Text cleaner for speech: strips markdown AND emojis completely
+        // TRIPLE-PASS STRICT CLEANER FOR SPEECH (Removes Emojis + Symbols)
         function cleanSpeechContent(text) {
             if (!text) return "";
-            return text
-                .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '') // Removes emojis
-                .replace(/\|/g, '')
-                .replace(/-{2,}/g, '')
-                .replace(/\*{1,3}/g, '')
-                .replace(/#{1,6}/g, '')
-                .replace(/`{1,3}/g, '')
-                .replace(/\[.*?\]\(.*?\)/g, '')  // Remove links
-                .replace(/\.html/gi, ' page')
-                .replace(/\s+/g, ' ')
-                .trim();
+            let cleaned = text;
+            for (let pass = 0; pass < 3; pass++) {
+                cleaned = cleaned
+                    .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '') // Strip Emojis
+                    .replace(/[#*|\-_`~[\]()><{}]/g, '') // Strip symbols
+                    .replace(/\.html/gi, ' page')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+            return cleaned;
         }
 
         // Load chat history from localStorage
@@ -277,7 +276,7 @@
 
                                 STRICT RULES:
                                 - Speak strictly in normal conversational paragraphs like a real human.
-                                - NEVER use markdown tables, asterisks (*), dashes (--), or code blocks.
+                                - NEVER use markdown tables, asterisks (*), dashes (--), hashes (#), pipes (|), or code blocks.
                                 - Keep text completely plain and clean.`
                             },
                             {
