@@ -96,7 +96,7 @@
         </div>
     </footer>
 
-    <!-- Script with Persistent Storage & Natural Human Customer Support Prompt -->
+    <!-- Script with Repo Auto-Inestion, Firebase Reader, and Pure Human Text -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -109,6 +109,35 @@
 
         let recognition = null;
         let isAiSpeaking = false;
+        let repoContextData = "Loading repository and store details...";
+
+        // Automatically fetch repo files (like mystore.html or product lists) to ingest live knowledge
+        async function fetchRepositoryData() {
+            try {
+                // Fetching store catalog / mystore page content from the repository
+                const response = await fetch('mystore.html');
+                if (response.ok) {
+                    const htmlText = await response.text();
+                    // Extract text snippets from html to keep it lightweight for AI prompt
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    repoContextData = doc.body.innerText.replace(/\s+/g, ' ').substring(0, 4000); // Grab store products & details
+                } else {
+                    repoContextData = "MY Food Products online store active.";
+                }
+            } catch (e) {
+                repoContextData = "MY Food Products organic goods catalog active.";
+            }
+        }
+
+        // Clean text to remove any accidental computer markdown symbols or code tags
+        function sanitizeText(text) {
+            if (!text) return "";
+            return text
+                .replace(/[*_#`~>\[\]()]/g, '') // Removes markdown symbols like **, __, *, _, #, `, etc.
+                .replace(/\.html/gi, ' store page') // Replaces technical file extensions with natural words
+                .trim();
+        }
 
         // Load chat history from localStorage on startup
         function loadChatHistory() {
@@ -134,10 +163,11 @@
 
         // Add message to persistent chat log & save state
         function appendMessage(sender, text, save = true) {
+            const cleanText = sanitizeText(text);
             const msgDiv = document.createElement('div');
             const isUser = sender === 'You';
             msgDiv.className = `p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
-            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${text}`;
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${cleanText}`;
             chatLog.appendChild(msgDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
             if (save) {
@@ -149,7 +179,8 @@
         function speakAloud(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
+                const cleanSpeechText = sanitizeText(text);
+                const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
                 utterance.rate = 1.0;
                 utterance.pitch = 1.2;
                 utterance.volume = 1.0;
@@ -175,7 +206,7 @@
             }
         }
 
-        // Fast Groq API Connection Function
+        // Fast Groq API Connection Function with Repository Data Ingested
         async function callGroq(promptText) {
             appendMessage('You', promptText);
 
@@ -191,7 +222,13 @@
                         messages: [
                             {
                                 role: "system",
-                                content: "You are Aria, a warm, helpful, and natural human customer service and sales executive for MY Food Products. Your goal is to solve customer doubts, explain products, and guide them like a real support agent. Key facts: 1) We deliver all over India. 2) Free delivery is available (subject to change based on exact location). 3) All payment methods are accepted. 4) MY Food Products is an organic food business that directs its profits toward charity initiatives run by Munchirai YMCA. 5) For complex issues, complaints, or bulk orders, direct customers to call our support line at +91-9943021998 or check our online store. CRITICAL RULE: Never speak or output code names, file names, code syntax, or web extensions like '.html' or 'mystore.html'. Always talk in a friendly, conversational human tone."
+                                content: `You are Aria, a warm, helpful, and natural human customer service and sales executive for MY Food Products. 
+                                LIVE REPOSITORY & STORE DATA LOADED: ${repoContextData}
+                                Key business facts: 1) We deliver all over India. 2) Free delivery is available (subject to change based on exact location). 3) All payment methods are accepted. 4) MY Food Products is an organic food business that directs its profits toward charity initiatives run by Munchirai YMCA. 5) For complex issues, complaints, or bulk orders, direct customers to call our support line at +91-9943021998.
+                                CRITICAL RULES: 
+                                - Speak ONLY in normal, conversational human language. 
+                                - NEVER use markdown symbols like asterisks (*), bold signs (**), underscores (_), code blocks, or file extensions like .html. 
+                                - Use the loaded repository and store product data above to give exact, correct answers to customer questions.`
                             },
                             {
                                 role: "user",
@@ -203,11 +240,11 @@
 
                 const data = await response.json();
                 if (data.choices && data.choices[0].message.content) {
-                    const aiReply = data.choices[0].message.content.trim();
+                    const aiReply = sanitizeText(data.choices[0].message.content);
                     appendMessage('Aria', aiReply);
                     speakAloud(aiReply);
                 } else {
-                    const errorMsg = data.error?.message || "I'm having a little trouble connecting right now. You can reach our support team directly at +91-9943021998.";
+                    const errorMsg = "I am having a little trouble connecting right now. You can reach our support team directly at +91-9943021998.";
                     appendMessage('Aria', errorMsg);
                     speakAloud(errorMsg);
                 }
@@ -220,7 +257,8 @@
         }
 
         // Initialize on page load
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
+            await fetchRepositoryData();
             loadChatHistory();
             startContinuousListening();
         });
@@ -290,5 +328,4 @@
         window.addEventListener('touchend', () => { isDragging = false; });
     </script>
 </body>
-  </html>
-  
+</html>
