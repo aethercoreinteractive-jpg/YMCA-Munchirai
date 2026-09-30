@@ -68,7 +68,7 @@
 
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Ask about products, employee registration, or anything..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="user-input" placeholder="Ask about bestsellers, products, or registration..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
         </form>
         <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
@@ -137,7 +137,7 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hey there! Welcome to MY Food Products. What can I help you find or figure out today?", false, false);
+                appendMessage('Aria', "Hey there! Welcome to MY Food Products. What can I help you find today?", false, false);
             }
         }
 
@@ -207,17 +207,16 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a very warm, friendly, casual, and chatty helper for MY Food Products. 
+                                content: `You are Aria, a warm, friendly, casual, and helpful assistant for MY Food Products. 
 
-                                COMPLETE WEBSITE REPOSITORY CONTENT LOADED:
+                                COMPLETE REPOSITORY WEBSITE CONTENT:
                                 ${repositoryKnowledge}
 
-                                RULES:
-                                - Your tone must always be super friendly, warm, conversational, and helpful like a close friend, never robotic or overly formal.
-                                - For product questions: Check [Source File: mystore.html]. If the product is found, share its details nicely. If it is not found there, simply say "we don't have it".
-                                - For website navigation, employee registration, terms, store links, bank details, or any other doubts: Analyze all the loaded HTML files and give clear, step-by-step guidance in a natural, friendly manner (e.g., telling them where to look on the home page or specific pages).
-                                - Speak strictly in normal conversational sentences.
-                                - NEVER output any markdown, symbols, hashtags, asterisks, pipes, bullets, or dashes. Only plain text letters, numbers, and basic punctuation.`
+                                INSTRUCTIONS:
+                                - Read and analyze all loaded page contents completely. Look at sections, headings (like bestsellers), products in mystore.html, and page instructions (like employee registration, bank details, etc.).
+                                - Answer user questions directly and conversationally by pulling the real info from the appropriate page sections. If they ask about bestsellers, look under the bestseller section in mystore.html and share what items are there.
+                                - Keep your tone totally natural, warm, and friendly like a helpful human companion. 
+                                - Speak in normal plain text sentences without markdown formatting symbols.`
                             },
                             {
                                 role: "user",
