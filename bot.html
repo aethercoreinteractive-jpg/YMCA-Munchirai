@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MY Food Products - Customer Support</title>
+    <title>MY Food Products - AI Assistant & Navigator</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -24,6 +24,28 @@
         .is-talking .anime-mouth { animation: animeTalk 0.2s ease-in-out infinite; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        
+        /* Chat bubble interactive link styling */
+        .chat-action-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            color: #22d3ee;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .chat-action-link:hover {
+            background: rgba(6, 182, 212, 0.3);
+            border-color: rgba(6, 182, 212, 0.8);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-white h-[100dvh] w-screen overflow-hidden flex flex-col justify-between select-none font-sans m-0 p-0 box-border">
@@ -31,14 +53,14 @@
     <!-- Top Status Bar Branded for MY Food Products -->
     <header class="w-full px-4 py-2.5 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0">
         <span class="text-xs font-semibold tracking-wide text-cyan-400 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food Products Support
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food AI Navigator & Support
         </span>
-        <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Active</span>
+        <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Online</span>
     </header>
 
     <!-- Main Workspace Area with Persistent Chat Log -->
     <main class="flex-1 flex flex-col justify-end p-3 relative overflow-hidden">
-        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-2 mb-2 pr-1 flex flex-col justify-end">
+        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-3 mb-2 pr-1 flex flex-col justify-end">
             <!-- Chat history will load here -->
         </div>
     </main>
@@ -48,7 +70,6 @@
         
         <!-- High-End Anime SVG Avatar Container -->
         <div id="avatar-container" class="w-16 h-16 bg-gradient-to-b from-slate-900 to-indigo-950 rounded-2xl p-1 shadow-2xl shadow-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center relative overflow-hidden">
-            
             <svg viewBox="0 0 100 100" class="w-full h-full">
                 <!-- Hair Background Base -->
                 <path d="M20,40 Q50,15 80,40 Q90,70 85,90 Q50,95 15,90 Q10,70 20,40 Z" fill="#1e1b4b"/>
@@ -87,7 +108,7 @@
     <!-- Bottom Controls & Text Input Footer -->
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Type your doubt or question..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="user-input" placeholder="Ask e.g., 'Where is staff registration?' or 'Show Avalose Sweet'" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
         </form>
         <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
@@ -96,7 +117,7 @@
         </div>
     </footer>
 
-    <!-- Script with Dictionary Lookup & Groq Fallback -->
+    <!-- Smart Knowledge Base & Assistant Script -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -109,6 +130,28 @@
 
         let recognition = null;
         let isAiSpeaking = false;
+        let siteDictionary = null; // Will cache aidictionary.html data
+
+        // Load site dictionary configuration dynamically on boot
+        async function loadDictionaryData() {
+            try {
+                const response = await fetch('aidictionary.html');
+                if (response.ok) {
+                    const text = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(text, 'text/html');
+                    // Extract script text containing AIDictionary object if available, or parse text elements
+                    const scriptTag = doc.querySelector('script');
+                    if (scriptTag && scriptTag.textContent.includes('AIDictionary')) {
+                        // Safely evaluate or extract dictionary data object
+                        const evalScript = new Function(scriptTag.textContent + '; return AIDictionary;');
+                        siteDictionary = evalScript();
+                    }
+                }
+            } catch (e) {
+                console.log("Dictionary auto-load notice:", e);
+            }
+        }
 
         // Load chat history from localStorage on startup
         function loadChatHistory() {
@@ -117,11 +160,10 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Welcome to MY Food Products! How can I help you with our organic products or support today?", false);
+                appendMessage('Aria', "Hello! I am Aria, your personal guide for MY Food Products. Ask me about our products, store locations, staff registration, or bank details!", false);
             }
         }
 
-        // Save chat history to localStorage
         function saveChatHistory() {
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
@@ -129,15 +171,15 @@
         clearChatBtn.addEventListener('click', () => {
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Chat history cleared. How can I help you today?", true);
+            appendMessage('Aria', "Chat history cleared. How can I help you navigate today?", true);
         });
 
-        // Add message to persistent chat log & save state
-        function appendMessage(sender, text, save = true) {
+        // Append message with support for direct interactive action links
+        function appendMessage(sender, htmlContent, save = true) {
             const msgDiv = document.createElement('div');
             const isUser = sender === 'You';
-            msgDiv.className = `p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
-            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${text}`;
+            msgDiv.className = `p-3 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-1">${sender}</span><div>${htmlContent}</div>`;
             chatLog.appendChild(msgDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
             if (save) {
@@ -145,29 +187,29 @@
             }
         }
 
-        // Text-to-Speech Speaker Engine & Mouth Animation
-        function speakAloud(text) {
+        // Text-to-Speech Engine
+        function speakAloud(textClean) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
+                // Strip HTML tags for clean speech synthesis
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = textClean;
+                const plainText = tempDiv.textContent || tempDiv.innerText || "";
+
+                const utterance = new SpeechSynthesisUtterance(plainText);
                 utterance.rate = 1.0;
                 utterance.pitch = 1.2;
-                utterance.volume = 1.0;
                 
                 utterance.onstart = () => {
                     isAiSpeaking = true;
-                    if (recognition) {
-                        try { recognition.stop(); } catch(e) {}
-                    }
+                    if (recognition) { try { recognition.stop(); } catch(e) {} }
                     avatarContainer.classList.add('is-talking', 'border-red-400');
                 };
                 utterance.onend = () => {
                     avatarContainer.classList.remove('is-talking', 'border-red-400');
                     setTimeout(() => {
                         isAiSpeaking = false;
-                        if (recognition) {
-                            try { recognition.start(); } catch(e) {}
-                        }
+                        if (recognition) { try { recognition.start(); } catch(e) {} }
                     }, 500);
                 };
 
@@ -175,55 +217,72 @@
             }
         }
 
-        // Check aidictionary.html first before falling back to AI improvisation
-        async function checkAiDictionary(promptText) {
-            try {
-                const response = await fetch('aidictionary.html');
-                if (!response.ok) return null;
-                const htmlText = await response.text();
-                
-                // Parse HTML text to search for matching keywords or products
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlText, 'text/html');
-                const dictionaryText = doc.body.textContent || "";
-                
-                const queryWords = promptText.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-                let matchFound = false;
-                
-                // Check if key search words exist in the dictionary text
-                for (let word of queryWords) {
-                    if (dictionaryText.toLowerCase().includes(word)) {
-                        matchFound = true;
-                        break;
+        // Smart Local Intent Engine using Dictionary Data
+        function evaluateLocalQuery(query) {
+            const q = query.toLowerCase();
+            if (!siteDictionary) return null;
+
+            // 1. Check Staff / Employee Registration
+            if (q.includes('staff') || q.includes('register') || q.includes('employee') || q.includes('career')) {
+                return `You can register as new staff via our career opportunities section. Tap the button below to go straight to the registration page:<br><a href="employeeregistration.html" class="chat-action-link">👉 Tap here for Employee Registration</a>`;
+            }
+
+            // 2. Check Staff Login
+            if (q.includes('login') || q.includes('signin') || q.includes('staff login')) {
+                return `Staff members can log in through the navigation panel option.<br><a href="stafflogin.html" class="chat-action-link">👉 Tap here for Staff Login</a>`;
+            }
+
+            // 3. Store / Shop / Products
+            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('product') || q.includes('avalose') || q.includes('puttu')) {
+                // If asking about a specific product match
+                if (siteDictionary.inventory) {
+                    const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
+                    if (found) {
+                        return `<strong>${found.productName}</strong> (${found.category})<br>Price: ₹${found.finalPrice} (${found.offerPercentage > 0 ? found.offerPercentage + '% off' : 'Regular'}) | Rating: ★${found.rating}/5<br>${found.description.substring(0, 140)}...<br><a href="mystore.html" class="chat-action-link">🛍️ View in My Store</a>`;
                     }
                 }
-
-                if (matchFound) {
-                    // Extract relevant snippet or return matched context from dictionary
-                    return `According to our product dictionary: ${dictionaryText.substring(0, 300)}... (Please check mystore.html for full details)`;
-                }
-                return null;
-            } catch (err) {
-                console.log("Dictionary check skipped or file not found locally:", err);
-                return null;
+                return `You can browse all our organic items and make purchases in our store.<br><a href="mystore.html" class="chat-action-link">🛍️ Go to My Store</a>`;
             }
+
+            // 4. Bank Details / Payment
+            if (q.includes('bank') || q.includes('payment') || q.includes('pay') || q.includes('account')) {
+                return `All bank account and payment details are available on our dedicated information page.<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
+            }
+
+            // 5. About Us / Page details
+            if (q.includes('about') || q.includes('who') || q.includes('mission')) {
+                return `Learn more about our organization, organic values, and charity mission with Munchirai YMCA.<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
+            }
+
+            // 6. News / Updates
+            if (q.includes('news') || q.includes('update')) {
+                return `Check out our latest announcements and updates.<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
+            }
+
+            // 7. Contact
+            if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
+                return `You can reach our primary customer support line directly at <strong>+91-9943021998</strong> or visit our contact page.<br><a href="contact.html" class="chat-action-link">📞 Go to Contact Page</a>`;
+            }
+
+            return null;
         }
 
-        // Master Handler: Checks Dictionary First, then Groq API Fallback
+        // Master Handler
         async function handleUserQuery(promptText) {
             appendMessage('You', promptText);
 
-            // Step 1: Check aidictionary.html first
-            const dictionaryResult = await checkAiDictionary(promptText);
-            if (dictionaryResult) {
-                appendMessage('Aria', dictionaryResult);
-                speakAloud(dictionaryResult);
+            // Step 1: Check Local Dictionary Matrix for precise navigation & inventory routing
+            const localReply = evaluateLocalQuery(promptText);
+            if (localReply) {
+                appendMessage('Aria', localReply);
+                speakAloud(localReply);
                 return;
             }
 
-            // Step 2: If not in dictionary, improvise using Groq API
+            // Step 2: Fallback to Groq API for general organic food queries / improvisation
             try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const response = "https://api.groq.com/openai/v1/chat/completions";
+                const res = await fetch(response, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -234,41 +293,42 @@
                         messages: [
                             {
                                 role: "system",
-                                content: "You are Aria, the official, professional yet warm customer service and sales assistant for MY Food Products. Your job is to help customers solve doubts, navigate organic products, explain order details, and guide them smoothly. Key Business Facts to remember: 1) We deliver all over India. 2) Free delivery is available, though subject to location. 3) All payment methods accepted. 4) MY Food Products is an organic food business that directs its profits toward charity initiatives run by Munchirai YMCA. 5) If a customer has a complex issue, complaint, or bulk order inquiry, direct them immediately to our dedicated support line at +91-9943021998 or point them to our store page at mystore.html. Keep your answers clear, concise, helpful, and friendly so they sound natural when spoken aloud."
+                                content: "You are Aria, the intelligent assistant for MY Food Products. Direct users clearly using links when requested (e.g. store: mystore.html, staff registration: employeeregistration.html, bank details: bankdetails.html). Profits go toward Munchirai YMCA charity initiatives."
                             },
-                            {
-                                role: "user",
-                                content: promptText
-                            }
+                            { role: "user", content: promptText }
                         ]
                     })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
                 if (data.choices && data.choices[0].message.content) {
-                    const aiReply = data.choices[0].message.content.trim();
+                    let aiReply = data.choices[0].message.content.trim();
+                    // Append direct store link context if text mentions store
+                    if (aiReply.toLowerCase().includes('store') || aiReply.toLowerCase().includes('shop')) {
+                        aiReply += `<br><a href="mystore.html" class="chat-action-link">🛍️ Visit My Store Now</a>`;
+                    }
                     appendMessage('Aria', aiReply);
                     speakAloud(aiReply);
                 } else {
-                    const errorMsg = data.error?.message || "Oops, having a little trouble connecting right now! You can contact us directly at +91-9943021998.";
-                    appendMessage('Aria', errorMsg);
-                    speakAloud(errorMsg);
+                    const fallback = `You can check our store page or contact support at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Go to My Store</a>`;
+                    appendMessage('Aria', fallback);
+                    speakAloud(fallback);
                 }
             } catch (err) {
-                console.error(err);
-                const netMsg = "Ah, network glitch on my end! Please reach us at +91-9943021998.";
+                const netMsg = `I'm having trouble reaching the network server right now. You can call support at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
                 appendMessage('Aria', netMsg);
                 speakAloud(netMsg);
             }
         }
 
-        // Initialize on page load
-        window.addEventListener('load', () => {
+        // Initialization
+        window.addEventListener('load', async () => {
+            await loadDictionaryData();
             loadChatHistory();
             startContinuousListening();
         });
 
-        // Always-On Voice Detection with Self-Speech Protection
+        // Voice Recognition Support
         function startContinuousListening() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (SpeechRecognition) {
@@ -280,38 +340,29 @@
                 recognition.onresult = (event) => {
                     if (isAiSpeaking) return;
                     const speechToText = event.results[event.results.length - 1][0].transcript.trim();
-                    if (speechToText) {
-                        handleUserQuery(speechToText);
-                    }
+                    if (speechToText) handleUserQuery(speechToText);
                 };
 
                 recognition.onerror = () => {
-                    if (!isAiSpeaking) {
-                        setTimeout(() => { try { recognition.start(); } catch(e){} }, 1000);
-                    }
+                    if (!isAiSpeaking) setTimeout(() => { try { recognition.start(); } catch(e){} }, 1000);
                 };
                 recognition.onend = () => {
-                    if (!isAiSpeaking) {
-                        try { recognition.start(); } catch(e){}
-                    }
+                    if (!isAiSpeaking) try { recognition.start(); } catch(e){}
                 };
                 try { recognition.start(); } catch(e){}
             }
         }
 
-        // Handle Text Box Form Submission
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const text = userInput.value.trim();
             if(!text) return;
             userInput.value = '';
-            
             handleUserQuery(text);
         });
 
-        // Mobile Touch & Drag Logic
+        // Touch & Drag Companion Widget
         let startX, startY, initialX, initialY, isDragging = false;
-
         companion.addEventListener('touchstart', (e) => {
             isDragging = true;
             startX = e.touches[0].clientX;
