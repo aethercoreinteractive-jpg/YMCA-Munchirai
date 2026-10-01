@@ -72,6 +72,20 @@
         </div>
     </main>
 
+    <!-- Floating Custom Confirmation Modal Box -->
+    <div id="custom-confirm-modal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-4 text-center">
+            <div class="flex flex-col gap-1">
+                <h3 class="text-sm font-semibold text-white">Delete Chat History</h3>
+                <p class="text-xs text-slate-400">Are you sure you want to delete all chat records?</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="confirm-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-medium transition-all">Cancel</button>
+                <button id="confirm-ok" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded-xl text-xs font-medium shadow-lg shadow-red-600/30 transition-all">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating Draggable Anime Companion Widget -->
     <div id="companion" class="absolute bottom-28 right-4 cursor-grab active:cursor-grabbing z-50 animate-float flex flex-col items-center touch-none">
         
@@ -124,7 +138,7 @@
         </div>
     </footer>
 
-    <!-- Smart Repository Engine Script with Confirmation Prompt on Delete -->
+    <!-- Smart Repository Engine Script with Custom Inbuilt Floating Confirmation -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -134,6 +148,9 @@
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
         const clearChatTopBtn = document.getElementById('clear-chat-top');
+        const customConfirmModal = document.getElementById('custom-confirm-modal');
+        const confirmOkBtn = document.getElementById('confirm-ok');
+        const confirmCancelBtn = document.getElementById('confirm-cancel');
 
         let recognition = null;
         let isAiSpeaking = false;
@@ -190,13 +207,20 @@
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
 
+        // Custom Inbuilt Floating Confirmation Handlers
         clearChatTopBtn.addEventListener('click', () => {
-            const confirmed = confirm("Are you sure you want to delete the chat history?");
-            if (confirmed) {
-                localStorage.removeItem('aria_chat_history');
-                chatLog.innerHTML = '';
-                appendMessage('Aria', "Chat history cleared successfully! How can I assist you today?", true);
-            }
+            customConfirmModal.classList.remove('hidden');
+        });
+
+        confirmCancelBtn.addEventListener('click', () => {
+            customConfirmModal.classList.add('hidden');
+        });
+
+        confirmOkBtn.addEventListener('click', () => {
+            customConfirmModal.classList.add('hidden');
+            localStorage.removeItem('aria_chat_history');
+            chatLog.innerHTML = '';
+            appendMessage('Aria', "Chat history cleared successfully! How can I assist you today?", true);
         });
 
         function appendMessage(sender, htmlContent, save = true) {
