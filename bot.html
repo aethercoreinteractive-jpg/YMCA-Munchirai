@@ -54,12 +54,15 @@
 </head>
 <body class="bg-slate-950 text-white h-[100dvh] w-screen overflow-hidden flex flex-col justify-between select-none font-sans m-0 p-0 box-border">
 
-    <!-- Top Status Bar Branded for MY Food Products -->
+    <!-- Top Status Bar Branded for MY Food Products with Header Delete Button -->
     <header class="w-full px-4 py-2.5 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0">
         <span class="text-xs font-semibold tracking-wide text-cyan-400 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food AI Navigator & Support
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food AI Assistant
         </span>
-        <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Verified Code Mode</span>
+        <button id="clear-chat-top" class="text-xs font-mono px-2.5 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            Delete Chat
+        </button>
     </header>
 
     <!-- Main Workspace Area with Fully Scrollable Chat Log Container (Up & Down Scrolling) -->
@@ -112,16 +115,16 @@
     <!-- Bottom Controls & Text Input Footer -->
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Ask e.g., 'How do I buy items?', 'Staff registration', 'Avalose Sweet'..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="user-input" placeholder="Ask e.g., 'How do I buy items?', 'Avalose Sweet', 'Bank details'..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
         </form>
         <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
             <span>Support Line: +91-9943021998</span>
-            <button id="clear-chat" class="text-red-400 hover:underline">Clear Chat History</button>
+            <span>MY Food Products</span>
         </div>
     </footer>
 
-    <!-- Strict Code-Bound Repository Engine Script -->
+    <!-- Smart Repository Engine Script with Improvised AI Phrasing -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -130,13 +133,42 @@
         const chatLog = document.getElementById('chat-log');
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
-        const clearChatBtn = document.getElementById('clear-chat');
+        const clearChatTopBtn = document.getElementById('clear-chat-top');
 
         let recognition = null;
         let isAiSpeaking = false;
         let siteDictionary = null;
 
-        // Pre-load aidictionary.html on boot for 100% verified data access
+        // Dynamic variations array for natural, improvised phrasing
+        const phrasingVariations = {
+            buy: [
+                "Purchasing items from our store is straightforward! First, head over to our store catalog, pick out whatever traditional organic goods you desire, and add them into your cart. Once you're ready, navigate to your cart to verify your selections and totals. At checkout, you can finalize your payment using either UPI or Cash on Delivery (COD).",
+                "Here is how you can place an order: browse through our product collection in the store, click add to cart on your favorite items, and open up your shopping cart to review everything. When you check out, you'll be able to complete your transaction via UPI or Cash on Delivery.",
+                "Getting your hands on our organic foods is simple! Just explore our product listings, add your chosen items to your cart, check your order summary in the cart page, and proceed with either UPI or Cash on Delivery at checkout."
+            ],
+            staff: [
+                "Looking to join our team? You can easily sign up as a new team member through our employee registration portal.",
+                "If you want to register as staff, we have a dedicated registration page ready for you.",
+                "You can submit your details to join our workforce right through our employee registration section."
+            ],
+            login: [
+                "Staff members can access their portal directly by heading to the login page.",
+                "If you're looking to sign in as staff, you can navigate straight to the staff login section.",
+                "Authorized personnel can log in securely through our staff portal."
+            ],
+            bank: [
+                "All our official bank routing and payment account details are conveniently listed on our dedicated bank information page.",
+                "You can view our complete financial and bank account details directly on our payment information page.",
+                "For direct deposits or bank verification, all our official account credentials are provided on our bank details page."
+            ]
+        };
+
+        function getRandomVariation(category) {
+            const list = phrasingVariations[category];
+            const index = Math.floor(Math.random() * list.length);
+            return list[index];
+        }
+
         async function loadDictionaryData() {
             try {
                 const response = await fetch('aidictionary.html');
@@ -161,7 +193,7 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hello! I am Aria, your verified guide for MY Food Products. Ask me how to buy items, check our store inventory, view bank details, or register as staff!", false);
+                appendMessage('Aria', "Hello! I'm Aria, your guide for MY Food Products. Feel free to ask about our traditional items, ordering procedures, or store navigation!", false);
             }
         }
 
@@ -169,10 +201,10 @@
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
 
-        clearChatBtn.addEventListener('click', () => {
+        clearChatTopBtn.addEventListener('click', () => {
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Chat history cleared. How can I help you navigate today?", true);
+            appendMessage('Aria', "Chat history cleared successfully! How can I assist you today?", true);
         });
 
         function appendMessage(sender, htmlContent, save = true) {
@@ -215,76 +247,71 @@
             }
         }
 
-        // Strict Code-Verified Intent Evaluator (No Guesswork / No Improvisation)
+        // Strict Code-Verified Intent Evaluator with Improvised AI Phrasing
         function evaluateLocalQuery(query) {
             const q = query.toLowerCase();
 
-            // 1. How to buy items / Order flow (mystore.html -> cart.html -> UPI / COD)
+            // 1. How to buy items / Order flow (mystore.html with improvised phrasing & single mystore button)
             if (q.includes('buy') || q.includes('purchase') || q.includes('how to order') || q.includes('checkout') || q.includes('payment') || q.includes('upi') || q.includes('cod')) {
-                return `To buy products, follow our verified order flow:<br>` +
-                       `1. Browse products and tap **Add to Cart** in our store.<br>` +
-                       `<a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a><br>` +
-                       `2. Proceed to your cart to review your items, quantities, and totals.<br>` +
-                       `<a href="cart.html" class="chat-action-link">🛒 View Cart</a><br>` +
-                       `3. At checkout, complete your purchase using our verified payment options (**UPI** or **Cash on Delivery**) or view beneficiary details.<br>` +
-                       `<a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
+                const textBody = getRandomVariation('buy');
+                return `${textBody}<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
             }
 
             // 2. Staff Registration
             if (q.includes('staff') || q.includes('register') || q.includes('employee') || q.includes('career')) {
-                return `You can register as a new staff member through our career opportunities section.<br><a href="employeeregistration.html" class="chat-action-link">👉 Tap here for Employee Registration</a>`;
+                const textBody = getRandomVariation('staff');
+                return `${textBody}<br><a href="employeeregistration.html" class="chat-action-link">👉 Tap here for Employee Registration</a>`;
             }
 
             // 3. Staff Login
             if (q.includes('login') || q.includes('signin') || q.includes('staff login')) {
-                return `Staff members can log in via the navigation panel option.<br><a href="stafflogin.html" class="chat-action-link">👉 Tap here for Staff Login</a>`;
+                const textBody = getRandomVariation('login');
+                return `${textBody}<br><a href="stafflogin.html" class="chat-action-link">👉 Tap here for Staff Login</a>`;
             }
 
             // 4. Specific Inventory Item Lookup from aidictionary.html
             if (siteDictionary && siteDictionary.inventory) {
                 const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
                 if (found) {
-                    return `<strong>${found.productName}</strong> (${found.category})<br>` +
-                           `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(₹${found.originalPrice} with${found.offerPercentage}% offer)` : ''} | Rating: ★${found.rating}/5<br>` +
-                           `Quantity: ${found.quantity}<br>` +
+                    return `Here are the details for <strong>${found.productName}</strong> (${found.category}):<br>` +
+                           `Priced at ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(marked down from ₹${found.originalPrice} with a${found.offerPercentage}% discount)` : ''} with a customer rating of ★${found.rating}/5 (${found.quantity}).<br>` +
                            `${found.description}<br>` +
-                           `<a href="mystore.html" class="chat-action-link">🛍️ Buy in My Store</a>`;
+                           `<a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
                 }
             }
 
             // 5. General Store / Products browse query
             if (q.includes('store') || q.includes('shop') || q.includes('product') || q.includes('avalose') || q.includes('puttu')) {
-                return `Browse all our traditional organic products (like Avalose Sweet, Avalose Milk, and Kattuyanam Puttu Flour) in our store.<br><a href="mystore.html" class="chat-action-link">🛍️ Go to My Store</a>`;
+                return `We offer a wonderful selection of traditional organic foods, including Avalose Sweet, Avalose Milk, and Kattuyanam Puttu Flour. You can browse our complete collection here:<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
             }
 
             // 6. Bank Details
             if (q.includes('bank') || q.includes('account')) {
-                return `Official payment and bank account details are listed on our bank details page.<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
+                const textBody = getRandomVariation('bank');
+                return `${textBody}<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
             }
 
             // 7. About Us
             if (q.includes('about') || q.includes('who')) {
-                return `Learn more about MY Food Products and our organic charity initiatives supporting Munchirai YMCA.<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
+                return `MY Food Products is dedicated to providing high-quality organic foods while directing our profits toward charity initiatives with Munchirai YMCA. Learn more about our story here:<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
             }
 
             // 8. News & Updates
             if (q.includes('news') || q.includes('update')) {
-                return `Read our latest updates and announcements.<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
+                return `Stay up to date with our latest announcements and community news by checking our updates page:<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
             }
 
             // 9. Contact
             if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
-                return `You can contact customer support directly at <strong>+91-9943021998</strong>.<br><a href="contact.html" class="chat-action-link">📞 Go to Contact Page</a>`;
+                return `You can reach our customer support team directly by calling <strong>+91-9943021998</strong> or visiting our contact page:<br><a href="contact.html" class="chat-action-link">📞 Go to Contact Page</a>`;
             }
 
             return null;
         }
 
-        // Master Handler strictly relying on code-verified dictionary and logic
         async function handleUserQuery(promptText) {
             appendMessage('You', promptText);
 
-            // Strict repository verification check
             const localReply = evaluateLocalQuery(promptText);
             if (localReply) {
                 appendMessage('Aria', localReply);
@@ -292,8 +319,8 @@
                 return;
             }
 
-            // Fallback for general unmapped questions using verified facts
-            const fallback = `You can explore our store or reach our support line at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
+            // Improvised fallback reply
+            const fallback = `I'd love to help you with that! You can explore our catalog or reach our customer support line at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
             appendMessage('Aria', fallback);
             speakAloud(fallback);
         }
@@ -336,7 +363,6 @@
             handleUserQuery(text);
         });
 
-        // Touch & Drag Companion Widget
         let startX, startY, initialX, initialY, isDragging = false;
         companion.addEventListener('touchstart', (e) => {
             isDragging = true;
