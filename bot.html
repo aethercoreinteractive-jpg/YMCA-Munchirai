@@ -12,65 +12,63 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        @keyframes floatAnime {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-        }
-        .animate-float { animation: floatAnime 3s ease-in-out infinite; }
         
         ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
         
         .chat-action-link {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             margin-top: 6px;
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
             color: #fbbf24;
-            padding: 4px 10px;
-            border-radius: 8px;
+            padding: 5px 12px;
+            border-radius: 10px;
             font-size: 11px;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.2s ease;
         }
         .chat-action-link:hover {
-            background: rgba(245, 158, 11, 0.3);
-            border-color: rgba(245, 158, 11, 0.8);
+            background: rgba(245, 158, 11, 0.2);
+            border-color: rgba(245, 158, 11, 0.6);
             transform: translateY(-1px);
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-[100dvh] w-screen overflow-hidden flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950 m-0 p-0 box-border">
+<body class="bg-[#020617] text-slate-100 h-[100dvh] w-screen overflow-hidden flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950 m-0 p-0 box-border">
 
-    <!-- Fixed Header -->
-    <header class="w-full px-4 py-3 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0 shadow-lg">
-        <div class="flex items-center gap-2">
-            <div id="header-logo-container" class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-[10px] tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
-                <span id="header-logo-fallback">MY</span>
+    <!-- Fixed Header matching bankdetails.html styling -->
+    <header class="w-full px-4 py-3.5 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/80 flex justify-between items-center z-10 shrink-0 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold flex items-center justify-center text-xs shadow-inner flex-shrink-0">
+                <i class="fa-solid fa-robot text-amber-400"></i>
             </div>
-            <span class="text-xs font-extrabold tracking-wide text-white flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food AI Assistant
-            </span>
+            <div class="flex flex-col">
+                <span class="text-xs font-bold tracking-tight text-white flex items-center gap-2">
+                    MY Food AI Assistant
+                </span>
+                <span class="text-[10px] text-slate-400 font-medium">Always online & ready to help</span>
+            </div>
         </div>
-        <button id="clear-chat-top" class="text-xs font-bold px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm">
-            <i class="fa-solid fa-trash-can text-[11px]"></i> Delete Chat
+        <button id="clear-chat-top" class="text-xs font-semibold px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm">
+            <i class="fa-solid fa-trash-can text-[11px]"></i> Clear Chat
         </button>
     </header>
 
     <!-- Main Chat Workspace -->
     <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3 max-w-3xl mx-auto">
-        <div id="chat-log" class="absolute inset-0 overflow-y-auto p-3 space-y-3 flex flex-col pb-24"></div>
+        <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-28"></div>
     </main>
 
     <!-- Inbuilt Custom Confirmation Modal -->
     <div id="custom-confirm-modal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full shadow-2xl flex flex-col gap-4 text-center">
-            <div class="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-lg border border-red-100 shadow-inner">
+            <div class="w-12 h-12 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-lg border border-red-500/20 shadow-inner">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div class="flex flex-col gap-1">
@@ -78,35 +76,33 @@
                 <p class="text-xs text-slate-400 font-light">Are you sure you want to delete all chat records?</p>
             </div>
             <div class="flex gap-2 pt-1">
-                <button id="confirm-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
+                <button id="confirm-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">Cancel</button>
                 <button id="confirm-ok" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-red-600/30 transition-all cursor-pointer">Delete</button>
             </div>
         </div>
     </div>
 
-    <!-- Input Footer with Blubi Standing On Top -->
-    <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-20 shrink-0 shadow-lg relative">
+    <!-- Input Footer with Transparent Blubi Standing On Top -->
+    <footer class="w-full bg-slate-900/90 backdrop-blur-xl border-t border-slate-800/80 p-3.5 flex flex-col gap-2 z-20 shrink-0 shadow-2xl relative">
         
-        <!-- Blubi Avatar Standing Above Text Box -->
-        <div class="absolute -top-12 left-6 z-30 pointer-events-none flex items-center">
-            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-amber-400/80 bg-slate-900 shadow-lg shadow-amber-500/30 flex items-center justify-center bg-slate-950">
-                <img id="blubi-avatar" src="blubiani1.gif" alt="Blubi Avatar" class="w-full h-full object-cover">
-            </div>
+        <!-- Blubi Transparent Layer Overlay (No Box Container) -->
+        <div class="absolute -top-12 left-5 z-30 pointer-events-none flex items-center">
+            <img id="blubi-avatar" src="blubiani1.gif" alt="Blubi Avatar" class="w-12 h-12 object-contain drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
         </div>
 
         <form id="chat-form" class="flex gap-2 max-w-3xl w-full mx-auto relative pt-1">
-            <input type="text" id="user-input" placeholder="Ask anything about MY Food Products..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 transition shadow-inner">
-            <button type="submit" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition cursor-pointer flex items-center gap-1.5">
+            <input type="text" id="user-input" placeholder="Ask anything about MY Food Products..." class="flex-1 bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition shadow-inner">
+            <button type="submit" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-5 py-3 rounded-2xl text-xs font-bold shadow-lg shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5 flex-shrink-0">
                 <span>Send</span> <i class="fa-solid fa-paper-plane text-[10px]"></i>
             </button>
         </form>
         <div class="flex justify-between items-center text-[11px] text-slate-400 px-1 max-w-3xl w-full mx-auto font-medium">
             <span>Support: +91-9943021998</span>
-            <span>MY Food Products</span>
+            <span class="text-amber-500/90 font-semibold">MY Food Products</span>
         </div>
     </footer>
 
-    <!-- Grok Natural Reasoning Engine Script -->
+    <!-- Assistant Script Engine -->
     <script>
         const chatLog = document.getElementById('chat-log');
         const chatForm = document.getElementById('chat-form');
@@ -203,8 +199,8 @@
         function appendMessage(sender, htmlContent, save = true) {
             const msgDiv = document.createElement('div');
             const isUser = sender === 'You';
-            msgDiv.className = `p-3.5 rounded-2xl max-w-[85%] text-xs shadow-sm ${isUser ? 'bg-amber-500/10 border border-amber-500/30 self-end text-amber-100 font-medium' : 'bg-slate-900 border border-slate-800 self-start text-slate-300'}`;
-            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-amber-400' : 'text-amber-500'} font-extrabold block mb-1 uppercase tracking-wider">${sender}</span><div class="leading-relaxed">${htmlContent}</div>`;
+            msgDiv.className = `p-4 rounded-2xl max-w-[85%] text-xs shadow-md ${isUser ? 'bg-amber-500/10 border border-amber-500/30 self-end text-amber-100 font-medium' : 'bg-slate-900 border border-slate-800/80 self-start text-slate-300'}`;
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-amber-400' : 'text-amber-500'} font-extrabold block mb-1.5 uppercase tracking-wider">${sender}</span><div class="leading-relaxed">${htmlContent}</div>`;
             chatLog.appendChild(msgDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
             if (save) saveChatHistory();
@@ -236,7 +232,6 @@
             }
         }
 
-        // Natural Conversational & Intent Matching Engine
         function evaluateQuery(query) {
             const q = query.toLowerCase().trim();
 
@@ -345,7 +340,7 @@
                     if (!isAiSpeaking) setTimeout(() => { try { recognition.start(); } catch(e){} }, 1000);
                 };
                 recognition.onend = () => {
-                    if (!isAiSpeaking && !isAiSpeaking) try { recognition.start(); } catch(e){}
+                    if (!isAiSpeaking) try { recognition.start(); } catch(e){}
                 };
                 try { recognition.start(); } catch(e){}
             }
