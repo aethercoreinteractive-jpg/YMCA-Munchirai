@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Knowledge Base & Navigation Dictionary</title>
+    <style>
+        :root {
+            --primary: #d97706;
+            --primary-light: #fef3c7;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: #b45309;
+            font-size: 1.6rem;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin: 25px 0 15px 0;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--primary-light);
+            color: #b45309;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .card h3 {
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .rating {
+            color: #f59e0b;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .price-tag {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #15803d;
+            margin-bottom: 10px;
+        }
+
+        .price-tag .original {
+            text-decoration: line-through;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+
+        .price-tag .discount {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+
+        .meta {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #475569;
+        }
+
+        /* Navigation Dictionary Styles */
+        .nav-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-top: 10px;
+        }
+
+        .nav-table th, .nav-table td {
+            padding: 12px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-table th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .nav-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .page-link {
+            font-family: monospace;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        .raw-json-container {
+            margin-top: 40px;
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .raw-json-container h2 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        pre {
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div>
+                <h1>🤖 AI Dictionary & Knowledge Base</h1>
+                <p style="color: #64748b; font-size: 0.9rem;">My Food - Inventory & Website Routing Reference</p>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" onkeyup="filterDictionary()" placeholder="Search products, links, or navigation...">
+            </div>
+        </header>
+
+        <!-- Product Inventory Section -->
+        <h2 class="section-title">📦 Product Inventory Dictionary</h2>
+        <div class="grid" id="inventoryGrid"></div>
+
+        <!-- Navigation Map Section -->
+        <h2 class="section-title">🧭 Website Navigation & Layout Dictionary</h2>
+        <table class="nav-table">
+            <thead>
+                <tr>
+                    <th>Location / Element</th>
+                    <th>Destination Page</th>
+                    <th>Action / Description</th>
+                </tr>
+            </thead>
+            <tbody id="navigationTable"></tbody>
+        </table>
+
+        <!-- JSON Object Display -->
+        <div class="raw-json-container">
+            <h2>📄 Raw JavaScript Dictionary Object (`window.AIDictionary`)</h2>
+            <pre id="jsonDisplay"></pre>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // MAIN AI DICTIONARY DATA STRUCTURE
+        // ==========================================
+        const AIDictionary = {
+            inventory: [
+                {
+                    category: "snacks and savouries",
+                    productName: "Avalose Sweet",
+                    rating: 5,
+                    originalPrice: 120,
+                    offerPercentage: 17,
+                    finalPrice: 99.60,
+                    quantity: "400g",
+                    description: "Avalose is a natural, healthy and traditional food of our ancestors. Prepared from unpolished red rice by adding coconut, organic jaggery, and spices like cardamom, fenugreek, dry ginger etc. A READY TO EAT NUTRITIOUS FOOD FOR CHILDREN, GIRLS, TRAVELLERS & ATHLETES."
+                },
+                {
+                    category: "snacks and savouries",
+                    productName: "Avalose Milk",
+                    rating: 4.5,
+                    originalPrice: 120,
+                    offerPercentage: 17,
+                    finalPrice: 99.60,
+                    quantity: "250g",
+                    description: "Avalose is a natural, healthy and traditional food of our ancestors. Prepared from unpolished red rice by adding coconut, organic jaggery, and spices like cardamom, fenugreek, dry ginger, Condensed Milk etc. A READY TO EAT NUTRITIOUS FOOD FOR CHILDREN, GIRLS, TRAVELLERS & ATHLETES."
+                },
+                {
+                    category: "flour",
+                    productName: "Kattuyanam Rice Puttu Flour",
+                    rating: 5,
+                    originalPrice: 75,
+                    offerPercentage: 0,
+                    finalPrice: 75.00,
+                    quantity: "500g",
+                    description: "Puttu is a common traditional breakfast of South India, made up of rice flour and grated coconut with the help of a special vessel called puttu kudam. Puttu-Kudam consists of two parts. The base part is for heating water, the top is a cylindrical tube and one is for steaming puttu. Traditionally puttu was made in bamboo logs which gave a lovely aroma. Puttu can be easily made in an idly cooker also. Kattuyanam puttu is much healthier and staple breakfast for any diabetics. MYF Kattuyanam puttu flour is produced from an organic unpolished Kattuyanam red rice."
+                }
+            ],
+            websiteNavigation: [
+                {
+                    element: "Header (Left)",
+                    destination: "N/A",
+                    description: "Displays 'My Food' Logo and Name."
+                },
+                {
+                    element: "Header (Right) - 'My Store' Button",
+                    destination: "mystore.html",
+                    description: "Shopping place to buy products."
+                },
+                {
+                    element: "Nav Bar - Home",
+                    destination: "index.html",
+                    description: "Navigates to the main homepage."
+                },
+                {
+                    element: "Nav Bar - Updates",
+                    destination: "news.html",
+                    description: "Navigates to latest updates and news."
+                },
+                {
+                    element: "Nav Bar - Contact",
+                    destination: "contact.html",
+                    description: "Navigates to contact information."
+                },
+                {
+                    element: "Nav Bar - Bank Details",
+                    destination: "bankdetails.html",
+                    description: "Navigates to payment and bank details."
+                },
+                {
+                    element: "Nav Bar (Swipe Left) - Staff Login",
+                    destination: "stafflogin.html",
+                    description: "Allows portal access for staff members."
+                },
+                {
+                    element: "Nav Bar (Swipe Left) - About Us",
+                    destination: "aboutus.html",
+                    description: "Provides information about the company/page."
+                },
+                {
+                    element: "Nav Bar (Swipe Left) - All Products",
+                    destination: "mystore.html",
+                    description: "Directs users to browse all store products."
+                },
+                {
+                    element: "Hero Section - 'Shop MyStore Now' (Big Yellow Button)",
+                    destination: "mystore.html",
+                    description: "Prominent CTA button directing users to the shop."
+                },
+                {
+                    element: "Hero Section - 'Learn More' Button",
+                    destination: "aboutus.html",
+                    description: "Directs users to the About Us page."
+                },
+                {
+                    element: "Page Section - Featured Products",
+                    destination: "mystore.html",
+                    description: "Lists featured items on display."
+                },
+                {
+                    element: "Page Section - Bank Details Section",
+                    destination: "bankdetails.html",
+                    description: "Displays payment and bank account details."
+                },
+                {
+                    element: "Page Section - Heroic Banner",
+                    destination: "N/A",
+                    description: "Displays promotional advertisements."
+                },
+                {
+                    element: "Page Section - Career Opportunities / 'Employee Registration'",
+                    destination: "employeeregistration.html",
+                    description: "Button for new staff registration."
+                },
+                {
+                    element: "Page Section - News and Updates Section",
+                    destination: "news.html",
+                    description: "Displays news, announcements, and updates."
+                }
+            ]
+        };
+
+        // Attach dictionary globally for AI/API consumption
+        window.AIDictionary = AIDictionary;
+
+        // Render Functions
+        function renderInventory(items) {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = items.map(item => `
+                <div class="card">
+                    <span class="badge">${item.category}</span>
+                    <h3>${item.productName}</h3>
+                    <div class="rating">★ ${item.rating} / 5</div>
+                    <div class="price-tag">
+                        ${item.offerPercentage > 0 
+                            ? `<span class="original">₹${item.originalPrice}</span> ₹${item.finalPrice.toFixed(2)} <span class="discount">(${item.offerPercentage}% OFF)</span>`
+                            : `₹${item.finalPrice.toFixed(2)}`
+                        }
+                    </div>
+                    <div class="meta"><strong>Quantity/Weight:</strong> ${item.quantity}</div>
+                    <p class="description">${item.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderNavigation(items) {
+            const tbody = document.getElementById('navigationTable');
+            tbody.innerHTML = items.map(nav => `
+                <tr>
+                    <td><strong>${nav.element}</strong></td>
+                    <td><span class="page-link">${nav.destination}</span></td>
+                    <td>${nav.description}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterDictionary() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+
+            const filteredInventory = AIDictionary.inventory.filter(item => 
+                item.productName.toLowerCase().includes(query) ||
+                item.category.toLowerCase().includes(query) ||
+                item.description.toLowerCase().includes(query)
+            );
+
+            const filteredNav = AIDictionary.websiteNavigation.filter(nav =>
+                nav.element.toLowerCase().includes(query) ||
+                nav.destination.toLowerCase().includes(query) ||
+                nav.description.toLowerCase().includes(query)
+            );
+
+            renderInventory(filteredInventory);
+            renderNavigation(filteredNav);
+        }
+
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderInventory(AIDictionary.inventory);
+            renderNavigation(AIDictionary.websiteNavigation);
+            document.getElementById('jsonDisplay').textContent = JSON.stringify(AIDictionary, null, 4);
+        });
+    </script>
+</body>
+</html>
