@@ -124,7 +124,7 @@
         </div>
     </footer>
 
-    <!-- Smart Repository Engine Script with Improvised AI Phrasing -->
+    <!-- Smart Repository Engine Script with Confirmation Prompt on Delete -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -139,22 +139,11 @@
         let isAiSpeaking = false;
         let siteDictionary = null;
 
-        // Dynamic variations array for natural, improvised phrasing
         const phrasingVariations = {
             buy: [
                 "Purchasing items from our store is straightforward! First, head over to our store catalog, pick out whatever traditional organic goods you desire, and add them into your cart. Once you're ready, navigate to your cart to verify your selections and totals. At checkout, you can finalize your payment using either UPI or Cash on Delivery (COD).",
                 "Here is how you can place an order: browse through our product collection in the store, click add to cart on your favorite items, and open up your shopping cart to review everything. When you check out, you'll be able to complete your transaction via UPI or Cash on Delivery.",
                 "Getting your hands on our organic foods is simple! Just explore our product listings, add your chosen items to your cart, check your order summary in the cart page, and proceed with either UPI or Cash on Delivery at checkout."
-            ],
-            staff: [
-                "Looking to join our team? You can easily sign up as a new team member through our employee registration portal.",
-                "If you want to register as staff, we have a dedicated registration page ready for you.",
-                "You can submit your details to join our workforce right through our employee registration section."
-            ],
-            login: [
-                "Staff members can access their portal directly by heading to the login page.",
-                "If you're looking to sign in as staff, you can navigate straight to the staff login section.",
-                "Authorized personnel can log in securely through our staff portal."
             ],
             bank: [
                 "All our official bank routing and payment account details are conveniently listed on our dedicated bank information page.",
@@ -202,9 +191,12 @@
         }
 
         clearChatTopBtn.addEventListener('click', () => {
-            localStorage.removeItem('aria_chat_history');
-            chatLog.innerHTML = '';
-            appendMessage('Aria', "Chat history cleared successfully! How can I assist you today?", true);
+            const confirmed = confirm("Are you sure you want to delete the chat history?");
+            if (confirmed) {
+                localStorage.removeItem('aria_chat_history');
+                chatLog.innerHTML = '';
+                appendMessage('Aria', "Chat history cleared successfully! How can I assist you today?", true);
+            }
         });
 
         function appendMessage(sender, htmlContent, save = true) {
@@ -247,29 +239,14 @@
             }
         }
 
-        // Strict Code-Verified Intent Evaluator with Improvised AI Phrasing
         function evaluateLocalQuery(query) {
             const q = query.toLowerCase();
 
-            // 1. How to buy items / Order flow (mystore.html with improvised phrasing & single mystore button)
             if (q.includes('buy') || q.includes('purchase') || q.includes('how to order') || q.includes('checkout') || q.includes('payment') || q.includes('upi') || q.includes('cod')) {
                 const textBody = getRandomVariation('buy');
                 return `${textBody}<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
             }
 
-            // 2. Staff Registration
-            if (q.includes('staff') || q.includes('register') || q.includes('employee') || q.includes('career')) {
-                const textBody = getRandomVariation('staff');
-                return `${textBody}<br><a href="employeeregistration.html" class="chat-action-link">👉 Tap here for Employee Registration</a>`;
-            }
-
-            // 3. Staff Login
-            if (q.includes('login') || q.includes('signin') || q.includes('staff login')) {
-                const textBody = getRandomVariation('login');
-                return `${textBody}<br><a href="stafflogin.html" class="chat-action-link">👉 Tap here for Staff Login</a>`;
-            }
-
-            // 4. Specific Inventory Item Lookup from aidictionary.html
             if (siteDictionary && siteDictionary.inventory) {
                 const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
                 if (found) {
@@ -280,28 +257,23 @@
                 }
             }
 
-            // 5. General Store / Products browse query
             if (q.includes('store') || q.includes('shop') || q.includes('product') || q.includes('avalose') || q.includes('puttu')) {
                 return `We offer a wonderful selection of traditional organic foods, including Avalose Sweet, Avalose Milk, and Kattuyanam Puttu Flour. You can browse our complete collection here:<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
             }
 
-            // 6. Bank Details
             if (q.includes('bank') || q.includes('account')) {
                 const textBody = getRandomVariation('bank');
                 return `${textBody}<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
             }
 
-            // 7. About Us
             if (q.includes('about') || q.includes('who')) {
                 return `MY Food Products is dedicated to providing high-quality organic foods while directing our profits toward charity initiatives with Munchirai YMCA. Learn more about our story here:<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
             }
 
-            // 8. News & Updates
             if (q.includes('news') || q.includes('update')) {
                 return `Stay up to date with our latest announcements and community news by checking our updates page:<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
             }
 
-            // 9. Contact
             if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
                 return `You can reach our customer support team directly by calling <strong>+91-9943021998</strong> or visiting our contact page:<br><a href="contact.html" class="chat-action-link">📞 Go to Contact Page</a>`;
             }
@@ -319,7 +291,6 @@
                 return;
             }
 
-            // Improvised fallback reply
             const fallback = `I'd love to help you with that! You can explore our catalog or reach our customer support line at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
             appendMessage('Aria', fallback);
             speakAloud(fallback);
