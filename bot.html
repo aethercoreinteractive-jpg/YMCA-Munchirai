@@ -1,27 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MY Food Products - AI Assistant</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         @keyframes floatAnime {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-6px); }
         }
-        @keyframes animeBlink {
-            0%, 85%, 100% { transform: scaleY(1); }
-            90% { transform: scaleY(0.1); }
-        }
-        @keyframes animeTalk {
-            0%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(1.8); }
-        }
         .animate-float { animation: floatAnime 3s ease-in-out infinite; }
-        .anime-eyes { animation: animeBlink 4s infinite; transform-origin: center; }
-        .is-talking .anime-mouth { animation: animeTalk 0.2s ease-in-out infinite; }
         
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
@@ -33,9 +28,9 @@
             align-items: center;
             gap: 6px;
             margin-top: 6px;
-            background: rgba(6, 182, 212, 0.15);
-            border: 1px solid rgba(6, 182, 212, 0.4);
-            color: #22d3ee;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
             padding: 4px 10px;
             border-radius: 8px;
             font-size: 11px;
@@ -44,80 +39,68 @@
             transition: all 0.2s ease;
         }
         .chat-action-link:hover {
-            background: rgba(6, 182, 212, 0.3);
-            border-color: rgba(6, 182, 212, 0.8);
+            background: rgba(245, 158, 11, 0.3);
+            border-color: rgba(245, 158, 11, 0.8);
             transform: translateY(-1px);
         }
     </style>
 </head>
-<body class="bg-slate-950 text-white h-[100dvh] w-screen overflow-hidden flex flex-col justify-between select-none font-sans m-0 p-0 box-border">
+<body class="bg-slate-950 text-slate-100 h-[100dvh] w-screen overflow-hidden flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950 m-0 p-0 box-border">
 
-    <!-- Top Status Bar -->
-    <header class="w-full px-4 py-2.5 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0">
-        <span class="text-xs font-semibold tracking-wide text-cyan-400 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food AI Assistant
-        </span>
-        <button id="clear-chat-top" class="text-xs font-mono px-2.5 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-            Delete Chat
+    <!-- Fixed Header -->
+    <header class="w-full px-4 py-3 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0 shadow-lg">
+        <div class="flex items-center gap-2">
+            <div id="header-logo-container" class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-[10px] tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                <span id="header-logo-fallback">MY</span>
+            </div>
+            <span class="text-xs font-extrabold tracking-wide text-white flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food AI Assistant
+            </span>
+        </div>
+        <button id="clear-chat-top" class="text-xs font-bold px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm">
+            <i class="fa-solid fa-trash-can text-[11px]"></i> Delete Chat
         </button>
     </header>
 
     <!-- Main Chat Workspace -->
-    <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3">
-        <div id="chat-log" class="absolute inset-0 overflow-y-auto p-3 space-y-3 flex flex-col"></div>
+    <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3 max-w-3xl mx-auto">
+        <div id="chat-log" class="absolute inset-0 overflow-y-auto p-3 space-y-3 flex flex-col pb-24"></div>
     </main>
 
     <!-- Inbuilt Custom Confirmation Modal -->
     <div id="custom-confirm-modal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-4 text-center">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full shadow-2xl flex flex-col gap-4 text-center">
+            <div class="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto text-lg border border-red-100 shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
             <div class="flex flex-col gap-1">
-                <h3 class="text-sm font-semibold text-white">Delete Chat History</h3>
-                <p class="text-xs text-slate-400">Are you sure you want to delete all chat records?</p>
+                <h3 class="text-sm font-extrabold text-white">Delete Chat History</h3>
+                <p class="text-xs text-slate-400 font-light">Are you sure you want to delete all chat records?</p>
             </div>
-            <div class="flex gap-2">
-                <button id="confirm-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-medium transition-all">Cancel</button>
-                <button id="confirm-ok" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded-xl text-xs font-medium shadow-lg shadow-red-600/30 transition-all">Delete</button>
+            <div class="flex gap-2 pt-1">
+                <button id="confirm-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
+                <button id="confirm-ok" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-red-600/30 transition-all cursor-pointer">Delete</button>
             </div>
         </div>
     </div>
 
-    <!-- Companion Widget -->
-    <div id="companion" class="absolute bottom-28 right-4 cursor-grab active:cursor-grabbing z-50 animate-float flex flex-col items-center touch-none">
-        <div id="avatar-container" class="w-16 h-16 bg-gradient-to-b from-slate-900 to-indigo-950 rounded-2xl p-1 shadow-2xl shadow-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center relative overflow-hidden">
-            <svg viewBox="0 0 100 100" class="w-full h-full">
-                <path d="M20,40 Q50,15 80,40 Q90,70 85,90 Q50,95 15,90 Q10,70 20,40 Z" fill="#1e1b4b"/>
-                <path d="M28,35 Q50,25 72,35 Q80,60 72,82 Q50,90 28,82 Q20,60 28,35 Z" fill="#fed7aa"/>
-                <g class="anime-eyes">
-                    <ellipse cx="38" cy="55" rx="7" ry="9" fill="#0f172a"/>
-                    <ellipse cx="38" cy="56" rx="5" ry="7" fill="#0284c7"/>
-                    <circle cx="36" cy="53" r="2" fill="#ffffff"/>
-                </g>
-                <g class="anime-eyes">
-                    <ellipse cx="62" cy="55" rx="7" ry="9" fill="#0f172a"/>
-                    <ellipse cx="62" cy="56" rx="5" ry="7" fill="#0284c7"/>
-                    <circle cx="60" cy="53" r="2" fill="#ffffff"/>
-                </g>
-                <path d="M30,46 Q38,43 46,47" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <path d="M54,47 Q62,43 70,46" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <ellipse cx="32" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
-                <ellipse cx="68" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
-                <circle cx="50" cy="64" r="0.8" fill="#c2410c"/>
-                <path id="anime-mouth" class="anime-mouth" d="M45,72 Q50,76 55,72" stroke="#e11d48" stroke-width="2" fill="none" stroke-linecap="round" transform-origin="50 73"/>
-                <path d="M25,32 Q50,18 75,32 Q65,45 50,38 Q35,45 25,32 Z" fill="#312e81"/>
-                <path d="M35,35 Q50,50 42,32 Z" fill="#312e81"/>
-                <path d="M65,35 Q50,50 58,32 Z" fill="#312e81"/>
-            </svg>
+    <!-- Input Footer with Blubi Standing On Top -->
+    <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-20 shrink-0 shadow-lg relative">
+        
+        <!-- Blubi Avatar Standing Above Text Box -->
+        <div class="absolute -top-12 left-6 z-30 pointer-events-none flex items-center">
+            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-amber-400/80 bg-slate-900 shadow-lg shadow-amber-500/30 flex items-center justify-center bg-slate-950">
+                <img id="blubi-avatar" src="blubiani1.gif" alt="Blubi Avatar" class="w-full h-full object-cover">
+            </div>
         </div>
-    </div>
 
-    <!-- Input Footer -->
-    <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
-        <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Ask anything about MY Food Products..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-            <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
+        <form id="chat-form" class="flex gap-2 max-w-3xl w-full mx-auto relative pt-1">
+            <input type="text" id="user-input" placeholder="Ask anything about MY Food Products..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 transition shadow-inner">
+            <button type="submit" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition cursor-pointer flex items-center gap-1.5">
+                <span>Send</span> <i class="fa-solid fa-paper-plane text-[10px]"></i>
+            </button>
         </form>
-        <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
+        <div class="flex justify-between items-center text-[11px] text-slate-400 px-1 max-w-3xl w-full mx-auto font-medium">
             <span>Support: +91-9943021998</span>
             <span>MY Food Products</span>
         </div>
@@ -125,8 +108,6 @@
 
     <!-- Grok Natural Reasoning Engine Script -->
     <script>
-        const companion = document.getElementById('companion');
-        const avatarContainer = document.getElementById('avatar-container');
         const chatLog = document.getElementById('chat-log');
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
@@ -134,16 +115,48 @@
         const customConfirmModal = document.getElementById('custom-confirm-modal');
         const confirmOkBtn = document.getElementById('confirm-ok');
         const confirmCancelBtn = document.getElementById('confirm-cancel');
+        const blubiAvatar = document.getElementById('blubi-avatar');
 
         let recognition = null;
         let isAiSpeaking = false;
         let siteDictionary = null;
+        let idleInterval = null;
 
         const dynamicGreetings = [
             "What's up? Ready to explore MY Store or need help with something else?",
             "Hey there! What can I help you find today?",
             "Yo! Ask me anything about our organic products, staff applications, or store catalog."
         ];
+
+        // Blubi State Handlers
+        function setBlubiState(state) {
+            if (state === 'thinking') {
+                blubiAvatar.src = 'blubi thinking.gif';
+            } else if (state === 'speaking') {
+                blubiAvatar.src = 'blubi speaking.gif';
+            } else if (state === 'idle') {
+                const idleGifs = ['blubiani1.gif', 'blubiani2.gif'];
+                const randomGif = idleGifs[Math.floor(Math.random() * idleGifs.length)];
+                blubiAvatar.src = randomGif;
+            }
+        }
+
+        function startIdleLoop() {
+            if (idleInterval) clearInterval(idleInterval);
+            idleInterval = setInterval(() => {
+                if (!isAiSpeaking && !userInput.value.trim()) {
+                    setBlubiState('idle');
+                }
+            }, 6000);
+        }
+
+        userInput.addEventListener('input', () => {
+            if (userInput.value.trim().length > 0) {
+                setBlubiState('thinking');
+            } else {
+                setBlubiState('idle');
+            }
+        });
 
         async function loadDictionaryData() {
             try {
@@ -170,6 +183,8 @@
                 const randomGreeting = dynamicGreetings[Math.floor(Math.random() * dynamicGreetings.length)];
                 appendMessage('Aria', randomGreeting, false);
             }
+            setBlubiState('idle');
+            startIdleLoop();
         }
 
         function saveChatHistory() {
@@ -188,8 +203,8 @@
         function appendMessage(sender, htmlContent, save = true) {
             const msgDiv = document.createElement('div');
             const isUser = sender === 'You';
-            msgDiv.className = `p-3 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
-            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-1">${sender}</span><div>${htmlContent}</div>`;
+            msgDiv.className = `p-3.5 rounded-2xl max-w-[85%] text-xs shadow-sm ${isUser ? 'bg-amber-500/10 border border-amber-500/30 self-end text-amber-100 font-medium' : 'bg-slate-900 border border-slate-800 self-start text-slate-300'}`;
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-amber-400' : 'text-amber-500'} font-extrabold block mb-1 uppercase tracking-wider">${sender}</span><div class="leading-relaxed">${htmlContent}</div>`;
             chatLog.appendChild(msgDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
             if (save) saveChatHistory();
@@ -207,13 +222,13 @@
                 
                 utterance.onstart = () => {
                     isAiSpeaking = true;
+                    setBlubiState('speaking');
                     if (recognition) { try { recognition.stop(); } catch(e) {} }
-                    avatarContainer.classList.add('is-talking', 'border-red-400');
                 };
                 utterance.onend = () => {
-                    avatarContainer.classList.remove('is-talking', 'border-red-400');
+                    isAiSpeaking = false;
+                    setBlubiState('idle');
                     setTimeout(() => {
-                        isAiSpeaking = false;
                         if (recognition) { try { recognition.start(); } catch(e) {} }
                     }, 400);
                 };
@@ -225,7 +240,6 @@
         function evaluateQuery(query) {
             const q = query.toLowerCase().trim();
 
-            // Casual greetings
             if (['hi', 'hello', 'hey', 'sup', 'greetings', 'yo'].some(word => q === word || q.startsWith(word + ' '))) {
                 const randomHIs = [
                     "Hey! What's on your mind today?",
@@ -235,7 +249,6 @@
                 return randomHIs[Math.floor(Math.random() * randomHIs.length)];
             }
 
-            // Casual welfare / Small talk ("how are you", "who are you", "what are you doing")
             if (q.includes('how are you') || q.includes('how\'s it going') || q.includes('what\'s up')) {
                 const responses = [
                     "I'm doing great, fully online and keeping an eye on the store! What about you?",
@@ -249,55 +262,48 @@
                 return "I'm Aria, your digital assistant for MY Food Products. I'm here to help you navigate the store, check products, or get connected with our team.";
             }
 
-            // Staff / Job / Apply / Registration intent
             if (q.includes('staff') || q.includes('apply') || q.includes('job') || q.includes('hiring') || q.includes('career') || q.includes('register') || q.includes('join') || q.includes('work')) {
                 if (q.includes('login') || q.includes('signin')) {
-                    return `Need to sign into your staff account? Jump right in here:<br><a href="stafflogin.html" class="chat-action-link">🔑 Open Staff Login</a>`;
+                    return `Need to sign into your staff account? Jump right in here:<br><a href="stafflogin.html" class="chat-action-link"><i class="fa-solid fa-key"></i> Open Staff Login</a>`;
                 }
-                return `Want to join the team? You can submit your application right through our employee registration form.<br><a href="employeeregistration.html" class="chat-action-link">📝 Open Staff Registration Form</a>`;
+                return `Want to join the team? You can submit your application right through our employee registration form.<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Open Staff Registration Form</a>`;
             }
 
-            // Store / Shop / Product location intent
             if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('purchase') || q.includes('order') || q.includes('product') || q.includes('catalog') || q.includes('where')) {
-                return `You can explore our entire organic product lineup and place orders directly in MY Store:<br><a href="mystore.html" class="chat-action-link">🛍️ Open MY Store</a>`;
+                return `You can explore our entire organic product lineup and place orders directly in MY Store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
             }
 
-            // Dictionary item lookup from aidictionary.html
             if (siteDictionary && siteDictionary.inventory) {
                 const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
                 if (found) {
                     return `Found <strong>${found.productName}</strong> (${found.category}):<br>` +
                            `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(${found.offerPercentage}% off original ₹${found.originalPrice})` : ''} | Rating: ★${found.rating}/5<br>` +
                            `${found.description}<br>` +
-                           `<a href="mystore.html" class="chat-action-link">🛍️ Open MY Store</a>`;
+                           `<a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
                 }
             }
 
-            // Bank / Payment details
             if (q.includes('bank') || q.includes('account') || q.includes('payment') || q.includes('upi') || q.includes('cod')) {
-                return `All official bank account details and payment routing info are listed here:<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
+                return `All official bank account details and payment routing info are listed here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`;
             }
 
-            // About / Charity / YMCA
             if (q.includes('about') || q.includes('who') || q.includes('charity') || q.includes('munchirai') || q.includes('ymca')) {
-                return `MY Food Products is a commercial organic business directing its profits toward charity initiatives with Munchirai YMCA. Read more about our story:<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
+                return `MY Food Products is a commercial organic business directing its profits toward charity initiatives with Munchirai YMCA. Read more about our story:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`;
             }
 
-            // News & Updates
             if (q.includes('news') || q.includes('update') || q.includes('announcement')) {
-                return `Catch up on our latest announcements and community updates here:<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
+                return `Catch up on our latest announcements and community updates here:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`;
             }
 
-            // Contact / Support
             if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support') || q.includes('help')) {
-                return `You can reach out directly at <strong>+91-9943021998</strong> or visit our support page:<br><a href="contact.html" class="chat-action-link">📞 Contact Us</a>`;
+                return `You can reach out directly at <strong>+91-9943021998</strong> or visit our support page:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-phone"></i> Contact Us</a>`;
             }
 
-            // Conversational fallback instead of a robotic error
-            return `I'm tracking with you, but if you're looking to browse our items or check out the catalog, you can head straight over to the store:<br><a href="mystore.html" class="chat-action-link">🛍️ Open MY Store</a>`;
+            return `I'm tracking with you, but if you're looking to browse our items or check out the catalog, you can head straight over to the store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
         }
 
         async function handleUserQuery(promptText) {
+            setBlubiState('thinking');
             appendMessage('You', promptText);
             const reply = evaluateQuery(promptText);
             appendMessage('Aria', reply);
@@ -315,20 +321,31 @@
             if (SpeechRecognition) {
                 recognition = new SpeechRecognition();
                 recognition.continuous = true;
-                recognition.interimResults = false;
+                recognition.interimResults = true;
                 recognition.lang = 'en-US';
 
                 recognition.onresult = (event) => {
                     if (isAiSpeaking) return;
-                    const speechToText = event.results[event.results.length - 1][0].transcript.trim();
-                    if (speechToText) handleUserQuery(speechToText);
+                    let interim = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            const speechToText = event.results[i][0].transcript.trim();
+                            if (speechToText) handleUserQuery(speechToText);
+                        } else {
+                            interim += event.results[i][0].transcript;
+                        }
+                    }
+                    if (interim.trim()) {
+                        setBlubiState('thinking');
+                        userInput.value = interim;
+                    }
                 };
 
                 recognition.onerror = () => {
                     if (!isAiSpeaking) setTimeout(() => { try { recognition.start(); } catch(e){} }, 1000);
                 };
                 recognition.onend = () => {
-                    if (!isAiSpeaking) try { recognition.start(); } catch(e){}
+                    if (!isAiSpeaking && !isAiSpeaking) try { recognition.start(); } catch(e){}
                 };
                 try { recognition.start(); } catch(e){}
             }
@@ -341,27 +358,6 @@
             userInput.value = '';
             handleUserQuery(text);
         });
-
-        let startX, startY, initialX, initialY, isDragging = false;
-        companion.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            initialX = companion.offsetLeft;
-            initialY = companion.offsetTop;
-            companion.style.bottom = 'auto';
-            companion.style.right = 'auto';
-        }, { passive: true });
-
-        window.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            const dx = e.touches[0].clientX - startX;
-            const dy = e.touches[0].clientY - startY;
-            companion.style.left = `${Math.max(10, Math.min(window.innerWidth - 80, initialX + dx))}px`;
-            companion.style.top = `${Math.max(40, Math.min(window.innerHeight - 160, initialY + dy))}px`;
-        }, { passive: true });
-
-        window.addEventListener('touchend', () => { isDragging = false; });
     </script>
 </body>
 </html>
