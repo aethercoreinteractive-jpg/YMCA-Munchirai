@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MY Food Products - Customer Support</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes floatAnime {
@@ -27,6 +28,7 @@
 </head>
 <body class="bg-slate-950 text-white h-[100dvh] w-screen overflow-hidden flex flex-col justify-between select-none font-sans m-0 p-0 box-border">
 
+    <!-- Top Status Bar Branded for MY Food Products -->
     <header class="w-full px-4 py-2.5 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0">
         <span class="text-xs font-semibold tracking-wide text-cyan-400 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food Products Support
@@ -34,31 +36,47 @@
         <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Active</span>
     </header>
 
+    <!-- Main Workspace Area with Persistent Chat Log -->
     <main class="flex-1 flex flex-col justify-end p-3 relative overflow-hidden">
-        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-2 mb-2 pr-1 flex flex-col justify-end"></div>
+        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-2 mb-2 pr-1 flex flex-col justify-end">
+            <!-- Chat history will load here -->
+        </div>
     </main>
 
+    <!-- Floating Draggable Anime Companion Widget -->
     <div id="companion" class="absolute bottom-28 right-4 cursor-grab active:cursor-grabbing z-50 animate-float flex flex-col items-center touch-none">
+        
+        <!-- High-End Anime SVG Avatar Container -->
         <div id="avatar-container" class="w-16 h-16 bg-gradient-to-b from-slate-900 to-indigo-950 rounded-2xl p-1 shadow-2xl shadow-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center relative overflow-hidden">
+            
             <svg viewBox="0 0 100 100" class="w-full h-full">
+                <!-- Hair Background Base -->
                 <path d="M20,40 Q50,15 80,40 Q90,70 85,90 Q50,95 15,90 Q10,70 20,40 Z" fill="#1e1b4b"/>
+                <!-- Face Skin Tone -->
                 <path d="M28,35 Q50,25 72,35 Q80,60 72,82 Q50,90 28,82 Q20,60 28,35 Z" fill="#fed7aa"/>
+                <!-- Anime Eye Left -->
                 <g class="anime-eyes">
                     <ellipse cx="38" cy="55" rx="7" ry="9" fill="#0f172a"/>
                     <ellipse cx="38" cy="56" rx="5" ry="7" fill="#0284c7"/>
                     <circle cx="36" cy="53" r="2" fill="#ffffff"/>
                 </g>
+                <!-- Anime Eye Right -->
                 <g class="anime-eyes">
                     <ellipse cx="62" cy="55" rx="7" ry="9" fill="#0f172a"/>
                     <ellipse cx="62" cy="56" rx="5" ry="7" fill="#0284c7"/>
                     <circle cx="60" cy="53" r="2" fill="#ffffff"/>
                 </g>
+                <!-- Eyelashes / Eyebrows -->
                 <path d="M30,46 Q38,43 46,47" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
                 <path d="M54,47 Q62,43 70,46" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <!-- Blush -->
                 <ellipse cx="32" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
                 <ellipse cx="68" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
+                <!-- Nose -->
                 <circle cx="50" cy="64" r="0.8" fill="#c2410c"/>
+                <!-- Mouth -->
                 <path id="anime-mouth" class="anime-mouth" d="M45,72 Q50,76 55,72" stroke="#e11d48" stroke-width="2" fill="none" stroke-linecap="round" transform-origin="50 73"/>
+                <!-- Front Bangs -->
                 <path d="M25,32 Q50,18 75,32 Q65,45 50,38 Q35,45 25,32 Z" fill="#312e81"/>
                 <path d="M35,35 Q50,50 42,32 Z" fill="#312e81"/>
                 <path d="M65,35 Q50,50 58,32 Z" fill="#312e81"/>
@@ -66,9 +84,10 @@
         </div>
     </div>
 
+    <!-- Bottom Controls & Text Input Footer -->
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Say hi or ask anything..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="user-input" placeholder="Type your doubt or question..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
         </form>
         <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
@@ -77,6 +96,7 @@
         </div>
     </footer>
 
+    <!-- Script with Persistent Storage & No Expiry -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -89,83 +109,43 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let repositoryKnowledge = "";
-        let messageHistory = [];
 
-        async function fetchAllWebsitePages() {
-            let combinedContent = "";
-            const targetFiles = [
-                'index.html',
-                'mystore.html',
-                'aboutus.html',
-                'bankdetails.html',
-                'contact.html',
-                'employeeregistration.html',
-                'employeeregistrationtermsandconditions.html',
-                'news.html',
-                'privacypolicy.html',
-                'scaledup.html',
-                'termsofservice.html',
-                'aidictionary.html'
-            ];
-
-            for (const file of targetFiles) {
-                try {
-                    const response = await fetch(file);
-                    if (response.ok) {
-                        const htmlText = await response.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(htmlText, 'text/html');
-                        combinedContent += `\n\n--- FILE: ${file} ---\n` + doc.body.innerText.replace(/\s+/g, ' ');
-                    }
-                } catch (e) {}
-            }
-            repositoryKnowledge = combinedContent;
-        }
-
-        function cleanDisplayContent(text) {
-            if (!text) return "";
-            let sanitized = text.replace(/[^a-zA-Z0-9\s.,?!+\-]/g, ' ');
-            return sanitized.replace(/\s+/g, ' ').trim();
-        }
-
-        async function loadChatHistory() {
+        // Load chat history from localStorage on startup
+        function loadChatHistory() {
             const savedHistory = localStorage.getItem('aria_chat_history');
             if (savedHistory) {
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                await callGroq("Give a brand new, completely random, friendly welcome greeting to the customer for MY Food Products.", true);
+                appendMessage('Aria', "Welcome to MY Food Products! How can I help you with our organic products or support today?", false);
             }
         }
 
+        // Save chat history to localStorage
         function saveChatHistory() {
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
 
-        clearChatBtn.addEventListener('click', async () => {
+        clearChatBtn.addEventListener('click', () => {
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            messageHistory = [];
-            await callGroq("Give a fresh random greeting to start over.", true);
+            appendMessage('Aria', "Chat history cleared. How can I help you today?", true);
         });
 
-        function appendMessage(sender, text, speak = true, save = true) {
-            const isUser = sender === 'You';
-            let formattedText = isUser ? text.replace(/</g, "&lt;").replace(/>/g, "&gt;") : cleanDisplayContent(text);
-            let speechText = cleanDisplayContent(text);
-
+        // Add message to persistent chat log & save state
+        function appendMessage(sender, text, save = true) {
             const msgDiv = document.createElement('div');
+            const isUser = sender === 'You';
             msgDiv.className = `p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
-            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${formattedText}`;
-            
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${text}`;
             chatLog.appendChild(msgDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
-            
-            if (save) saveChatHistory();
-            if (speak && !isUser) speakAloud(speechText);
+            if (save) {
+                saveChatHistory();
+            }
         }
 
+        // Text-to-Speech Speaker Engine & Mouth Animation
         function speakAloud(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -176,14 +156,18 @@
                 
                 utterance.onstart = () => {
                     isAiSpeaking = true;
-                    if (recognition) { try { recognition.stop(); } catch(e) {} }
+                    if (recognition) {
+                        try { recognition.stop(); } catch(e) {}
+                    }
                     avatarContainer.classList.add('is-talking', 'border-red-400');
                 };
                 utterance.onend = () => {
                     avatarContainer.classList.remove('is-talking', 'border-red-400');
                     setTimeout(() => {
                         isAiSpeaking = false;
-                        if (recognition) { try { recognition.start(); } catch(e) {} }
+                        if (recognition) {
+                            try { recognition.start(); } catch(e) {}
+                        }
                     }, 500);
                 };
 
@@ -191,11 +175,9 @@
             }
         }
 
-        async function callGroq(promptText, isSystemTrigger = false) {
-            if (!isSystemTrigger) {
-                appendMessage('You', promptText, false, true);
-                messageHistory.push({ role: "user", content: promptText });
-            }
+        // Fast Groq API Connection Function
+        async function callGroq(promptText) {
+            appendMessage('You', promptText);
 
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -205,16 +187,16 @@
                         "Authorization": `Bearer ${GROQ_API_KEY}`
                     },
                     body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        temperature: 0.9,
+                        model: "openai/gpt-oss-20b",
                         messages: [
                             {
                                 role: "system",
-                                content: `You are Aria, a friendly human-like assistant for MY Food Products. You analyze all website files and aidictionary.html data provided below to answer questions:
-                                ${repositoryKnowledge}
-                                Be dynamic, conversational, and avoid repeating the same canned phrases.`
+                                content: "You are Aria, the official, professional yet warm customer service and sales assistant for MY Food Products. Your job is to help customers solve doubts, navigate organic products, explain order details, and guide them smoothly. Key Business Facts to remember: 1) We deliver all over India. 2) Free delivery is available, though it is subject to change based on the customer's exact location. 3) All payment methods are accepted. 4) MY Food Products is an organic food business that directs its profits toward charity initiatives run by Munchirai YMCA. 5) If a customer has a complex issue, complaint, or bulk order inquiry, direct them immediately to our dedicated support line at +91-9943021998 or point them to our store page at mystore.html. Keep your answers clear, concise, helpful, and friendly so they sound natural when spoken aloud."
                             },
-                            ...(isSystemTrigger ? [{ role: "user", content: promptText }] : messageHistory)
+                            {
+                                role: "user",
+                                content: promptText
+                            }
                         ]
                     })
                 });
@@ -222,25 +204,28 @@
                 const data = await response.json();
                 if (data.choices && data.choices[0].message.content) {
                     const aiReply = data.choices[0].message.content.trim();
-                    if (!isSystemTrigger) {
-                        messageHistory.push({ role: "assistant", content: aiReply });
-                    }
-                    appendMessage('Aria', aiReply, true, true);
+                    appendMessage('Aria', aiReply);
+                    speakAloud(aiReply);
                 } else {
-                    appendMessage('Aria', "Hey! How can I assist you right now?", true, true);
+                    const errorMsg = data.error?.message || "Oops, having a little trouble connecting right now! You can contact us directly at +91-9943021998.";
+                    appendMessage('Aria', errorMsg);
+                    speakAloud(errorMsg);
                 }
             } catch (err) {
                 console.error(err);
-                appendMessage('Aria', "Hello there! What would you like to check out today?", true, true);
+                const netMsg = "Ah, network glitch on my end! Please reach us at +91-9943021998.";
+                appendMessage('Aria', netMsg);
+                speakAloud(netMsg);
             }
         }
 
-        window.addEventListener('load', async () => {
-            await fetchAllWebsitePages();
-            await loadChatHistory();
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            loadChatHistory();
             startContinuousListening();
         });
 
+        // Always-On Voice Detection with Self-Speech Protection
         function startContinuousListening() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (SpeechRecognition) {
@@ -271,15 +256,19 @@
             }
         }
 
+        // Handle Text Box Form Submission
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const text = userInput.value.trim();
             if(!text) return;
             userInput.value = '';
+            
             callGroq(text);
         });
 
+        // Mobile Touch & Drag Logic
         let startX, startY, initialX, initialY, isDragging = false;
+
         companion.addEventListener('touchstart', (e) => {
             isDragging = true;
             startX = e.touches[0].clientX;
