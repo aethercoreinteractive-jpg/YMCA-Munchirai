@@ -138,7 +138,7 @@
         </div>
     </footer>
 
-    <!-- Smart Repository Engine Script with Custom Inbuilt Floating Confirmation -->
+    <!-- Smart Repository Engine Script -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -161,6 +161,11 @@
                 "Purchasing items from our store is straightforward! First, head over to our store catalog, pick out whatever traditional organic goods you desire, and add them into your cart. Once you're ready, navigate to your cart to verify your selections and totals. At checkout, you can finalize your payment using either UPI or Cash on Delivery (COD).",
                 "Here is how you can place an order: browse through our product collection in the store, click add to cart on your favorite items, and open up your shopping cart to review everything. When you check out, you'll be able to complete your transaction via UPI or Cash on Delivery.",
                 "Getting your hands on our organic foods is simple! Just explore our product listings, add your chosen items to your cart, check your order summary in the cart page, and proceed with either UPI or Cash on Delivery at checkout."
+            ],
+            staffApply: [
+                "If you would like to apply and join our team, you can submit your details directly through our employee registration form.",
+                "To apply for a position with us, please fill out our staff registration form to get started.",
+                "Interested in working with us? You can submit your application right through our employee registration portal."
             ],
             bank: [
                 "All our official bank routing and payment account details are conveniently listed on our dedicated bank information page.",
@@ -207,7 +212,6 @@
             localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
 
-        // Custom Inbuilt Floating Confirmation Handlers
         clearChatTopBtn.addEventListener('click', () => {
             customConfirmModal.classList.remove('hidden');
         });
@@ -266,11 +270,24 @@
         function evaluateLocalQuery(query) {
             const q = query.toLowerCase();
 
+            // How to buy items -> mystore.html only
             if (q.includes('buy') || q.includes('purchase') || q.includes('how to order') || q.includes('checkout') || q.includes('payment') || q.includes('upi') || q.includes('cod')) {
                 const textBody = getRandomVariation('buy');
                 return `${textBody}<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
             }
 
+            // How to apply as staff -> employee registration form (`employeeregistration.html`)
+            if (q.includes('apply') || q.includes('staff apply') || q.includes('register') || q.includes('job') || q.includes('career') || q.includes('hiring')) {
+                const textBody = getRandomVariation('staffApply');
+                return `${textBody}<br><a href="employeeregistration.html" class="chat-action-link">📝 Open Staff Registration Form</a>`;
+            }
+
+            // Staff Login
+            if (q.includes('login') || q.includes('signin') || q.includes('staff login')) {
+                return `Staff members can log in directly through our portal:<br><a href="stafflogin.html" class="chat-action-link">🔑 Open Staff Login</a>`;
+            }
+
+            // Specific Inventory Item Lookup from aidictionary.html
             if (siteDictionary && siteDictionary.inventory) {
                 const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
                 if (found) {
@@ -281,23 +298,28 @@
                 }
             }
 
+            // General Store / Products browse query
             if (q.includes('store') || q.includes('shop') || q.includes('product') || q.includes('avalose') || q.includes('puttu')) {
                 return `We offer a wonderful selection of traditional organic foods, including Avalose Sweet, Avalose Milk, and Kattuyanam Puttu Flour. You can browse our complete collection here:<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
             }
 
+            // Bank Details
             if (q.includes('bank') || q.includes('account')) {
                 const textBody = getRandomVariation('bank');
                 return `${textBody}<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
             }
 
+            // About Us
             if (q.includes('about') || q.includes('who')) {
                 return `MY Food Products is dedicated to providing high-quality organic foods while directing our profits toward charity initiatives with Munchirai YMCA. Learn more about our story here:<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
             }
 
+            // News & Updates
             if (q.includes('news') || q.includes('update')) {
                 return `Stay up to date with our latest announcements and community news by checking our updates page:<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
             }
 
+            // Contact
             if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
                 return `You can reach our customer support team directly by calling <strong>+91-9943021998</strong> or visiting our contact page:<br><a href="contact.html" class="chat-action-link">📞 Go to Contact Page</a>`;
             }
