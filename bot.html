@@ -123,7 +123,7 @@
         </div>
     </footer>
 
-    <!-- Grok-Logic Neural Engine Script -->
+    <!-- Grok Natural Reasoning Engine Script -->
     <script>
         const companion = document.getElementById('companion');
         const avatarContainer = document.getElementById('avatar-container');
@@ -138,6 +138,12 @@
         let recognition = null;
         let isAiSpeaking = false;
         let siteDictionary = null;
+
+        const dynamicGreetings = [
+            "What's up? Ready to explore MY Store or need help with something else?",
+            "Hey there! What can I help you find today?",
+            "Yo! Ask me anything about our organic products, staff applications, or store catalog."
+        ];
 
         async function loadDictionaryData() {
             try {
@@ -161,7 +167,8 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hey! I'm Aria, your intelligent guide for MY Food Products. What do you need help with?", false);
+                const randomGreeting = dynamicGreetings[Math.floor(Math.random() * dynamicGreetings.length)];
+                appendMessage('Aria', randomGreeting, false);
             }
         }
 
@@ -175,7 +182,7 @@
             customConfirmModal.classList.add('hidden');
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Chat history wiped clean. What's next?", true);
+            appendMessage('Aria', "Wiped the slate clean. What's next?", true);
         });
 
         function appendMessage(sender, htmlContent, save = true) {
@@ -214,61 +221,71 @@
             }
         }
 
-        // Grok-like Dynamic Intelligence Engine: Direct Context Analysis
-        function evaluateNeuralQuery(query) {
-            const q = query.toLowerCase();
+        // Natural Intent Matching Engine
+        function evaluateQuery(query) {
+            const q = query.toLowerCase().trim();
 
-            // 1. Staff Application / Hiring / Job
-            if (q.includes('staff') || q.includes('apply') || q.includes('job') || q.includes('hiring') || q.includes('career') || q.includes('register') || q.includes('join')) {
+            // Casual greetings with varied responses
+            if (q === 'hi' || q === 'hello' || q === 'hey' || q === 'sup' || q === 'greetings') {
+                const randomHIs = [
+                    "Hey! What's on your mind today?",
+                    "Hello there! Looking to browse MY Store or check out something specific?",
+                    "Hey! How can I help you navigate MY Food Products today?"
+                ];
+                return randomHIs[Math.floor(Math.random() * randomHIs.length)];
+            }
+
+            // Staff / Job / Apply / Registration intent (flexible matching for any phrasing)
+            if (q.includes('staff') || q.includes('apply') || q.includes('job') || q.includes('hiring') || q.includes('career') || q.includes('register') || q.includes('join') || q.includes('work')) {
                 if (q.includes('login') || q.includes('signin')) {
-                    return `Looking to log into your staff portal? Access it directly here:<br><a href="stafflogin.html" class="chat-action-link">🔑 Open Staff Login</a>`;
+                    return `Need to sign into your staff account? Jump right in here:<br><a href="stafflogin.html" class="chat-action-link">🔑 Open Staff Login</a>`;
                 }
-                return `Want to join our team? You can submit your application right through our staff registration portal.<br><a href="employeeregistration.html" class="chat-action-link">📝 Open Staff Registration Form</a>`;
+                return `Want to join the team? You can submit your application right through our employee registration form.<br><a href="employeeregistration.html" class="chat-action-link">📝 Open Staff Registration Form</a>`;
             }
 
-            // 2. Buying / Purchasing / Order / Payment
-            if (q.includes('buy') || q.includes('purchase') || q.includes('order') || q.includes('checkout') || q.includes('cart') || q.includes('pay') || q.includes('upi') || q.includes('cod')) {
-                return `You can explore our store catalog, add items to your cart, and check out securely using UPI or Cash on Delivery.<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
+            // Store / Shop / Product location intent
+            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('purchase') || q.includes('order') || q.includes('product') || q.includes('catalog') || q.includes('where')) {
+                return `You can explore our entire organic product lineup and place orders directly in MY Store:<br><a href="mystore.html" class="chat-action-link">🛍️ Open MY Store</a>`;
             }
 
-            // 3. Inventory Dictionary Match
+            // Dictionary item lookup from aidictionary.html
             if (siteDictionary && siteDictionary.inventory) {
                 const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
                 if (found) {
-                    return `Found matching product: <strong>${found.productName}</strong> (${found.category}).<br>` +
-                           `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(Discounted from ₹${found.originalPrice},${found.offerPercentage}% off)` : ''} | Rating: ★${found.rating}/5<br>` +
+                    return `Found <strong>${found.productName}</strong> (${found.category}):<br>` +
+                           `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(${found.offerPercentage}% off original ₹${found.originalPrice})` : ''} | Rating: ★${found.rating}/5<br>` +
                            `${found.description}<br>` +
-                           `<a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
+                           `<a href="mystore.html" class="chat-action-link">🛍️ Open MY Store</a>`;
                 }
             }
 
-            // 4. Bank / Account / Transfer Details
-            if (q.includes('bank') || q.includes('account') || q.includes('ifsc') || q.includes('branch')) {
-                return `All official bank account and routing details are listed on our dedicated payment page.<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
+            // Bank / Payment details
+            if (q.includes('bank') || q.includes('account') || q.includes('payment') || q.includes('upi') || q.includes('cod')) {
+                return `All official bank account details and payment routing info are listed here:<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
             }
 
-            // 5. About / Charity / YMCA
+            // About / Charity / YMCA
             if (q.includes('about') || q.includes('who') || q.includes('charity') || q.includes('munchirai') || q.includes('ymca')) {
-                return `MY Food Products is a commercial organic business that directs its profits toward charity initiatives with Munchirai YMCA. Learn more about us:<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
+                return `MY Food Products is a commercial organic business directing its profits toward charity initiatives with Munchirai YMCA. Read more about our story:<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
             }
 
-            // 6. News & Announcements
+            // News & Updates
             if (q.includes('news') || q.includes('update') || q.includes('announcement')) {
-                return `Check out our latest news and community updates here:<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
+                return `Catch up on our latest announcements and community updates here:<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
             }
 
-            // 7. Contact / Phone Support
+            // Contact / Support
             if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support') || q.includes('help')) {
-                return `You can reach our team directly at <strong>+91-9943021998</strong> or visit our support page:<br><a href="contact.html" class="chat-action-link">📞 Contact Us</a>`;
+                return `You can reach out directly at <strong>+91-9943021998</strong> or visit our support page:<br><a href="contact.html" class="chat-action-link">📞 Contact Us</a>`;
             }
 
-            // Dynamic Fallback with Intent Guidance
-            return `I analyzed your request against all repository records. You can browse our store catalog or contact our support line at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
+            // Natural conversational fallback
+            return `I'm not entirely sure about that specific detail, but you can browse our catalog or call support at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️️ Open MY Store</a>`;
         }
 
         async function handleUserQuery(promptText) {
             appendMessage('You', promptText);
-            const reply = evaluateNeuralQuery(promptText);
+            const reply = evaluateQuery(promptText);
             appendMessage('Aria', reply);
             speakAloud(reply);
         }
@@ -333,4 +350,5 @@
         window.addEventListener('touchend', () => { isDragging = false; });
     </script>
 </body>
-</html>
+                    </html>
+                    
