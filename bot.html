@@ -22,8 +22,12 @@
         .animate-float { animation: floatAnime 3s ease-in-out infinite; }
         .anime-eyes { animation: animeBlink 4s infinite; transform-origin: center; }
         .is-talking .anime-mouth { animation: animeTalk 0.2s ease-in-out infinite; }
-        ::-webkit-scrollbar { width: 4px; }
+        
+        /* Smooth Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
         
         /* Chat bubble interactive link styling */
         .chat-action-link {
@@ -58,9 +62,10 @@
         <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Online</span>
     </header>
 
-    <!-- Main Workspace Area with Persistent Chat Log -->
-    <main class="flex-1 flex flex-col justify-end p-3 relative overflow-hidden">
-        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-3 mb-2 pr-1 flex flex-col justify-end">
+    <!-- Main Workspace Area with Fully Scrollable Chat Log Container -->
+    <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3">
+        <!-- Scrollable Chat Wrapper (Allows scrolling up to check past history and down for new messages) -->
+        <div id="chat-log" class="absolute inset-0 overflow-y-auto p-3 space-y-3 flex flex-col">
             <!-- Chat history will load here -->
         </div>
     </main>
@@ -130,9 +135,8 @@
 
         let recognition = null;
         let isAiSpeaking = false;
-        let siteDictionary = null; // Will cache aidictionary.html data
+        let siteDictionary = null;
 
-        // Load site dictionary configuration dynamically on boot
         async function loadDictionaryData() {
             try {
                 const response = await fetch('aidictionary.html');
@@ -140,10 +144,8 @@
                     const text = await response.text();
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(text, 'text/html');
-                    // Extract script text containing AIDictionary object if available, or parse text elements
                     const scriptTag = doc.querySelector('script');
                     if (scriptTag && scriptTag.textContent.includes('AIDictionary')) {
-                        // Safely evaluate or extract dictionary data object
                         const evalScript = new Function(scriptTag.textContent + '; return AIDictionary;');
                         siteDictionary = evalScript();
                     }
@@ -153,7 +155,6 @@
             }
         }
 
-        // Load chat history from localStorage on startup
         function loadChatHistory() {
             const savedHistory = localStorage.getItem('aria_chat_history');
             if (savedHistory) {
@@ -174,7 +175,6 @@
             appendMessage('Aria', "Chat history cleared. How can I help you navigate today?", true);
         });
 
-        // Append message with support for direct interactive action links
         function appendMessage(sender, htmlContent, save = true) {
             const msgDiv = document.createElement('div');
             const isUser = sender === 'You';
@@ -187,11 +187,9 @@
             }
         }
 
-        // Text-to-Speech Engine
         function speakAloud(textClean) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                // Strip HTML tags for clean speech synthesis
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = textClean;
                 const plainText = tempDiv.textContent || tempDiv.innerText || "";
@@ -217,24 +215,19 @@
             }
         }
 
-        // Smart Local Intent Engine using Dictionary Data
         function evaluateLocalQuery(query) {
             const q = query.toLowerCase();
             if (!siteDictionary) return null;
 
-            // 1. Check Staff / Employee Registration
             if (q.includes('staff') || q.includes('register') || q.includes('employee') || q.includes('career')) {
                 return `You can register as new staff via our career opportunities section. Tap the button below to go straight to the registration page:<br><a href="employeeregistration.html" class="chat-action-link">👉 Tap here for Employee Registration</a>`;
             }
 
-            // 2. Check Staff Login
             if (q.includes('login') || q.includes('signin') || q.includes('staff login')) {
                 return `Staff members can log in through the navigation panel option.<br><a href="stafflogin.html" class="chat-action-link">👉 Tap here for Staff Login</a>`;
             }
 
-            // 3. Store / Shop / Products
             if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('product') || q.includes('avalose') || q.includes('puttu')) {
-                // If asking about a specific product match
                 if (siteDictionary.inventory) {
                     const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
                     if (found) {
@@ -244,22 +237,18 @@
                 return `You can browse all our organic items and make purchases in our store.<br><a href="mystore.html" class="chat-action-link">🛍️ Go to My Store</a>`;
             }
 
-            // 4. Bank Details / Payment
             if (q.includes('bank') || q.includes('payment') || q.includes('pay') || q.includes('account')) {
                 return `All bank account and payment details are available on our dedicated information page.<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
             }
 
-            // 5. About Us / Page details
             if (q.includes('about') || q.includes('who') || q.includes('mission')) {
                 return `Learn more about our organization, organic values, and charity mission with Munchirai YMCA.<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
             }
 
-            // 6. News / Updates
             if (q.includes('news') || q.includes('update')) {
                 return `Check out our latest announcements and updates.<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
             }
 
-            // 7. Contact
             if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
                 return `You can reach our primary customer support line directly at <strong>+91-9943021998</strong> or visit our contact page.<br><a href="contact.html" class="chat-action-link">📞 Go to Contact Page</a>`;
             }
@@ -267,11 +256,9 @@
             return null;
         }
 
-        // Master Handler
         async function handleUserQuery(promptText) {
             appendMessage('You', promptText);
 
-            // Step 1: Check Local Dictionary Matrix for precise navigation & inventory routing
             const localReply = evaluateLocalQuery(promptText);
             if (localReply) {
                 appendMessage('Aria', localReply);
@@ -279,7 +266,6 @@
                 return;
             }
 
-            // Step 2: Fallback to Groq API for general organic food queries / improvisation
             try {
                 const response = "https://api.groq.com/openai/v1/chat/completions";
                 const res = await fetch(response, {
@@ -303,7 +289,6 @@
                 const data = await res.json();
                 if (data.choices && data.choices[0].message.content) {
                     let aiReply = data.choices[0].message.content.trim();
-                    // Append direct store link context if text mentions store
                     if (aiReply.toLowerCase().includes('store') || aiReply.toLowerCase().includes('shop')) {
                         aiReply += `<br><a href="mystore.html" class="chat-action-link">🛍️ Visit My Store Now</a>`;
                     }
@@ -321,14 +306,12 @@
             }
         }
 
-        // Initialization
         window.addEventListener('load', async () => {
             await loadDictionaryData();
             loadChatHistory();
             startContinuousListening();
         });
 
-        // Voice Recognition Support
         function startContinuousListening() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (SpeechRecognition) {
@@ -361,7 +344,6 @@
             handleUserQuery(text);
         });
 
-        // Touch & Drag Companion Widget
         let startX, startY, initialX, initialY, isDragging = false;
         companion.addEventListener('touchstart', (e) => {
             isDragging = true;
