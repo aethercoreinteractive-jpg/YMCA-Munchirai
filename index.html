@@ -159,17 +159,19 @@
         </div>
     </section>
 
-    <!-- 16:9 Ratio Automatic & Swipable Heroic Banners Section -->
-    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div id="heroic-slider-wrapper" class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-lg bg-slate-900 group touch-pan-y cursor-grab active:cursor-grabbing select-none">
-            <div id="heroic-slider-track" class="flex h-full transition-transform duration-300 ease-out pointer-events-none">
-                <div class="min-w-full h-full relative shrink-0 flex items-center justify-center text-slate-400 text-xs bg-slate-900">
-                    Loading banners...
+    <!-- 16:9 Ratio Automatic & Swipable Heroic Banners Section (Full width on mobile, boxed with rounded corners on desktop) -->
+    <section class="w-full py-6">
+        <div class="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8">
+            <div id="heroic-slider-wrapper" class="relative w-full aspect-[16/9] sm:rounded-2xl overflow-hidden shadow-lg bg-slate-900 group touch-pan-y cursor-grab active:cursor-grabbing select-none">
+                <div id="heroic-slider-track" class="flex h-full transition-transform duration-300 ease-out pointer-events-none">
+                    <div class="min-w-full h-full relative shrink-0 flex items-center justify-center text-slate-400 text-xs bg-slate-900">
+                        Loading banners...
+                    </div>
                 </div>
-            </div>
 
-            <!-- Very small banner dots centered at the bottom -->
-            <div id="preview-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10">
+                <!-- Very small banner dots centered at the bottom -->
+                <div id="preview-dots-container" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur px-2.5 py-1 rounded-full border border-white/10">
+                </div>
             </div>
         </div>
     </section>
@@ -268,7 +270,7 @@
         </a>
     </div>
 
-       <!-- Firebase Initialization & Real-Time Database Engine -->
+  <!-- Firebase Initialization & Real-Time Database Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
