@@ -2,432 +2,288 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Knowledge Base & Navigation Dictionary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MY Food Products - Customer Support</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #d97706;
-            --primary-light: #fef3c7;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --border: #e2e8f0;
+        @keyframes floatAnime {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        @keyframes animeBlink {
+            0%, 85%, 100% { transform: scaleY(1); }
+            90% { transform: scaleY(0.1); }
         }
-
-        body {
-            background-color: #f1f5f9;
-            color: var(--dark);
-            padding: 20px;
+        @keyframes animeTalk {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.8); }
         }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        header {
-            background-color: #ffffff;
-            padding: 20px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        h1 {
-            color: #b45309;
-            font-size: 1.6rem;
-        }
-
-        .search-box {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-size: 0.95rem;
-            outline: none;
-        }
-
-        .search-box input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2);
-        }
-
-        .section-title {
-            font-size: 1.3rem;
-            margin: 25px 0 15px 0;
-            color: #334155;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .badge {
-            display: inline-block;
-            background: var(--primary-light);
-            color: #b45309;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .card h3 {
-            margin-bottom: 8px;
-            color: #0f172a;
-        }
-
-        .rating {
-            color: #f59e0b;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .price-tag {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #15803d;
-            margin-bottom: 10px;
-        }
-
-        .price-tag .original {
-            text-decoration: line-through;
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-right: 5px;
-        }
-
-        .price-tag .discount {
-            color: #dc2626;
-            font-size: 0.85rem;
-            margin-left: 5px;
-        }
-
-        .meta {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-bottom: 10px;
-        }
-
-        .description {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: #475569;
-        }
-
-        /* Navigation Dictionary Styles */
-        .nav-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-top: 10px;
-        }
-
-        .nav-table th, .nav-table td {
-            padding: 12px 18px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .nav-table th {
-            background-color: #f8fafc;
-            color: #475569;
-            font-weight: 600;
-        }
-
-        .nav-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .page-link {
-            font-family: monospace;
-            background: #f1f5f9;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #2563eb;
-            font-weight: bold;
-        }
-
-        .raw-json-container {
-            margin-top: 40px;
-            background: #0f172a;
-            color: #38bdf8;
-            padding: 20px;
-            border-radius: 12px;
-            overflow-x: auto;
-        }
-
-        .raw-json-container h2 {
-            color: #ffffff;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-
-        pre {
-            font-family: monospace;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
+        .animate-float { animation: floatAnime 3s ease-in-out infinite; }
+        .anime-eyes { animation: animeBlink 4s infinite; transform-origin: center; }
+        .is-talking .anime-mouth { animation: animeTalk 0.2s ease-in-out infinite; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body>
+<body class="bg-slate-950 text-white h-[100dvh] w-screen overflow-hidden flex flex-col justify-between select-none font-sans m-0 p-0 box-border">
 
-    <div class="container">
-        <header>
-            <div>
-                <h1>🤖 AI Dictionary & Knowledge Base</h1>
-                <p style="color: #64748b; font-size: 0.9rem;">My Food - Inventory & Website Routing Reference</p>
-            </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" onkeyup="filterDictionary()" placeholder="Search products, links, or navigation...">
-            </div>
-        </header>
+    <!-- Top Status Bar Branded for MY Food Products -->
+    <header class="w-full px-4 py-2.5 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex justify-between items-center z-10 shrink-0">
+        <span class="text-xs font-semibold tracking-wide text-cyan-400 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food Products Support
+        </span>
+        <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Active</span>
+    </header>
 
-        <!-- Product Inventory Section -->
-        <h2 class="section-title">📦 Product Inventory Dictionary</h2>
-        <div class="grid" id="inventoryGrid"></div>
+    <!-- Main Workspace Area with Persistent Chat Log -->
+    <main class="flex-1 flex flex-col justify-end p-3 relative overflow-hidden">
+        <div id="chat-log" class="w-full flex-1 overflow-y-auto space-y-2 mb-2 pr-1 flex flex-col justify-end">
+            <!-- Chat history will load here -->
+        </div>
+    </main>
 
-        <!-- Navigation Map Section -->
-        <h2 class="section-title">🧭 Website Navigation & Layout Dictionary</h2>
-        <table class="nav-table">
-            <thead>
-                <tr>
-                    <th>Location / Element</th>
-                    <th>Destination Page</th>
-                    <th>Action / Description</th>
-                </tr>
-            </thead>
-            <tbody id="navigationTable"></tbody>
-        </table>
-
-        <!-- JSON Object Display -->
-        <div class="raw-json-container">
-            <h2>📄 Raw JavaScript Dictionary Object (`window.AIDictionary`)</h2>
-            <pre id="jsonDisplay"></pre>
+    <!-- Floating Draggable Anime Companion Widget -->
+    <div id="companion" class="absolute bottom-28 right-4 cursor-grab active:cursor-grabbing z-50 animate-float flex flex-col items-center touch-none">
+        
+        <!-- High-End Anime SVG Avatar Container -->
+        <div id="avatar-container" class="w-16 h-16 bg-gradient-to-b from-slate-900 to-indigo-950 rounded-2xl p-1 shadow-2xl shadow-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center relative overflow-hidden">
+            
+            <svg viewBox="0 0 100 100" class="w-full h-full">
+                <!-- Hair Background Base -->
+                <path d="M20,40 Q50,15 80,40 Q90,70 85,90 Q50,95 15,90 Q10,70 20,40 Z" fill="#1e1b4b"/>
+                <!-- Face Skin Tone -->
+                <path d="M28,35 Q50,25 72,35 Q80,60 72,82 Q50,90 28,82 Q20,60 28,35 Z" fill="#fed7aa"/>
+                <!-- Anime Eye Left -->
+                <g class="anime-eyes">
+                    <ellipse cx="38" cy="55" rx="7" ry="9" fill="#0f172a"/>
+                    <ellipse cx="38" cy="56" rx="5" ry="7" fill="#0284c7"/>
+                    <circle cx="36" cy="53" r="2" fill="#ffffff"/>
+                </g>
+                <!-- Anime Eye Right -->
+                <g class="anime-eyes">
+                    <ellipse cx="62" cy="55" rx="7" ry="9" fill="#0f172a"/>
+                    <ellipse cx="62" cy="56" rx="5" ry="7" fill="#0284c7"/>
+                    <circle cx="60" cy="53" r="2" fill="#ffffff"/>
+                </g>
+                <!-- Eyelashes / Eyebrows -->
+                <path d="M30,46 Q38,43 46,47" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M54,47 Q62,43 70,46" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <!-- Blush -->
+                <ellipse cx="32" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
+                <ellipse cx="68" cy="66" rx="4" ry="2" fill="#fb7185" opacity="0.6"/>
+                <!-- Nose -->
+                <circle cx="50" cy="64" r="0.8" fill="#c2410c"/>
+                <!-- Mouth -->
+                <path id="anime-mouth" class="anime-mouth" d="M45,72 Q50,76 55,72" stroke="#e11d48" stroke-width="2" fill="none" stroke-linecap="round" transform-origin="50 73"/>
+                <!-- Front Bangs -->
+                <path d="M25,32 Q50,18 75,32 Q65,45 50,38 Q35,45 25,32 Z" fill="#312e81"/>
+                <path d="M35,35 Q50,50 42,32 Z" fill="#312e81"/>
+                <path d="M65,35 Q50,50 58,32 Z" fill="#312e81"/>
+            </svg>
         </div>
     </div>
 
+    <!-- Bottom Controls & Text Input Footer -->
+    <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
+        <form id="chat-form" class="flex gap-2">
+            <input type="text" id="user-input" placeholder="Type product name or inventory query..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
+        </form>
+        <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
+            <span>Support Line: +91-9943021998</span>
+            <button id="clear-chat" class="text-red-400 hover:underline">Clear Chat History</button>
+        </div>
+    </footer>
+
+    <!-- Script with Strict Inventory Lookup Only -->
     <script>
-        // ==========================================
-        // MAIN AI DICTIONARY DATA STRUCTURE
-        // ==========================================
-        const AIDictionary = {
-            inventory: [
-                {
-                    category: "snacks and savouries",
-                    productName: "Avalose Sweet",
-                    rating: 5,
-                    originalPrice: 120,
-                    offerPercentage: 17,
-                    finalPrice: 99.60,
-                    quantity: "400g",
-                    description: "Avalose is a natural, healthy and traditional food of our ancestors. Prepared from unpolished red rice by adding coconut, organic jaggery, and spices like cardamom, fenugreek, dry ginger etc. A READY TO EAT NUTRITIOUS FOOD FOR CHILDREN, GIRLS, TRAVELLERS & ATHLETES."
-                },
-                {
-                    category: "snacks and savouries",
-                    productName: "Avalose Milk",
-                    rating: 4.5,
-                    originalPrice: 120,
-                    offerPercentage: 17,
-                    finalPrice: 99.60,
-                    quantity: "250g",
-                    description: "Avalose is a natural, healthy and traditional food of our ancestors. Prepared from unpolished red rice by adding coconut, organic jaggery, and spices like cardamom, fenugreek, dry ginger, Condensed Milk etc. A READY TO EAT NUTRITIOUS FOOD FOR CHILDREN, GIRLS, TRAVELLERS & ATHLETES."
-                },
-                {
-                    category: "flour",
-                    productName: "Kattuyanam Rice Puttu Flour",
-                    rating: 5,
-                    originalPrice: 75,
-                    offerPercentage: 0,
-                    finalPrice: 75.00,
-                    quantity: "500g",
-                    description: "Puttu is a common traditional breakfast of South India, made up of rice flour and grated coconut with the help of a special vessel called puttu kudam. Puttu-Kudam consists of two parts. The base part is for heating water, the top is a cylindrical tube and one is for steaming puttu. Traditionally puttu was made in bamboo logs which gave a lovely aroma. Puttu can be easily made in an idly cooker also. Kattuyanam puttu is much healthier and staple breakfast for any diabetics. MYF Kattuyanam puttu flour is produced from an organic unpolished Kattuyanam red rice."
-                }
-            ],
-            websiteNavigation: [
-                {
-                    element: "Header (Left)",
-                    destination: "N/A",
-                    description: "Displays 'My Food' Logo and Name."
-                },
-                {
-                    element: "Header (Right) - 'My Store' Button",
-                    destination: "mystore.html",
-                    description: "Shopping place to buy products."
-                },
-                {
-                    element: "Nav Bar - Home",
-                    destination: "index.html",
-                    description: "Navigates to the main homepage."
-                },
-                {
-                    element: "Nav Bar - Updates",
-                    destination: "news.html",
-                    description: "Navigates to latest updates and news."
-                },
-                {
-                    element: "Nav Bar - Contact",
-                    destination: "contact.html",
-                    description: "Navigates to contact information."
-                },
-                {
-                    element: "Nav Bar - Bank Details",
-                    destination: "bankdetails.html",
-                    description: "Navigates to payment and bank details."
-                },
-                {
-                    element: "Nav Bar (Swipe Left) - Staff Login",
-                    destination: "stafflogin.html",
-                    description: "Allows portal access for staff members."
-                },
-                {
-                    element: "Nav Bar (Swipe Left) - About Us",
-                    destination: "aboutus.html",
-                    description: "Provides information about the company/page."
-                },
-                {
-                    element: "Nav Bar (Swipe Left) - All Products",
-                    destination: "mystore.html",
-                    description: "Directs users to browse all store products."
-                },
-                {
-                    element: "Hero Section - 'Shop MyStore Now' (Big Yellow Button)",
-                    destination: "mystore.html",
-                    description: "Prominent CTA button directing users to the shop."
-                },
-                {
-                    element: "Hero Section - 'Learn More' Button",
-                    destination: "aboutus.html",
-                    description: "Directs users to the About Us page."
-                },
-                {
-                    element: "Page Section - Featured Products",
-                    destination: "mystore.html",
-                    description: "Lists featured items on display."
-                },
-                {
-                    element: "Page Section - Bank Details Section",
-                    destination: "bankdetails.html",
-                    description: "Displays payment and bank account details."
-                },
-                {
-                    element: "Page Section - Heroic Banner",
-                    destination: "N/A",
-                    description: "Displays promotional advertisements."
-                },
-                {
-                    element: "Page Section - Career Opportunities / 'Employee Registration'",
-                    destination: "employeeregistration.html",
-                    description: "Button for new staff registration."
-                },
-                {
-                    element: "Page Section - News and Updates Section",
-                    destination: "news.html",
-                    description: "Displays news, announcements, and updates."
-                }
-            ]
-        };
+        const companion = document.getElementById('companion');
+        const avatarContainer = document.getElementById('avatar-container');
+        const chatLog = document.getElementById('chat-log');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const clearChatBtn = document.getElementById('clear-chat');
 
-        // Attach dictionary globally for AI/API consumption
-        window.AIDictionary = AIDictionary;
+        let recognition = null;
+        let isAiSpeaking = false;
 
-        // Render Functions
-        function renderInventory(items) {
-            const grid = document.getElementById('inventoryGrid');
-            grid.innerHTML = items.map(item => `
-                <div class="card">
-                    <span class="badge">${item.category}</span>
-                    <h3>${item.productName}</h3>
-                    <div class="rating">★ ${item.rating} / 5</div>
-                    <div class="price-tag">
-                        ${item.offerPercentage > 0 
-                            ? `<span class="original">₹${item.originalPrice}</span> ₹${item.finalPrice.toFixed(2)} <span class="discount">(${item.offerPercentage}% OFF)</span>`
-                            : `₹${item.finalPrice.toFixed(2)}`
-                        }
-                    </div>
-                    <div class="meta"><strong>Quantity/Weight:</strong> ${item.quantity}</div>
-                    <p class="description">${item.description}</p>
-                </div>
-            `).join('');
+        // Load chat history from localStorage on startup
+        function loadChatHistory() {
+            const savedHistory = localStorage.getItem('aria_chat_history');
+            if (savedHistory) {
+                chatLog.innerHTML = savedHistory;
+                chatLog.scrollTop = chatLog.scrollHeight;
+            } else {
+                appendMessage('Aria', "Welcome to MY Food Products! Ask me about any product in our inventory.", false);
+            }
         }
 
-        function renderNavigation(items) {
-            const tbody = document.getElementById('navigationTable');
-            tbody.innerHTML = items.map(nav => `
-                <tr>
-                    <td><strong>${nav.element}</strong></td>
-                    <td><span class="page-link">${nav.destination}</span></td>
-                    <td>${nav.description}</td>
-                </tr>
-            `).join('');
+        // Save chat history to localStorage
+        function saveChatHistory() {
+            localStorage.setItem('aria_chat_history', chatLog.innerHTML);
         }
 
-        function filterDictionary() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-
-            const filteredInventory = AIDictionary.inventory.filter(item => 
-                item.productName.toLowerCase().includes(query) ||
-                item.category.toLowerCase().includes(query) ||
-                item.description.toLowerCase().includes(query)
-            );
-
-            const filteredNav = AIDictionary.websiteNavigation.filter(nav =>
-                nav.element.toLowerCase().includes(query) ||
-                nav.destination.toLowerCase().includes(query) ||
-                nav.description.toLowerCase().includes(query)
-            );
-
-            renderInventory(filteredInventory);
-            renderNavigation(filteredNav);
-        }
-
-        // Initialize Page
-        document.addEventListener('DOMContentLoaded', () => {
-            renderInventory(AIDictionary.inventory);
-            renderNavigation(AIDictionary.websiteNavigation);
-            document.getElementById('jsonDisplay').textContent = JSON.stringify(AIDictionary, null, 4);
+        clearChatBtn.addEventListener('click', () => {
+            localStorage.removeItem('aria_chat_history');
+            chatLog.innerHTML = '';
+            appendMessage('Aria', "Chat history cleared. Ask me about any product.", true);
         });
+
+        // Add message to persistent chat log & save state
+        function appendMessage(sender, text, save = true) {
+            const msgDiv = document.createElement('div');
+            const isUser = sender === 'You';
+            msgDiv.className = `p-2.5 rounded-xl max-w-[85%] text-xs ${isUser ? 'bg-cyan-950/80 border border-cyan-800/60 self-end text-cyan-100' : 'bg-slate-900/80 border border-slate-800/80 self-start text-slate-300'}`;
+            msgDiv.innerHTML = `<span class="text-[10px] ${isUser ? 'text-cyan-300' : 'text-cyan-400'} font-semibold block mb-0.5">${sender}</span>${text}`;
+            chatLog.appendChild(msgDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            if (save) {
+                saveChatHistory();
+            }
+        }
+
+        // Text-to-Speech Speaker Engine & Mouth Animation
+        function speakAloud(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.2;
+                utterance.volume = 1.0;
+                
+                utterance.onstart = () => {
+                    isAiSpeaking = true;
+                    if (recognition) {
+                        try { recognition.stop(); } catch(e) {}
+                    }
+                    avatarContainer.classList.add('is-talking', 'border-red-400');
+                };
+                utterance.onend = () => {
+                    avatarContainer.classList.remove('is-talking', 'border-red-400');
+                    setTimeout(() => {
+                        isAiSpeaking = false;
+                        if (recognition) {
+                            try { recognition.start(); } catch(e) {}
+                        }
+                    }, 500);
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Strict Inventory Lookup from aidictionary.html
+        async function checkAiDictionary(promptText) {
+            try {
+                const response = await fetch('aidictionary.html');
+                if (!response.ok) return "We don't have it.";
+                const htmlText = await response.text();
+                
+                // Parse HTML text to search inventory database
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                const dictionaryText = doc.body.textContent || "";
+                
+                const queryWords = promptText.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                let matchFound = false;
+                
+                for (let word of queryWords) {
+                    if (dictionaryText.toLowerCase().includes(word)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    return `Inventory Details found: ${dictionaryText.substring(0, 300)}...`;
+                }
+                
+                return "We don't have it.";
+            } catch (err) {
+                console.log("Dictionary file error:", err);
+                return "We don't have it.";
+            }
+        }
+
+        // Master Handler: Exclusively checks inventory dictionary
+        async function handleUserQuery(promptText) {
+            appendMessage('You', promptText);
+
+            const dictionaryResult = await checkAiDictionary(promptText);
+            appendMessage('Aria', dictionaryResult);
+            speakAloud(dictionaryResult);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            loadChatHistory();
+            startContinuousListening();
+        });
+
+        // Always-On Voice Detection with Self-Speech Protection
+        function startContinuousListening() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onresult = (event) => {
+                    if (isAiSpeaking) return;
+                    const speechToText = event.results[event.results.length - 1][0].transcript.trim();
+                    if (speechToText) {
+                        handleUserQuery(speechToText);
+                    }
+                };
+
+                recognition.onerror = () => {
+                    if (!isAiSpeaking) {
+                        setTimeout(() => { try { recognition.start(); } catch(e){} }, 1000);
+                    }
+                };
+                recognition.onend = () => {
+                    if (!isAiSpeaking) {
+                        try { recognition.start(); } catch(e){}
+                    }
+                };
+                try { recognition.start(); } catch(e){}
+            }
+        }
+
+        // Handle Text Box Form Submission
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if(!text) return;
+            userInput.value = '';
+            
+            handleUserQuery(text);
+        });
+
+        // Mobile Touch & Drag Logic
+        let startX, startY, initialX, initialY, isDragging = false;
+
+        companion.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            initialX = companion.offsetLeft;
+            initialY = companion.offsetTop;
+            companion.style.bottom = 'auto';
+            companion.style.right = 'auto';
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const dx = e.touches[0].clientX - startX;
+            const dy = e.touches[0].clientY - startY;
+            companion.style.left = `${Math.max(10, Math.min(window.innerWidth - 80, initialX + dx))}px`;
+            companion.style.top = `${Math.max(40, Math.min(window.innerHeight - 160, initialY + dy))}px`;
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => { isDragging = false; });
     </script>
 </body>
 </html>
