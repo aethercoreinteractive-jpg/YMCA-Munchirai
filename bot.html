@@ -221,12 +221,12 @@
             }
         }
 
-        // Natural Intent Matching Engine
+        // Natural Conversational & Intent Matching Engine
         function evaluateQuery(query) {
             const q = query.toLowerCase().trim();
 
-            // Casual greetings with varied responses
-            if (q === 'hi' || q === 'hello' || q === 'hey' || q === 'sup' || q === 'greetings') {
+            // Casual greetings
+            if (['hi', 'hello', 'hey', 'sup', 'greetings', 'yo'].some(word => q === word || q.startsWith(word + ' '))) {
                 const randomHIs = [
                     "Hey! What's on your mind today?",
                     "Hello there! Looking to browse MY Store or check out something specific?",
@@ -235,7 +235,21 @@
                 return randomHIs[Math.floor(Math.random() * randomHIs.length)];
             }
 
-            // Staff / Job / Apply / Registration intent (flexible matching for any phrasing)
+            // Casual welfare / Small talk ("how are you", "who are you", "what are you doing")
+            if (q.includes('how are you') || q.includes('how\'s it going') || q.includes('what\'s up')) {
+                const responses = [
+                    "I'm doing great, fully online and keeping an eye on the store! What about you?",
+                    "All systems are green! Ready to help you check out products or sort out staff info.",
+                    "Livin' in the cloud and keeping things running smooth. What can I do for you?"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            if (q.includes('who are you') || q.includes('what are you')) {
+                return "I'm Aria, your digital assistant for MY Food Products. I'm here to help you navigate the store, check products, or get connected with our team.";
+            }
+
+            // Staff / Job / Apply / Registration intent
             if (q.includes('staff') || q.includes('apply') || q.includes('job') || q.includes('hiring') || q.includes('career') || q.includes('register') || q.includes('join') || q.includes('work')) {
                 if (q.includes('login') || q.includes('signin')) {
                     return `Need to sign into your staff account? Jump right in here:<br><a href="stafflogin.html" class="chat-action-link">🔑 Open Staff Login</a>`;
@@ -279,8 +293,8 @@
                 return `You can reach out directly at <strong>+91-9943021998</strong> or visit our support page:<br><a href="contact.html" class="chat-action-link">📞 Contact Us</a>`;
             }
 
-            // Natural conversational fallback
-            return `I'm not entirely sure about that specific detail, but you can browse our catalog or call support at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️️ Open MY Store</a>`;
+            // Conversational fallback instead of a robotic error
+            return `I'm tracking with you, but if you're looking to browse our items or check out the catalog, you can head straight over to the store:<br><a href="mystore.html" class="chat-action-link">🛍️ Open MY Store</a>`;
         }
 
         async function handleUserQuery(promptText) {
