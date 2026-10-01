@@ -268,7 +268,7 @@
         </a>
     </div>
 
-  <!-- Firebase Initialization & Real-Time Database Engine -->
+       <!-- Firebase Initialization & Real-Time Database Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -370,7 +370,7 @@
                 const imgSrc = formatImageURL(slide.image);
                 return `
                     <div class="min-w-full h-full relative shrink-0 flex items-center justify-center bg-slate-900 overflow-hidden">
-                        <img src="${imgSrc}" alt="Banner" class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
+                        <img src="${imgSrc}" alt="Banner" class="w-full h-full object-cover object-center pointer-events-none select-none" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1600'">
                     </div>
                 `;
             }).join('');
@@ -554,7 +554,7 @@
             let html = items.map(item => {
                 const actionHtml = window.getCartActionHTML(item.key, item.name, item.price, item.img, item.category);
                 return `
-                    <div class="snap-start shrink-0 w-[calc(50%-6px)] sm:w-56 bg-white rounded-xl p-2.5 sm:p-3.5 border border-gray-200 shadow-sm flex flex-col justify-between transition hover:border-amber-400">
+                    <div onclick="window.location.href='scaledup.html?id=${item.key}'" class="snap-start shrink-0 w-[calc(50%-6px)] sm:w-56 bg-white rounded-xl p-2.5 sm:p-3.5 border border-gray-200 shadow-sm flex flex-col justify-between transition hover:border-amber-400 cursor-pointer">
                         <div>
                             <div class="w-full h-28 sm:h-36 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center mb-2 sm:mb-3">
                                 <img src="${formatImageURL(item.img) || ''}" alt="${item.name}" class="w-full h-full object-cover pointer-events-none" onerror="this.src='https://placehold.co/200x200?text=IMG'">
