@@ -23,13 +23,13 @@
         .anime-eyes { animation: animeBlink 4s infinite; transform-origin: center; }
         .is-talking .anime-mouth { animation: animeTalk 0.2s ease-in-out infinite; }
         
-        /* Smooth Custom Scrollbar */
+        /* Smooth Custom Scrollbar for Complete Up/Down Navigation */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
         
-        /* Chat bubble interactive link styling */
+        /* Interactive Code Action Link Styling */
         .chat-action-link {
             display: inline-flex;
             align-items: center;
@@ -59,14 +59,13 @@
         <span class="text-xs font-semibold tracking-wide text-cyan-400 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MY Food AI Navigator & Support
         </span>
-        <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Online</span>
+        <span class="text-xs font-mono px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-full">Verified Code Mode</span>
     </header>
 
-    <!-- Main Workspace Area with Fully Scrollable Chat Log Container -->
+    <!-- Main Workspace Area with Fully Scrollable Chat Log Container (Up & Down Scrolling) -->
     <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3">
-        <!-- Scrollable Chat Wrapper (Allows scrolling up to check past history and down for new messages) -->
         <div id="chat-log" class="absolute inset-0 overflow-y-auto p-3 space-y-3 flex flex-col">
-            <!-- Chat history will load here -->
+            <!-- Persistent chat history loads here -->
         </div>
     </main>
 
@@ -113,7 +112,7 @@
     <!-- Bottom Controls & Text Input Footer -->
     <footer class="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex flex-col gap-2 z-10 shrink-0">
         <form id="chat-form" class="flex gap-2">
-            <input type="text" id="user-input" placeholder="Ask e.g., 'Where is staff registration?' or 'Show Avalose Sweet'" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="user-input" placeholder="Ask e.g., 'How do I buy items?', 'Staff registration', 'Avalose Sweet'..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-lg shadow-cyan-600/30">Send</button>
         </form>
         <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
@@ -122,7 +121,7 @@
         </div>
     </footer>
 
-    <!-- Smart Knowledge Base & Assistant Script -->
+    <!-- Strict Code-Bound Repository Engine Script -->
     <script>
         const GROQ_API_KEY = "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";
 
@@ -137,6 +136,7 @@
         let isAiSpeaking = false;
         let siteDictionary = null;
 
+        // Pre-load aidictionary.html on boot for 100% verified data access
         async function loadDictionaryData() {
             try {
                 const response = await fetch('aidictionary.html');
@@ -151,7 +151,7 @@
                     }
                 }
             } catch (e) {
-                console.log("Dictionary auto-load notice:", e);
+                console.log("Dictionary load note:", e);
             }
         }
 
@@ -161,7 +161,7 @@
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                appendMessage('Aria', "Hello! I am Aria, your personal guide for MY Food Products. Ask me about our products, store locations, staff registration, or bank details!", false);
+                appendMessage('Aria', "Hello! I am Aria, your verified guide for MY Food Products. Ask me how to buy items, check our store inventory, view bank details, or register as staff!", false);
             }
         }
 
@@ -215,50 +215,76 @@
             }
         }
 
+        // Strict Code-Verified Intent Evaluator (No Guesswork / No Improvisation)
         function evaluateLocalQuery(query) {
             const q = query.toLowerCase();
-            if (!siteDictionary) return null;
 
+            // 1. How to buy items / Order flow (mystore.html -> cart.html -> UPI / COD)
+            if (q.includes('buy') || q.includes('purchase') || q.includes('how to order') || q.includes('checkout') || q.includes('payment') || q.includes('upi') || q.includes('cod')) {
+                return `To buy products, follow our verified order flow:<br>` +
+                       `1. Browse products and tap **Add to Cart** in our store.<br>` +
+                       `<a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a><br>` +
+                       `2. Proceed to your cart to review your items, quantities, and totals.<br>` +
+                       `<a href="cart.html" class="chat-action-link">🛒 View Cart</a><br>` +
+                       `3. At checkout, complete your purchase using our verified payment options (**UPI** or **Cash on Delivery**) or view beneficiary details.<br>` +
+                       `<a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
+            }
+
+            // 2. Staff Registration
             if (q.includes('staff') || q.includes('register') || q.includes('employee') || q.includes('career')) {
-                return `You can register as new staff via our career opportunities section. Tap the button below to go straight to the registration page:<br><a href="employeeregistration.html" class="chat-action-link">👉 Tap here for Employee Registration</a>`;
+                return `You can register as a new staff member through our career opportunities section.<br><a href="employeeregistration.html" class="chat-action-link">👉 Tap here for Employee Registration</a>`;
             }
 
+            // 3. Staff Login
             if (q.includes('login') || q.includes('signin') || q.includes('staff login')) {
-                return `Staff members can log in through the navigation panel option.<br><a href="stafflogin.html" class="chat-action-link">👉 Tap here for Staff Login</a>`;
+                return `Staff members can log in via the navigation panel option.<br><a href="stafflogin.html" class="chat-action-link">👉 Tap here for Staff Login</a>`;
             }
 
-            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('product') || q.includes('avalose') || q.includes('puttu')) {
-                if (siteDictionary.inventory) {
-                    const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
-                    if (found) {
-                        return `<strong>${found.productName}</strong> (${found.category})<br>Price: ₹${found.finalPrice} (${found.offerPercentage > 0 ? found.offerPercentage + '% off' : 'Regular'}) | Rating: ★${found.rating}/5<br>${found.description.substring(0, 140)}...<br><a href="mystore.html" class="chat-action-link">🛍️ View in My Store</a>`;
-                    }
+            // 4. Specific Inventory Item Lookup from aidictionary.html
+            if (siteDictionary && siteDictionary.inventory) {
+                const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
+                if (found) {
+                    return `<strong>${found.productName}</strong> (${found.category})<br>` +
+                           `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(₹${found.originalPrice} with${found.offerPercentage}% offer)` : ''} | Rating: ★${found.rating}/5<br>` +
+                           `Quantity: ${found.quantity}<br>` +
+                           `${found.description}<br>` +
+                           `<a href="mystore.html" class="chat-action-link">🛍️ Buy in My Store</a>`;
                 }
-                return `You can browse all our organic items and make purchases in our store.<br><a href="mystore.html" class="chat-action-link">🛍️ Go to My Store</a>`;
             }
 
-            if (q.includes('bank') || q.includes('payment') || q.includes('pay') || q.includes('account')) {
-                return `All bank account and payment details are available on our dedicated information page.<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
+            // 5. General Store / Products browse query
+            if (q.includes('store') || q.includes('shop') || q.includes('product') || q.includes('avalose') || q.includes('puttu')) {
+                return `Browse all our traditional organic products (like Avalose Sweet, Avalose Milk, and Kattuyanam Puttu Flour) in our store.<br><a href="mystore.html" class="chat-action-link">🛍️ Go to My Store</a>`;
             }
 
-            if (q.includes('about') || q.includes('who') || q.includes('mission')) {
-                return `Learn more about our organization, organic values, and charity mission with Munchirai YMCA.<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
+            // 6. Bank Details
+            if (q.includes('bank') || q.includes('account')) {
+                return `Official payment and bank account details are listed on our bank details page.<br><a href="bankdetails.html" class="chat-action-link">🏦 View Bank Details</a>`;
             }
 
+            // 7. About Us
+            if (q.includes('about') || q.includes('who')) {
+                return `Learn more about MY Food Products and our organic charity initiatives supporting Munchirai YMCA.<br><a href="aboutus.html" class="chat-action-link">📖 Read About Us</a>`;
+            }
+
+            // 8. News & Updates
             if (q.includes('news') || q.includes('update')) {
-                return `Check out our latest announcements and updates.<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
+                return `Read our latest updates and announcements.<br><a href="news.html" class="chat-action-link">📰 View News & Updates</a>`;
             }
 
+            // 9. Contact
             if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
-                return `You can reach our primary customer support line directly at <strong>+91-9943021998</strong> or visit our contact page.<br><a href="contact.html" class="chat-action-link">📞 Go to Contact Page</a>`;
+                return `You can contact customer support directly at <strong>+91-9943021998</strong>.<br><a href="contact.html" class="chat-action-link">📞 Go to Contact Page</a>`;
             }
 
             return null;
         }
 
+        // Master Handler strictly relying on code-verified dictionary and logic
         async function handleUserQuery(promptText) {
             appendMessage('You', promptText);
 
+            // Strict repository verification check
             const localReply = evaluateLocalQuery(promptText);
             if (localReply) {
                 appendMessage('Aria', localReply);
@@ -266,44 +292,10 @@
                 return;
             }
 
-            try {
-                const response = "https://api.groq.com/openai/v1/chat/completions";
-                const res = await fetch(response, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${GROQ_API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: "openai/gpt-oss-20b",
-                        messages: [
-                            {
-                                role: "system",
-                                content: "You are Aria, the intelligent assistant for MY Food Products. Direct users clearly using links when requested (e.g. store: mystore.html, staff registration: employeeregistration.html, bank details: bankdetails.html). Profits go toward Munchirai YMCA charity initiatives."
-                            },
-                            { role: "user", content: promptText }
-                        ]
-                    })
-                });
-
-                const data = await res.json();
-                if (data.choices && data.choices[0].message.content) {
-                    let aiReply = data.choices[0].message.content.trim();
-                    if (aiReply.toLowerCase().includes('store') || aiReply.toLowerCase().includes('shop')) {
-                        aiReply += `<br><a href="mystore.html" class="chat-action-link">🛍️ Visit My Store Now</a>`;
-                    }
-                    appendMessage('Aria', aiReply);
-                    speakAloud(aiReply);
-                } else {
-                    const fallback = `You can check our store page or contact support at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Go to My Store</a>`;
-                    appendMessage('Aria', fallback);
-                    speakAloud(fallback);
-                }
-            } catch (err) {
-                const netMsg = `I'm having trouble reaching the network server right now. You can call support at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
-                appendMessage('Aria', netMsg);
-                speakAloud(netMsg);
-            }
+            // Fallback for general unmapped questions using verified facts
+            const fallback = `You can explore our store or reach our support line at +91-9943021998.<br><a href="mystore.html" class="chat-action-link">🛍️ Open My Store</a>`;
+            appendMessage('Aria', fallback);
+            speakAloud(fallback);
         }
 
         window.addEventListener('load', async () => {
@@ -344,6 +336,7 @@
             handleUserQuery(text);
         });
 
+        // Touch & Drag Companion Widget
         let startX, startY, initialX, initialY, isDragging = false;
         companion.addEventListener('touchstart', (e) => {
             isDragging = true;
