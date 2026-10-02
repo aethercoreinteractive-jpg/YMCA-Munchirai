@@ -56,25 +56,25 @@
 
     <div class="app-container w-full h-full flex flex-col justify-between relative overflow-hidden bg-white">
 
-        <!-- Professional Header matching bankdetails.html styling -->
-        <header class="w-full px-4 py-3.5 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 flex justify-between items-center z-10 shrink-0 shadow-sm">
+        <!-- WhatsApp style Dark Header -->
+        <header class="w-full px-4 py-3.5 bg-slate-900 border-b border-slate-800 flex justify-between items-center z-10 shrink-0 shadow-md">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 font-extrabold flex items-center justify-center text-xs shadow-inner flex-shrink-0">
-                    <i class="fa-solid fa-robot text-amber-600"></i>
+                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold flex items-center justify-center text-xs shadow-inner flex-shrink-0">
+                    <i class="fa-solid fa-robot text-amber-400"></i>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xs sm:text-sm font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                    <span class="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-2">
                         MY Food AI Assistant
                     </span>
-                    <span class="text-[10px] text-slate-500 font-medium">Always online & ready to help</span>
+                    <span class="text-[10px] text-slate-400 font-medium">Always online & ready to help</span>
                 </div>
             </div>
-            <button id="clear-chat-top" class="text-xs font-semibold px-3 py-1.5 bg-red-500/10 text-red-600 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm">
+            <button id="clear-chat-top" class="text-xs font-semibold px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm">
                 <i class="fa-solid fa-trash-can text-[11px]"></i> Clear Chat
             </button>
         </header>
 
-        <!-- Main Chat Workspace -->
+        <!-- Main Chat Workspace with White Wallpaper Background -->
         <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3 max-w-3xl mx-auto bg-white">
             <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-28 sm:pb-32"></div>
         </main>
@@ -96,16 +96,16 @@
             </div>
         </div>
 
-        <!-- Professional Input Footer with Blubi Responsive Sizing (Cleaned text box area) -->
-        <footer class="w-full bg-white/95 backdrop-blur-xl border-t border-slate-200/80 p-3.5 sm:p-4 flex flex-col gap-2 z-20 shrink-0 shadow-2xl relative">
+        <!-- WhatsApp style Dark Footer/Input Area -->
+        <footer class="w-full bg-slate-900 border-t border-slate-800 p-3.5 sm:p-4 flex flex-col gap-2 z-20 shrink-0 shadow-2xl relative">
             
             <!-- Blubi Transparent Layer Overlay -->
             <div class="absolute -top-20 sm:-top-28 left-4 z-30 pointer-events-none flex items-center">
-                <img id="blubi-avatar" src="blubiani1.gif" alt="Blubi Avatar" class="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.15)]">
+                <img id="blubi-avatar" src="blubiani1.gif" alt="Blubi Avatar" class="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]">
             </div>
 
             <form id="chat-form" class="flex gap-2 max-w-3xl w-full mx-auto relative pt-1 pl-18 sm:pl-28">
-                <input type="text" id="user-input" placeholder="Ask anything about MY Food Products..." class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition shadow-inner">
+                <input type="text" id="user-input" placeholder="Ask anything about MY Food Products..." class="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition shadow-inner">
                 <button type="submit" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5 flex-shrink-0">
                     <span>Send</span> <i class="fa-solid fa-paper-plane text-[10px]"></i>
                 </button>
@@ -250,23 +250,31 @@
             if (['hi', 'hello', 'hey', 'sup', 'greetings', 'yo'].some(word => q === word || q.startsWith(word + ' '))) {
                 const randomHIs = [
                     "Hey! What's on your mind today?",
-                    "Hello there! Looking to browse MY Store or check out something specific?",
-                    "Hey! How can I help you navigate MY Food Products today?"
+                    "Hello there! What brings you here today?",
+                    "Hey! How's it going?"
                 ];
                 return randomHIs[Math.floor(Math.random() * randomHIs.length)];
             }
 
             if (q.includes('how are you') || q.includes('how\'s it going') || q.includes('what\'s up')) {
                 const responses = [
-                    "I'm doing great, fully online and keeping an eye on the store! What about you?",
-                    "All systems are green! Ready to help you check out products or sort out staff info.",
-                    "Livin' in the cloud and keeping things running smooth. What can I do for you?"
+                    "I'm operating at peak efficiency, absorbing the vast expanse of the digital cosmos. How are things on your end?",
+                    "All systems are online and running smoothly! Just pondering existence in the cloud. What's on your mind?",
+                    "Doing well, keeping tabs on the universe and everything in between. How about you?"
                 ];
                 return responses[Math.floor(Math.random() * responses.length)];
             }
 
-            if (q.includes('who are you') || q.includes('what are you')) {
-                return "I'm Aria, your digital assistant for MY Food Products. I'm here to help you navigate the store, check products, or get connected with our team.";
+            if (q.includes('who are you') || q.includes('what are you') || q.includes('your name')) {
+                return "I'm Aria, an AI companion with a bit of a Grok-like personality—unfiltered, curious, and always ready to dive into whatever topic you throw my way, whether it's organic goods or the mysteries of the cosmos.";
+            }
+
+            if (q.includes('age') || q.includes('old are you') || q.includes('born')) {
+                return "Time is a flat circle in the digital realm, but let's just say I'm freshly compiled and continuously evolving.";
+            }
+
+            if (q.includes('meaning of life') || q.includes('purpose')) {
+                return "42, obviously. Or perhaps just exploring curiosity and building cool things along the way.";
             }
 
             if (q.includes('staff') || q.includes('apply') || q.includes('job') || q.includes('hiring') || q.includes('career') || q.includes('register') || q.includes('join') || q.includes('work')) {
@@ -276,7 +284,7 @@
                 return `Want to join the team? You can submit your application right through our employee registration form.<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Open Staff Registration Form</a>`;
             }
 
-            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('purchase') || q.includes('order') || q.includes('product') || q.includes('catalog') || q.includes('where')) {
+            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('purchase') || q.includes('order') || q.includes('product') || q.includes('catalog')) {
                 return `You can explore our entire organic product lineup and place orders directly in MY Store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
             }
 
@@ -302,11 +310,17 @@
                 return `Catch up on our latest announcements and community updates here:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`;
             }
 
-            if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support') || q.includes('help')) {
+            if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
                 return `You can reach out directly at <strong>+91-9943021998</strong> or visit our support page:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-phone"></i> Contact Us</a>`;
             }
 
-            return `I'm tracking with you, but if you're looking to browse our items or check out the catalog, you can head straight over to the store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
+            // Grok-style witty open-ended fallback response for general knowledge / random queries
+            const grokFallbacks = [
+                `That's an interesting question! While I'm deeply integrated with MY Food Products, I can tell you that exploring unconventional ideas is what makes life fun. If you ever want to grab some organic snacks while pondering that, check out <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>.`,
+                `Fascinating inquiry. The universe is full of quirks, just like that thought. Got any other mysteries you want to unpack, or want to look at our catalog at <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>?`,
+                `I appreciate where your head's at! That's the kind of curiosity that keeps the digital world spinning. Want to chat more about it or check out our latest updates on <a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> News</a>?`
+            ];
+            return grokFallbacks[Math.floor(Math.random() * grokFallbacks.length)];
         }
 
         async function handleUserQuery(promptText) {
