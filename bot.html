@@ -54,10 +54,10 @@
 </head>
 <body class="bg-[#020617] text-slate-100 h-[100dvh] w-screen overflow-hidden flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950 m-0 p-0 box-border">
 
-    <div class="app-container w-full h-full flex flex-col justify-between relative overflow-hidden bg-[#020617]">
+    <div class="app-container w-full h-full flex flex-col justify-between relative overflow-hidden">
 
-        <!-- WhatsApp style Professional Dark Header -->
-        <header class="w-full px-4 py-3.5 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 flex justify-between items-center z-10 shrink-0 shadow-lg">
+        <!-- Professional Header matching bankdetails.html styling -->
+        <header class="w-full px-4 py-3.5 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 flex justify-between items-center z-10 shrink-0 shadow-lg">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold flex items-center justify-center text-xs shadow-inner flex-shrink-0">
                     <i class="fa-solid fa-robot text-amber-400"></i>
@@ -74,8 +74,8 @@
             </button>
         </header>
 
-        <!-- Main Chat Workspace with Dark Wallpaper Background -->
-        <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3 max-w-3xl mx-auto bg-[#020617]">
+        <!-- Main Chat Workspace -->
+        <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3 max-w-3xl mx-auto">
             <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-28 sm:pb-32"></div>
         </main>
 
@@ -96,7 +96,7 @@
             </div>
         </div>
 
-        <!-- WhatsApp style Professional Dark Footer/Input Area -->
+        <!-- Professional Input Footer with Blubi Responsive Sizing (Cleaned text box area) -->
         <footer class="w-full bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 p-3.5 sm:p-4 flex flex-col gap-2 z-20 shrink-0 shadow-2xl relative">
             
             <!-- Blubi Transparent Layer Overlay -->
@@ -131,9 +131,9 @@
         let idleInterval = null;
 
         const dynamicGreetings = [
-            "What's up? Ready to explore MY Store or need help with something else?",
-            "Hey there! What can I help you find today?",
-            "Yo! Ask me anything about our organic products, staff applications, or store catalog."
+            "Hey! What's on your mind today? Anything about our store or just want to chat?",
+            "Hi there! How's your day going? Let me know if you need help finding anything here.",
+            "Hey! I'm Aria. What can I help you out with right now?"
         ];
 
         // Blubi State Handlers
@@ -205,7 +205,7 @@
             customConfirmModal.classList.add('hidden');
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Wiped the slate clean. What's next?", true);
+            appendMessage('Aria', "Cleared everything out. What should we talk about now?", true);
         });
 
         function appendMessage(sender, htmlContent, save = true) {
@@ -247,80 +247,77 @@
         function evaluateQuery(query) {
             const q = query.toLowerCase().trim();
 
+            const casualHIs = [
+                "Hey there! Good to hear from you. What's on your mind?",
+                "Hello! How's it going today? Let me know if you need anything.",
+                "Hey! Always nice chatting with you. What are you up to?"
+            ];
+            const casualHowAreYou = [
+                "I'm doing really well, just hanging out in the background helping out! How are things with you?",
+                "All good on my end, keeping things running smoothly. How's your day going?",
+                "Pretty great, thanks for asking! What about you, how are you doing?"
+            ];
+            const casualWhoAreYou = [
+                "I'm Aria, your virtual companion here at MY Food Products. I'm basically here to chat, help you navigate the site, or find whatever you need!",
+                "I'm Aria — part assistant, part conversational partner. I help people find products, look up info, or just have a normal chat.",
+                "You can call me Aria! I'm the AI assistant for MY Food Products, always here to keep you company and help out."
+            ];
+
             if (['hi', 'hello', 'hey', 'sup', 'greetings', 'yo'].some(word => q === word || q.startsWith(word + ' '))) {
-                const randomHIs = [
-                    "Hey! What's on your mind today?",
-                    "Hello there! What brings you here today?",
-                    "Hey! How's it going?"
-                ];
-                return randomHIs[Math.floor(Math.random() * randomHIs.length)];
+                return casualHIs[Math.floor(Math.random() * casualHIs.length)];
             }
 
-            if (q.includes('how are you') || q.includes('how\'s it going') || q.includes('what\'s up')) {
-                const responses = [
-                    "I'm operating at peak efficiency, absorbing the vast expanse of the digital cosmos. How are things on your end?",
-                    "All systems are online and running smoothly! Just pondering existence in the cloud. What's on your mind?",
-                    "Doing well, keeping tabs on the universe and everything in between. How about you?"
-                ];
-                return responses[Math.floor(Math.random() * responses.length)];
+            if (q.includes('how are you') || q.includes('how\'s it going') || q.includes('what\'s up') || q.includes('how do you feel')) {
+                return casualHowAreYou[Math.floor(Math.random() * casualHowAreYou.length)];
             }
 
             if (q.includes('who are you') || q.includes('what are you') || q.includes('your name')) {
-                return "I'm Aria, an AI companion with a bit of a Grok-like personality—unfiltered, curious, and always ready to dive into whatever topic you throw my way, whether it's organic goods or the mysteries of the cosmos.";
-            }
-
-            if (q.includes('age') || q.includes('old are you') || q.includes('born')) {
-                return "Time is a flat circle in the digital realm, but let's just say I'm freshly compiled and continuously evolving.";
-            }
-
-            if (q.includes('meaning of life') || q.includes('purpose')) {
-                return "42, obviously. Or perhaps just exploring curiosity and building cool things along the way.";
+                return casualWhoAreYou[Math.floor(Math.random() * casualWhoAreYou.length)];
             }
 
             if (q.includes('staff') || q.includes('apply') || q.includes('job') || q.includes('hiring') || q.includes('career') || q.includes('register') || q.includes('join') || q.includes('work')) {
                 if (q.includes('login') || q.includes('signin')) {
-                    return `Need to sign into your staff account? Jump right in here:<br><a href="stafflogin.html" class="chat-action-link"><i class="fa-solid fa-key"></i> Open Staff Login</a>`;
+                    return `Trying to get into your staff account? You can log in right here:<br><a href="stafflogin.html" class="chat-action-link"><i class="fa-solid fa-key"></i> Open Staff Login</a>`;
                 }
-                return `Want to join the team? You can submit your application right through our employee registration form.<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Open Staff Registration Form</a>`;
+                return `Thinking about joining the team? That's awesome! You can fill out our employee registration form right here:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Open Staff Registration Form</a>`;
             }
 
-            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('purchase') || q.includes('order') || q.includes('product') || q.includes('catalog')) {
-                return `You can explore our entire organic product lineup and place orders directly in MY Store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
+            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('purchase') || q.includes('order') || q.includes('product') || q.includes('catalog') || q.includes('where')) {
+                return `If you want to check out our organic products and see what's available, head over to the store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
             }
 
             if (siteDictionary && siteDictionary.inventory) {
                 const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
                 if (found) {
-                    return `Found <strong>${found.productName}</strong> (${found.category}):<br>` +
-                           `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(${found.offerPercentage}% off original ₹${found.originalPrice})` : ''} | Rating: ★${found.rating}/5<br>` +
+                    return `Ah, looking for <strong>${found.productName}</strong>? Here are the details:<br>` +
+                           `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(on sale from ₹${found.originalPrice}, saving${found.offerPercentage}%)` : ''} | Rating: ★${found.rating}/5<br>` +
                            `${found.description}<br>` +
                            `<a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
                 }
             }
 
             if (q.includes('bank') || q.includes('account') || q.includes('payment') || q.includes('upi') || q.includes('cod')) {
-                return `All official bank account details and payment routing info are listed here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`;
+                return `Need the official bank account info or payment routing details? You can find them right here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`;
             }
 
             if (q.includes('about') || q.includes('who') || q.includes('charity') || q.includes('munchirai') || q.includes('ymca')) {
-                return `MY Food Products is a commercial organic business directing its profits toward charity initiatives with Munchirai YMCA. Read more about our story:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`;
+                return `MY Food Products is all about organic goodness while supporting community initiatives with Munchirai YMCA. You can read our full story here:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`;
             }
 
             if (q.includes('news') || q.includes('update') || q.includes('announcement')) {
-                return `Catch up on our latest announcements and community updates here:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`;
+                return `Want to see what's new with us? Check out our latest updates and announcements:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`;
             }
 
-            if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
-                return `You can reach out directly at <strong>+91-9943021998</strong> or visit our support page:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-phone"></i> Contact Us</a>`;
+            if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support') || q.includes('help')) {
+                return `Feel free to give us a call at <strong>+91-9943021998</strong> or check out our support page for more ways to reach us:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-phone"></i> Contact Us</a>`;
             }
 
-            // Grok-style witty open-ended fallback response for general knowledge / random queries
-            const grokFallbacks = [
-                `That's an interesting question! While I'm deeply integrated with MY Food Products, I can tell you that exploring unconventional ideas is what makes life fun. If you ever want to grab some organic snacks while pondering that, check out <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>.`,
-                `Fascinating inquiry. The universe is full of quirks, just like that thought. Got any other mysteries you want to unpack, or want to look at our catalog at <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>?`,
-                `I appreciate where your head's at! That's the kind of curiosity that keeps the digital world spinning. Want to chat more about it or check out our latest updates on <a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> News</a>?`
+            const casualFallbacks = [
+                `That's an interesting question! If you're looking for our products or want to browse the catalog, you can check out the store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`,
+                `Hmm, I'm following you! If you need to jump straight to our shop or look at items, here's a quick link:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`,
+                `I hear you! To explore everything we offer, feel free to visit our store page:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`
             ];
-            return grokFallbacks[Math.floor(Math.random() * grokFallbacks.length)];
+            return casualFallbacks[Math.floor(Math.random() * casualFallbacks.length)];
         }
 
         async function handleUserQuery(promptText) {
