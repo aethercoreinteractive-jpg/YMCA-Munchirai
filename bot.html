@@ -76,7 +76,7 @@
 
         <!-- Main Chat Workspace -->
         <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3 max-w-3xl mx-auto">
-            <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-32 sm:pb-36"></div>
+            <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-28 sm:pb-32"></div>
         </main>
 
         <!-- Inbuilt Custom Confirmation Modal -->
@@ -96,10 +96,10 @@
             </div>
         </div>
 
-        <!-- Professional Input Footer with Blubi Responsive Sizing (Mobile vs Desktop) -->
+        <!-- Professional Input Footer with Blubi Responsive Sizing (Cleaned text box area) -->
         <footer class="w-full bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 p-3.5 sm:p-4 flex flex-col gap-2 z-20 shrink-0 shadow-2xl relative">
             
-            <!-- Blubi Transparent Layer Overlay (Scales cleanly across mobile and desktop viewports) -->
+            <!-- Blubi Transparent Layer Overlay -->
             <div class="absolute -top-20 sm:-top-28 left-4 z-30 pointer-events-none flex items-center">
                 <img id="blubi-avatar" src="blubiani1.gif" alt="Blubi Avatar" class="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.95)]">
             </div>
@@ -110,10 +110,6 @@
                     <span>Send</span> <i class="fa-solid fa-paper-plane text-[10px]"></i>
                 </button>
             </form>
-            <div class="flex justify-between items-center text-[11px] sm:text-xs text-slate-400 px-1 max-w-3xl w-full mx-auto font-medium pl-18 sm:pl-28">
-                <span>Support: +91-9943021998</span>
-                <span class="text-amber-500/90 font-semibold">MY Food Products</span>
-            </div>
         </footer>
 
     </div>
@@ -362,7 +358,7 @@
             }
         }
 
-        chatForm.addEventListener('submit', (e) => {
+         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const text = userInput.value.trim();
             if(!text) return;
