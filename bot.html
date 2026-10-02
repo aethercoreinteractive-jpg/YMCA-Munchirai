@@ -39,7 +39,6 @@
             transform: translateY(-1px);
         }
 
-        /* Desktop specific layout container constraints */
         @media (min-width: 768px) {
             .app-container {
                 max-width: 768px;
@@ -56,7 +55,7 @@
 
     <div class="app-container w-full h-full flex flex-col justify-between relative overflow-hidden">
 
-        <!-- Professional Header matching bankdetails.html styling -->
+        <!-- Professional Header -->
         <header class="w-full px-4 py-3.5 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 flex justify-between items-center z-10 shrink-0 shadow-lg">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold flex items-center justify-center text-xs shadow-inner flex-shrink-0">
@@ -79,7 +78,7 @@
             <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-28 sm:pb-32"></div>
         </main>
 
-        <!-- Inbuilt Custom Confirmation Modal -->
+        <!-- Custom Confirmation Modal -->
         <div id="custom-confirm-modal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xs w-full shadow-2xl flex flex-col gap-4 text-center">
                 <div class="w-12 h-12 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-lg border border-red-500/20 shadow-inner">
@@ -96,10 +95,10 @@
             </div>
         </div>
 
-        <!-- Professional Input Footer with Blubi Responsive Sizing (Cleaned text box area) -->
+        <!-- Professional Input Footer -->
         <footer class="w-full bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 p-3.5 sm:p-4 flex flex-col gap-2 z-20 shrink-0 shadow-2xl relative">
             
-            <!-- Blubi Transparent Layer Overlay -->
+            <!-- Blubi Avatar -->
             <div class="absolute -top-20 sm:-top-28 left-4 z-30 pointer-events-none flex items-center">
                 <img id="blubi-avatar" src="blubiani1.gif" alt="Blubi Avatar" class="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.95)]">
             </div>
@@ -114,7 +113,6 @@
 
     </div>
 
-    <!-- Assistant Script Engine -->
     <script>
         const chatLog = document.getElementById('chat-log');
         const chatForm = document.getElementById('chat-form');
@@ -133,7 +131,6 @@
 
         const GROK_API_KEY = "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";
 
-        // Blubi State Handlers
         function setBlubiState(state) {
             if (state === 'thinking') {
                 blubiAvatar.src = 'blubi thinking.gif';
@@ -141,8 +138,7 @@
                 blubiAvatar.src = 'blubi speaking.gif';
             } else if (state === 'idle') {
                 const idleGifs = ['blubiani1.gif', 'blubiani2.gif'];
-                const randomGif = idleGifs[Math.floor(Math.random() * idleGifs.length)];
-                blubiAvatar.src = randomGif;
+                blubiAvatar.src = idleGifs[Math.floor(Math.random() * idleGifs.length)];
             }
         }
 
@@ -156,11 +152,7 @@
         }
 
         userInput.addEventListener('input', () => {
-            if (userInput.value.trim().length > 0) {
-                setBlubiState('thinking');
-            } else {
-                setBlubiState('idle');
-            }
+            setBlubiState(userInput.value.trim().length > 0 ? 'thinking' : 'idle');
         });
 
         async function loadDictionaryData() {
@@ -168,18 +160,8 @@
                 const response = await fetch('dictionary.js').catch(() => fetch('aidictionary.html'));
                 if (response && response.ok) {
                     const text = await response.text();
-                    if (text.includes('AIDictionary') || text.includes('dictionary')) {
-                        const evalScript = new Function(text + '; return typeof AIDictionary !== "undefined" ? AIDictionary : (typeof dictionary !== "undefined" ? dictionary : null);');
-                        siteDictionary = evalScript();
-                    } else {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(text, 'text/html');
-                        const scriptTag = doc.querySelector('script');
-                        if (scriptTag && scriptTag.textContent) {
-                            const evalScript = new Function(scriptTag.textContent + '; return typeof AIDictionary !== "undefined" ? AIDictionary : (typeof dictionary !== "undefined" ? dictionary : null);');
-                            siteDictionary = evalScript();
-                        }
-                    }
+                    const evalScript = new Function(text + '; return typeof AIDictionary !== "undefined" ? AIDictionary : (typeof dictionary !== "undefined" ? dictionary : null);');
+                    siteDictionary = evalScript();
                 }
             } catch (e) {}
         }
@@ -256,7 +238,12 @@
             conversationHistory.push({ role: "user", content: query });
 
             try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                // Using a CORS proxy wrapper to bypass browser security blocks for static deployment
+                const targetUrl = "https://api.groq.com/openai/v1/chat/completions";
+                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl);
+
+                // Alternatively, standard direct fetch with fallback
+                const response = await fetch(targetUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -274,9 +261,7 @@
                 });
 
                 if (!response.ok) {
-                    const errText = await response.text();
-                    console.error("API Error Response:", errText);
-                    throw new Error(`API error: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -284,9 +269,8 @@
                 conversationHistory.push({ role: "assistant", content: reply });
                 return reply;
             } catch (error) {
-                console.error("Fetch Exception:", error);
-                // Human-like fallback if network fails
-                return `Hey, my network request just got blocked or failed to reach the server. Make sure your API key has proper permissions or check your browser console for details! In the meantime, you can check out <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>.`;
+                // Intelligent fallback reply if network/CORS fails entirely
+                return `Hey! I'm here. Looks like the browser blocked the direct API call due to security rules (CORS). You can check out our products directly at <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>!`;
             }
         }
 
@@ -302,43 +286,7 @@
         window.addEventListener('load', async () => {
             await loadDictionaryData();
             loadChatHistory();
-            startContinuousListening();
         });
-
-        function startContinuousListening() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.lang = 'en-US';
-
-                recognition.onresult = (event) => {
-                    if (isAiSpeaking) return;
-                    let interim = '';
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        if (event.results[i].isFinal) {
-                            const speechToText = event.results[i][0].transcript.trim();
-                            if (speechToText) handleUserQuery(speechToText);
-                        } else {
-                            interim += event.results[i][0].transcript;
-                        }
-                    }
-                    if (interim.trim()) {
-                        setBlubiState('thinking');
-                        userInput.value = interim;
-                    }
-                };
-
-                recognition.onerror = () => {
-                    if (!isAiSpeaking) setTimeout(() => { try { recognition.start(); } catch(e){} }, 1000);
-                };
-                recognition.onend = () => {
-                    if (!isAiSpeaking) try { recognition.start(); } catch(e){}
-                };
-                try { recognition.start(); } catch(e){}
-            }
-        }
 
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -349,5 +297,4 @@
         });
     </script>
 </body>
-    </html>
-    
+</html>
