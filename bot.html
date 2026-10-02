@@ -274,7 +274,9 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error("API request failed");
+                    const errText = await response.text();
+                    console.error("API Error Response:", errText);
+                    throw new Error(`API error: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -282,7 +284,9 @@
                 conversationHistory.push({ role: "assistant", content: reply });
                 return reply;
             } catch (error) {
-                return `My connection hiccuped for a second, but I'm right here! Feel free to check out <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a> in the meantime.`;
+                console.error("Fetch Exception:", error);
+                // Human-like fallback if network fails
+                return `Hey, my network request just got blocked or failed to reach the server. Make sure your API key has proper permissions or check your browser console for details! In the meantime, you can check out <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>.`;
             }
         }
 
