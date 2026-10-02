@@ -238,12 +238,11 @@
             conversationHistory.push({ role: "user", content: query });
 
             try {
-                // Using a CORS proxy wrapper to bypass browser security blocks for static deployment
+                // Route through corsproxy.io to completely avoid browser restrictions on static pages
                 const targetUrl = "https://api.groq.com/openai/v1/chat/completions";
-                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl);
+                const proxyUrl = "https://corsproxy.io/?";
 
-                // Alternatively, standard direct fetch with fallback
-                const response = await fetch(targetUrl, {
+                const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -261,7 +260,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`API error status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -269,8 +268,7 @@
                 conversationHistory.push({ role: "assistant", content: reply });
                 return reply;
             } catch (error) {
-                // Intelligent fallback reply if network/CORS fails entirely
-                return `Hey! I'm here. Looks like the browser blocked the direct API call due to security rules (CORS). You can check out our products directly at <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>!`;
+                return `Hey! I'm here. Looks like the connection encountered an issue. You can check out our products directly at <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>!`;
             }
         }
 
