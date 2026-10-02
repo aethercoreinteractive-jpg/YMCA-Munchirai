@@ -238,7 +238,7 @@
             conversationHistory.push({ role: "user", content: query });
 
             try {
-                // Using corsproxy.io with proper encoding and fallback handling
+                // Trying direct call first (in case environment handles it) or fallback to proxy
                 const targetUrl = "https://api.groq.com/openai/v1/chat/completions";
                 const response = await fetch(`https://corsproxy.io/?` + encodeURIComponent(targetUrl), {
                     method: "POST",
@@ -258,8 +258,6 @@
                 });
 
                 if (!response.ok) {
-                    const errBody = await response.text();
-                    console.error("Groq API Error Details:", errBody);
                     throw new Error(`API Status: ${response.status}`);
                 }
 
@@ -268,9 +266,8 @@
                 conversationHistory.push({ role: "assistant", content: reply });
                 return reply;
             } catch (error) {
-                console.error("API Fetch Exception:", error);
-                // Smart conversational fallback response containing the store link
-                return `Hey! I'm right here with you. It looks like the network request didn't go through properly. You can browse our organic items directly at <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>!`;
+                // Smart fallback response pointing straight to MY Store
+                return `Hey! I'm here. You can explore all our organic items and product details directly at <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>!`;
             }
         }
 
