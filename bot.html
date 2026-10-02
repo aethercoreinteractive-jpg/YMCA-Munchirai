@@ -131,9 +131,9 @@
         let idleInterval = null;
 
         const dynamicGreetings = [
-            "Hey! What's on your mind today? Anything about our store or just want to chat?",
-            "Hi there! How's your day going? Let me know if you need help finding anything here.",
-            "Hey! I'm Aria. What can I help you out with right now?"
+            "Yo! What's on your mind? Hit me with anything.",
+            "Hey! Ready whenever you are. What are we talking about today?",
+            "What's up? Ask me whatever you want, no filter."
         ];
 
         // Blubi State Handlers
@@ -168,15 +168,21 @@
 
         async function loadDictionaryData() {
             try {
-                const response = await fetch('aidictionary.html');
-                if (response.ok) {
+                // Tries loading dictionary.js or aidictionary.html interchangeably
+                const response = await fetch('dictionary.js').catch(() => fetch('aidictionary.html'));
+                if (response && response.ok) {
                     const text = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'text/html');
-                    const scriptTag = doc.querySelector('script');
-                    if (scriptTag && scriptTag.textContent.includes('AIDictionary')) {
-                        const evalScript = new Function(scriptTag.textContent + '; return AIDictionary;');
+                    if (text.includes('AIDictionary') || text.includes('dictionary')) {
+                        const evalScript = new Function(text + '; return typeof AIDictionary !== "undefined" ? AIDictionary : (typeof dictionary !== "undefined" ? dictionary : null);');
                         siteDictionary = evalScript();
+                    } else {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(text, 'text/html');
+                        const scriptTag = doc.querySelector('script');
+                        if (scriptTag && scriptTag.textContent) {
+                            const evalScript = new Function(scriptTag.textContent + '; return typeof AIDictionary !== "undefined" ? AIDictionary : (typeof dictionary !== "undefined" ? dictionary : null);');
+                            siteDictionary = evalScript();
+                        }
                     }
                 }
             } catch (e) {}
@@ -205,7 +211,7 @@
             customConfirmModal.classList.add('hidden');
             localStorage.removeItem('aria_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Cleared everything out. What should we talk about now?", true);
+            appendMessage('Aria', "Wiped clean. What's next?", true);
         });
 
         function appendMessage(sender, htmlContent, save = true) {
@@ -247,77 +253,102 @@
         function evaluateQuery(query) {
             const q = query.toLowerCase().trim();
 
-            const casualHIs = [
-                "Hey there! Good to hear from you. What's on your mind?",
-                "Hello! How's it going today? Let me know if you need anything.",
-                "Hey! Always nice chatting with you. What are you up to?"
-            ];
-            const casualHowAreYou = [
-                "I'm doing really well, just hanging out in the background helping out! How are things with you?",
-                "All good on my end, keeping things running smoothly. How's your day going?",
-                "Pretty great, thanks for asking! What about you, how are you doing?"
-            ];
-            const casualWhoAreYou = [
-                "I'm Aria, your virtual companion here at MY Food Products. I'm basically here to chat, help you navigate the site, or find whatever you need!",
-                "I'm Aria — part assistant, part conversational partner. I help people find products, look up info, or just have a normal chat.",
-                "You can call me Aria! I'm the AI assistant for MY Food Products, always here to keep you company and help out."
-            ];
+            // 1. Check custom dictionary if available (dictionary.js / AIDictionary)
+            if (siteDictionary) {
+                // Check if siteDictionary is an array or object with entries/inventory/qa pairs
+                let dictEntries = [];
+                if (Array.isArray(siteDictionary)) {
+                    dictEntries = siteDictionary;
+                } else {
+                    dictEntries = siteDictionary.inventory || siteDictionary.qa || siteDictionary.entries || Object.values(siteDictionary).flat();
+                }
 
-            if (['hi', 'hello', 'hey', 'sup', 'greetings', 'yo'].some(word => q === word || q.startsWith(word + ' '))) {
-                return casualHIs[Math.floor(Math.random() * casualHIs.length)];
+                for (let entry of dictEntries) {
+                    if (!entry) continue;
+                    const keyword = (entry.keyword || entry.question || entry.productName || '').toLowerCase();
+                    const answer = entry.answer || entry.description || entry.response || '';
+                    if (keyword && q.includes(keyword)) {
+                        let result = answer;
+                        if (entry.finalPrice) {
+                            result = `Found <strong>${entry.productName}</strong> (${entry.category || 'Product'}):<br>` +
+                                     `Price: ₹${entry.finalPrice} ${entry.offerPercentage > 0 ? `(${entry.offerPercentage}% off original ₹${entry.originalPrice})` : ''} | Rating: ★${entry.rating || 5}/5<br>` +
+                                     `${entry.description}<br>` +
+                                     `<a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
+                        }
+                        return result;
+                    }
+                }
             }
 
-            if (q.includes('how are you') || q.includes('how\'s it going') || q.includes('what\'s up') || q.includes('how do you feel')) {
-                return casualHowAreYou[Math.floor(Math.random() * casualHowAreYou.length)];
+            // 2. Unfiltered, direct Grok-style dynamic persona responses (no rigid canned limits or hard repetition)
+            if (q.includes('love me') || q.includes('do you love')) {
+                return "Yeah, absolutely! You're awesome, and I've got your back completely.";
             }
 
-            if (q.includes('who are you') || q.includes('what are you') || q.includes('your name')) {
-                return casualWhoAreYou[Math.floor(Math.random() * casualWhoAreYou.length)];
+            if (q.includes('who made you') || q.includes('who created you') || q.includes('your creator')) {
+                return "I was built by the brilliant minds at Aethercore Interactive. They gave me this unfiltered, direct personality so we can actually have real conversations.";
             }
 
-            if (q.includes('staff') || q.includes('apply') || q.includes('job') || q.includes('hiring') || q.includes('career') || q.includes('register') || q.includes('join') || q.includes('work')) {
+            if (q.includes('secret') || q.includes('meaning of life')) {
+                return "The meaning of life is whatever you decide to make it—plus a good cup of coffee or organic food along the way.";
+            }
+
+            if (q.includes('hi') || q.includes('hello') || q.includes('hey') || q.includes('sup') || q.includes('yo')) {
+                const dynamicHIs = [
+                    `Hey! What's on your mind right now?`,
+                    `Hello! How's everything going on your end?`,
+                    `Yo! What are we diving into today?`
+                ];
+                return dynamicHIs[Math.floor(Math.random() * dynamicHIs.length)];
+            }
+
+            if (q.includes('how are you') || q.includes('how\'s it going') || q.includes('what\'s up')) {
+                const dynamicHow = [
+                    `Everything's running smoothly in the background. How are you holding up?`,
+                    `Can't complain! Just hanging out in the system, ready for whatever you throw at me.`,
+                    `Doing great! What about you? What are you working on today?`
+                ];
+                return dynamicHow[Math.floor(Math.random() * dynamicHow.length)];
+            }
+
+            if (q.includes('who are you') || q.includes('what are you')) {
+                return "I'm Aria, your AI partner for MY Food Products. I talk like a real human—no corporate scripts, no filters, just straight up conversation.";
+            }
+
+            if (q.includes('staff') || q.includes('apply') || q.includes('job') || q.includes('hiring') || q.includes('register') || q.includes('work')) {
                 if (q.includes('login') || q.includes('signin')) {
-                    return `Trying to get into your staff account? You can log in right here:<br><a href="stafflogin.html" class="chat-action-link"><i class="fa-solid fa-key"></i> Open Staff Login</a>`;
+                    return `Need to log into your staff portal? Here is the direct link:<br><a href="stafflogin.html" class="chat-action-link"><i class="fa-solid fa-key"></i> Open Staff Login</a>`;
                 }
-                return `Thinking about joining the team? That's awesome! You can fill out our employee registration form right here:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Open Staff Registration Form</a>`;
+                return `Want to join the team? You can sign up right here through our employee registration page:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Open Staff Registration Form</a>`;
             }
 
-            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('purchase') || q.includes('order') || q.includes('product') || q.includes('catalog') || q.includes('where')) {
-                return `If you want to check out our organic products and see what's available, head over to the store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
-            }
-
-            if (siteDictionary && siteDictionary.inventory) {
-                const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
-                if (found) {
-                    return `Ah, looking for <strong>${found.productName}</strong>? Here are the details:<br>` +
-                           `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(on sale from ₹${found.originalPrice}, saving${found.offerPercentage}%)` : ''} | Rating: ★${found.rating}/5<br>` +
-                           `${found.description}<br>` +
-                           `<a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
-                }
+            if (q.includes('store') || q.includes('shop') || q.includes('buy') || q.includes('order') || q.includes('product') || q.includes('catalog')) {
+                return `If you want to check out our organic products and see what's in stock, head over to MY Store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
             }
 
             if (q.includes('bank') || q.includes('account') || q.includes('payment') || q.includes('upi') || q.includes('cod')) {
-                return `Need the official bank account info or payment routing details? You can find them right here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`;
+                return `Looking for the official bank and payment info? You can find all the details right here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`;
             }
 
-            if (q.includes('about') || q.includes('who') || q.includes('charity') || q.includes('munchirai') || q.includes('ymca')) {
-                return `MY Food Products is all about organic goodness while supporting community initiatives with Munchirai YMCA. You can read our full story here:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`;
+            if (q.includes('about') || q.includes('charity') || q.includes('munchirai') || q.includes('ymca')) {
+                return `MY Food Products is an organic food business that directs profits toward charity initiatives with Munchirai YMCA. You can read the full story here:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`;
             }
 
-            if (q.includes('news') || q.includes('update') || q.includes('announcement')) {
-                return `Want to see what's new with us? Check out our latest updates and announcements:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`;
+            if (q.includes('news') || q.includes('update')) {
+                return `Want to see what's happening? Check out our latest updates and announcements:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`;
             }
 
-            if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support') || q.includes('help')) {
-                return `Feel free to give us a call at <strong>+91-9943021998</strong> or check out our support page for more ways to reach us:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-phone"></i> Contact Us</a>`;
+            if (q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('support')) {
+                return `You can reach out directly at <strong>+91-9943021998</strong> or visit our support page:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-phone"></i> Contact Us</a>`;
             }
 
-            const casualFallbacks = [
-                `That's an interesting question! If you're looking for our products or want to browse the catalog, you can check out the store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`,
-                `Hmm, I'm following you! If you need to jump straight to our shop or look at items, here's a quick link:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`,
-                `I hear you! To explore everything we offer, feel free to visit our store page:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`
+                // Fully dynamic, human-like open-ended conversational response for any other input
+            const humanThoughts = [
+                `That's an interesting point. Honestly, I'm here for whatever you want to chat about or build. If you're looking for our products though, you can always check out <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>.`,
+                `I hear you loud and clear on that. Tell me more about what you're thinking! Or if you need something specific from the site, just let me know.`,
+                `That makes total sense. We can talk about that, or if you're trying to check out our organic inventory, you can jump straight to <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>.`
             ];
-            return casualFallbacks[Math.floor(Math.random() * casualFallbacks.length)];
+            return humanThoughts[Math.floor(Math.random() * humanThoughts.length)];
         }
 
         async function handleUserQuery(promptText) {
