@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Munchirai YMCA | Kids' Favorite Products</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#1e293b',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+
+    <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
+    <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
+        <div class="w-12 h-12 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-2xl flex items-center justify-center mb-4 text-lg">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-white text-base font-extrabold mb-1">Unauthorized Access Attempt</h2>
+        <p class="text-slate-400 text-xs max-w-xs mb-5">Please authenticate via the primary admin control center.</p>
+        <a href="admin.html" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md">
+            Return to Admin Portal
+        </a>
+    </div>
+
+    <!-- HEADER NAVIGATION -->
+    <header class="bg-slate-900 text-slate-100 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center space-x-2.5">
+                <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30 flex-shrink-0">
+                    <span id="header-logo-fallback">MY</span>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold tracking-tight">MY Food</h1>
+                    <p class="text-[10px] text-slate-400">Kids' Favorite Feed</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <button type="button" onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.history.back();" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 transition shadow-sm border border-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left text-xs text-amber-400"></i> <span>Back</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
+        
+        <!-- Header Section with Action Button -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Storefront Showcase</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Kids' Favorite Items</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Currently featured items displayed in the kids' favorite collection.</p>
+            </div>
+
+            <!-- Redirect Button -->
+            <a href="selectkidsfavourite.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-6 py-3 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2 shrink-0">
+                <i class="fa-solid fa-face-smile text-slate-950"></i>
+                <span>Select Kids' Favorites</span>
+            </a>
+        </section>
+
+        <div id="status-msg" class="hidden mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
+
+        <!-- ACTIVE KIDS' FAVORITES CATEGORIZED DISPLAY -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Categorized Breakdown</span>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Manage and remove items from your kids' favorite collection</p>
+                </div>
+                <span id="kidsfavourite-total-count" class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">0 Total Active</span>
+            </div>
+
+            <div id="saved-kidsfavourite-container" class="space-y-6">
+                <div class="py-10 text-center text-slate-400 text-xs">Loading kids' favorites...</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ENTERPRISE FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400">
+        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
+    </footer>
+
+    <!-- Firebase Realtime Engine -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // SECURITY CHECKPOINT: Enforce Session Token Verification for Admin or Staff
+        function verifyAdminSession() {
+            const isAdminAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const adminRedirectToken = sessionStorage.getItem("ymca_redirect_token");
+            
+            const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true";
+            const staffRedirectToken = sessionStorage.getItem("staff_redirect_token");
+            
+            const isAdminValid = isAdminAuthenticated && adminRedirectToken === "active";
+            const isStaffValid = isStaffAuthenticated && staffRedirectToken === "active";
+
+            if (!isAdminValid && !isStaffValid) {
+                document.getElementById('security-lock-overlay').classList.remove('hidden');
+                throw new Error("Unauthorized security access blocked.");
+            }
+        }
+
+        // Run security verification immediately
+        try {
+            verifyAdminSession();
+        } catch (e) {
+            throw e;
+        }
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function formatDriveUrl(rawUrl) {
+            if (!rawUrl) return "";
+            let url = rawUrl.trim();
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            }
+            return url;
+        }
+
+        async function fetchHeaderLogo() {
+            try {
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
+                const container = document.getElementById('header-logo-container');
+                if (snap.exists() && snap.val()) {
+                    const formatted = formatDriveUrl(snap.val());
+                    if (formatted) {
+                        container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading header logo:", err);
+            }
+        }
+        fetchHeaderLogo();
+
+        let allInventory = [];
+        let savedKidsFavourite = {};
+
+        const savedContainer = document.getElementById('saved-kidsfavourite-container');
+        const kidsfavouriteTotalCountEl = document.getElementById('kidsfavourite-total-count');
+
+        function showStatus(message, isError = false) {
+            const msgEl = document.getElementById('status-msg');
+            msgEl.textContent = message;
+            msgEl.className = `mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            msgEl.classList.remove('hidden');
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
+        }
+
+        // Listen for Realtime Changes to Kids' Favorites & Inventory
+        onValue(ref(db, 'kidsfavourite'), (bSnapshot) => {
+            savedKidsFavourite = bSnapshot.val() || {};
+            
+            onValue(ref(db, 'inventory'), (invSnapshot) => {
+                const invData = invSnapshot.val();
+                if (!invData) {
+                    allInventory = [];
+                } else {
+                    allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+                }
+
+                renderSavedKidsFavourite();
+            });
+        });
+
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
+
+        function renderSavedKidsFavourite() {
+            const savedItems = allInventory.filter(item => savedKidsFavourite[item.key] === true);
+            
+            kidsfavouriteTotalCountEl.textContent = `${savedItems.length} Total Active`;
+
+            if (savedItems.length === 0) {
+                savedContainer.innerHTML = `
+                    <div class="py-12 text-center space-y-2">
+                        <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mx-auto text-lg">
+                            <i class="fa-solid fa-face-smile"></i>
+                        </div>
+                        <p class="text-xs text-slate-700 font-bold">No active kids' favorites right now.</p>
+                        <p class="text-[11px] text-slate-400 max-w-sm mx-auto">Click the "Select Kids' Favorites" button above to choose products from your inventory.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group saved items by category
+            const grouped = {};
+            savedItems.forEach(item => {
+                const cat = item.category || 'General';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(item);
+            });
+
+            // Render categorized list
+            const categories = Object.keys(grouped).sort();
+            savedContainer.innerHTML = categories.map(cat => {
+                const items = grouped[cat];
+                return `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></span>
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">${cat}</h4>
+                            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${items.length}</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            ${items.map(item => `
+                                <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-slate-300 transition">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+                                            <img src="${formatImageURL(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
+                                            <span class="text-[10px] font-bold text-slate-600">₹${Number(item.price || 0).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- REMOVE BUTTON -->
+                                    <button type="button" onclick="window.removeKidsFavourite('${item.key}')" class="px-3 py-1.5 rounded-xl text-[11px] font-extrabold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/80 transition active:scale-95 flex items-center gap-1.5 shrink-0">
+                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Remove Kids' Favorite functionality (targets the kidsfavourite path cleanly)
+        window.removeKidsFavourite = function(key) {
+            remove(ref(db, `kidsfavourite/${key}`))
+                .then(() => {
+                    showStatus("Item removed from kids' favorites!");
+                })
+                .catch(err => {
+                    showStatus("Error removing item: " + err.message, true);
+                });
+        };
+    </script>
+</body>
+  </html>
+  
