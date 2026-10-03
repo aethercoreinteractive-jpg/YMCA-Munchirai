@@ -77,19 +77,32 @@
     <!-- MAIN DASHBOARD CONTENT -->
     <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
         
-        <!-- Header Section -->
-        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200/60">Curation Console</span>
-                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Select Kids' Favourite Products</h2>
-                <p class="text-[11px] text-slate-500 mt-0.5">Toggle items to display them instantly in the storefront Kids' Favourite section.</p>
+        <!-- Header Section with Controls -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-4">
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200/60">Curation Console</span>
+                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Select Kids' Favourite Products</h2>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Toggle items to display them instantly in the storefront Kids' Favourite section.</p>
+                </div>
             </div>
 
-            <div class="relative w-full sm:w-72">
-                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
-                    <i class="fa-solid fa-search"></i>
-                </span>
-                <input type="text" id="search-product-input" placeholder="Search inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-sky-500 focus:bg-white transition shadow-sm">
+            <!-- Search and Filter Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div class="relative w-full">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="search-product-input" placeholder="Search inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-sky-500 focus:bg-white transition shadow-sm">
+                </div>
+                <div class="relative w-full">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                        <i class="fa-solid fa-filter"></i>
+                    </span>
+                    <select id="category-filter-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-sky-500 focus:bg-white transition shadow-sm appearance-none">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
             </div>
         </section>
 
@@ -100,7 +113,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
                     <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Available Inventory</span>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Tap checkbox or button to mark items as Kids' Favourite</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Tap button to mark items as Kids' Favourite</p>
                 </div>
                 <span id="inventory-total-count" class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200/60">0 Total Items</span>
             </div>
@@ -177,6 +190,7 @@
         const listContainer = document.getElementById('inventory-list-container');
         const inventoryTotalCountEl = document.getElementById('inventory-total-count');
         const searchInput = document.getElementById('search-product-input');
+        const categoryFilterSelect = document.getElementById('category-filter-select');
 
         function showStatus(message, isError = false) {
             const msgEl = document.getElementById('status-msg');
@@ -197,21 +211,39 @@
                 } else {
                     allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
                 }
-                renderInventory(searchInput.value);
+                updateCategoryDropdown();
+                renderInventory();
             });
         });
 
-        function renderInventory(filterText = '') {
-            const query = filterText.toLowerCase();
-            const filtered = allInventory.filter(item => 
-                (item.name && item.name.toLowerCase().includes(query)) || 
-                (item.category && item.category.toLowerCase().includes(query))
-            );
+        function updateCategoryDropdown() {
+            const categories = [...new Set(allInventory.map(item => item.category || 'General'))].sort();
+            const currentSelected = categoryFilterSelect.value;
+            
+            categoryFilterSelect.innerHTML = `<option value="all">All Categories</option>` + 
+                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            
+            if (categories.includes(currentSelected)) {
+                categoryFilterSelect.value = currentSelected;
+            }
+        }
+
+        function renderInventory() {
+            const query = searchInput.value.toLowerCase();
+            const selectedCategory = categoryFilterSelect.value;
+
+            const filtered = allInventory.filter(item => {
+                const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) || 
+                                      (item.category && item.category.toLowerCase().includes(query));
+                const itemCategory = item.category || 'General';
+                const matchesCategory = selectedCategory === 'all' || itemCategory === selectedCategory;
+                return matchesSearch && matchesCategory;
+            });
 
             inventoryTotalCountEl.textContent = `${filtered.length} Items Found`;
 
             if (filtered.length === 0) {
-                listContainer.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">No products match your search.</div>`;
+                listContainer.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">No products match your search or filter.</div>`;
                 return;
             }
 
@@ -275,9 +307,9 @@
             }
         };
 
-        searchInput.addEventListener('input', (e) => {
-            renderInventory(e.target.value);
-        });
+        searchInput.addEventListener('input', () => renderInventory());
+        categoryFilterSelect.addEventListener('change', () => renderInventory());
     </script>
 </body>
-</html>
+    </html>
+    
