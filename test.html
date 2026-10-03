@@ -185,7 +185,6 @@
         let liveInventory = [];
         let categoriesCache = [];
         let savedBestSellers = {};
-        let savedKidsFavourite = {};
         let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
         let selectedCategoryFilter = null;
         let currentSortValue = 'default';
@@ -196,6 +195,7 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
+        // Initialize base history state
         window.history.replaceState({ pageBase: true }, "");
 
         window.revertLogoPosition = function() {
@@ -258,11 +258,6 @@
             renderCatalog(liveInventory);
         });
 
-        onValue(ref(db, 'kidsfavourite'), (snapshot) => {
-            savedKidsFavourite = snapshot.val() || {};
-            renderCatalog(liveInventory);
-        });
-
         onValue(ref(db, 'inventory'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -397,13 +392,14 @@
             
             if (isCategoryDrawerOpen) {
                 hideDrawerDOM();
-                isCategoryDrawerOpen = false;
+                isCategoryDrawerOpen = false; // ensure drawer flag is reset
             }
 
             if (pushState && !isSearchActive) {
                 isSearchActive = true;
                 window.history.pushState({ searchActive: true, category: catName, sort: currentSortValue }, "");
             } else if (pushState && isSearchActive) {
+                // Update current state if we are already inside a search/filter history node
                 window.history.replaceState({ searchActive: true, category: catName, sort: currentSortValue }, "");
             }
 
@@ -416,11 +412,6 @@
             renderCatalog(liveInventory);
         });
 
-        onValue(ref(db, 'kidsfavourite'), (snapshot) => {
-            savedKidsFavourite = snapshot.val() || {};
-            renderCatalog(liveInventory);
-        });
-
         onValue(ref(db, 'inventory'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -555,13 +546,14 @@
             
             if (isCategoryDrawerOpen) {
                 hideDrawerDOM();
-                isCategoryDrawerOpen = false;
+                isCategoryDrawerOpen = false; // ensure drawer flag is reset
             }
 
             if (pushState && !isSearchActive) {
                 isSearchActive = true;
                 window.history.pushState({ searchActive: true, category: catName, sort: currentSortValue }, "");
             } else if (pushState && isSearchActive) {
+                // Update current state if we are already inside a search/filter history node
                 window.history.replaceState({ searchActive: true, category: catName, sort: currentSortValue }, "");
             }
 
@@ -570,12 +562,15 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
+        // Robust Native Back Button Controller
         window.addEventListener('popstate', (event) => {
+            // 1. If Category Drawer is open, close it cleanly
             if (isCategoryDrawerOpen) {
                 hideDrawerDOM();
                 return;
             }
 
+            // 2. If search results / category filter view is active, close it and reset view
             if (isSearchActive) {
                 isSearchActive = false;
                 selectedCategoryFilter = null;
@@ -589,6 +584,7 @@
                 return;
             }
 
+            // 3. If everything is already closed, let the browser execute the native back action
             window.history.back();
         });
 
@@ -832,7 +828,7 @@
                 return bsHtml;
             };
 
-            const generateSliderRowHTML = (catName, customTitle = null, customButton = null, customAction = null) => {
+            const generateSliderRowHTML = (catName) => {
                 const groupItems = categoryGroups[catName] || [];
                 if (groupItems.length === 0) return '';
                 groupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
@@ -842,9 +838,8 @@
                         <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
                             <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                                ${customTitle || catName}
+                                ${catName}
                             </h2>
-                            ${customButton ? `<button onclick="${customAction}" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer"><span>${customButton}</span> <i class="fa-solid fa-arrow-right text-[9px]"></i></button>` : ''}
                         </div>
                         <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
                 `;
@@ -881,37 +876,37 @@
                 return rowHtml;
             };
 
-            const generateRecommendedHTML = () => {
+            const generateKidsFavouriteHTML = () => {
                 const shuffled = [...sortedProducts].sort(() => 0.5 - Math.random());
-                const recommendedList = shuffled.slice(0, 4);
-                if (recommendedList.length === 0) return '';
-                recommendedList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+                const kidsList = shuffled.slice(0, 4);
+                if (kidsList.length === 0) return '';
+                kidsList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
-                let recHtml = `
+                let kidsHtml = `
                     <div class="space-y-2.5">
                         <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
                             <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                                <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-0.5"></i> Recommended For You
+                                <i class="fa-solid fa-face-smile text-amber-500 mr-0.5"></i> Kids' Favourite
                             </h2>
                         </div>
                         <div class="grid grid-cols-2 gap-2.5 pt-0.5">
                 `;
 
-                recommendedList.forEach(item => {
+                kidsList.forEach(item => {
                     const priceDisplayHtml = getPriceDisplayHTML(item, false);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
                     const offerBadgeHtml = getOfferBadgeHTML(item);
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
-                    recHtml += `
+                    kidsHtml += `
                         <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                             ${offerBadgeHtml}
                             <div>
                                 <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
                                     <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'For You' : 'Out'}</span>
+                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
                                 </div>
                                 <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
                                 <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
@@ -926,67 +921,8 @@
                         </div>
                     `;
                 });
-                recHtml += `</div></div>`;
-                return recHtml;
-            };
-
-            const generateKidsFavouriteHTML = () => {
-                let kfList = [];
-                const kfKeys = Object.keys(savedKidsFavourite).filter(k => savedKidsFavourite[k] === true);
-                if (kfKeys.length > 0) {
-                    kfList = sortedProducts.filter(item => kfKeys.includes(item.firebaseKey));
-                }
-                if (kfList.length === 0) {
-                    kfList = [...sortedProducts];
-                }
-                if (kfList.length === 0) return '';
-
-                kfList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
-
-                let kfHtml = `
-                    <div class="space-y-2.5">
-                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
-                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                                <i class="fa-solid fa-face-smile text-amber-500 mr-0.5"></i> Kids' Favourite
-                            </h2>
-                            <button onclick="window.showAllKidsFavourite()" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
-                                <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
-                            </button>
-                        </div>
-                        <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
-                `;
-
-                kfList.forEach(item => {
-                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
-                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const offerBadgeHtml = getOfferBadgeHTML(item);
-                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
-                    const isInStock = item.inStock !== false;
-
-                    kfHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
-                            ${offerBadgeHtml}
-                            <div>
-                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
-                                </div>
-                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
-                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
-                            </div>
-                            <div>
-                                <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
-                                    ${priceDisplayHtml}
-                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
-                                </div>
-                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                kfHtml += `</div></div>`;
-                return kfHtml;
+                kidsHtml += `</div></div>`;
+                return kidsHtml;
             };
 
             const generateDark8CardSectionHTML = (catName) => {
@@ -1067,93 +1003,27 @@
             `;
 
             htmlOutput += generateBestSellersHTML();
-            htmlOutput += generateRecommendedHTML();
-            if (validCategories.length > 0) htmlOutput += generateSliderRowHTML(validCategories[0], null, "View All", `window.selectCategory('${validCategories[0]}')`);
-            if (validCategories.length > 1) htmlOutput += generateSliderRowHTML(validCategories[1], null, "View All", `window.selectCategory('${validCategories[1]}')`);
+            if (validCategories.length > 0) htmlOutput += generateSliderRowHTML(validCategories[0]);
+            if (validCategories.length > 1) htmlOutput += generateSliderRowHTML(validCategories[1]);
+            
+            htmlOutput += generateLogoModelViewerHTML();
+            htmlOutput += generateKidsFavouriteHTML();
+
+            if (validCategories.length > 2) htmlOutput += generateSliderRowHTML(validCategories[2]);
+            if (validCategories.length > 3) htmlOutput += generateSliderRowHTML(validCategories[3]);
             
             htmlOutput += adViewportHTML;
 
-            if (validCategories.length > 2) htmlOutput += generateSliderRowHTML(validCategories[2], null, "View All", `window.selectCategory('${validCategories[2]}')`);
-            if (validCategories.length > 3) htmlOutput += generateSliderRowHTML(validCategories[3], null, "View All", `window.selectCategory('${validCategories[3]}')`);
-            
             const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
             htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
-            htmlOutput += generateLogoModelViewerHTML();
 
-            if (validCategories.length > 5) htmlOutput += generateSliderRowHTML(validCategories[5], null, "View All", `window.selectCategory('${validCategories[5]}')`);
-            if (validCategories.length > 6) htmlOutput += generateSliderRowHTML(validCategories[6], null, "View All", `window.selectCategory('${validCategories[6]}')`);
-
-            htmlOutput += generateKidsFavouriteHTML();
-
-            for (let i = 7; i < validCategories.length; i++) {
-                htmlOutput += generateSliderRowHTML(validCategories[i], null, "View All", `window.selectCategory('${validCategories[i]}')`);
+            for (let i = 5; i < validCategories.length; i++) {
+                htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
 
             container.innerHTML = htmlOutput;
             renderPreviewSlider();
             setupAutoSlide();
-        };
-
-        window.showAllKidsFavourite = function(pushState = true) {
-            isSearchActive = true;
-            
-            if (pushState) {
-                window.history.pushState({ searchActive: true, category: 'Kids Favourite', sort: currentSortValue }, "");
-            }
-
-            const searchResultsSection = document.getElementById('search-results-section');
-            const searchResultsGrid = document.getElementById('search-results-grid');
-            const searchResultsTitle = document.getElementById('search-results-title');
-
-            searchResultsSection.classList.remove('hidden');
-            searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>Kids' Favourite</span>`;
-
-            let kfList = [];
-            const kfKeys = Object.keys(savedKidsFavourite).filter(k => savedKidsFavourite[k] === true);
-            if (kfKeys.length > 0) {
-                kfList = liveInventory.filter(item => kfKeys.includes(item.firebaseKey));
-            }
-            if (kfList.length === 0) {
-                kfList = [...liveInventory];
-            }
-
-            kfList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
-
-            if (kfList.length === 0) {
-                searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No products found in Kids' Favourite.</div>`;
-            } else {
-                let chosenHtml = '';
-                kfList.forEach(item => {
-                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
-                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const offerBadgeHtml = getOfferBadgeHTML(item);
-                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
-                    const isInStock = item.inStock !== false;
-
-                    chosenHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
-                            ${offerBadgeHtml}
-                            <div>
-                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
-                                </div>
-                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
-                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
-                            </div>
-                            <div>
-                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                    ${priceDisplayHtml}
-                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
-                                </div>
-                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                searchResultsGrid.innerHTML = chosenHtml;
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         function renderPreviewSlider() {
