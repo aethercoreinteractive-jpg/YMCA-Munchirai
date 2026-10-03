@@ -211,7 +211,7 @@
                 "வணக்கம் நண்பரே! நான் பிளூபி. முதலில் எதை ஆராய விரும்புகிறீர்கள்? கீழே ஒரு வகையைத் தட்டவும்.",
                 "வணக்கம்! பிளூபி இங்கே இருக்கிறேன். MY Store-ல் சுற்றிவர உங்களுக்கு என்ன உதவ வேண்டும்?",
                 "ஹலோ! நான் பிளூபி. தயார் ஆனதும் கீழே உள்ள விரைவுப் பொத்தான்களில் ஒன்றைத் தேர்ந்தெடுக்கவும்.",
-                "மீண்டும் வருக! நான் பிளூபி. உங்களுக்குத் தகவல் தேவை என்பதை கீழே உள்ள பொத்தானைத் தட்டி அறியவும்.",
+                "மீண்டும் வருக! நான் பிளூபி. உங்களுக்குத் தேவையான தகவல் தேவை என்பதை கீழே உள்ள பொத்தானைத் தட்டி அறியவும்.",
                 "வணக்கம்! நான் பிளூபி. உங்கள் ஷாப்பிங் அனுபவத்தை எப்படி எளிதாக்கலாம்?",
                 "ஹலோ! பிளூபி தயார். எங்கள் தயாரிப்புகள் அல்லது தொடர்புகளைப் பார்க்க கீழே உள்ள பொத்தானைத் தட்டவும்.",
                 "வணக்கம்! நான் பிளூபி. வேலைவாய்ப்பு, வங்கி விவரங்கள் அல்லது ஸ்டோர் பொருட்கள் என எது வேண்டுமானாலும் கீழே தேர்ந்தெடுக்கவும்.",
@@ -224,11 +224,11 @@
             ]
         };
 
-        // Bilingual conversation data (Main categories + sub-questions)
+        // Bilingual conversation data with tailored icons for each category
         const categories = {
             store: {
                 label: { en: "Store & Shopping", ta: "ஸ்டோர் & ஷாப்பிங்" },
-                icon: "fa-store",
+                iconClass: "fa-solid fa-store", // Specific icon for Store
                 subquestions: [
                     {
                         text: { en: "How do I buy organic products?", ta: "இயற்கை பொருட்களை வாங்குவது எப்படி?" },
@@ -253,7 +253,7 @@
             },
             contact: {
                 label: { en: "Contact & Support", ta: "தொடர்பு & உதவி" },
-                icon: "fa-headset",
+                iconClass: "fa-solid fa-headset", // Specific icon for Contact / Support
                 subquestions: [
                     {
                         text: { en: "How can I chat on WhatsApp?", ta: "வாட்ஸ்அப்பில் தொடர்புகொள்வது எப்படி?" },
@@ -285,7 +285,7 @@
             },
             bank: {
                 label: { en: "Bank Details", ta: "வங்கி விவரங்கள்" },
-                icon: "fa-building-columns",
+                iconClass: "fa-solid fa-building-columns", // Specific icon for Bank
                 subquestions: [
                     {
                         text: { en: "Where can I view bank account info?", ta: "வங்கி கணக்கு விவரங்களை எங்கே பார்க்கலாம்?" },
@@ -303,7 +303,7 @@
             },
             news: {
                 label: { en: "News & Updates", ta: "செய்திகள் & புதுப்பிப்புகள்" },
-                icon: "fa-newspaper",
+                iconClass: "fa-solid fa-newspaper", // Specific icon for News
                 subquestions: [
                     {
                         text: { en: "What are your latest announcements?", ta: "சமீபத்திய அறிவிப்புகள் என்ன?" },
@@ -321,7 +321,7 @@
             },
             about: {
                 label: { en: "About Us", ta: "எங்களைப் பற்றி" },
-                icon: "fa-book-open",
+                iconClass: "fa-solid fa-circle-info", // Specific info/about icon
                 subquestions: [
                     {
                         text: { en: "What is MY Food Products?", ta: "MY Food Products என்றால் என்ன?" },
@@ -339,7 +339,7 @@
             },
             career: {
                 label: { en: "Career / Staff", ta: "வேலைவாய்ப்பு / பணியாளர்" },
-                icon: "fa-file-pen",
+                iconClass: "fa-solid fa-briefcase", // Specific briefcase/career icon
                 subquestions: [
                     {
                         text: { en: "How do I apply for a job?", ta: "வேலைக்கு விண்ணப்பிப்பது எப்படி?" },
@@ -357,7 +357,7 @@
             },
             instagram: {
                 label: { en: "Instagram", ta: "இன்ஸ்டாகிராம்" },
-                icon: "fa-instagram",
+                iconClass: "fa-brands fa-instagram", // Specific Instagram brand symbol icon
                 subquestions: [
                     {
                         text: { en: "What is your Instagram handle?", ta: "உங்களின் இன்ஸ்டாகிராம் பக்கம் என்ன?" },
@@ -442,7 +442,6 @@
                 const greetingsPool = humanGreetings[currentLang];
                 const randomGreeting = greetingsPool[Math.floor(Math.random() * greetingsPool.length)];
                 appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', randomGreeting, false);
-                // Read greeting aloud automatically
                 speakAloud(randomGreeting);
             }
             setBlubiState('idle');
@@ -503,13 +502,13 @@
             }
         }
 
-        // Render Main Category Buttons
+        // Render Main Category Buttons with proper tailored icons
         function renderMainCategories() {
             let html = '';
             for (const key in categories) {
                 const cat = categories[key];
                 html += `<button onclick="handleMainCategoryClick('${key}')" class="quick-option-btn shrink-0">
-                    <i class="fa-brands ${cat.icon} text-amber-400"></i> ${cat.label[currentLang]}
+                    <i class="${cat.iconClass} text-amber-400"></i> ${cat.label[currentLang]}
                 </button>`;
             }
             buttonPanel.innerHTML = html;
