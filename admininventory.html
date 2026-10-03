@@ -169,6 +169,16 @@
                     </div>
                 </a>
 
+                <a href="kidsfavourite.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
+                    <div class="w-12 h-12 rounded-xl bg-sky-500 text-slate-950 flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
+                        <i class="fa-solid fa-face-smile"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900 transition">Kids' Favourite</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Curate and manage kids' favorite special products.</p>
+                    </div>
+                </a>
+
                 <a href="admanagement.html" class="group bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 rounded-2xl p-4 transition-all duration-200 flex items-center gap-4 shadow-sm active:scale-[0.98]">
                     <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition shrink-0">
                         <i class="fa-solid fa-rectangle-ad"></i>
@@ -320,7 +330,7 @@
             setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
         }
 
-        // Categories Management Engine
+ // Categories Management Engine
         document.getElementById('add-category-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const inputEl = document.getElementById('new-category-name');
@@ -347,7 +357,7 @@
                 .catch((err) => showCategoryStatus("Failed to remove: " + err.message, true));
         };
 
-        // Drag and Drop Handlers for Categories Sorting
+            // Drag and Drop Handlers for Categories Sorting
         window.handleCategoryDragStart = function(e, key) {
             draggedCategoryKey = key;
             e.dataTransfer.effectAllowed = 'move';
