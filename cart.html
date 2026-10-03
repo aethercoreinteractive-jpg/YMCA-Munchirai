@@ -581,10 +581,15 @@
         };
 
         window.closeQrPaymentModalManual = function() {
-            // Remove QR state from localStorage and close modal via history back
-            localStorage.removeItem("ymca_qr_active");
-            window.history.back();
-        };
+    // 1. Clear QR active state immediately
+    localStorage.removeItem("ymca_qr_active");
+    
+    // 2. Hide the modal instantly without waiting for history popstate
+    document.getElementById('qr-payment-modal').classList.add('hidden');
+    
+    // 3. Re-open the customer details modal if needed, or just let history clean up
+    // window.history.back(); // Remove this line if it causes delay
+};
 
         // Handle browser history back state changes for QR modal persistence
         window.addEventListener('popstate', (event) => {
