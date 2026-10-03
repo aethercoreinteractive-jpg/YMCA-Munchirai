@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | Select Kids' Favourite</title>
+    <title>Munchirai YMCA | Active Kids' Favourite</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,10 +19,6 @@
                         amber: {
                             500: '#f59e0b',
                             600: '#d97706',
-                        },
-                        sky: {
-                            500: '#0ea5e9',
-                            600: '#0284c7',
                         }
                     }
                 }
@@ -39,7 +35,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased selection:bg-sky-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
     <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
     <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
@@ -53,23 +49,6 @@
         </a>
     </div>
 
-    <!-- CUSTOM CONFIRMATION MODAL -->
-    <div id="confirm-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 text-center space-y-4">
-            <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto text-lg border border-red-100">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <div>
-                <h3 class="text-sm font-extrabold text-slate-900">Remove from Favourites?</h3>
-                <p id="confirm-item-name" class="text-xs text-slate-500 mt-1">Are you sure you want to remove this item from the Kids' Favourite collection?</p>
-            </div>
-            <div class="grid grid-cols-2 gap-3 pt-2">
-                <button type="button" id="modal-cancel-btn" class="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition">Cancel</button>
-                <button type="button" id="modal-confirm-btn" class="w-full py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-600/20 transition">Yes, Remove</button>
-            </div>
-        </div>
-    </div>
-
     <!-- HEADER NAVIGATION -->
     <header class="bg-slate-900 text-slate-100 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -79,14 +58,14 @@
                 </div>
                 <div>
                     <h1 class="text-sm font-bold tracking-tight">MY Food</h1>
-                    <p class="text-[10px] text-slate-400">Inventory Picker</p>
+                    <p class="text-[10px] text-slate-400">Product Feed</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2.5">
-                <a href="kidsfavourite.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 transition shadow-sm border border-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-arrow-left text-xs text-sky-400"></i> <span>Back</span>
-                </a>
+                <button type="button" onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.history.back();" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 transition shadow-sm border border-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left text-xs text-amber-400"></i> <span>Back</span>
+                </button>
             </div>
         </div>
     </header>
@@ -94,67 +73,35 @@
     <!-- MAIN DASHBOARD CONTENT -->
     <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
         
-        <!-- Header Section with Controls -->
-        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-4">
-            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200/60">Curation Console</span>
-                    <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Select Kids' Favourite Products</h2>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Choose items from Bestsellers below. Selected items will gray out and appear in your active list.</p>
-                </div>
+        <!-- Header Section with Action Button -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Storefront Showcase</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Active Kids' Favourite</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Currently featured items displayed on your storefront index.</p>
             </div>
 
-            <!-- Search and Filter Bar -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div class="relative w-full">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
-                        <i class="fa-solid fa-search"></i>
-                    </span>
-                    <input type="text" id="search-product-input" placeholder="Search bestsellers..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-sky-500 focus:bg-white transition shadow-sm">
-                </div>
-                <div class="relative w-full">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
-                        <i class="fa-solid fa-filter"></i>
-                    </span>
-                    <select id="category-filter-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-sky-500 focus:bg-white transition shadow-sm appearance-none">
-                        <option value="all">All Categories</option>
-                    </select>
-                </div>
-            </div>
+            <!-- Redirect Button -->
+            <a href="selectkidsfavourite.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-6 py-3 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2 shrink-0">
+                <i class="fa-solid fa-square-check text-slate-950"></i>
+                <span>Select Kids' Favourite</span>
+            </a>
         </section>
 
         <div id="status-msg" class="hidden mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
 
-        <!-- PRODUCTS INVENTORY LIST -->
+        <!-- ACTIVE KIDS FAVOURITE CATEGORIZED DISPLAY -->
         <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Available Bestsellers</span>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Tap select to add items (chosen items gray out)</p>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Categorized Breakdown</span>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Manage and remove items from your featured collection</p>
                 </div>
-                <span id="inventory-total-count" class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200/60">0 Total Items</span>
+                <span id="kidsfavourite-total-count" class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">0 Total Active</span>
             </div>
 
-            <div id="inventory-list-container" class="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
-                <div class="py-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-                    <i class="fa-solid fa-spinner animate-spin text-sky-500 text-base"></i>
-                    <span>Loading bestsellers and store assets...</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- CURRENTLY CHOSEN / ACTIVE KIDS FAVOURITE SECTION -->
-        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-6">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div>
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-900">Currently Active Kids' Favourites</span>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Items currently displayed on the storefront (Delete with confirmation below)</p>
-                </div>
-                <span id="active-total-count" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/60">0 Active</span>
-            </div>
-
-            <div id="active-list-container" class="space-y-3">
-                <div class="py-8 text-center text-slate-400 text-xs">No items currently chosen.</div>
+            <div id="saved-kidsfavourite-container" class="space-y-6">
+                <div class="py-10 text-center text-slate-400 text-xs">Loading kids' favourite...</div>
             </div>
         </section>
 
@@ -168,18 +115,32 @@
     <!-- Firebase Realtime Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // SECURITY CHECKPOINT
+        // SECURITY CHECKPOINT: Enforce Session Token Verification for Admin or Staff
         function verifyAdminSession() {
-            const isAdminValid = sessionStorage.getItem("admin_authenticated") === "true" && sessionStorage.getItem("ymca_redirect_token") === "active";
-            const isStaffValid = sessionStorage.getItem("staff_authenticated") === "true" && sessionStorage.getItem("staff_redirect_token") === "active";
+            const isAdminAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
+            const adminRedirectToken = sessionStorage.getItem("ymca_redirect_token");
+            
+            const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true";
+            const staffRedirectToken = sessionStorage.getItem("staff_redirect_token");
+            
+            const isAdminValid = isAdminAuthenticated && adminRedirectToken === "active";
+            const isStaffValid = isStaffAuthenticated && staffRedirectToken === "active";
+
             if (!isAdminValid && !isStaffValid) {
                 document.getElementById('security-lock-overlay').classList.remove('hidden');
                 throw new Error("Unauthorized security access blocked.");
             }
         }
-        try { verifyAdminSession(); } catch (e) { throw e; }
+
+        // Run security verification immediately
+        try {
+            verifyAdminSession();
+        } catch (e) {
+            // Halt script execution if unauthorized
+            throw e;
+        }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -199,16 +160,20 @@
             if (!rawUrl) return "";
             let url = rawUrl.trim();
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-            if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
             const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-            if (matchId && matchId[1]) return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            if (matchId && matchId[1]) {
+                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+            }
             return url;
         }
 
-        // LOAD HEADER LOGO FROM settings/storeLogo
         async function fetchHeaderLogo() {
             try {
-                const snap = await get(ref(db, 'settings/storeLogo'));
+                const logoRef = ref(db, 'settings/storeLogo');
+                const snap = await get(logoRef);
                 const container = document.getElementById('header-logo-container');
                 if (snap.exists() && snap.val()) {
                     const formatted = formatDriveUrl(snap.val());
@@ -216,237 +181,131 @@
                         container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
                     }
                 }
-            } catch (err) { console.error("Logo load error:", err); }
+            } catch (err) {
+                console.error("Error loading header logo:", err);
+            }
         }
         fetchHeaderLogo();
 
         let allInventory = [];
         let savedKidsFavourite = {};
 
-        const listContainer = document.getElementById('inventory-list-container');
-        const activeListContainer = document.getElementById('active-list-container');
-        const inventoryTotalCountEl = document.getElementById('inventory-total-count');
-        const activeTotalCountEl = document.getElementById('active-total-count');
-        const searchInput = document.getElementById('search-product-input');
-        const categoryFilterSelect = document.getElementById('category-filter-select');
-
-        // Modal elements
-        const confirmModal = document.getElementById('confirm-modal');
-        const confirmItemName = document.getElementById('confirm-item-name');
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-        let pendingDeleteKey = null;
+        const savedContainer = document.getElementById('saved-kidsfavourite-container');
+        const kidsfavouriteTotalCountEl = document.getElementById('kidsfavourite-total-count');
 
         function showStatus(message, isError = false) {
             const msgEl = document.getElementById('status-msg');
             msgEl.textContent = message;
             msgEl.className = `mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             msgEl.classList.remove('hidden');
-            setTimeout(() => { msgEl.classList.add('hidden'); }, 3000);
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
         }
 
-        // Fetch Kids Favourites first
-        onValue(ref(db, 'kidsfavourite'), (kfSnapshot) => {
-            savedKidsFavourite = kfSnapshot.val() || {};
-            loadSourceData();
-        }, (error) => {
-            console.error("KidsFavourite error:", error);
+        // Listen for Realtime Changes to Kids Favourite & Inventory
+        onValue(ref(db, 'kidsfavourite'), (bSnapshot) => {
+            savedKidsFavourite = bSnapshot.val() || {};
+            
+            onValue(ref(db, 'inventory'), (invSnapshot) => {
+                const invData = invSnapshot.val();
+                if (!invData) {
+                    allInventory = [];
+                } else {
+                    allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+                }
+
+                renderSavedKidsFavourite();
+            });
         });
 
-        // Load bestsellers products (with automatic fallback to inventory/products)
-        function loadSourceData() {
-            onValue(ref(db, 'bestsellers'), (bsSnapshot) => {
-                const bsData = bsSnapshot.val();
-                if (bsData) {
-                    // If bestsellers stores product keys or full records
-                    processInventoryData(bsData);
-                } else {
-                    // Fallback to inventory or products node
-                    onValue(ref(db, 'inventory'), (invSnapshot) => {
-                        const invData = invSnapshot.val();
-                        if (invData) {
-                            processInventoryData(invData);
-                        } else {
-                            onValue(ref(db, 'products'), (prodSnapshot) => {
-                                const prodData = prodSnapshot.val();
-                                if (prodData) {
-                                    processInventoryData(prodData);
-                                } else {
-                                    allInventory = [];
-                                    updateCategoryDropdown();
-                                    renderInventory();
-                                    renderActiveList();
-                                    listContainer.innerHTML = `<div class="py-12 text-center text-amber-600 text-xs font-semibold">No bestsellers or products found in database.</div>`;
-                                }
-                            });
-                        }
-                    });
+        function formatImageURL(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
                 }
-            }, (err) => {
-                listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs">Error loading database: ${err.message}</div>`;
-            });
-        }
-
-        function processInventoryData(data) {
-            allInventory = Object.keys(data).map(key => ({ key, ...data[key] }));
-            updateCategoryDropdown();
-            renderInventory();
-            renderActiveList();
-        }
-
-        function updateCategoryDropdown() {
-            const categories = [...new Set(allInventory.map(item => item.category || 'General'))].sort();
-            const currentSelected = categoryFilterSelect.value;
-            
-            categoryFilterSelect.innerHTML = `<option value="all">All Categories</option>` + 
-                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-            
-            if (categories.includes(currentSelected)) {
-                categoryFilterSelect.value = currentSelected;
+                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
             }
+            return url;
         }
 
-        function renderInventory() {
-            const query = searchInput.value.toLowerCase();
-            const selectedCategory = categoryFilterSelect.value;
+        function renderSavedKidsFavourite() {
+            const savedItems = allInventory.filter(item => savedKidsFavourite[item.key] === true);
+            
+            kidsfavouriteTotalCountEl.textContent = `${savedItems.length} Total Active`;
 
-            const filtered = allInventory.filter(item => {
-                const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) || 
-                                      (item.category && item.category.toLowerCase().includes(query));
-                const itemCategory = item.category || 'General';
-                const matchesCategory = selectedCategory === 'all' || itemCategory === selectedCategory;
-                return matchesSearch && matchesCategory;
-            });
-
-            inventoryTotalCountEl.textContent = `${filtered.length} Items Found`;
-
-            if (filtered.length === 0) {
-                listContainer.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">No products match your search or filter.</div>`;
+            if (savedItems.length === 0) {
+                savedContainer.innerHTML = `
+                    <div class="py-12 text-center space-y-2">
+                        <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mx-auto text-lg">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-xs text-slate-700 font-bold">No active kids' favourite right now.</p>
+                        <p class="text-[11px] text-slate-400 max-w-sm mx-auto">Click the "Select Kids' Favourite" button above to choose products from your inventory.</p>
+                    </div>
+                `;
                 return;
             }
 
-             // Group by category
+            // Group saved items by category
             const grouped = {};
-            filtered.forEach(item => {
+            savedItems.forEach(item => {
                 const cat = item.category || 'General';
                 if (!grouped[cat]) grouped[cat] = [];
                 grouped[cat].push(item);
             });
 
+            // Render categorized list
             const categories = Object.keys(grouped).sort();
-            listContainer.innerHTML = categories.map(cat => {
+            savedContainer.innerHTML = categories.map(cat => {
                 const items = grouped[cat];
                 return `
                     <div class="space-y-3">
                         <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-sm"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></span>
                             <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">${cat}</h4>
                             <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${items.length}</span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            ${items.map(item => {
-                                const isSelected = savedKidsFavourite[item.key] === true;
-                                return `
-                                    <div class="bg-slate-50/80 border ${isSelected ? 'border-slate-300 bg-slate-200/50 opacity-75' : 'border-slate-200/90'} rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm transition">
-                                        <div class="flex items-center gap-3 min-w-0">
-                                            <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
-                                                <img src="${formatDriveUrl(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
-                                            </div>
-                                            <div class="min-w-0">
-                                                <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
-                                                <span class="text-[10px] font-bold text-slate-600">₹${Number(item.price || 0).toFixed(2)}</span>
-                                            </div>
+                            ${items.map(item => `
+                                <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-slate-300 transition">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+                                            <img src="${formatImageURL(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
                                         </div>
-                                        
-                                        <!-- TOGGLE BUTTON / GRAYED OUT STATE -->
-                                        ${isSelected ? `
-                                            <button type="button" disabled class="px-3 py-2 rounded-xl text-[11px] font-bold bg-slate-300 text-slate-500 cursor-not-allowed shrink-0 flex items-center gap-1.5">
-                                                <i class="fa-solid fa-check text-[10px]"></i><span>Selected</span>
-                                            </button>
-                                        ` : `
-                                            <button type="button" onclick="window.addKidsFavourite('${item.key}')" class="px-3.5 py-2 rounded-xl text-[11px] font-extrabold bg-sky-500 hover:bg-sky-400 text-slate-950 transition active:scale-95 flex items-center gap-1.5 shrink-0 shadow-sm">
-                                                <i class="fa-solid fa-plus text-[10px]"></i><span>Select</span>
-                                            </button>
-                                        `}
+                                        <div class="min-w-0">
+                                            <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
+                                            <span class="text-[10px] font-bold text-slate-600">₹${Number(item.price || 0).toFixed(2)}</span>
+                                        </div>
                                     </div>
-                                `;
-                            }).join('')}
+                                    
+                                    <!-- REMOVE BUTTON -->
+                                    <button type="button" onclick="window.removeKidsFavourite('${item.key}')" class="px-3 py-1.5 rounded-xl text-[11px] font-extrabold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/80 transition active:scale-95 flex items-center gap-1.5 shrink-0">
+                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function renderActiveList() {
-            const activeItems = allInventory.filter(item => savedKidsFavourite[item.key] === true);
-            activeTotalCountEl.textContent = `${activeItems.length} Active`;
-
-            if (activeItems.length === 0) {
-                activeListContainer.innerHTML = `<div class="py-8 text-center text-slate-400 text-xs">No items currently chosen.</div>`;
-                return;
-            }
-
-            activeListContainer.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    ${activeItems.map(item => `
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
-                                    <img src="${formatDriveUrl(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
-                                </div>
-                                <div class="min-w-0">
-                                    <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
-                                    <span class="text-[10px] font-bold text-sky-600">${item.category \vert{}\vert{} 'General'} &bull; ₹${Number(item.price || 0).toFixed(2)}</span>
-                                </div>
-                            </div>
-                            
-                            <!-- DELETE BUTTON -->
-                            <button type="button" onclick="window.promptDelete('${item.key}', '${item.name.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-xl text-[11px] font-extrabold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/80 transition active:scale-95 flex items-center gap-1.5 shrink-0">
-                                <i class="fa-solid fa-trash-can text-[10px]"></i>
-                                <span>Delete</span>
-                            </button>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        window.addKidsFavourite = function(key) {
-            set(ref(db, `kidsfavourite/${key}`), true)
-                .then(() => showStatus("Added to Kids' Favourite!"))
-                .catch(err => showStatus("Error: " + err.message, true));
+        // Remove Kids Favourite functionality
+        window.removeKidsFavourite = function(key) {
+            remove(ref(db, `kidsfavourite/${key}`))
+                .then(() => {
+                    showStatus("Item removed from kids' favourite!");
+                })
+                .catch(err => {
+                    showStatus("Error removing item: " + err.message, true);
+                });
         };
-
-        window.promptDelete = function(key, name) {
-            pendingDeleteKey = key;
-            confirmItemName.textContent = `Are you sure you want to remove "${name}" from the Kids' Favourite collection?`;
-            confirmModal.classList.remove('hidden');
-        };
-
-        modalCancelBtn.addEventListener('click', () => {
-            pendingDeleteKey = null;
-            confirmModal.classList.add('hidden');
-        });
-
-        modalConfirmBtn.addEventListener('click', () => {
-            if (pendingDeleteKey) {
-                remove(ref(db, `kidsfavourite/${pendingDeleteKey}`))
-                    .then(() => {
-                        showStatus("Item removed successfully!");
-                        confirmModal.classList.add('hidden');
-                        pendingDeleteKey = null;
-                    })
-                    .catch(err => {
-                        showStatus("Error removing item: " + err.message, true);
-                        confirmModal.classList.add('hidden');
-                        pendingDeleteKey = null;
-                    });
-            }
-        });
-
-        searchInput.addEventListener('input', () => renderInventory());
-        categoryFilterSelect.addEventListener('change', () => renderInventory());
     </script>
 </body>
 </html>
