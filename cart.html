@@ -290,7 +290,7 @@
             </div>
             
             <div class="pt-2">
-                <button onclick="goBack();" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-xs transition shadow-md flex items-center justify-center active:scale-95 cursor-pointer">
+                <button id="continueShoppingBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-xs transition shadow-md flex items-center justify-center active:scale-95 cursor-pointer">
                     Continue shopping
                 </button>
             </div>
@@ -706,7 +706,7 @@
 
                     const instructionsEl = document.getElementById('success-instructions');
                     if (paymentMode === "Pay via UPI") {
-                        instructionsEl.innerHTML = `Please send the payment receipt screenshot on WhatsApp at <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-lg border border-emerald-300 text-xs shadow-xs tracking-wide"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>+91-9488820998</span>. Our executive will review and make a confirmation call.`;
+                        instructionsEl.innerHTML = `Please send the payment receipt screenshot on WhatsApp at <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-xl border border-emerald-300 text-xs shadow-xs tracking-wide"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>+91-9488820998</span>. Our executive will review and make a confirmation call.`;
                     } else {
                         instructionsEl.innerHTML = `Our executive will review and make a confirmation call.`;
                     }
@@ -726,6 +726,27 @@
                     showCustomAlert("Network Error", "Failed to submit order. Please check your network connection and try again.");
                 });
         };
+
+        // Continue Shopping button tap optimization
+        document.getElementById('continueShoppingBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 1. Clear session / cart data immediately
+            localStorage.removeItem('upi_checkout_state');
+            localStorage.removeItem('cart_items');
+            
+            // 2. Hide modal cleanly
+            const modal = document.getElementById('success-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+            
+            // 3. Use requestAnimationFrame or tiny timeout to let the DOM settle, 
+            // ensuring the next page/view responds instantly to the first touch.
+            requestAnimationFrame(() => {
+                window.location.href = 'index.html'; // or your shop catalog page
+            });
+        });
 
         renderCartPage();
         fetchHeaderLogo();
