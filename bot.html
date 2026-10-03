@@ -61,6 +61,11 @@
             transform: translateY(-1px);
         }
 
+        /* Toast animation */
+        #toast-notification {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
         /* Desktop specific layout container constraints */
         @media (min-width: 768px) {
             .app-container {
@@ -108,6 +113,12 @@
         <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3 max-w-3xl mx-auto">
             <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-36 sm:pb-40"></div>
         </main>
+
+        <!-- Floating Toast Notification -->
+        <div id="toast-notification" class="hidden absolute top-16 left-1/2 -translate-x-1/2 z-[110] bg-slate-900/95 border border-slate-700/80 px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-semibold text-amber-300">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-text">Chat history cleared successfully!</span>
+        </div>
 
         <!-- Inbuilt Custom Confirmation Modal -->
         <div id="custom-confirm-modal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -157,21 +168,59 @@
         const headerSubtitle = document.getElementById('header-subtitle');
         const modalTitle = document.getElementById('modal-title');
         const modalDesc = document.getElementById('modal-desc');
+        const toastNotification = document.getElementById('toast-notification');
+        const toastText = document.getElementById('toast-text');
 
         let currentLang = 'en'; // 'en' or 'ta'
         let isAiSpeaking = false;
         let idleInterval = null;
+        let toastTimeout = null;
 
+        // Over 20 Human-like Greetings in English & Tamil
         const humanGreetings = {
             en: [
                 "Hey there! I'm Blubi, your assistant here to help you get around MY Store. What are you looking for today? Just tap one of the buttons below to pick a topic.",
                 "Hi! I'm Blubi, good to see you. Feel free to tap on any of the options below and I'll pull up the details for you right away.",
-                "Hello! I'm Blubi. Whether you want to check our organic products, find our bank details, or get in touch, just pick a button below!"
+                "Hello! I'm Blubi. Whether you want to check our organic products, find our bank details, or get in touch, just pick a button below!",
+                "Hey! Blubi here. Hope you're having a wonderful day. What can I help you find in our store right now?",
+                "Welcome! I'm Blubi, your friendly store companion. Tap any topic below and let's get started!",
+                "Greetings! Blubi at your service. Looking for pure organic goodness or our latest updates? Just choose an option below.",
+                "Hi there! It's Blubi. Grab a quick look at the buttons below and let me know how I can assist you today.",
+                "Hello friend! I'm Blubi. What would you like to explore first? Tap a category down below to jump right in.",
+                "Hey! Blubi here, ready to help you navigate MY Store. What's on your mind today?",
+                "Hi, great to connect with you! I'm Blubi. Select a topic from the quick buttons below whenever you're ready.",
+                "Welcome back! Blubi here. Let me know what information you need—just tap a button below.",
+                "Hello! I'm Blubi, your personal guide here. How can I make your shopping experience easier today?",
+                "Hey there! Blubi ready to assist. Tap a button below to explore our products, news, or contact details.",
+                "Hi! It's Blubi. Whether you need career info, bank details, or store items, just pick an option below.",
+                "Greetings! I'm Blubi. What can I assist you with around MY Store today? Tap below to choose!",
+                "Hello! Blubi here. Hope you're doing great. Choose a topic below and let's dive right in.",
+                "Hey! I'm Blubi. Let me know what you're looking for by tapping one of the helpful options below.",
+                "Hi there! Blubi at your command. Select any topic below to view details instantly.",
+                "Welcome! I'm Blubi, your digital guide. Pick a category below to get all the info you need.",
+                "Hello! It's Blubi. Ready to discover our organic catalog or connect with us? Tap below!"
             ],
             ta: [
                 "வணக்கம்! நான் பிளூபி (Blubi), MY Store-ல் உங்களுக்கு உதவ நான் தயாராக இருக்கிறேன். இன்று நீங்கள் என்ன தேடுகிறீர்கள்? கீழே உள்ள பொத்தான்களில் ஒன்றைத் தட்டவும்.",
                 "ஹலோ! நான் பிளூபி. உங்களை சந்திப்பதில் மகிழ்ச்சி. கீழே உள்ள விருப்பங்களில் ஒன்றைத் தட்டினால், விவரங்களை உடனே தருகிறேன்.",
-                "வணக்கம்! நான் பிளூபி. எங்கள் இயற்கை உணவுப் பொருட்கள், வங்கி விவரங்கள் அல்லது தொடர்புகளை அறிய கீழே உள்ள பொத்தானைத் தேர்ந்தெடுக்கவும்!"
+                "வணக்கம்! நான் பிளூபி. எங்கள் இயற்கை உணவுப் பொருட்கள், வங்கி விவரங்கள் அல்லது தொடர்புகளை அறிய கீழே உள்ள பொத்தானைத் தேர்ந்தெடுக்கவும்!",
+                "வணக்கம்! நான் பிளூபி. உங்கள் நாள் இனியதாக அமையட்டும். எங்கள் ஸ்டோரில் நீங்கள் என்ன கண்டுபிடிக்க வேண்டும்?",
+                "நல்வரவு! நான் பிளூபி, உங்கள் தோழமையாளர். கீழே உள்ள தலைப்புகளில் ஒன்றைத் தட்டி தொடங்கலாம்!",
+                "வணக்கம்! பிளூபி உங்கள் சேவையில். தூய்மையான இயற்கை உணவுகள் அல்லது அறிவிப்புகளைத் தேடுகிறீர்களா? கீழே உள்ளதை அழுத்தவும்.",
+                "ஹலோ! நான் பிளூபி. கீழே உள்ள பொத்தான்களைப் பார்த்து, உங்களுக்கு எப்படி உதவ வேண்டும் என்று கூறுங்கள்.",
+                "வணக்கம் நண்பரே! நான் பிளூபி. முதலில் எதை ஆராய விரும்புகிறீர்கள்? கீழே ஒரு வகையைத் தட்டவும்.",
+                "வணக்கம்! பிளூபி இங்கே இருக்கிறேன். MY Store-ல் சுற்றிவர உங்களுக்கு என்ன உதவ வேண்டும்?",
+                "ஹலோ! நான் பிளூபி. தயார் ஆனதும் கீழே உள்ள விரைவுப் பொத்தான்களில் ஒன்றைத் தேர்ந்தெடுக்கவும்.",
+                "மீண்டும் வருக! நான் பிளூபி. உங்களுக்கு என்ன தகவல் தேவை என்பதை கீழே உள்ள பொத்தானைத் தட்டி அறியவும்.",
+                "வணக்கம்! நான் பிளூபி. உங்கள் ஷாப்பிங் அனுபவத்தை எப்படி எளிதாக்கலாம்?",
+                "ஹலோ! பிளூபி தயார். எங்கள் தயாரிப்புகள் அல்லது தொடர்புகளைப் பார்க்க கீழே உள்ள பொத்தானைத் தட்டவும்.",
+                "வணக்கம்! நான் பிளூபி. வேலைவாய்ப்பு, வங்கி விவரங்கள் அல்லது ஸ்டோர் பொருட்கள் என எது வேண்டுமானாலும் கீழே தேர்ந்தெடுக்கவும்.",
+                "நல்வரவு! நான் பிளூபி. இன்று உங்களுக்கு என்ன உதவி வேண்டும்? கீழே உள்ளதைத் தட்டவும்!",
+                "வணக்கம்! நான் பிளூபி. நீங்கள் நலமாக இருக்கிறீர்கள் நம்புகிறேன். கீழே உள்ள தலைப்பைத் தேர்ந்தெடுக்கவும்.",
+                "ஹலோ! நான் பிளூபி. கீழே உள்ள பயனுள்ள விருப்பங்களில் ஒன்றைத் தேர்ந்தெடுத்து தேடவும்.",
+                "வணக்கம்! பிளூபி உங்கள் கட்டளைக்குக் காத்திருக்கிறேன். விவரங்களைக் காண கீழே உள்ளதைத் தேர்ந்தெடுக்கவும்.",
+                "வரவேற்கிறோம்! நான் பிளூபி, உங்கள் வழிகாட்டி. உங்களுக்குத் தேவையான தகவலைப் பெற கீழே தேர்வு செய்யவும்.",
+                "வணக்கம்! நான் பிளூபி. இயற்கை உணவுப் பட்டியலைக் காண அல்லது எங்களைத் தொடர்பு கொள்ள கீழே தட்டவும்!"
             ]
         };
 
@@ -308,6 +357,7 @@
             },
             instagram: {
                 label: { en: "Instagram", ta: "இன்ஸ்டாகிராம்" },
+                // Changed from fa-instagram-square / box icon to symbol icon
                 icon: "fa-instagram",
                 subquestions: [
                     {
@@ -336,15 +386,30 @@
                 headerSubtitle.textContent = "பேச கீழே உள்ள தலைப்பைத் தட்டவும்";
                 modalTitle.textContent = "அரட்டை வரலாற்றை நீக்கு";
                 modalDesc.textContent = "அரட்டை வரலாற்றை முழுமையாக நீக்க விரும்புகிறீர்களா?";
+                toastText.textContent = "அரட்டை வரலாறு வெற்றிகரமாக அழிக்கப்பட்டது!";
             } else {
                 headerTitle.textContent = "Blubi Assistant";
                 headerSubtitle.textContent = "Tap a topic below to chat";
                 modalTitle.textContent = "Delete Chat History";
                 modalDesc.textContent = "Are you sure you want to clear our chat history?";
+                toastText.textContent = "Chat history cleared successfully!";
             }
 
-            // Reset view to main categories in the new language
             renderMainCategories();
+        }
+
+        // Show Floating Toast Notification
+        function showToast(message) {
+            toastText.textContent = message;
+            toastNotification.classList.remove('hidden', 'opacity-0', 'translate-y-[-10px]');
+            toastNotification.classList.add('opacity-100', 'translate-y-0');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toastNotification.classList.remove('opacity-100', 'translate-y-0');
+                toastNotification.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toastNotification.classList.add('hidden'), 300);
+            }, 3000);
         }
 
         // Blubi State Handlers
@@ -394,8 +459,12 @@
             customConfirmModal.classList.add('hidden');
             localStorage.removeItem('blubi_chat_history');
             chatLog.innerHTML = '';
-            const resetMsg = currentLang === 'ta' ? "அரட்டை வரலாறு அழிக்கப்பட்டது. என்ன பேச வேண்டும்?" : "I've cleared our chat. What would you like to chat about?";
-            appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', resetMsg, true);
+            
+            showToast(currentLang === 'ta' ? "அரட்டை வரலாறு அழிக்கப்பட்டது!" : "Chat history cleared successfully!");
+
+            const greetingsPool = humanGreetings[currentLang];
+            const randomGreeting = greetingsPool[Math.floor(Math.random() * greetingsPool.length)];
+            appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', randomGreeting, true);
             renderMainCategories();
         });
 
@@ -438,7 +507,7 @@
             for (const key in categories) {
                 const cat = categories[key];
                 html += `<button onclick="handleMainCategoryClick('${key}')" class="quick-option-btn shrink-0">
-                    <i class="fa-solid ${cat.icon} text-amber-400"></i> ${cat.label[currentLang]}
+                    <i class="fa-brands ${cat.icon} text-amber-400"></i> ${cat.label[currentLang]}
                 </button>`;
             }
             buttonPanel.innerHTML = html;
@@ -461,7 +530,6 @@
             speakAloud(introReply);
             setBlubiState('idle');
 
-            // Render sub-question buttons in footer
             let subHtml = '';
             cat.subquestions.forEach((sub, index) => {
                 const iconClass = sub.isBack ? "fa-arrow-left" : "fa-circle-question";
