@@ -228,7 +228,7 @@
         const categories = {
             store: {
                 label: { en: "Store & Shopping", ta: "ஸ்டோர் & ஷாப்பிங்" },
-                iconClass: "fa-solid fa-store", // Specific icon for Store
+                iconClass: "fa-solid fa-store",
                 subquestions: [
                     {
                         text: { en: "How do I buy organic products?", ta: "இயற்கை பொருட்களை வாங்குவது எப்படி?" },
@@ -253,7 +253,7 @@
             },
             contact: {
                 label: { en: "Contact & Support", ta: "தொடர்பு & உதவி" },
-                iconClass: "fa-solid fa-headset", // Specific icon for Contact / Support
+                iconClass: "fa-solid fa-headset",
                 subquestions: [
                     {
                         text: { en: "How can I chat on WhatsApp?", ta: "வாட்ஸ்அப்பில் தொடர்புகொள்வது எப்படி?" },
@@ -285,7 +285,7 @@
             },
             bank: {
                 label: { en: "Bank Details", ta: "வங்கி விவரங்கள்" },
-                iconClass: "fa-solid fa-building-columns", // Specific icon for Bank
+                iconClass: "fa-solid fa-building-columns",
                 subquestions: [
                     {
                         text: { en: "Where can I view bank account info?", ta: "வங்கி கணக்கு விவரங்களை எங்கே பார்க்கலாம்?" },
@@ -303,7 +303,7 @@
             },
             news: {
                 label: { en: "News & Updates", ta: "செய்திகள் & புதுப்பிப்புகள்" },
-                iconClass: "fa-solid fa-newspaper", // Specific icon for News
+                iconClass: "fa-solid fa-newspaper",
                 subquestions: [
                     {
                         text: { en: "What are your latest announcements?", ta: "சமீபத்திய அறிவிப்புகள் என்ன?" },
@@ -321,7 +321,7 @@
             },
             about: {
                 label: { en: "About Us", ta: "எங்களைப் பற்றி" },
-                iconClass: "fa-solid fa-circle-info", // Specific info/about icon
+                iconClass: "fa-solid fa-circle-info",
                 subquestions: [
                     {
                         text: { en: "What is MY Food Products?", ta: "MY Food Products என்றால் என்ன?" },
@@ -339,7 +339,7 @@
             },
             career: {
                 label: { en: "Career / Staff", ta: "வேலைவாய்ப்பு / பணியாளர்" },
-                iconClass: "fa-solid fa-briefcase", // Specific briefcase/career icon
+                iconClass: "fa-solid fa-briefcase",
                 subquestions: [
                     {
                         text: { en: "How do I apply for a job?", ta: "வேலைக்கு விண்ணப்பிப்பது எப்படி?" },
@@ -357,7 +357,7 @@
             },
             instagram: {
                 label: { en: "Instagram", ta: "இன்ஸ்டாகிராம்" },
-                iconClass: "fa-brands fa-instagram", // Specific Instagram brand symbol icon
+                iconClass: "fa-brands fa-instagram",
                 subquestions: [
                     {
                         text: { en: "What is your Instagram handle?", ta: "உங்களின் இன்ஸ்டாகிராம் பக்கம் என்ன?" },
@@ -418,7 +418,8 @@
             } else if (state === 'speaking') {
                 blubiAvatar.src = 'blubi speaking.gif';
             } else if (state === 'idle') {
-                const idleGifs = ['blubiani1.gif', 'blubiani2.gif'];
+                // Randomly chooses between blubiani1.gif, blubiani2.gif, and blubi thinking.gif while idle/not responding
+                const idleGifs = ['blubiani1.gif', 'blubiani2.gif', 'blubi thinking.gif'];
                 const randomGif = idleGifs[Math.floor(Math.random() * idleGifs.length)];
                 blubiAvatar.src = randomGif;
             }
