@@ -733,25 +733,26 @@
         };
 
         // Continue Shopping button tap optimization
-        document.getElementById('continueShoppingBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // 1. Clear session / cart data immediately
-            localStorage.removeItem('upi_checkout_state');
-            localStorage.removeItem('cart_items');
-            
-            // 2. Hide modal cleanly
-            const modal = document.getElementById('success-modal');
-            if (modal) {
-                modal.classList.add('hidden');
-            }
-            
-            // 3. Use requestAnimationFrame or tiny timeout to let the DOM settle, 
-            // ensuring the next page/view responds instantly to the first touch.
-            requestAnimationFrame(() => {
-                window.location.href = 'mystore.html'; // or your shop catalog page
-            });
-        });
+// Continue Shopping button tap optimization
+document.getElementById('continueShoppingBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // 1. Clear session / cart data immediately
+    localStorage.removeItem('upi_checkout_state');
+    localStorage.removeItem('cart_items');
+    localStorage.removeItem('ymca_cart'); // Clears the active cart as well
+    
+    // 2. Hide modal cleanly
+    const modal = document.getElementById('success-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    
+    // 3. Replace history so back button skips the cart entirely
+    requestAnimationFrame(() => {
+        window.location.replace('mystore.html');
+    });
+});
 
         renderCartPage();
         fetchHeaderLogo();
