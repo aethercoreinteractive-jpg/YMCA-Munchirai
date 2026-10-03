@@ -241,22 +241,45 @@
             setTimeout(() => { msgEl.classList.add('hidden'); }, 3000);
         }
 
-        // Listen to both inventory and kidsfavourite simultaneously
+        // Listen to kidsfavourite first
         onValue(ref(db, 'kidsfavourite'), (kfSnapshot) => {
             savedKidsFavourite = kfSnapshot.val() || {};
             
+            // Try loading from 'inventory' path first
             onValue(ref(db, 'inventory'), (invSnapshot) => {
                 const invData = invSnapshot.val();
-                if (!invData) {
-                    allInventory = [];
+                if (invData) {
+                    processInventoryData(invData);
                 } else {
-                    allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+                    // Fallback to 'products' path if inventory is empty
+                    onValue(ref(db, 'products'), (prodSnapshot) => {
+                        const prodData = prodSnapshot.val();
+                        if (prodData) {
+                            processInventoryData(prodData);
+                        } else {
+                            allInventory = [];
+                            updateCategoryDropdown();
+                            renderInventory();
+                            renderActiveList();
+                            listContainer.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">No products found in database ('inventory' or 'products').</div>`;
+                        }
+                    }, (error) => {
+                        listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs">Firebase Error: ${error.message}</div>`;
+                    });
                 }
-                updateCategoryDropdown();
-                renderInventory();
-                renderActiveList();
+            }, (error) => {
+                listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs">Firebase Error: ${error.message}</div>`;
             });
+        }, (error) => {
+            console.error("Kids favourite error:", error);
         });
+
+        function processInventoryData(invData) {
+            allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+            updateCategoryDropdown();
+            renderInventory();
+            renderActiveList();
+        }
 
         function updateCategoryDropdown() {
             const categories = [...new Set(allInventory.map(item => item.category || 'General'))].sort();
@@ -289,7 +312,7 @@
                 return;
             }
 
-               // Group by category
+                // Group by category
             const grouped = {};
             filtered.forEach(item => {
                 const cat = item.category || 'General';
