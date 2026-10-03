@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MY Food Products - AI Assistant</title>
+    <title>MY Food Products - Blubi Assistant</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for UI icons -->
@@ -26,8 +26,8 @@
             background: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
             color: #fbbf24;
-            padding: 5px 12px;
-            border-radius: 10px;
+            padding: 6px 14px;
+            border-radius: 12px;
             font-size: 11px;
             font-weight: 600;
             text-decoration: none;
@@ -36,6 +36,28 @@
         .chat-action-link:hover {
             background: rgba(245, 158, 11, 0.2);
             border-color: rgba(245, 158, 11, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .quick-option-btn {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            color: #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+        }
+        .quick-option-btn:hover {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
             transform: translateY(-1px);
         }
 
@@ -56,27 +78,35 @@
 
     <div class="app-container w-full h-full flex flex-col justify-between relative overflow-hidden">
 
-        <!-- Professional Header matching bankdetails.html styling -->
-        <header class="w-full px-4 py-3.5 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 flex justify-between items-center z-10 shrink-0 shadow-lg">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold flex items-center justify-center text-xs shadow-inner flex-shrink-0">
+        <!-- Professional Header with Language Toggle Switch -->
+        <header class="w-full px-4 py-3 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 flex justify-between items-center z-10 shrink-0 shadow-lg">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold flex items-center justify-center text-xs shadow-inner flex-shrink-0">
                     <i class="fa-solid fa-robot text-amber-400"></i>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-2">
-                        MY Food AI Assistant
+                    <span id="header-title" class="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                        Blubi Assistant
                     </span>
-                    <span class="text-[10px] text-slate-400 font-medium">Always online & ready to help</span>
+                    <span id="header-subtitle" class="text-[10px] text-slate-400 font-medium">Tap a topic below to chat</span>
                 </div>
             </div>
-            <button id="clear-chat-top" class="text-xs font-semibold px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm">
-                <i class="fa-solid fa-trash-can text-[11px]"></i> Clear Chat
-            </button>
+
+            <div class="flex items-center gap-2">
+                <!-- Tamil / English Toggle Button -->
+                <button id="lang-toggle-btn" onclick="toggleLanguage()" class="text-xs font-bold px-3 py-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-xl hover:bg-amber-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm">
+                    <i class="fa-solid fa-globe text-[11px]"></i> <span id="lang-label">தமிழ்</span>
+                </button>
+                <!-- Clear Chat Button -->
+                <button id="clear-chat-top" class="text-xs font-semibold px-2.5 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/25 transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm">
+                    <i class="fa-solid fa-trash-can text-[11px]"></i>
+                </button>
+            </div>
         </header>
 
         <!-- Main Chat Workspace -->
         <main class="flex-1 w-full relative overflow-hidden flex flex-col p-3 max-w-3xl mx-auto">
-            <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-28 sm:pb-32"></div>
+            <div id="chat-log" class="absolute inset-0 overflow-y-auto p-4 space-y-4 flex flex-col pb-36 sm:pb-40"></div>
         </main>
 
         <!-- Inbuilt Custom Confirmation Modal -->
@@ -86,8 +116,8 @@
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
                 <div class="flex flex-col gap-1">
-                    <h3 class="text-sm font-extrabold text-white">Delete Chat History</h3>
-                    <p class="text-xs text-slate-400 font-light">Are you sure you want to delete all chat records?</p>
+                    <h3 id="modal-title" class="text-sm font-extrabold text-white">Delete Chat History</h3>
+                    <p id="modal-desc" class="text-xs text-slate-400 font-light">Are you sure you want to clear our chat history?</p>
                 </div>
                 <div class="flex gap-2 pt-1">
                     <button id="confirm-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">Cancel</button>
@@ -96,20 +126,18 @@
             </div>
         </div>
 
-        <!-- Professional Input Footer with Blubi Responsive Sizing -->
-        <footer class="w-full bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 p-3.5 sm:p-4 flex flex-col gap-2 z-20 shrink-0 shadow-2xl relative">
+        <!-- Professional Footer with Blubi & Dynamic Pre-loaded Buttons -->
+        <footer class="w-full bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 p-3.5 sm:p-4 flex flex-col gap-2.5 z-20 shrink-0 shadow-2xl relative">
             
             <!-- Blubi Transparent Layer Overlay -->
             <div class="absolute -top-20 sm:-top-28 left-4 z-30 pointer-events-none flex items-center">
                 <img id="blubi-avatar" src="blubiani1.gif" alt="Blubi Avatar" class="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.95)]">
             </div>
 
-            <form id="chat-form" class="flex gap-2 max-w-3xl w-full mx-auto relative pt-1 pl-18 sm:pl-28">
-                <input type="text" id="user-input" placeholder="Ask anything about MY Food Products..." class="flex-1 bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition shadow-inner">
-                <button type="submit" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5 flex-shrink-0">
-                    <span>Send</span> <i class="fa-solid fa-paper-plane text-[10px]"></i>
-                </button>
-            </form>
+            <!-- Pre-loaded Button Panel -->
+            <div id="button-panel" class="flex items-center gap-2 overflow-x-auto py-1.5 pl-18 sm:pl-28 scrollbar-none w-full">
+                <!-- Dynamically populated buttons -->
+            </div>
         </footer>
 
     </div>
@@ -117,124 +145,206 @@
     <!-- Assistant Script Engine -->
     <script>
         const chatLog = document.getElementById('chat-log');
-        const chatForm = document.getElementById('chat-form');
-        const userInput = document.getElementById('user-input');
+        const buttonPanel = document.getElementById('button-panel');
         const clearChatTopBtn = document.getElementById('clear-chat-top');
         const customConfirmModal = document.getElementById('custom-confirm-modal');
         const confirmOkBtn = document.getElementById('confirm-ok');
         const confirmCancelBtn = document.getElementById('confirm-cancel');
         const blubiAvatar = document.getElementById('blubi-avatar');
+        const langToggleBtn = document.getElementById('lang-toggle-btn');
+        const langLabel = document.getElementById('lang-label');
+        const headerTitle = document.getElementById('header-title');
+        const headerSubtitle = document.getElementById('header-subtitle');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
 
-        let recognition = null;
+        let currentLang = 'en'; // 'en' or 'ta'
         let isAiSpeaking = false;
-        let siteDictionary = null;
         let idleInterval = null;
 
-        const dynamicGreetings = [
-            "What's up? Ready to explore MY Store or need help with something else?",
-            "Hey there! What can I help you find today?",
-            "Yo! Ask me anything about our organic products, staff applications, or store catalog."
-        ];
-
-        // 10+ Unique Randomizer Trackers for Categories
-        const responsePools = {
-            contact: [
-                `Need to get in touch or reach our team? Here are our official contact links:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-address-book"></i> Contact Us</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Chat</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> munchiraiymcaestore@gmail.com</a>`,
-                `Looking for customer service or assistance? Reach out to us instantly:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-headset"></i> Customer Care</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Number</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> Send Email</a>`,
-                `We're ready to help! Contact our support team using any of these channels:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-phone"></i> Support Page</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Support</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> munchiraiymcaestore@gmail.com</a>`,
-                `Have questions or need customer care? Connect right here:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-comments"></i> Contact Page</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Me</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> Email Us</a>`,
-                `Reach our customer service desk anytime:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-address-card"></i> Contact Us</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Connect</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> munchiraiymcaestore@gmail.com</a>`,
-                `Get in touch with us directly:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-phone-volume"></i> Contact Info</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Link</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> munchiraiymcaestore@gmail.com</a>`,
-                `Need help with an order or inquiry? Use our customer care details:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid id-badge"></i> Contact Support</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Chat</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> Send Email</a>`,
-                `We are here for you! Contact our team through these quick links:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-globe"></i> Contact Page</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Number</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> munchiraiymcaestore@gmail.com</a>`,
-                `Looking for our contact number or support desk? Check here:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-address-book"></i> Contact Us</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Connect</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> Email Us</a>`,
-                `Connect with MY Food Products customer care instantly:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-headset"></i> Contact Support</a><br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp Chat</a><br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> munchiraiymcaestore@gmail.com</a>`
+        const humanGreetings = {
+            en: [
+                "Hey there! I'm Blubi, your assistant here to help you get around MY Store. What are you looking for today? Just tap one of the buttons below to pick a topic.",
+                "Hi! I'm Blubi, good to see you. Feel free to tap on any of the options below and I'll pull up the details for you right away.",
+                "Hello! I'm Blubi. Whether you want to check our organic products, find our bank details, or get in touch, just pick a button below!"
             ],
-            store: [
-                `Ready to shop? Explore our entire organic product lineup and place orders directly in MY Store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`,
-                `Browse our organic catalog and buy products with ease:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-basket-shopping"></i> Visit Store</a>`,
-                `Check out what's fresh in our shopping hub:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-shop"></i> Open MY Store</a>`,
-                `Looking to buy pure organic goods? Head straight to our store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-cart-shopping"></i> Shop Now</a>`,
-                `Explore our store catalog for all available items:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`,
-                `Ready to make a purchase? Start shopping right here:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-bag-shopping"></i> MY Store Catalog</a>`,
-                `Discover our collection of wholesome organic food products:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Browse Store</a>`,
-                `Shop our organic selection with just one click:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`,
-                `Looking for products to buy? Visit our online shopping page:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>`,
-                `Explore all store items and order your organic essentials:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`
-            ],
-            bank: [
-                `All official bank account details and payment routing info are listed here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`,
-                `Need our bank information or account numbers for payments? Check here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-university"></i> Bank Info</a>`,
-                `Review official banking details and transfer instructions:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-credit-card"></i> View Bank Details</a>`,
-                `Looking for secure payment and bank account info? Access it below:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-landmark"></i> Bank Details</a>`,
-                `Access our verified bank accounts and financial routing data:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`,
-                `Check out our banking credentials and payment info:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-file-invoice-dollar"></i> Bank Information</a>`,
-                `Need to verify bank details before a transfer? Click here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`,
-                `Find all official bank and payment details right here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-wallet"></i> Bank Details</a>`,
-                `View our official corporate bank information page:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`,
-                `Access direct bank details and payment instructions:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> Bank Details</a>`
-            ],
-            news: [
-                `Catch up on our latest announcements and community updates here:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`,
-                `Stay informed with recent updates, news flashes, and announcements:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-bullhorn"></i> News & Announcements</a>`,
-                `Check out what's new at MY Food Products:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News</a>`,
-                `Read our latest updates and press announcements:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-file-lines"></i> News & Updates</a>`,
-                `Keep up with community announcements and news articles:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`,
-                `Browse recent updates and important store announcements:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> News Portal</a>`,
-                `Stay updated with our latest news and events:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`,
-                `Find all recent announcements and news posts here:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> Announcements</a>`,
-                `Check out our latest news bulletin and updates:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`,
-                `Read the latest news and announcements from our team:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> News & Updates</a>`
-            ],
-            about: [
-                `MY Food Products is a commercial organic business directing its profits toward charity initiatives with Munchirai YMCA. Read more about our story:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`,
-                `Want to learn more about our mission and journey? Check our about page:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-circle-info"></i> About MY Food</a>`,
-                `Discover the story behind MY Food Products and our organic vision:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> About Us Page</a>`,
-                `Learn more about our core values and background:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`,
-                `Explore our about page to understand our organic journey and community initiatives:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> About Us</a>`,
-                `Want to learn more about what we do? Read our site background:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Learn More</a>`,
-                `Discover who we are and our dedication to organic foods:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`,
-                `Read our full story on the about page:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> About Page</a>`,
-                `Get to know more about MY Food Products and our community mission:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`,
-                `Learn all about our enterprise and organic initiatives:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> About Us</a>`
-            ],
-            career: [
-                `Want to join the team? Explore career opportunities and fill out our employee registration form:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Employee Registration Form</a>`,
-                `Looking for job openings or staff registration? Submit your details here:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-user-plus"></i> Staff Registration</a>`,
-                `Join our growing workforce! Access the new employee form below:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> New Staff Registration</a>`,
-                `Explore career opportunities and register as a new team member:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-briefcase"></i> Employee Registration</a>`,
-                `Ready to work with us? Fill out our new staff regulation form:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Staff Registration Form</a>`,
-                `Check out available career opportunities and employment portals:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-id-card"></i> Employee Registration</a>`,
-                `Submit your application through our official new employee registration portal:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Staff Registration Form</a>`,
-                `Looking for staff opportunities? Register with us here:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Employee Registration</a>`,
-                `Join MY Food Products team! Access the staff registration page:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Staff Registration</a>`,
-                `Explore career openings and complete your employee registration:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Employee Registration Form</a>`
-            ],
-            instagram: [
-                `Follow our journey and stay connected on Instagram:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> MY Food Products Instagram</a>`,
-                `Check out our official Instagram page for daily updates and photos:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> Instagram Page</a>`,
-                `Connect with us on Instagram to see our organic products in action:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> MY Food Instagram</a>`,
-                `Explore our photo gallery and updates on Instagram:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> Instagram Profile</a>`,
-                `Follow our Instagram page for stories, announcements, and more:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> MY Food Products Instagram</a>`,
-                `Check out our Instagram feed to stay connected with our community:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> Instagram Page</a>`,
-                `Visit our official Instagram page:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> MY Food Instagram</a>`,
-                `Catch our latest posts and reels on Instagram:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> Instagram Profile</a>`,
-                `Stay connected through our official Instagram handle:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> MY Food Products Instagram</a>`,
-                `Explore our Instagram page for photos and updates:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> Instagram Page</a>`
+            ta: [
+                "வணக்கம்! நான் பிளூபி (Blubi), MY Store-ல் உங்களுக்கு உதவ நான் தயாராக இருக்கிறேன். இன்று நீங்கள் என்ன தேடுகிறீர்கள்? கீழே உள்ள பொத்தான்களில் ஒன்றைத் தட்டவும்.",
+                "ஹலோ! நான் பிளூபி. உங்களை சந்திப்பதில் மகிழ்ச்சி. கீழே உள்ள விருப்பங்களில் ஒன்றைத் தட்டினால், விவரங்களை உடனே தருகிறேன்.",
+                "வணக்கம்! நான் பிளூபி. எங்கள் இயற்கை உணவுப் பொருட்கள், வங்கி விவரங்கள் அல்லது தொடர்புகளை அறிய கீழே உள்ள பொத்தானைத் தேர்ந்தெடுக்கவும்!"
             ]
         };
 
-        // Non-repeating random picker tracker
-        const lastIndices = {};
-        function getRandomResponse(category) {
-            const pool = responsePools[category];
-            if (!pool) return "I'm here to help! Feel free to ask anything.";
-            let idx;
-            do {
-                idx = Math.floor(Math.random() * pool.length);
-            } while (pool.length > 1 && lastIndices[category] === idx);
-            lastIndices[category] = idx;
-            return pool[idx];
+        // Bilingual conversation data (Main categories + sub-questions)
+        const categories = {
+            store: {
+                label: { en: "Store & Shopping", ta: "ஸ்டோர் & ஷாப்பிங்" },
+                icon: "fa-store",
+                subquestions: [
+                    {
+                        text: { en: "How do I buy organic products?", ta: "இயற்கை பொருட்களை வாங்குவது எப்படி?" },
+                        reply: {
+                            en: `You can check out our full organic catalog and place orders easily right inside our shop:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`,
+                            ta: `எங்கள் முழு இயற்கை உணவுப் பட்டியலைப் பார்த்து MY Store-ல் எளிதாக ஆர்டர் செய்யலாம்:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store திறக்கவும்</a>`
+                        }
+                    },
+                    {
+                        text: { en: "What kind of items do you sell?", ta: "என்ன வகையான பொருட்கள் விற்கிறீர்கள்?" },
+                        reply: {
+                            en: `We offer a wide variety of wholesome, pure organic food products designed for a healthy lifestyle. Take a look at what we have in stock:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-basket-shopping"></i> Browse Store Catalog</a>`,
+                            ta: `ஆரோகியமான வாழ்வுக்கான தூய்மையான இயற்கை உணவுப் பொருட்களை நாங்கள் வழங்குகிறோம். பட்டியலைப் பார்வையிடவும்:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-basket-shopping"></i> ஸ்டோர் பட்டியலைக் காண்க</a>`
+                        }
+                    },
+                    {
+                        text: { en: "Back to Main Menu", ta: "முதன்மை மெனுவுக்குச் செல்" },
+                        reply: { en: "No problem! What else would you like to talk about?", ta: "சரி! அடுத்து என்ன பேச விரும்புகிறீர்கள்?" },
+                        isBack: true
+                    }
+                ]
+            },
+            contact: {
+                label: { en: "Contact & Support", ta: "தொடர்பு & உதவி" },
+                icon: "fa-headset",
+                subquestions: [
+                    {
+                        text: { en: "How can I chat on WhatsApp?", ta: "வாட்ஸ்அப்பில் தொடர்புகொள்வது எப்படி?" },
+                        reply: {
+                            en: `We'd love to chat with you directly on WhatsApp! You can reach us here:<br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp</a>`,
+                            ta: `வாட்ஸ்அப் மூலம் எங்களை நேரடியாகத் தொடர்பு கொள்ளலாம்:<br><a href="https://wa.me/qr/JSDEH25YRYAUH1" target="_blank" class="chat-action-link"><i class="fa-brands fa-whatsapp"></i> வாட்ஸ்அப் சாட்</a>`
+                        }
+                    },
+                    {
+                        text: { en: "What is your email address?", ta: "உங்களின் மின்னஞ்சல் முகவரி என்ன?" },
+                        reply: {
+                            en: `Feel free to drop us an email anytime at:<br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> munchiraiymcaestore@gmail.com</a>`,
+                            ta: `எந்த நேரத்திலும் எமக்கு மின்னஞ்சல் அனுப்பலாம்:<br><a href="mailto:munchiraiymcaestore@gmail.com" class="chat-action-link"><i class="fa-solid fa-envelope"></i> munchiraiymcaestore@gmail.com</a>`
+                        }
+                    },
+                    {
+                        text: { en: "Where is your full contact page?", ta: "முழு தொடர்பு பக்கம் எங்கே?" },
+                        reply: {
+                            en: `You can find all our customer care details and contact numbers on our official page:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-address-book"></i> View Contact Page</a>`,
+                            ta: `எங்கள் வாடிக்கையாளர் சேவை விவரங்களை அதிகாரப்பூர்வ பக்கத்தில் காணலாம்:<br><a href="contact.html" class="chat-action-link"><i class="fa-solid fa-address-book"></i> தொடர்பு பக்கத்தைக் காண்க</a>`
+                        }
+                    },
+                    {
+                        text: { en: "Back to Main Menu", ta: "முதன்மை மெனுவுக்குச் செல்" },
+                        reply: { en: "Sure thing! What else can I help you find?", ta: "கண்டிப்பாக! உங்களுக்கு வேறு என்ன உதவ வேண்டும்?" },
+                        isBack: true
+                    }
+                ]
+            },
+            bank: {
+                label: { en: "Bank Details", ta: "வங்கி விவரங்கள்" },
+                icon: "fa-building-columns",
+                subquestions: [
+                    {
+                        text: { en: "Where can I view bank account info?", ta: "வங்கி கணக்கு விவரங்களை எங்கே பார்க்கலாம்?" },
+                        reply: {
+                            en: `All our official bank account details and secure payment routing information are listed here:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> View Bank Details</a>`,
+                            ta: `எங்கள் அதிகாரப்பூர்வ வங்கி கணக்கு விவரங்கள் மற்றும் கட்டணத் தகவல்கள் இங்கே பட்டியலிடப்பட்டுள்ளன:<br><a href="bankdetails.html" class="chat-action-link"><i class="fa-solid fa-building-columns"></i> வங்கி விவரங்களைக் காண்க</a>`
+                        }
+                    },
+                    {
+                        text: { en: "Back to Main Menu", ta: "முதன்மை மெனுவுக்குச் செல்" },
+                        reply: { en: "Alright! Let me know what else you need.", ta: "சரி! உங்களுக்கு வேறு என்ன வேண்டும் என்பதைத் தெரியப்படுத்தவும்." },
+                        isBack: true
+                    }
+                ]
+            },
+            news: {
+                label: { en: "News & Updates", ta: "செய்திகள் & புதுப்பிப்புகள்" },
+                icon: "fa-newspaper",
+                subquestions: [
+                    {
+                        text: { en: "What are your latest announcements?", ta: "சமீபத்திய அறிவிப்புகள் என்ன?" },
+                        reply: {
+                            en: `You can catch up on all our recent store updates, news flashes, and community announcements right here:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> View News & Updates</a>`,
+                            ta: `எங்கள் சமீபத்திய ஸ்டோர் புதுப்பிப்புகள் மற்றும் அறிவிப்புகளை இங்கே தெரிந்துகொள்ளலாம்:<br><a href="news.html" class="chat-action-link"><i class="fa-solid fa-newspaper"></i> செய்திகளைக் காண்க</a>`
+                        }
+                    },
+                    {
+                        text: { en: "Back to Main Menu", ta: "முதன்மை மெனுவுக்குச் செல்" },
+                        reply: { en: "Got it. Pick another category whenever you're ready!", ta: "புரிந்தது. தயாரானதும் வேறு பிரிவைத் தேர்ந்தெடுக்கவும்!" },
+                        isBack: true
+                    }
+                ]
+            },
+            about: {
+                label: { en: "About Us", ta: "எங்களைப் பற்றி" },
+                icon: "fa-book-open",
+                subquestions: [
+                    {
+                        text: { en: "What is MY Food Products?", ta: "MY Food Products என்றால் என்ன?" },
+                        reply: {
+                            en: `MY Food Products is a commercial organic business that happily directs its profits toward supporting charity initiatives run by Munchirai YMCA. You can read more about our story here:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> Read About Us</a>`,
+                            ta: `MY Food Products என்பது முஞ்சிறை YMCA நடத்தும் தொண்டு நடவடிக்கைகளுக்கு லாபத்தை வழங்கும் ஒரு வணிக நிறுவனமாகும். எங்களைப் பற்றி மேலும் படிக்க:<br><a href="aboutus.html" class="chat-action-link"><i class="fa-solid fa-book-open"></i> எங்களைப் பற்றிப் படிக்க</a>`
+                        }
+                    },
+                    {
+                        text: { en: "Back to Main Menu", ta: "முதன்மை மெனுவுக்குச் செல்" },
+                        reply: { en: "Sure! What else would you like to explore?", ta: "நிச்சயமாக! வேறு என்ன ஆராய விரும்புகிறீர்கள்?" },
+                        isBack: true
+                    }
+                ]
+            },
+            career: {
+                label: { en: "Career / Staff", ta: "வேலைவாய்ப்பு / பணியாளர்" },
+                icon: "fa-file-pen",
+                subquestions: [
+                    {
+                        text: { en: "How do I apply for a job?", ta: "வேலைக்கு விண்ணப்பிப்பது எப்படி?" },
+                        reply: {
+                            en: `We're always glad to welcome new people! You can fill out our official employee registration form here:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> Employee Registration Form</a>`,
+                            ta: `புதிய பணியாளர்களை வரவேற்பதில் நாங்கள் மகிழ்ச்சியடைகிறோம்! எங்கள் அதிகாரப்பூர்வ பணியாளர் பதிவு படிவத்தை நிரப்பவும்:<br><a href="employeeregistration.html" class="chat-action-link"><i class="fa-solid fa-file-pen"></i> பணியாளர் பதிவு படிவம்</a>`
+                        }
+                    },
+                    {
+                        text: { en: "Back to Main Menu", ta: "முதன்மை மெனுவுக்குச் செல்" },
+                        reply: { en: "No worries! What else can I assist you with?", ta: "கவலை இல்லை! உங்களுக்கு வேறு எப்படி உதவ முடியும்?" },
+                        isBack: true
+                    }
+                ]
+            },
+            instagram: {
+                label: { en: "Instagram", ta: "இன்ஸ்டாகிராம்" },
+                icon: "fa-instagram",
+                subquestions: [
+                    {
+                        text: { en: "What is your Instagram handle?", ta: "உங்களின் இன்ஸ்டாகிராம் பக்கம் என்ன?" },
+                        reply: {
+                            en: `Come follow our journey, daily photos, and organic product highlights on Instagram:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> MY Food Products Instagram</a>`,
+                            ta: `இன்ஸ்டாகிராமில் எங்கள் புகைப்படங்கள் மற்றும் இயற்கை உணவுப் பொருட்களின் புதுப்பிப்புகளைப் பின்தொடரவும்:<br><a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" class="chat-action-link"><i class="fa-brands fa-instagram"></i> இன்ஸ்டாகிராம் பக்கம்</a>`
+                        }
+                    },
+                    {
+                        text: { en: "Back to Main Menu", ta: "முதன்மை மெனுவுக்குச் செல்" },
+                        reply: { en: "Awesome! What's next on your mind?", ta: "அருமை! அடுத்து என்ன பார்க்கலாம்?" },
+                        isBack: true
+                    }
+                ]
+            }
+        };
+
+        // Toggle Language Function
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ta' : 'en';
+            langLabel.textContent = currentLang === 'en' ? 'தமிழ்' : 'English';
+            
+            if (currentLang === 'ta') {
+                headerTitle.textContent = "Blubi உதவியாளர்";
+                headerSubtitle.textContent = "பேச கீழே உள்ள தலைப்பைத் தட்டவும்";
+                modalTitle.textContent = "அரட்டை வரலாற்றை நீக்கு";
+                modalDesc.textContent = "அரட்டை வரலாற்றை முழுமையாக நீக்க விரும்புகிறீர்களா?";
+            } else {
+                headerTitle.textContent = "Blubi Assistant";
+                headerSubtitle.textContent = "Tap a topic below to chat";
+                modalTitle.textContent = "Delete Chat History";
+                modalDesc.textContent = "Are you sure you want to clear our chat history?";
+            }
+
+            // Reset view to main categories in the new language
+            renderMainCategories();
         }
 
         // Blubi State Handlers
@@ -253,65 +363,45 @@
         function startIdleLoop() {
             if (idleInterval) clearInterval(idleInterval);
             idleInterval = setInterval(() => {
-                if (!isAiSpeaking && !userInput.value.trim()) {
+                if (!isAiSpeaking) {
                     setBlubiState('idle');
                 }
             }, 6000);
         }
 
-        userInput.addEventListener('input', () => {
-            if (userInput.value.trim().length > 0) {
-                setBlubiState('thinking');
-            } else {
-                setBlubiState('idle');
-            }
-        });
-
-        async function loadDictionaryData() {
-            try {
-                const response = await fetch('aidictionary.html');
-                if (response.ok) {
-                    const text = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'text/html');
-                    const scriptTag = doc.querySelector('script');
-                    if (scriptTag && scriptTag.textContent.includes('AIDictionary')) {
-                        const evalScript = new Function(scriptTag.textContent + '; return AIDictionary;');
-                        siteDictionary = evalScript();
-                    }
-                }
-            } catch (e) {}
-        }
-
         function loadChatHistory() {
-            const savedHistory = localStorage.getItem('aria_chat_history');
+            const savedHistory = localStorage.getItem('blubi_chat_history');
             if (savedHistory) {
                 chatLog.innerHTML = savedHistory;
                 chatLog.scrollTop = chatLog.scrollHeight;
             } else {
-                const randomGreeting = dynamicGreetings[Math.floor(Math.random() * dynamicGreetings.length)];
-                appendMessage('Aria', randomGreeting, false);
+                const greetingsPool = humanGreetings[currentLang];
+                const randomGreeting = greetingsPool[Math.floor(Math.random() * greetingsPool.length)];
+                appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', randomGreeting, false);
             }
             setBlubiState('idle');
             startIdleLoop();
+            renderMainCategories();
         }
 
         function saveChatHistory() {
-            localStorage.setItem('aria_chat_history', chatLog.innerHTML);
+            localStorage.setItem('blubi_chat_history', chatLog.innerHTML);
         }
 
         clearChatTopBtn.addEventListener('click', () => customConfirmModal.classList.remove('hidden'));
         confirmCancelBtn.addEventListener('click', () => customConfirmModal.classList.add('hidden'));
         confirmOkBtn.addEventListener('click', () => {
             customConfirmModal.classList.add('hidden');
-            localStorage.removeItem('aria_chat_history');
+            localStorage.removeItem('blubi_chat_history');
             chatLog.innerHTML = '';
-            appendMessage('Aria', "Wiped the slate clean. What's next?", true);
+            const resetMsg = currentLang === 'ta' ? "அரட்டை வரலாறு அழிக்கப்பட்டது. என்ன பேச வேண்டும்?" : "I've cleared our chat. What would you like to chat about?";
+            appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', resetMsg, true);
+            renderMainCategories();
         });
 
         function appendMessage(sender, htmlContent, save = true) {
             const msgDiv = document.createElement('div');
-            const isUser = sender === 'You';
+            const isUser = sender === 'You' || sender === 'நீங்கள்';
             msgDiv.className = `p-4 rounded-2xl max-w-[85%] text-xs sm:text-sm shadow-md ${isUser ? 'bg-amber-500/10 border border-amber-500/30 self-end text-amber-100 font-medium' : 'bg-slate-900 border border-slate-800/80 self-start text-slate-300'}`;
             msgDiv.innerHTML = `<span class="text-[10px] sm:text-xs ${isUser ? 'text-amber-400' : 'text-amber-500'} font-extrabold block mb-1.5 uppercase tracking-wider">${sender}</span><div class="leading-relaxed">${htmlContent}</div>`;
             chatLog.appendChild(msgDiv);
@@ -327,153 +417,80 @@
                 const plainText = tempDiv.textContent || tempDiv.innerText || "";
                 const utterance = new SpeechSynthesisUtterance(plainText);
                 utterance.rate = 1.0;
-                utterance.pitch = 1.1;
+                utterance.pitch = 1.05;
+                utterance.lang = currentLang === 'ta' ? 'ta-IN' : 'en-US';
                 
                 utterance.onstart = () => {
                     isAiSpeaking = true;
                     setBlubiState('speaking');
-                    if (recognition) { try { recognition.stop(); } catch(e) {} }
                 };
                 utterance.onend = () => {
                     isAiSpeaking = false;
                     setBlubiState('idle');
-                    setTimeout(() => {
-                        if (recognition) { try { recognition.start(); } catch(e) {} }
-                    }, 400);
                 };
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        function evaluateQuery(query) {
-            const q = query.toLowerCase().trim();
-
-            if (['hi', 'hello', 'hey', 'sup', 'greetings', 'yo'].some(word => q === word || q.startsWith(word + ' '))) {
-                const randomHIs = [
-                    "Hey! What's on your mind today?",
-                    "Hello there! Looking to browse MY Store or check out something specific?",
-                    "Hey! How can I help you navigate MY Food Products today?"
-                ];
-                return randomHIs[Math.floor(Math.random() * randomHIs.length)];
+        // Render Main Category Buttons
+        function renderMainCategories() {
+            let html = '';
+            for (const key in categories) {
+                const cat = categories[key];
+                html += `<button onclick="handleMainCategoryClick('${key}')" class="quick-option-btn shrink-0">
+                    <i class="fa-solid ${cat.icon} text-amber-400"></i> ${cat.label[currentLang]}
+                </button>`;
             }
-
-            if (q.includes('how are you') || q.includes('how\'s it going') || q.includes('what\'s up')) {
-                const responses = [
-                    "I'm doing great, fully online and keeping an eye on the store! What about you?",
-                    "All systems are green! Ready to help you check out products or sort out staff info.",
-                    "Livin' in the cloud and keeping things running smooth. What can I do for you?"
-                ];
-                return responses[Math.floor(Math.random() * responses.length)];
-            }
-
-            if (q.includes('who are you') || q.includes('what are you')) {
-                return "I'm Aria, your digital assistant for MY Food Products. I'm here to help you navigate the store, check products, or get connected with our team.";
-            }
-
-            // Keyword Evaluation Rules
-            const contactKeywords = ['whatsapp', 'contact number', 'contact', 'customer service', 'customer care', 'phone', 'call', 'support', 'help', 'email'];
-            if (contactKeywords.some(keyword => q.includes(keyword))) {
-                return getRandomResponse('contact');
-            }
-
-            const storeKeywords = ['store', 'shopping', 'buy', 'products', 'shop', 'purchase', 'order', 'catalog', 'where'];
-            if (storeKeywords.some(keyword => q.includes(keyword))) {
-                return getRandomResponse('store');
-            }
-
-            const bankKeywords = ['bank details', 'bank info', 'banking', 'account', 'payment', 'upi', 'cod'];
-            if (bankKeywords.some(keyword => q.includes(keyword))) {
-                return getRandomResponse('bank');
-            }
-
-            const newsKeywords = ['news', 'updates', 'announcement', 'updates', 'bulletin'];
-            if (newsKeywords.some(keyword => q.includes(keyword))) {
-                return getRandomResponse('news');
-            }
-
-            const aboutKeywords = ['about my food', 'about site', 'learn more about page', 'about page', 'about', 'story', 'munchirai', 'ymca', 'charity'];
-            if (aboutKeywords.some(keyword => q.includes(keyword))) {
-                return getRandomResponse('about');
-            }
-
-            const careerKeywords = ['career opportunities', 'employee registration', 'new employee form', 'new staff regulation', 'staff registration', 'job', 'apply', 'hiring', 'career', 'register', 'join', 'work'];
-            if (careerKeywords.some(keyword => q.includes(keyword))) {
-                return getRandomResponse('career');
-            }
-
-            const instaKeywords = ['instagram', 'my food products instagram', 'my food instagram page', 'insta', 'social'];
-            if (instaKeywords.some(keyword => q.includes(keyword))) {
-                return getRandomResponse('instagram');
-            }
-
-            if (siteDictionary && siteDictionary.inventory) {
-                const found = siteDictionary.inventory.find(item => q.includes(item.productName.toLowerCase()) || q.includes(item.category.toLowerCase()));
-                if (found) {
-                    return `Found <strong>${found.productName}</strong> (${found.category}):<br>` +
-                           `Price: ₹${found.finalPrice} ${found.offerPercentage > 0 ? `(${found.offerPercentage}% off original ₹${found.originalPrice})` : ''} | Rating: ★${found.rating}/5<br>` +
-                           `${found.description}<br>` +
-                           `<a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
-                }
-            }
-
-            return `I'm tracking with you! If you're looking to explore our items, check store details, or reach out to our team, you can head straight over to the store:<br><a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> Open MY Store</a>`;
+            buttonPanel.innerHTML = html;
         }
 
-        async function handleUserQuery(promptText) {
+        // When a main category is clicked
+        function handleMainCategoryClick(categoryKey) {
+            const cat = categories[categoryKey];
+            if (!cat) return;
+
             setBlubiState('thinking');
-            appendMessage('You', promptText);
-            const reply = evaluateQuery(promptText);
-            appendMessage('Aria', reply);
-            speakAloud(reply);
+            const userPromptText = currentLang === 'ta' ? `${cat.label.ta} பற்றி பேசலாம்` : `Let's talk about ${cat.label.en}`;
+            appendMessage(currentLang === 'ta' ? 'நீங்கள்' : 'You', userPromptText);
+            
+            const introReply = currentLang === 'ta' ? 
+                `கண்டிப்பாக! ${cat.label.ta} தொடர்பான கேள்விகள் இதோ. கீழே உள்ளதைத் தட்டவும்:` : 
+                `Sure thing! Here are a few things you can ask about ${cat.label.en}. Tap one below:`;
+            
+            appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', introReply);
+            speakAloud(introReply);
+            setBlubiState('idle');
+
+            // Render sub-question buttons in footer
+            let subHtml = '';
+            cat.subquestions.forEach((sub, index) => {
+                const iconClass = sub.isBack ? "fa-arrow-left" : "fa-circle-question";
+                subHtml += `<button onclick="handleSubQuestionClick('${categoryKey}', ${index})" class="quick-option-btn shrink-0">
+                    <i class="fa-solid ${iconClass} text-amber-400"></i> ${sub.text[currentLang]}
+                </button>`;
+            });
+            buttonPanel.innerHTML = subHtml;
         }
 
-        window.addEventListener('load', async () => {
-            await loadDictionaryData();
-            loadChatHistory();
-            startContinuousListening();
-        });
+        // When a sub-question is tapped
+        function handleSubQuestionClick(categoryKey, subIndex) {
+            const cat = categories[categoryKey];
+            const sub = cat.subquestions[subIndex];
 
-        function startContinuousListening() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.lang = 'en-US';
+            setBlubiState('thinking');
+            appendMessage(currentLang === 'ta' ? 'நீங்கள்' : 'You', sub.text[currentLang]);
 
-                recognition.onresult = (event) => {
-                    if (isAiSpeaking) return;
-                    let interim = '';
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        if (event.results[i].isFinal) {
-                            const speechToText = event.results[i][0].transcript.trim();
-                            if (speechToText) handleUserQuery(speechToText);
-                        } else {
-                            interim += event.results[i][0].transcript;
-                        }
-                    }
-                    if (interim.trim()) {
-                        setBlubiState('thinking');
-                        userInput.value = interim;
-                    }
-                };
+            appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', sub.reply[currentLang]);
+            speakAloud(sub.reply[currentLang]);
+            setBlubiState('idle');
 
-                recognition.onerror = () => {
-                    if (!isAiSpeaking) setTimeout(() => { try { recognition.start(); } catch(e){} }, 1000);
-                };
-                recognition.onend = () => {
-                    if (!isAiSpeaking) try { recognition.start(); } catch(e){}
-                };
-                try { recognition.start(); } catch(e){}
+            if (sub.isBack) {
+                renderMainCategories();
             }
         }
 
-        chatForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const text = userInput.value.trim();
-            if(!text) return;
-            userInput.value = '';
-            handleUserQuery(text);
+        window.addEventListener('load', () => {
+            loadChatHistory();
         });
     </script>
 </body>
