@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | Active Kids' Favourite</title>
+    <title>Munchirai YMCA | Select Kids' Favourite</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,6 +19,10 @@
                         amber: {
                             500: '#f59e0b',
                             600: '#d97706',
+                        },
+                        sky: {
+                            500: '#0ea5e9',
+                            600: '#0284c7',
                         }
                     }
                 }
@@ -35,7 +39,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-sky-500 selection:text-slate-950 min-h-screen flex flex-col justify-between">
 
     <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
     <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
@@ -58,14 +62,14 @@
                 </div>
                 <div>
                     <h1 class="text-sm font-bold tracking-tight">MY Food</h1>
-                    <p class="text-[10px] text-slate-400">Product Feed</p>
+                    <p class="text-[10px] text-slate-400">Inventory Picker</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2.5">
-                <button type="button" onclick="sessionStorage.setItem('ymca_redirect_token', 'active'); window.history.back();" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 transition shadow-sm border border-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-arrow-left text-xs text-amber-400"></i> <span>Back</span>
-                </button>
+                <a href="kidsfavourite.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 transition shadow-sm border border-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left text-xs text-sky-400"></i> <span>Back</span>
+                </a>
             </div>
         </div>
     </header>
@@ -73,35 +77,36 @@
     <!-- MAIN DASHBOARD CONTENT -->
     <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 flex-grow space-y-6">
         
-        <!-- Header Section with Action Button -->
+        <!-- Header Section -->
         <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200/60">Storefront Showcase</span>
-                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Active Kids' Favourite</h2>
-                <p class="text-[11px] text-slate-500 mt-0.5">Currently featured items displayed on your storefront kids' favourite section.</p>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200/60">Curation Console</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Select Kids' Favourite Products</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Toggle items to display them instantly in the storefront Kids' Favourite section.</p>
             </div>
 
-            <!-- Redirect Button -->
-            <a href="selectkidsfavourite.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="w-full sm:w-auto bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold px-6 py-3 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2 shrink-0">
-                <i class="fa-solid fa-square-check text-slate-950"></i>
-                <span>Select Kids' Favourite</span>
-            </a>
+            <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                    <i class="fa-solid fa-search"></i>
+                </span>
+                <input type="text" id="search-product-input" placeholder="Search inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-sky-500 focus:bg-white transition shadow-sm">
+            </div>
         </section>
 
         <div id="status-msg" class="hidden mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm"></div>
 
-        <!-- ACTIVE KIDS FAVOURITE CATEGORIZED DISPLAY -->
+        <!-- PRODUCTS INVENTORY LIST -->
         <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Categorized Breakdown</span>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Manage and remove items from your kids' favourite collection</p>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Available Inventory</span>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Tap checkbox or button to mark items as Kids' Favourite</p>
                 </div>
-                <span id="kidsfavourite-total-count" class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200/60">0 Total Active</span>
+                <span id="inventory-total-count" class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200/60">0 Total Items</span>
             </div>
 
-            <div id="saved-kidsfavourite-container" class="space-y-6">
-                <div class="py-10 text-center text-slate-400 text-xs">Loading kids' favourite items...</div>
+            <div id="inventory-list-container" class="space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar pr-1">
+                <div class="py-12 text-center text-slate-400 text-xs">Loading inventory products...</div>
             </div>
         </section>
 
@@ -115,32 +120,18 @@
     <!-- Firebase Realtime Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // SECURITY CHECKPOINT: Enforce Session Token Verification for Admin or Staff
+        // SECURITY CHECKPOINT
         function verifyAdminSession() {
-            const isAdminAuthenticated = sessionStorage.getItem("admin_authenticated") === "true";
-            const adminRedirectToken = sessionStorage.getItem("ymca_redirect_token");
-            
-            const isStaffAuthenticated = sessionStorage.getItem("staff_authenticated") === "true";
-            const staffRedirectToken = sessionStorage.getItem("staff_redirect_token");
-            
-            const isAdminValid = isAdminAuthenticated && adminRedirectToken === "active";
-            const isStaffValid = isStaffAuthenticated && staffRedirectToken === "active";
-
+            const isAdminValid = sessionStorage.getItem("admin_authenticated") === "true" && sessionStorage.getItem("ymca_redirect_token") === "active";
+            const isStaffValid = sessionStorage.getItem("staff_authenticated") === "true" && sessionStorage.getItem("staff_redirect_token") === "active";
             if (!isAdminValid && !isStaffValid) {
                 document.getElementById('security-lock-overlay').classList.remove('hidden');
                 throw new Error("Unauthorized security access blocked.");
             }
         }
-
-        // Run security verification immediately
-        try {
-            verifyAdminSession();
-        } catch (e) {
-            // Halt script execution if unauthorized
-            throw e;
-        }
+        try { verifyAdminSession(); } catch (e) { throw e; }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -160,20 +151,15 @@
             if (!rawUrl) return "";
             let url = rawUrl.trim();
             const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-            if (match && match[1]) {
-                return `https://lh3.googleusercontent.com/d/${match[1]}`;
-            }
+            if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
             const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-            if (matchId && matchId[1]) {
-                return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
-            }
+            if (matchId && matchId[1]) return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
             return url;
         }
 
         async function fetchHeaderLogo() {
             try {
-                const logoRef = ref(db, 'settings/storeLogo');
-                const snap = await get(logoRef);
+                const snap = await get(ref(db, 'settings/storeLogo'));
                 const container = document.getElementById('header-logo-container');
                 if (snap.exists() && snap.val()) {
                     const formatted = formatDriveUrl(snap.val());
@@ -181,27 +167,26 @@
                         container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
                     }
                 }
-            } catch (err) {
-                console.error("Error loading header logo:", err);
-            }
+            } catch (err) { console.error(err); }
         }
         fetchHeaderLogo();
 
         let allInventory = [];
         let savedKidsFavourite = {};
 
-        const savedContainer = document.getElementById('saved-kidsfavourite-container');
-        const kidsfavouriteTotalCountEl = document.getElementById('kidsfavourite-total-count');
+        const listContainer = document.getElementById('inventory-list-container');
+        const inventoryTotalCountEl = document.getElementById('inventory-total-count');
+        const searchInput = document.getElementById('search-product-input');
 
         function showStatus(message, isError = false) {
             const msgEl = document.getElementById('status-msg');
             msgEl.textContent = message;
             msgEl.className = `mb-4 p-3.5 rounded-xl text-xs font-medium text-center shadow-sm ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
             msgEl.classList.remove('hidden');
-            setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
+            setTimeout(() => { msgEl.classList.add('hidden'); }, 3000);
         }
 
-        // Listen for Realtime Changes to Kids Favourite & Inventory
+        // Listen to both inventory and kidsfavourite simultaneously
         onValue(ref(db, 'kidsfavourite'), (kfSnapshot) => {
             savedKidsFavourite = kfSnapshot.val() || {};
             
@@ -212,55 +197,34 @@
                 } else {
                     allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
                 }
-
-                renderSavedKidsFavourite();
+                renderInventory(searchInput.value);
             });
         });
 
-        function formatImageURL(url) {
-            if (!url) return '';
-            if (url.includes('drive.google.com')) {
-                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
-                }
-                let idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-                if (idMatch && idMatch[1]) {
-                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
-                }
-            }
-            return url;
-        }
+        function renderInventory(filterText = '') {
+            const query = filterText.toLowerCase();
+            const filtered = allInventory.filter(item => 
+                (item.name && item.name.toLowerCase().includes(query)) || 
+                (item.category && item.category.toLowerCase().includes(query))
+            );
 
-        function renderSavedKidsFavourite() {
-            const savedItems = allInventory.filter(item => savedKidsFavourite[item.key] === true);
-            
-            kidsfavouriteTotalCountEl.textContent = `${savedItems.length} Total Active`;
+            inventoryTotalCountEl.textContent = `${filtered.length} Items Found`;
 
-            if (savedItems.length === 0) {
-                savedContainer.innerHTML = `
-                    <div class="py-12 text-center space-y-2">
-                        <div class="w-12 h-12 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center mx-auto text-lg">
-                            <i class="fa-solid fa-face-smile"></i>
-                        </div>
-                        <p class="text-xs text-slate-700 font-bold">No active kids' favourite items right now.</p>
-                        <p class="text-[11px] text-slate-400 max-w-sm mx-auto">Click the "Select Kids' Favourite" button above to choose products from your inventory.</p>
-                    </div>
-                `;
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">No products match your search.</div>`;
                 return;
             }
 
-            // Group saved items by category
+            // Group by category
             const grouped = {};
-            savedItems.forEach(item => {
+            filtered.forEach(item => {
                 const cat = item.category || 'General';
                 if (!grouped[cat]) grouped[cat] = [];
                 grouped[cat].push(item);
             });
 
-            // Render categorized list
             const categories = Object.keys(grouped).sort();
-            savedContainer.innerHTML = categories.map(cat => {
+            listContainer.innerHTML = categories.map(cat => {
                 const items = grouped[cat];
                 return `
                     <div class="space-y-3">
@@ -271,41 +235,49 @@
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            ${items.map(item => `
-                                <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-slate-300 transition">
-                                    <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
-                                            <img src="${formatImageURL(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                            ${items.map(item => {
+                                const isSelected = savedKidsFavourite[item.key] === true;
+                                return `
+                                    <div class="bg-slate-50/80 border ${isSelected ? 'border-sky-300 bg-sky-50/30' : 'border-slate-200/90'} rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm transition">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+                                                <img src="${formatDriveUrl(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                                            </div>
+                                            <div class="min-w-0">
+                                                <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
+                                                <span class="text-[10px] font-bold text-slate-600">₹${Number(item.price || 0).toFixed(2)}</span>
+                                            </div>
                                         </div>
-                                        <div class="min-w-0">
-                                            <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
-                                            <span class="text-[10px] font-bold text-slate-600">₹${Number(item.price || 0).toFixed(2)}</span>
-                                        </div>
+                                        
+                                        <!-- TOGGLE BUTTON -->
+                                        <button type="button" onclick="window.toggleKidsFavourite('${item.key}',${isSelected})" class="px-3.5 py-2 rounded-xl text-[11px] font-extrabold transition active:scale-95 flex items-center gap-1.5 shrink-0 shadow-sm ${isSelected ? 'bg-sky-500 hover:bg-sky-400 text-slate-950' : 'bg-slate-200 hover:bg-slate-300 text-slate-700'}">
+                                            ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i><span>Selected</span>' : '<i class="fa-solid fa-plus text-[10px]"></i><span>Select</span>'}
+                                        </button>
                                     </div>
-                                    
-                                    <!-- REMOVE BUTTON -->
-                                    <button type="button" onclick="window.removeKidsFavourite('${item.key}')" class="px-3 py-1.5 rounded-xl text-[11px] font-extrabold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/80 transition active:scale-95 flex items-center gap-1.5 shrink-0">
-                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
-                                        <span>Remove</span>
-                                    </button>
-                                </div>
-                            `).join('')}
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Remove Kids Favourite functionality
-        window.removeKidsFavourite = function(key) {
-            remove(ref(db, `kidsfavourite/${key}`))
-                .then(() => {
-                    showStatus("Item removed from kids' favourite!");
-                })
-                .catch(err => {
-                    showStatus("Error removing item: " + err.message, true);
-                });
+        window.toggleKidsFavourite = function(key, currentStatus) {
+            const pathRef = ref(db, `kidsfavourite/${key}`);
+            if (currentStatus) {
+                remove(pathRef)
+                    .then(() => showStatus("Removed from Kids' Favourite!"))
+                    .catch(err => showStatus("Error: " + err.message, true));
+            } else {
+                set(pathRef, true)
+                    .then(() => showStatus("Added to Kids' Favourite!"))
+                    .catch(err => showStatus("Error: " + err.message, true));
+            }
         };
+
+        searchInput.addEventListener('input', (e) => {
+            renderInventory(e.target.value);
+        });
     </script>
 </body>
 </html>
