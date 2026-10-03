@@ -211,7 +211,7 @@
                 "வணக்கம் நண்பரே! நான் பிளூபி. முதலில் எதை ஆராய விரும்புகிறீர்கள்? கீழே ஒரு வகையைத் தட்டவும்.",
                 "வணக்கம்! பிளூபி இங்கே இருக்கிறேன். MY Store-ல் சுற்றிவர உங்களுக்கு என்ன உதவ வேண்டும்?",
                 "ஹலோ! நான் பிளூபி. தயார் ஆனதும் கீழே உள்ள விரைவுப் பொத்தான்களில் ஒன்றைத் தேர்ந்தெடுக்கவும்.",
-                "மீண்டும் வருக! நான் பிளூபி. உங்களுக்கு என்ன தகவல் தேவை என்பதை கீழே உள்ள பொத்தானைத் தட்டி அறியவும்.",
+                "மீண்டும் வருக! நான் பிளூபி. உங்களுக்குத் தகவல் தேவை என்பதை கீழே உள்ள பொத்தானைத் தட்டி அறியவும்.",
                 "வணக்கம்! நான் பிளூபி. உங்கள் ஷாப்பிங் அனுபவத்தை எப்படி எளிதாக்கலாம்?",
                 "ஹலோ! பிளூபி தயார். எங்கள் தயாரிப்புகள் அல்லது தொடர்புகளைப் பார்க்க கீழே உள்ள பொத்தானைத் தட்டவும்.",
                 "வணக்கம்! நான் பிளூபி. வேலைவாய்ப்பு, வங்கி விவரங்கள் அல்லது ஸ்டோர் பொருட்கள் என எது வேண்டுமானாலும் கீழே தேர்ந்தெடுக்கவும்.",
@@ -357,7 +357,6 @@
             },
             instagram: {
                 label: { en: "Instagram", ta: "இன்ஸ்டாகிராம்" },
-                // Changed from fa-instagram-square / box icon to symbol icon
                 icon: "fa-instagram",
                 subquestions: [
                     {
@@ -443,6 +442,8 @@
                 const greetingsPool = humanGreetings[currentLang];
                 const randomGreeting = greetingsPool[Math.floor(Math.random() * greetingsPool.length)];
                 appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', randomGreeting, false);
+                // Read greeting aloud automatically
+                speakAloud(randomGreeting);
             }
             setBlubiState('idle');
             startIdleLoop();
@@ -465,6 +466,7 @@
             const greetingsPool = humanGreetings[currentLang];
             const randomGreeting = greetingsPool[Math.floor(Math.random() * greetingsPool.length)];
             appendMessage(currentLang === 'ta' ? 'பிளூபி' : 'Blubi', randomGreeting, true);
+            speakAloud(randomGreeting);
             renderMainCategories();
         });
 
