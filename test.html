@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MY Food Products | Catalog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none; 
+        }
+        .no-scrollbar::-webkit-scrollbar { height: 3px; }
+        .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        .no-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        
+        .mobile-triple-card {
+            flex: 0 0 calc(33.333% - 6px);
+            width: calc(33.333% - 6px);
+            max-width: calc(33.333% - 6px);
+        }
+
+        .ribbon-wrap {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 75px;
+            height: 75px;
+            overflow: hidden;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .ribbon-banner {
+            position: absolute;
+            top: 12px;
+            right: -24px;
+            transform: rotate(45deg);
+            width: 90px;
+            background: linear-gradient(135deg, #e11d48, #be123c);
+            color: white;
+            text-align: center;
+            font-weight: 800;
+            font-size: 8px;
+            line-height: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .speaker-badge-container {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
+        }
+        .icon-morph {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #category-drawer {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14">
+
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
+                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Store
+                </a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="toggleCategoryDrawer()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-bars text-amber-400"></i> Category
+                </button>
+                <a href="cart.html" class="relative bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Cart</span>
+                    <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-white">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div id="category-drawer-backdrop" class="fixed inset-0 bg-black/30 z-50 hidden transition-opacity opacity-0" onclick="closeCategoryDrawerViaUser()"></div>
+    <div id="category-drawer" class="fixed top-0 left-0 bottom-0 w-48 sm:w-60 bg-slate-900 text-white z-50 shadow-2xl transform -translate-x-full flex flex-col border-r border-slate-800">
+        <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+            <h3 class="font-black text-[11px] uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-list"></i> Categories
+            </h3>
+            <button onclick="closeCategoryDrawerViaUser()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+        </div>
+        <div id="category-drawer-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div id="catalog-main-wrapper">
+            <div class="mb-4 sm:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3 border-b pb-3 border-gray-200">
+                <div>
+                    <h1 class="text-lg sm:text-3xl font-extrabold tracking-tight text-gray-900">Healthy Living Essentials</h1>
+                </div>
+                <div class="w-full md:w-auto flex flex-wrap items-center gap-2 justify-end">
+                    <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search products..." class="w-full sm:w-56 bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-500 shadow-sm">
+                    
+                    <div class="relative shrink-0">
+                        <button onclick="toggleCustomSortMenu(event)" id="custom-sort-btn" class="flex items-center gap-1.5 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm text-[11px] font-bold text-gray-700 cursor-pointer hover:border-amber-500 transition">
+                            <i class="fa-solid fa-arrow-down-wide-short text-amber-600 text-xs"></i>
+                            <span id="custom-sort-label">Sort: Featured</span>
+                            <i class="fa-solid fa-chevron-down text-[8px] text-gray-400 ml-1"></i>
+                        </button>
+                        
+                        <div id="custom-sort-dropdown" class="absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-50 hidden overflow-hidden py-1">
+                            <button onclick="selectCustomSort('default', 'Sort: Featured')" class="w-full text-left px-3 py-2 text-[11px] font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center justify-between">
+                                <span>Featured</span>
+                            </button>
+                            <button onclick="selectCustomSort('price-low', 'Price: Low to High')" class="w-full text-left px-3 py-2 text-[11px] font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center justify-between">
+                                <span>Price: Low to High</span>
+                            </button>
+                            <button onclick="selectCustomSort('price-high', 'Price: High to Low')" class="w-full text-left px-3 py-2 text-[11px] font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center justify-between">
+                                <span>Price: High to Low</span>
+                            </button>
+                            <button onclick="selectCustomSort('offers', 'Top Offers')" class="w-full text-left px-3 py-2 text-[11px] font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center justify-between">
+                                <span>Top Offers</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="search-results-section" class="mb-6 hidden">
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                        <h2 id="search-results-title" class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                            <i class="fa-solid fa-magnifying-glass text-amber-500 mr-0.5"></i> Search Results
+                        </h2>
+                    </div>
+                    <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5"></div>
+                </div>
+            </div>
+
+            <div id="store-categories-container" class="space-y-6">
+                <div class="text-center py-16 text-gray-400 text-xs">Loading products...</div>
+            </div>
+
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm mt-4">
+                <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-2.5 text-base">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3 class="font-bold text-xs text-gray-900">No products found</h3>
+                <p class="text-[11px] text-gray-500 mt-0.5">Add items via your admin dashboard to display them here.</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
+          authDomain: "munchirai-ymca-e950e.firebaseapp.com",
+          databaseURL: "https://munchirai-ymca-e950e-default-rtdb.firebaseio.com",
+          projectId: "munchirai-ymca-e950e",
+          storageBucket: "munchirai-ymca-e950e.firebasestorage.app",
+          messagingSenderId: "126602574927",
+          appId: "1:126602574927:web:fe670e64adf764355c7e3a",
+          measurementId: "G-8V9C3GS231"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
+
+        let liveInventory = [];
+        let categoriesCache = [];
+        let savedBestSellers = {};
+        let savedKidsFavourite = {};
+        let cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
+        let selectedCategoryFilter = null;
+        let currentSortValue = 'default';
+        let isCategoryDrawerOpen = false;
+        let isSearchActive = false;
+
+        let currentAds = [];
+        let autoSlideInterval = null;
+        let currentSlideIndex = 0;
+
+        // Initialize base history state
+        window.history.replaceState({ pageBase: true }, "");
+
+        window.revertLogoPosition = function() {
+            const viewer = document.getElementById('ymca-model-viewer');
+            if (viewer) {
+                viewer.cameraTarget = 'auto';
+                viewer.cameraOrbit = 'auto';
+                viewer.fieldOfView = 'auto';
+                viewer.removeAttribute('interaction-prompt');
+                viewer.setAttribute('auto-rotate', '');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const viewer = document.getElementById('ymca-model-viewer');
+            if (viewer) {
+                let interactionTimeout = null;
+                const resumeRotation = () => {
+                    if (interactionTimeout) clearTimeout(interactionTimeout);
+                    viewer.removeAttribute('interaction-prompt');
+                    viewer.setAttribute('auto-rotate', '');
+                };
+                viewer.addEventListener('pointerdown', () => {
+                    if (interactionTimeout) clearTimeout(interactionTimeout);
+                    viewer.removeAttribute('auto-rotate');
+                });
+                viewer.addEventListener('pointerup', resumeRotation);
+                viewer.addEventListener('touchend', resumeRotation);
+            }
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ymca_cart') {
+                cart = JSON.parse(e.newValue) || [];
+                renderCatalog(liveInventory);
+                updateCartCount();
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
+            renderCatalog(liveInventory);
+            updateCartCount();
+        });
+
+        onValue(ref(db, 'categories'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
+                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            } else {
+                categoriesCache = [];
+            }
+            renderCategoryDrawer();
+            renderCatalog(liveInventory);
+        });
+
+        onValue(ref(db, 'bestsellers'), (snapshot) => {
+            savedBestSellers = snapshot.val() || {};
+            renderCatalog(liveInventory);
+        });
+
+        onValue(ref(db, 'kidsfavourite'), (snapshot) => {
+            savedKidsFavourite = snapshot.val() || {};
+            renderCatalog(liveInventory);
+        });
+
+        onValue(ref(db, 'inventory'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                liveInventory = Object.keys(data).map(key => ({
+                    firebaseKey: key,
+                    ...data[key]
+                }));
+            } else {
+                liveInventory = [];
+            }
+            renderCategoryDrawer();
+            renderCatalog(liveInventory);
+            updateCartCount();
+        });
+
+        onValue(ref(db, 'ads'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                if (Array.isArray(data)) {
+                    currentAds = data.filter(ad => ad && ad.link);
+                } else if (typeof data === 'object') {
+                    if (data.link) {
+                        currentAds = [data];
+                    } else {
+                        currentAds = Object.values(data).filter(ad => ad && ad.link);
+                    }
+                } else {
+                    currentAds = [];
+                }
+            } else {
+                currentAds = [];
+            }
+            renderPreviewSlider();
+            setupAutoSlide();
+        });
+
+        window.toggleCustomSortMenu = function(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('custom-sort-dropdown');
+            dropdown.classList.toggle('hidden');
+        };
+
+        window.selectCustomSort = function(value, labelText, pushState = true) {
+            currentSortValue = value;
+            document.getElementById('custom-sort-label').textContent = labelText;
+            document.getElementById('custom-sort-dropdown').classList.add('hidden');
+            
+            if (pushState && !isSearchActive) {
+                isSearchActive = true;
+                window.history.pushState({ searchActive: true, category: selectedCategoryFilter, sort: value }, "");
+            }
+            
+            filterProducts(false);
+        };
+
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('custom-sort-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        window.toggleCategoryDrawer = function() {
+            if (isCategoryDrawerOpen) {
+                window.history.back();
+            } else {
+                isCategoryDrawerOpen = true;
+                window.history.pushState({ drawerOpen: true }, "");
+                showDrawerDOM();
+            }
+        };
+
+        function showDrawerDOM() {
+            const drawer = document.getElementById('category-drawer');
+            const backdrop = document.getElementById('category-drawer-backdrop');
+            backdrop.classList.remove('hidden');
+            setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+            drawer.classList.remove('-translate-x-full');
+        }
+
+        window.closeCategoryDrawerViaUser = function() {
+            if (isCategoryDrawerOpen) {
+                window.history.back();
+            }
+        };
+
+        function hideDrawerDOM() {
+            isCategoryDrawerOpen = false;
+            const drawer = document.getElementById('category-drawer');
+            const backdrop = document.getElementById('category-drawer-backdrop');
+            drawer.classList.add('-translate-x-full');
+            backdrop.classList.add('opacity-0');
+            setTimeout(() => backdrop.classList.add('hidden'), 300);
+        }
+
+        function renderCategoryDrawer() {
+            const listContainer = document.getElementById('category-drawer-list');
+            if (!listContainer) return;
+
+            let catNames = categoriesCache.map(c => c.name);
+            const hasUncategorized = liveInventory.some(item => !item.category || !catNames.includes(item.category));
+            if (hasUncategorized && !catNames.includes("Uncategorized")) {
+                catNames.push("Uncategorized");
+            }
+
+            if (catNames.length === 0) {
+                listContainer.innerHTML = `<div class="text-slate-400 text-[11px] text-center py-4">No categories</div>`;
+                return;
+            }
+
+            let html = `
+                <button onclick="window.selectCategory(null)" class="w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-bold transition flex items-center justify-between ${selectedCategoryFilter === null ? 'bg-amber-500 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}">
+                    <span><i class="fa-solid fa-border-all mr-1.5"></i> All Products</span>
+                </button>
+            `;
+
+            catNames.forEach(cat => {
+                const isSelected = selectedCategoryFilter === cat;
+                html += `
+                    <button onclick="window.selectCategory('${cat}')" class="w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-bold transition flex items-center justify-between ${isSelected ? 'bg-amber-500 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}">
+                        <span><i class="fa-solid fa-tag mr-1.5 text-amber-400"></i> ${cat}</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] opacity-60"></i>
+                    </button>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+        }
+
+        window.selectCategory = function(catName, pushState = true) {
+            selectedCategoryFilter = catName;
+            
+            if (isCategoryDrawerOpen) {
+                hideDrawerDOM();
+                isCategoryDrawerOpen = false; // ensure drawer flag is reset
+            }
+
+            if (pushState && !isSearchActive) {
+                isSearchActive = true;
+                window.history.pushState({ searchActive: true, category: catName, sort: currentSortValue }, "");
+            } else if (pushState && isSearchActive) {
+                 // Update current state if we are already inside a search/filter history node
+                window.history.replaceState({ searchActive: true, category: catName, sort: currentSortValue }, "");
+            }
+
+            renderCategoryDrawer();
+            renderCatalog(liveInventory);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Robust Native Back Button Controller
+        window.addEventListener('popstate', (event) => {
+            // 1. If Category Drawer is open, close it cleanly
+            if (isCategoryDrawerOpen) {
+                hideDrawerDOM();
+                return;
+            }
+
+            // 2. If search results / category filter view is active, close it and reset view
+            if (isSearchActive) {
+                isSearchActive = false;
+                selectedCategoryFilter = null;
+                const searchBar = document.getElementById('search-bar');
+                if (searchBar) searchBar.value = '';
+                selectCustomSort('default', 'Sort: Featured', false);
+                renderCategoryDrawer();
+                renderCatalog(liveInventory);
+                
+                window.history.replaceState({ pageBase: true }, "");
+                return;
+            }
+
+            // 3. If everything is already closed, let the browser execute the native back action
+            window.history.back();
+        });
+
+        function getOfferBadgeHTML(item) {
+            if (item.hasOffer && item.offerPercent) {
+                return `
+                    <div class="ribbon-wrap">
+                        <div class="ribbon-banner">${item.offerPercent}% OFF</div>
+                    </div>
+                `;
+            }
+            return '';
+        }
+
+        function getPriceDisplayHTML(item, isDarkTheme = false) {
+            const rawPrice = Number(typeof item.price === 'string' ? item.price.replace('₹', '') : item.price) || 0;
+            const hasOffer = item.hasOffer === true;
+            const offerPercent = Number(item.offerPercent || 0);
+
+            let displayPrice = rawPrice;
+            if (hasOffer && offerPercent > 0) {
+                displayPrice = rawPrice - (rawPrice * offerPercent / 100);
+            }
+
+            const cleanPrice = displayPrice.toFixed(2).replace(/\.00$/, '');
+            const originalPriceFormatted = rawPrice.toFixed(2).replace(/\.00$/, '');
+
+            if (isDarkTheme) {
+                return `
+                    <div class="flex items-center gap-1">
+                        <span class="font-black text-amber-400">₹${cleanPrice}</span>
+                        ${hasOffer && offerPercent > 0 ? `<span class="text-[8px] text-slate-400 line-through">₹${originalPriceFormatted}</span>` : ''}
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="flex items-center gap-1">
+                        <span class="font-black text-slate-900">₹${cleanPrice}</span>
+                        ${hasOffer && offerPercent > 0 ? `<span class="text-[8px] text-slate-400 line-through">₹${originalPriceFormatted}</span>` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        function getCartActionHTML(firebaseKey) {
+            const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
+            
+            if (product && product.inStock === false) {
+                return `
+                    <div class="w-full bg-slate-900 text-white border border-slate-900 text-[9px] font-black py-1 px-1 rounded text-center tracking-wider uppercase shadow-sm">
+                        Out of Stock
+                    </div>
+                `;
+            }
+
+            const cartItem = cart.find(item => item.firebaseKey === firebaseKey);
+            const count = cartItem ? (cartItem.qtyCount || 1) : 0;
+
+            if (count > 0) {
+                return `
+                    <div class="flex items-center justify-between bg-amber-500 text-slate-950 rounded text-[10px] font-bold overflow-hidden shadow-sm" onclick="event.stopPropagation()">
+                        <button onclick="window.updateQuantity('${firebaseKey}', -1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-minus text-[9px]"></i>
+                        </button>
+                        <span class="px-1.5 font-black text-slate-950">${count}</span>
+                        <button onclick="window.updateQuantity('${firebaseKey}', 1)" class="w-7 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-plus text-[9px]"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <button onclick="event.stopPropagation(); window.addToCart('${firebaseKey}')" class="w-full bg-amber-500 active:bg-amber-600 text-slate-950 text-[10px] font-bold py-1 px-1 rounded transition shadow flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-cart-plus text-[9px]"></i> Add
+                    </button>
+                `;
+            }
+        }
+
+        function sortProductsList(list) {
+            let sorted = [...list];
+            sorted.sort((a, b) => {
+                const aStock = a.inStock !== false ? 1 : 0;
+                const bStock = b.inStock !== false ? 1 : 0;
+                if (aStock !== bStock) return bStock - aStock;
+
+                if (currentSortValue === 'price-low') {
+                    return Number(a.price || 0) - Number(b.price || 0);
+                } else if (currentSortValue === 'price-high') {
+                    return Number(b.price || 0) - Number(a.price || 0);
+                } else if (currentSortValue === 'offers') {
+                    return (b.hasOffer === true ? 1 : 0) - (a.hasOffer === true ? 1 : 0);
+                }
+                return 0;
+            });
+            return sorted;
+        }
+
+        window.renderCatalog = function(productsToRender) {
+            const container = document.getElementById('store-categories-container');
+            const emptyState = document.getElementById('empty-state');
+            const searchResultsSection = document.getElementById('search-results-section');
+            const searchResultsGrid = document.getElementById('search-results-grid');
+            const searchResultsTitle = document.getElementById('search-results-title');
+
+            if (!productsToRender || productsToRender.length === 0) {
+                container.innerHTML = "";
+                searchResultsSection.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            const sortedProducts = sortProductsList(productsToRender);
+            const query = document.getElementById('search-bar').value.toLowerCase().trim();
+
+            if (isSearchActive || selectedCategoryFilter !== null || query !== '') {
+                searchResultsSection.classList.remove('hidden');
+                
+                let titleText = selectedCategoryFilter || (query ? `Search Results (${query})` : `Sorted Catalog View`);
+                searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>${titleText}</span>`;
+
+                let chosenItems = sortedProducts.filter(item => {
+                    const matchesQuery = !query || (
+                        item.name.toLowerCase().includes(query) || 
+                        (item.descSmall && item.descSmall.toLowerCase().includes(query)) ||
+                        (item.descBig && item.descBig.toLowerCase().includes(query)) ||
+                        (item.category && item.category.toLowerCase().includes(query))
+                    );
+                    const matchesCat = selectedCategoryFilter === null || (item.category || "Uncategorized") === selectedCategoryFilter;
+                    return matchesQuery && matchesCat;
+                });
+                
+                chosenItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
+                if (chosenItems.length === 0) {
+                    searchResultsGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-gray-200">No products found matching your criteria.</div>`;
+                } else {
+                    let chosenHtml = '';
+                    chosenItems.forEach(item => {
+                        const priceDisplayHtml = getPriceDisplayHTML(item, false);
+                        const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                        const offerBadgeHtml = getOfferBadgeHTML(item);
+                        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                        const isInStock = item.inStock !== false;
+
+                        chosenHtml += `
+                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                                ${offerBadgeHtml}
+                                <div>
+                                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Result' : 'Out'}</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                        ${priceDisplayHtml}
+                                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                    </div>
+                                    <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    searchResultsGrid.innerHTML = chosenHtml;
+                }
+            } else {
+                searchResultsSection.classList.add('hidden');
+            }
+
+            let categoryGroups = {};
+            categoriesCache.forEach(cat => { categoryGroups[cat.name] = []; });
+            categoryGroups["Uncategorized"] = [];
+
+            sortedProducts.forEach(item => {
+                const cat = item.category || "Uncategorized";
+                if (!categoryGroups[cat]) categoryGroups[cat] = [];
+                categoryGroups[cat].push(item);
+            });
+
+            let displayCategories = categoriesCache.map(c => c.name);
+            if (!displayCategories.includes("Uncategorized") && categoryGroups["Uncategorized"].length > 0) {
+                displayCategories.push("Uncategorized");
+            }
+
+            let validCategories = displayCategories.filter(cat => (categoryGroups[cat] || []).length > 0);
+            let htmlOutput = '';
+
+            const generateBestSellersHTML = () => {
+                let bsList = [];
+                const bsKeys = Object.keys(savedBestSellers).filter(k => savedBestSellers[k] === true);
+                if (bsKeys.length > 0) bsList = sortedProducts.filter(item => bsKeys.includes(item.firebaseKey));
+                if (bsList.length === 0) bsList = [...sortedProducts].slice(0, 6);
+                if (bsList.length === 0) return '';
+
+                bsList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
+                let bsHtml = `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                <i class="fa-solid fa-fire text-amber-500 mr-0.5"></i> Best Sellers
+                            </h2>
+                        </div>
+                        <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
+                `;
+
+                bsList.forEach(item => {
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    bsHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                            ${offerBadgeHtml}
+                            <div>
+                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Hot' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
+                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
+                                    ${priceDisplayHtml}
+                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                bsHtml += `</div></div>`;
+                return bsHtml;
+            };
+
+            const generateSliderRowHTML = (catName) => {
+                const groupItems = categoryGroups[catName] || [];
+                if (groupItems.length === 0) return '';
+                groupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
+                let rowHtml = `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                ${catName}
+                            </h2>
+                        </div>
+                        <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
+                `;
+
+                groupItems.forEach(item => {
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    rowHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                            ${offerBadgeHtml}
+                            <div>
+                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-20 mb-1 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Stock' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
+                                <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
+                                    ${priceDisplayHtml}
+                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[45px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                rowHtml += `</div></div>`;
+                return rowHtml;
+            };
+
+            const generateRecommendedHTML = () => {
+                const shuffled = [...sortedProducts].sort(() => 0.5 - Math.random());
+                const recommendedList = shuffled.slice(0, 4);
+                if (recommendedList.length === 0) return '';
+                recommendedList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
+                let recHtml = `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-0.5"></i> Recommended For You
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5 pt-0.5">
+                `;
+
+                recommendedList.forEach(item => {
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    recHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                            ${offerBadgeHtml}
+                            <div>
+                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'For You' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                    ${priceDisplayHtml}
+                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                recHtml += `</div></div>`;
+                return recHtml;
+            };
+
+            const generateKidsFavouriteHTML = () => {
+                let kfList = [];
+                const kfKeys = Object.keys(savedKidsFavourite).filter(k => savedKidsFavourite[k] === true);
+                if (kfKeys.length > 0) {
+                    kfList = sortedProducts.filter(item => kfKeys.includes(item.firebaseKey));
+                }
+                if (kfList.length === 0) {
+                    kfList = [...sortedProducts].slice(0, 4);
+                } else {
+                    kfList = kfList.slice(0, 4);
+                }
+                if (kfList.length === 0) return '';
+
+                kfList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
+                let kfHtml = `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                <i class="fa-solid fa-face-smile text-amber-500 mr-0.5"></i> Kids' Favourite
+                            </h2>
+                            <a href="kidsfavourite.html" class="text-[10px] font-extrabold text-amber-600 hover:text-amber-700 uppercase tracking-wider flex items-center gap-1">
+                                View All <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                            </a>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5 pt-0.5">
+                `;
+
+                kfList.forEach(item => {
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    kfHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                            ${offerBadgeHtml}
+                            <div>
+                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                    ${priceDisplayHtml}
+                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                kfHtml += `</div></div>`;
+                return kfHtml;
+            };
+
+            const generateDark8CardSectionHTML = (catName) => {
+                const fullGroupItems = categoryGroups[catName] || [];
+                const displayGroupItems = fullGroupItems.slice(0, 8);
+                if (displayGroupItems.length === 0) return '';
+                displayGroupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
+                let darkHtml = `
+                    <div class="bg-slate-900 rounded-xl p-3 sm:p-4 shadow-xl border border-slate-800 my-4 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <h2 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                ${catName}
+                            </h2>
+                            <button onclick="window.selectCategory('${catName}')" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
+                                <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2">
+                `;
+
+                displayGroupItems.forEach(item => {
+                    const priceDisplayHtml = getPriceDisplayHTML(item, true);
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    darkHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                            ${offerBadgeHtml}
+                            <div>
+                                <div class="relative bg-slate-900 rounded-md overflow-hidden h-16 mb-1 border border-slate-800 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white'} font-bold text-[6px] px-1 py-0.2 rounded shadow">${isInStock ? 'Top' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-white leading-tight mb-0.5 truncate" style="font-size: 8px;">${item.name}</h3>
+                                <p class="text-slate-400 font-light leading-tight mb-1 truncate" style="font-size: 6.5px;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[9px] py-0.5 border-t border-b border-slate-800 mb-1 bg-slate-900 px-1 rounded">
+                                    ${priceDisplayHtml}
+                                    <span class="text-[8px] text-slate-400 font-semibold truncate max-w-[35px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                darkHtml += `</div></div>`;
+                return darkHtml;
+            };
+
+            const generateLogoModelViewerHTML = () => {
+                return `
+                    <section class="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center text-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
+                        <model-viewer id="ymca-model-viewer" src="logo.glb" alt="MY Food Products Logo" auto-rotate camera-controls disable-zoom camera-target="auto" style="width: 160px; height: 160px; background: transparent;"></model-viewer>
+                        <div class="mt-2 flex flex-col items-center gap-2">
+                            <h2 class="text-gray-900 font-extrabold text-sm sm:text-base tracking-tight uppercase">MY Food Products</h2>
+                            <p class="text-amber-600 text-[10px] sm:text-xs font-semibold tracking-wide">Healthy Living Essentials</p>
+                            <button onclick="revertLogoPosition()" class="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-[11px] font-bold px-3.5 py-1.5 rounded-lg border border-gray-300 shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-rotate-left text-amber-600 text-xs"></i> Reset View
+                            </button>
+                        </div>
+                    </section>
+                `;
+            };
+
+            const adViewportHTML = `
+                <div class="relative w-full h-52 sm:h-72 bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800 group my-3">
+                    <div id="ad-preview-slider" class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar transition-transform duration-500">
+                        <div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">Loading ads...</div>
+                    </div>
+                    <div id="ad-indicators" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none"></div>
+                </div>
+            `;
+
+            htmlOutput += generateBestSellersHTML();
+            htmlOutput += generateRecommendedHTML();
+            if (validCategories.length > 0) htmlOutput += generateSliderRowHTML(validCategories[0]);
+            if (validCategories.length > 1) htmlOutput += generateSliderRowHTML(validCategories[1]);
+            
+            htmlOutput += adViewportHTML;
+
+            if (validCategories.length > 2) htmlOutput += generateSliderRowHTML(validCategories[2]);
+            if (validCategories.length > 3) htmlOutput += generateSliderRowHTML(validCategories[3]);
+            
+            const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
+            htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
+            htmlOutput += generateLogoModelViewerHTML();
+
+            // Below 3D logo section: put 2 category sections of products
+            if (validCategories.length > 5) htmlOutput += generateSliderRowHTML(validCategories[5]);
+            if (validCategories.length > 6) htmlOutput += generateSliderRowHTML(validCategories[6]);
+
+            // Below that: put a section Named Kids' Favourite displaying 4 products with view all button
+            htmlOutput += generateKidsFavouriteHTML();
+
+            for (let i = 7; i < validCategories.length; i++) {
+                htmlOutput += generateSliderRowHTML(validCategories[i]);
+            }
+
+            container.innerHTML = htmlOutput;
+            renderPreviewSlider();
+            setupAutoSlide();
+        };
+
+        function renderPreviewSlider() {
+            const slider = document.getElementById('ad-preview-slider');
+            const indicators = document.getElementById('ad-indicators');
+            if (!slider || !indicators) return;
+
+            if (!currentAds || currentAds.length === 0) {
+                slider.innerHTML = `<div class="w-full h-full flex-shrink-0 snap-center flex items-center justify-center text-slate-400 text-xs">No active ads.</div>`;
+                indicators.innerHTML = '';
+                return;
+            }
+
+            slider.innerHTML = '';
+            let dotsHtml = '';
+
+            currentAds.forEach((ad, idx) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = "w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center bg-black overflow-hidden cursor-pointer";
+
+                if (ad.type === 'video') {
+                    const videoEl = document.createElement('video');
+                    videoEl.src = ad.link;
+                    videoEl.autoplay = true;
+                    videoEl.muted = true;
+                    videoEl.playsInline = true;
+                    videoEl.loop = true;
+                    videoEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
+
+                    const badge = document.createElement('div');
+                    badge.className = "absolute inset-0 flex items-center justify-center pointer-events-none z-10 speaker-badge-container";
+                    badge.innerHTML = `
+                        <div class="w-14 h-14 rounded-full bg-slate-950/70 backdrop-blur-xl flex items-center justify-center text-white shadow-2xl border border-white/25 icon-morph">
+                            <i class="fa-solid fa-volume-xmark text-lg text-amber-400"></i>
+                        </div>
+                    `;
+
+                    slideDiv.addEventListener('click', () => {
+                        videoEl.muted = !videoEl.muted;
+                        const iconBox = badge.firstElementChild;
+                        const icon = iconBox.querySelector('i');
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'scale(1)';
+
+                        if (videoEl.muted) {
+                            icon.className = "fa-solid fa-volume-xmark text-lg text-amber-400 icon-morph";
+                        } else {
+                            icon.className = "fa-solid fa-volume-high text-lg text-amber-400 icon-morph";
+                            setTimeout(() => {
+                                badge.style.transform = 'scale(0.85)';
+                                badge.style.opacity = '0';
+                            }, 50);
+                        }
+                    });
+
+                    slideDiv.appendChild(videoEl);
+                    slideDiv.appendChild(badge);
+                } else {
+                    const imgEl = document.createElement('img');
+                    imgEl.src = ad.link;
+                    imgEl.alt = `Ad ${idx + 1}`;
+                    imgEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
+                    slideDiv.appendChild(imgEl);
+                }
+
+                slider.appendChild(slideDiv);
+                dotsHtml += `<span class="w-2 h-2 rounded-full ${idx === 0 ? 'bg-amber-500 w-4' : 'bg-white/50'} transition-all duration-300 inline-block"></span>`;
+            });
+
+            indicators.innerHTML = dotsHtml;
+        }
+
+        function setupAutoSlide() {
+            if (autoSlideInterval) {
+                clearInterval(autoSlideInterval);
+                autoSlideInterval = null;
+            }
+            if (currentAds.length <= 1) return;
+
+            const slider = document.getElementById('ad-preview-slider');
+            if (!slider) return;
+
+            autoSlideInterval = setInterval(() => {
+                if (currentAds.length <= 1) return;
+                currentSlideIndex = (currentSlideIndex + 1) % currentAds.length;
+                const scrollAmount = slider.clientWidth * currentSlideIndex;
+                slider.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+                updateDots(currentSlideIndex);
+            }, 4000);
+        }
+
+        function updateDots(activeIdx) {
+            const dots = document.querySelectorAll('#ad-indicators span');
+            dots.forEach((dot, idx) => {
+                dot.className = idx === activeIdx ? "w-4 h-2 rounded-full bg-amber-500 transition-all duration-300 inline-block" : "w-2 h-2 rounded-full bg-white/50 transition-all duration-300 inline-block";
+            });
+        }
+
+        window.filterProducts = function(pushState = true) {
+            const query = document.getElementById('search-bar').value.toLowerCase().trim();
+            const searchResultsSection = document.getElementById('search-results-section');
+            const searchResultsGrid = document.getElementById('search-results-grid');
+
+            if (!query && selectedCategoryFilter === null && currentSortValue === 'default') {
+                isSearchActive = false;
+                searchResultsSection.classList.add('hidden');
+                searchResultsGrid.innerHTML = '';
+                renderCatalog(liveInventory);
+                return;
+            }
+
+            if (!isSearchActive) {
+                isSearchActive = true;
+                if (pushState) {
+                    window.history.pushState({ searchActive: true, category: selectedCategoryFilter, sort: currentSortValue }, "");
+                }
+            }
+
+            renderCatalog(liveInventory);
+        };
+
+        window.addToCart = function(firebaseKey) {
+            const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
+            if (!product || product.inStock === false) return;
+
+            const existing = cart.find(item => item.firebaseKey === firebaseKey);
+            if (existing) {
+                existing.qtyCount = (existing.qtyCount || 1) + 1;
+            } else {
+                cart.push({ ...product, qtyCount: 1 });
+            }
+
+            saveAndRefreshUI(firebaseKey);
+        };
+
+        window.updateQuantity = function(firebaseKey, change) {
+            const existing = cart.find(item => item.firebaseKey === firebaseKey);
+            if (!existing) return;
+
+            existing.qtyCount = (existing.qtyCount || 1) + change;
+            if (existing.qtyCount <= 0) {
+                cart = cart.filter(item => item.firebaseKey !== firebaseKey);
+            }
+
+            saveAndRefreshUI(firebaseKey);
+        };
+
+        function saveAndRefreshUI(firebaseKey) {
+            localStorage.setItem("ymca_cart", JSON.stringify(cart));
+            updateCartCount();
+            const newActionHtml = getCartActionHTML(firebaseKey);
+            document.querySelectorAll(`[id="action-container-${firebaseKey}"]`).forEach(el => {
+                el.innerHTML = newActionHtml;
+            });
+        }
+
+        function updateCartCount() {
+            const totalCount = cart.reduce((sum, item) => sum + (item.qtyCount || 1), 0);
+            const badge = document.getElementById('cart-badge');
+            if (badge) {
+                badge.textContent = totalCount;
+                if (totalCount > 0) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const slider = document.getElementById('ad-preview-slider');
+            if (slider) {
+                slider.addEventListener('scroll', () => {
+                    if (currentAds.length <= 1) return;
+                    const index = Math.round(slider.scrollLeft / slider.clientWidth);
+                    if (index !== currentSlideIndex && index >= 0 && index < currentAds.length) {
+                        currentSlideIndex = index;
+                        updateDots(currentSlideIndex);
+                    }
+                }, { passive: true });
+            }
+        });
+    </script>
+</body>
+</html>
