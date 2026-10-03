@@ -136,7 +136,10 @@
             </div>
 
             <div id="inventory-list-container" class="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
-                <div class="py-12 text-center text-slate-400 text-xs">Loading inventory products...</div>
+                <div class="py-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+                    <i class="fa-solid fa-spinner animate-spin text-sky-500 text-base"></i>
+                    <span>Connecting to Firebase database...</span>
+                </div>
             </div>
         </section>
 
@@ -212,7 +215,7 @@
                         container.innerHTML = `<img src="${formatted}" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='MY';">`;
                     }
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Logo load error:", err); }
         }
         fetchHeaderLogo();
 
@@ -241,17 +244,22 @@
             setTimeout(() => { msgEl.classList.add('hidden'); }, 3000);
         }
 
-        // Listen to kidsfavourite first
+        // Fetch Kids Favourites first
         onValue(ref(db, 'kidsfavourite'), (kfSnapshot) => {
             savedKidsFavourite = kfSnapshot.val() || {};
-            
-            // Try loading from 'inventory' path first
+            loadInventoryData();
+        }, (error) => {
+            console.error("KidsFavourite error:", error);
+        });
+
+        function loadInventoryData() {
+            // Check 'inventory' first
             onValue(ref(db, 'inventory'), (invSnapshot) => {
                 const invData = invSnapshot.val();
                 if (invData) {
                     processInventoryData(invData);
                 } else {
-                    // Fallback to 'products' path if inventory is empty
+                    // Try 'products' path if inventory is empty
                     onValue(ref(db, 'products'), (prodSnapshot) => {
                         const prodData = prodSnapshot.val();
                         if (prodData) {
@@ -261,18 +269,16 @@
                             updateCategoryDropdown();
                             renderInventory();
                             renderActiveList();
-                            listContainer.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs">No products found in database ('inventory' or 'products').</div>`;
+                            listContainer.innerHTML = `<div class="py-12 text-center text-amber-600 text-xs font-semibold">Database is connected, but no products or inventory nodes were found. Please add products via the Admin panel.</div>`;
                         }
-                    }, (error) => {
-                        listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs">Firebase Error: ${error.message}</div>`;
+                    }, (err) => {
+                        listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs">Permission / Read Error on 'products': ${err.message}</div>`;
                     });
                 }
-            }, (error) => {
-                listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs">Firebase Error: ${error.message}</div>`;
+            }, (err) => {
+                listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs font-semibold">Permission / Read Error on 'inventory': ${err.message}<br><span class="text-slate-500 font-normal mt-1 block">Please check your Firebase Realtime Database Rules.</span></div>`;
             });
-        }, (error) => {
-            console.error("Kids favourite error:", error);
-        });
+        }
 
         function processInventoryData(invData) {
             allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
@@ -312,7 +318,7 @@
                 return;
             }
 
-                // Group by category
+             // Group by category
             const grouped = {};
             filtered.forEach(item => {
                 const cat = item.category || 'General';
