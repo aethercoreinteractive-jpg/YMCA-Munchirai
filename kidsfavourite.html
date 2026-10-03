@@ -100,7 +100,7 @@
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200/60">Curation Console</span>
                     <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Select Kids' Favourite Products</h2>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Choose items from inventory below. Selected items will gray out and appear in your active list.</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Choose items from Bestsellers below. Selected items will gray out and appear in your active list.</p>
                 </div>
             </div>
 
@@ -110,7 +110,7 @@
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
                         <i class="fa-solid fa-search"></i>
                     </span>
-                    <input type="text" id="search-product-input" placeholder="Search inventory..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-sky-500 focus:bg-white transition shadow-sm">
+                    <input type="text" id="search-product-input" placeholder="Search bestsellers..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-sky-500 focus:bg-white transition shadow-sm">
                 </div>
                 <div class="relative w-full">
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
@@ -129,7 +129,7 @@
         <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 space-y-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Available Inventory</span>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Available Bestsellers</span>
                     <p class="text-[11px] text-slate-400 mt-0.5">Tap select to add items (chosen items gray out)</p>
                 </div>
                 <span id="inventory-total-count" class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200/60">0 Total Items</span>
@@ -138,7 +138,7 @@
             <div id="inventory-list-container" class="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
                 <div class="py-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
                     <i class="fa-solid fa-spinner animate-spin text-sky-500 text-base"></i>
-                    <span>Connecting to Firebase database...</span>
+                    <span>Loading bestsellers and store assets...</span>
                 </div>
             </div>
         </section>
@@ -205,6 +205,7 @@
             return url;
         }
 
+        // LOAD HEADER LOGO FROM settings/storeLogo
         async function fetchHeaderLogo() {
             try {
                 const snap = await get(ref(db, 'settings/storeLogo'));
@@ -247,41 +248,47 @@
         // Fetch Kids Favourites first
         onValue(ref(db, 'kidsfavourite'), (kfSnapshot) => {
             savedKidsFavourite = kfSnapshot.val() || {};
-            loadInventoryData();
+            loadSourceData();
         }, (error) => {
             console.error("KidsFavourite error:", error);
         });
 
-        function loadInventoryData() {
-            // Check 'inventory' first
-            onValue(ref(db, 'inventory'), (invSnapshot) => {
-                const invData = invSnapshot.val();
-                if (invData) {
-                    processInventoryData(invData);
+        // Load bestsellers products (with automatic fallback to inventory/products)
+        function loadSourceData() {
+            onValue(ref(db, 'bestsellers'), (bsSnapshot) => {
+                const bsData = bsSnapshot.val();
+                if (bsData) {
+                    // If bestsellers stores product keys or full records
+                    processInventoryData(bsData);
                 } else {
-                    // Try 'products' path if inventory is empty
-                    onValue(ref(db, 'products'), (prodSnapshot) => {
-                        const prodData = prodSnapshot.val();
-                        if (prodData) {
-                            processInventoryData(prodData);
+                    // Fallback to inventory or products node
+                    onValue(ref(db, 'inventory'), (invSnapshot) => {
+                        const invData = invSnapshot.val();
+                        if (invData) {
+                            processInventoryData(invData);
                         } else {
-                            allInventory = [];
-                            updateCategoryDropdown();
-                            renderInventory();
-                            renderActiveList();
-                            listContainer.innerHTML = `<div class="py-12 text-center text-amber-600 text-xs font-semibold">Database is connected, but no products or inventory nodes were found. Please add products via the Admin panel.</div>`;
+                            onValue(ref(db, 'products'), (prodSnapshot) => {
+                                const prodData = prodSnapshot.val();
+                                if (prodData) {
+                                    processInventoryData(prodData);
+                                } else {
+                                    allInventory = [];
+                                    updateCategoryDropdown();
+                                    renderInventory();
+                                    renderActiveList();
+                                    listContainer.innerHTML = `<div class="py-12 text-center text-amber-600 text-xs font-semibold">No bestsellers or products found in database.</div>`;
+                                }
+                            });
                         }
-                    }, (err) => {
-                        listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs">Permission / Read Error on 'products': ${err.message}</div>`;
                     });
                 }
             }, (err) => {
-                listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs font-semibold">Permission / Read Error on 'inventory': ${err.message}<br><span class="text-slate-500 font-normal mt-1 block">Please check your Firebase Realtime Database Rules.</span></div>`;
+                listContainer.innerHTML = `<div class="py-12 text-center text-red-500 text-xs">Error loading database: ${err.message}</div>`;
             });
         }
 
-        function processInventoryData(invData) {
-            allInventory = Object.keys(invData).map(key => ({ key, ...invData[key] }));
+        function processInventoryData(data) {
+            allInventory = Object.keys(data).map(key => ({ key, ...data[key] }));
             updateCategoryDropdown();
             renderInventory();
             renderActiveList();
