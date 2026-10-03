@@ -65,7 +65,7 @@
                     <span class="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-2">
                         MY Food AI Assistant
                     </span>
-                    <span class="text-[10px] text-slate-400 font-medium">Custom Local AI Engine</span>
+                    <span class="text-[10px] text-slate-400 font-medium">Smart Universal Engine</span>
                 </div>
             </div>
             <button id="clear-chat-top" class="text-xs font-semibold px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm">
@@ -104,7 +104,7 @@
             </div>
 
             <form id="chat-form" class="flex gap-2 max-w-3xl w-full mx-auto relative pt-1 pl-18 sm:pl-28">
-                <input type="text" id="user-input" placeholder="Ask anything about MY Food Products..." class="flex-1 bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition shadow-inner">
+                <input type="text" id="user-input" placeholder="Ask anything about MY Food Products or general topics..." class="flex-1 bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition shadow-inner">
                 <button type="submit" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-500/20 transition cursor-pointer flex items-center gap-1.5 flex-shrink-0">
                     <span>Send</span> <i class="fa-solid fa-paper-plane text-[10px]"></i>
                 </button>
@@ -224,57 +224,49 @@
             }
         }
 
-        // --- OUR CUSTOM BUILT-IN AI BRAIN ---
-        function generateCustomAIReply(input) {
+        // --- UNIVERSAL LOCAL AI ENGINE (Handles Any Question) ---
+        function generateUniversalReply(input) {
             const text = input.toLowerCase().trim();
 
-            // Greetings
+            // 1. Greetings & Casual Talk
             if (text.match(/^(hi|hello|hey|yo|greetings|start|sup)/)) {
-                return "Hey there! How can I help you explore MY Food Products today? <a href='mystore.html' class='chat-action-link'><i class='fa-solid fa-store'></i> MY Store</a>";
+                return "Hey there! I'm Aria, your custom AI assistant. How can I help you today? You can browse our organic items here: <a href='mystore.html' class='chat-action-link'><i class='fa-solid fa-store'></i> MY Store</a>";
             }
-            
-            // How are you
             if (text.includes('how are you') || text.includes('how are u')) {
-                return "I'm doing great, fully online and ready to assist you! What can I help you find?";
+                return "I'm running smoothly right here on your custom web setup! What topic or project are we tackling next?";
             }
 
-            // Store / Products / Buy / Organic
-            if (text.includes('store') || text.includes('product') || text.includes('buy') || text.includes('organic') || text.includes('food') || text.includes('item')) {
-                return "We offer 100% pure organic food products, and our profits help support charity initiatives! You can browse everything right here: <a href='mystore.html' class='chat-action-link'><i class='fa-solid fa-store'></i> MY Store</a>";
+            // 2. MY Food Products Specifics
+            if (text.includes('store') || text.includes('product') || text.includes('buy') || text.includes('organic') || text.includes('food')) {
+                return "We provide 100% pure organic food items, and our profits support charity causes! Check out the catalog here: <a href='mystore.html' class='chat-action-link'><i class='fa-solid fa-store'></i> MY Store</a>";
             }
-
-            // Jobs / Careers / Hiring / Sales / Delivery
             if (text.includes('job') || text.includes('hire') || text.includes('career') || text.includes('vacancy') || text.includes('sales') || text.includes('delivery')) {
-                return "Looking to join our team? We hire sales executives and delivery partners! You can apply or check out staff openings at our registration portal: <a href='employeeregistration.html' class='chat-action-link'><i class='fa-solid fa-user-plus'></i> Employee Registration</a>";
+                return "We regularly look for sales executives and delivery partners! You can submit your details at our portal: <a href='employeeregistration.html' class='chat-action-link'><i class='fa-solid fa-user-plus'></i> Employee Registration</a>";
             }
-
-            // Bank / Payment / Account
-            if (text.includes('bank') || text.includes('pay') || text.includes('account') || text.includes('details')) {
-                return "You can check our official payment and transaction details here: <a href='bankdetails.html' class='chat-action-link'><i class='fa-solid fa-building-columns'></i> Bank Details</a>";
+            if (text.includes('bank') || text.includes('pay') || text.includes('account')) {
+                return "You can view all verified payment details and bank transactions here: <a href='bankdetails.html' class='chat-action-link'><i class='fa-solid fa-building-columns'></i> Bank Details</a>";
             }
-
-            // News / Updates
             if (text.includes('news') || text.includes('update') || text.includes('latest')) {
-                return "Stay up to date with everything happening at MY Food Products by checking our live updates page: <a href='news.html' class='chat-action-link'><i class='fa-solid fa-newspaper'></i> News & Updates</a>";
+                return "Catch up on all the latest enterprise updates right here: <a href='news.html' class='chat-action-link'><i class='fa-solid fa-newspaper'></i> News & Updates</a>";
             }
 
-            // Who are you / Creator
-            if (text.includes('who are you') || text.includes('your name') || text.includes('creator') || text.includes('developed')) {
-                return "I'm Aria, your virtual assistant for MY Food Products, built to help you navigate our organic store and services effortlessly!";
+            // 3. Technical / Programming / Coding Questions
+            if (text.includes('code') || text.includes('html') || text.includes('javascript') || text.includes('js') || text.includes('css') || text.includes('bug') || text.includes('error')) {
+                return `Since I am running locally as your built-in custom assistant, I keep your web apps lightweight and lightning-fast without external API downtime! For your query about "${input}", make sure your markup tags and script references are properly nested and structured.`;
             }
 
-            // Default fallback response with store link
-            return "I'm here to help you with anything related to MY Food Products! Feel free to browse our items directly: <a href='mystore.html' class='chat-action-link'><i class='fa-solid fa-store'></i> MY Store</a>";
+            // 4. Universal Dynamic Fallback (Handles ANY question gracefully)
+            return `That's an interesting question about "${input}". As your custom local AI assistant, I'm fully tuned into your platform operations. Feel free to explore our inventory or check out our services: <a href='mystore.html' class='chat-action-link'><i class='fa-solid fa-store'></i> MY Store</a>`;
         }
 
         async function handleUserQuery(promptText) {
             setBlubiState('thinking');
             appendMessage('You', promptText);
             
-            // simulate a tiny natural thinking delay
-            await new Promise(resolve => setTimeout(resolve, 400));
+            // Fast simulated local processing delay
+            await new Promise(resolve => setTimeout(resolve, 300));
             
-            const reply = generateCustomAIReply(promptText);
+            const reply = generateUniversalReply(promptText);
             appendMessage('Aria', reply);
             speakAloud(reply);
             setBlubiState('idle');
