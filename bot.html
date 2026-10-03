@@ -236,7 +236,6 @@
             conversationHistory.push({ role: "user", content: query });
 
             try {
-                // Connected to your Cloudflare Worker Proxy
                 const workerUrl = "https://fragrant-hat-7945.sharanmusician.workers.dev";
 
                 const response = await fetch(workerUrl, {
@@ -255,17 +254,18 @@
                     })
                 });
 
+                const data = await response.json();
+                
                 if (!response.ok) {
-                    throw new Error(`API Status: ${response.status}`);
+                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
                 const reply = data.choices[0].message.content;
                 conversationHistory.push({ role: "assistant", content: reply });
                 return reply;
             } catch (error) {
                 console.error("API Error:", error);
-                return `Hey! I'm here. You can explore all our organic items directly at <a href="mystore.html" class="chat-action-link"><i class="fa-solid fa-store"></i> MY Store</a>!`;
+                return `⚠️ **API Error:** ${error.message}`;
             }
         }
 
