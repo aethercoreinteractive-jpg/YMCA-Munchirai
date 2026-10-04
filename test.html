@@ -853,15 +853,11 @@
 
 
 
-                    const generateKidsFavouriteHTML = () => {
-            // Find a category related to kids or fall back appropriately
+                            const generateKidsFavouriteHTML = () => {
             let kidsCatName = validCategories.find(c => c.toLowerCase().includes('kids')) || validCategories[2] || validCategories[0] || "Kids Favourite";
             const groupItems = categoryGroups[kidsCatName] || [];
-            
-            // If no items exist for this category, return an empty string
             if (groupItems.length === 0) return '';
             
-            // Sort items: In-stock items first
             groupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
             let kidsHtml = `
@@ -878,9 +874,7 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
             `;
 
-            // Restrict display strictly to a maximum of 4 products
             const displayGroupItems = groupItems.slice(0, 4);
-            
             displayGroupItems.forEach(item => {
                 const priceDisplayHtml = getPriceDisplayHTML(item, false);
                 const actionButtonHtml = getCartActionHTML(item.firebaseKey);
@@ -909,10 +903,10 @@
                     </div>
                 `;
             });
-            
             kidsHtml += `</div></div>`;
             return kidsHtml;
         };
+
 
 
 
