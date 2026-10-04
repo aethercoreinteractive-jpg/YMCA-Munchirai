@@ -854,7 +854,7 @@
 
 
 
-                            const generateKidsFavouriteHTML = () => {
+                                    const generateKidsFavouriteHTML = () => {
             let kidsCatName = validCategories.find(c => c.toLowerCase().includes('kids')) || validCategories[2] || validCategories[0] || "Kids Favourite";
             const groupItems = categoryGroups[kidsCatName] || [];
             if (groupItems.length === 0) return '';
@@ -907,6 +907,7 @@
             kidsHtml += `</div></div>`;
             return kidsHtml;
         };
+
 
 
 
