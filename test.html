@@ -248,64 +248,46 @@
             }
         });
 
-        window.addEventListener('focus', () => {
+                Window.addEventListener('focus', () => {
             cart = JSON.parse(localStorage.getItem("ymca_cart")) || [];
             renderCatalog(liveInventory);
             updateCartCount();
         });
 
         onValue(ref(db, 'categories'), (snapshot) => {
-        database.ref('categories').on('value', (snapshot) => {
-    const container = document.getElementById('store-categories-container');
-    container.innerHTML = '';
+            const data = snapshot.val();
+            if (data) {
+                let allCategories = Object.keys(data).map(key => ({ key, ...data[key] }));
+                allCategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-    if (!snapshot.exists()) return;
+                // 1. Find and extract "Kids Favourite"
+                const kidsIndex = allCategories.findIndex(cat => 
+                    cat.name && cat.name.toLowerCase().includes('kids')
+                );
 
-    // Convert Firebase snapshot into an array of objects
-    let allCategories = [];
-    snapshot.forEach((childSnapshot) => {
-        allCategories.push({
-            id: childSnapshot.key,
-            ...childSnapshot.val()
-        });
-    });
+                let kidsCategory = null;
+                if (kidsIndex > -1) {
+                    kidsCategory = allCategories.splice(kidsIndex, 1)[0];
+                }
 
-    // 1. Find and extract "Kids Favourite" 
-    // (Change 'Kids Favourite' to match whatever your exact category name is in Firebase)
-    const kidsIndex = allCategories.findIndex(cat => 
-        cat.name && cat.name.toLowerCase().includes('kids')
-    );
+                // 2. Take the first 2 categories
+                const topTwoCategories = allCategories.splice(0, 2);
 
-    let kidsCategory = null;
-    if (kidsIndex > -1) {
-        kidsCategory = allCategories.splice(kidsIndex, 1)[0];
-    }
-
-    // 2. Take the first 2 categories for the top section
-    const topTwoCategories = allCategories.splice(0, 2);
-
-    // --- RENDER IN YOUR DESIRED ORDER ---
-
-    // A. Render the top 2 categories (Right below 3D logo)
-    topTwoCategories.forEach(category => {
-        renderCategoryRow(category, container);
-    });
-
-    // B. Render "Kids Favourite" right below the first two
-    if (kidsCategory) {
-        renderCategoryRow(kidsCategory, container);
-    }
-
-    // C. Render all other remaining categories at the bottom
-    allCategories.forEach(category => {
-        renderCategoryRow(category, container);
-    });
-});
-
-            else {
+                // 3. Rebuild categoriesCache in your precise order
+                categoriesCache = [
+                    ...topTwoCategories,
+                    ...(kidsCategory ? [kidsCategory] : []),
+                    ...allCategories
+                ];
+            } else {
                 categoriesCache = [];
             }
             renderCategoryDrawer();
+            renderCatalog(liveInventory);
+        });
+
+        onValue(ref(db, 'bestsellers'), (snapshot) => {
+            savedBestSellers = snapshot.val() || {};
             renderCatalog(liveInventory);
         });
 
