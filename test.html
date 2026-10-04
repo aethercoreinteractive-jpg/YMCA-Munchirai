@@ -256,10 +256,34 @@
 
         onValue(ref(db, 'categories'), (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                categoriesCache = Object.keys(data).map(key => ({ key, ...data[key] }));
-                categoriesCache.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-            } else {
+                if (data) {
+        let allCategories = Object.keys(data).map(key => ({ key, ...data[key] }));
+        
+        // Sort by your 'order' property first so they are in a stable sequence
+        allCategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+        // 1. Find and extract "Kids Favourite"
+        const kidsIndex = allCategories.findIndex(cat => 
+            cat.name && cat.name.toLowerCase().includes('kids')
+        );
+
+        let kidsCategory = null;
+        if (kidsIndex > -1) {
+            kidsCategory = allCategories.splice(kidsIndex, 1)[0];
+        }
+
+        // 2. Take the first 2 categories
+        const topTwoCategories = allCategories.splice(0, 2);
+
+        // 3. Re-assign categoriesCache in your precise order: Top 2 -> Kids Favourite -> Rest
+        categoriesCache = [
+            ...topTwoCategories,
+            ...(kidsCategory ? [kidsCategory] : []),
+            ...allCategories
+        ];
+    }
+
+            else {
                 categoriesCache = [];
             }
             renderCategoryDrawer();
