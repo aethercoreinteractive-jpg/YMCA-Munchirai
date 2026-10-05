@@ -71,7 +71,7 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 shrink-0">
-                <a href="index.html" class="text-xs sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
+                <a href="index.html" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-1.5">
                     <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-xs sm:text-lg font-bold shadow">MY</span> Store
                 </a>
             </div>
@@ -80,7 +80,7 @@
                 <button onclick="toggleCategoryDrawer()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 cursor-pointer">
                     <i class="fa-solid fa-bars text-amber-400"></i> Category
                 </button>
-                <a href="mystore.html" class="relative bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
+                <a href="cart.html" class="relative bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1.5">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span>Cart</span>
                     <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-white">0</span>
@@ -195,6 +195,7 @@
         let autoSlideInterval = null;
         let currentSlideIndex = 0;
 
+        // Initialize base history state
         window.history.replaceState({ pageBase: true }, "");
 
         window.revertLogoPosition = function() {
@@ -391,13 +392,14 @@
             
             if (isCategoryDrawerOpen) {
                 hideDrawerDOM();
-                isCategoryDrawerOpen = false;
+                isCategoryDrawerOpen = false; // ensure drawer flag is reset
             }
 
             if (pushState && !isSearchActive) {
                 isSearchActive = true;
                 window.history.pushState({ searchActive: true, category: catName, sort: currentSortValue }, "");
             } else if (pushState && isSearchActive) {
+                // Update current state if we are already inside a search/filter history node
                 window.history.replaceState({ searchActive: true, category: catName, sort: currentSortValue }, "");
             }
 
@@ -406,12 +408,15 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
+        // Robust Native Back Button Controller
         window.addEventListener('popstate', (event) => {
+            // 1. If Category Drawer is open, close it cleanly
             if (isCategoryDrawerOpen) {
                 hideDrawerDOM();
                 return;
             }
 
+            // 2. If search results / category filter view is active, close it and reset view
             if (isSearchActive) {
                 isSearchActive = false;
                 selectedCategoryFilter = null;
@@ -425,6 +430,7 @@
                 return;
             }
 
+            // 3. If everything is already closed, let the browser execute the native back action
             window.history.back();
         });
 
@@ -765,27 +771,26 @@
                 return recHtml;
             };
 
-            const generateKidsFavouriteHTML = () => {
-                let kidsCatName = validCategories.find(c => c.toLowerCase().includes('kids')) || validCategories[2] || validCategories[0] || "Kids Favourite";
-                const groupItems = categoryGroups[kidsCatName] || [];
-                if (groupItems.length === 0) return '';
-                groupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+            const generateDark8CardSectionHTML = (catName) => {
+                const fullGroupItems = categoryGroups[catName] || [];
+                const displayGroupItems = fullGroupItems.slice(0, 8);
+                if (displayGroupItems.length === 0) return '';
+                displayGroupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
 
-                let kidsHtml = `
+                let darkHtml = `
                     <div class="bg-slate-900 rounded-xl p-3 sm:p-4 shadow-xl border border-slate-800 my-4 space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                             <h2 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                                Kids' Favourite
+                                ${catName}
                             </h2>
-                            <button onclick="window.selectCategory('${kidsCatName}')" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
+                            <button onclick="window.selectCategory('${catName}')" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
                                 <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
                             </button>
                         </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="grid grid-cols-4 gap-2">
                 `;
 
-                const displayGroupItems = groupItems.slice(0, 4);
                 displayGroupItems.forEach(item => {
                     const priceDisplayHtml = getPriceDisplayHTML(item, true);
                     const actionButtonHtml = getCartActionHTML(item.firebaseKey);
@@ -793,29 +798,29 @@
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
-                    kidsHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-2 shadow transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                    darkHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-slate-700 active:border-amber-500' : 'border-slate-800 opacity-60 grayscale'} bg-slate-950 rounded-lg p-1.5 shadow transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                             ${offerBadgeHtml}
                             <div>
-                                <div class="relative bg-slate-900 rounded-md overflow-hidden h-24 mb-1.5 border border-slate-800 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Top' : 'Out'}</span>
+                                <div class="relative bg-slate-900 rounded-md overflow-hidden h-16 mb-1 border border-slate-800 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+                                    <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-white'} font-bold text-[6px] px-1 py-0.2 rounded shadow">${isInStock ? 'Top' : 'Out'}</span>
                                 </div>
-                                <h3 class="font-bold text-white leading-tight mb-0.5 text-xs truncate" style="word-break: break-word;">${item.name}</h3>
-                                <p class="text-slate-400 font-light leading-tight mb-1.5 text-[9px] truncate" style="word-break: break-word;">${cardSmallDesc}</p>
+                                <h3 class="font-bold text-white leading-tight mb-0.5 truncate" style="font-size: 8px;">${item.name}</h3>
+                                <p class="text-slate-400 font-light leading-tight mb-1 truncate" style="font-size: 6.5px;">${cardSmallDesc}</p>
                             </div>
                             <div>
-                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-slate-800 mb-1.5 bg-slate-900 px-1.5 rounded">
+                                <div class="flex items-center justify-between text-[9px] py-0.5 border-t border-b border-slate-800 mb-1 bg-slate-900 px-1 rounded">
                                     ${priceDisplayHtml}
-                                    <span class="text-[9px] text-slate-400 font-semibold truncate max-w-[50px]">${item.qty ? item.qty : 'Std'}</span>
+                                    <span class="text-[8px] text-slate-400 font-semibold truncate max-w-[35px]">${item.qty ? item.qty : 'Std'}</span>
                                 </div>
                                 <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
                             </div>
                         </div>
                     `;
                 });
-                kidsHtml += `</div></div>`;
-                return kidsHtml;
+                darkHtml += `</div></div>`;
+                return darkHtml;
             };
 
             const generateLogoModelViewerHTML = () => {
@@ -845,96 +850,19 @@
 
             htmlOutput += generateBestSellersHTML();
             htmlOutput += generateRecommendedHTML();
-        
-
-
-
-
-
-
-
-
-                                            const generateKidsFavouriteHTML = () => {
-            try {
-                const cats = window.validCategories || validCategories || [];
-                const groups = window.categoryGroups || categoryGroups || {};
-                
-                let kidsCatName = cats.find(c => c && c.toLowerCase().includes('kids')) || cats[2] || cats[0] || "Kids Favourite";
-                const groupItems = groups[kidsCatName] || [];
-                if (groupItems.length === 0) return '';
-                
-                groupItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
-
-                let kidsHtml = `
-                    <div class="space-y-2.5 my-6">
-                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
-                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                                <i class="fa-solid fa-face-smile text-amber-500 mr-0.5"></i> Kids' Favourite
-                            </h2>
-                            <button onclick="window.selectCategory('${kidsCatName}')" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
-                                <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
-                            </button>
-                        </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
-                `;
-
-                const displayGroupItems = groupItems.slice(0, 4);
-                displayGroupItems.forEach(item => {
-                    const priceDisplayHtml = typeof getPriceDisplayHTML === 'function' ? getPriceDisplayHTML(item, false) : '';
-                    const actionButtonHtml = typeof getCartActionHTML === 'function' ? getCartActionHTML(item.firebaseKey) : '';
-                    const offerBadgeHtml = typeof getOfferBadgeHTML === 'function' ? getOfferBadgeHTML(item) : '';
-                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
-                    const isInStock = item.inStock !== false;
-
-                    kidsHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
-                            ${offerBadgeHtml}
-                            <div>
-                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
-                                </div>
-                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs truncate" style="word-break: break-word;">${item.name}</h3>
-                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px] truncate" style="word-break: break-word;">${cardSmallDesc}</p>
-                            </div>
-                            <div>
-                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                    ${priceDisplayHtml}
-                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
-                                </div>
-                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                kidsHtml += `</div></div>`;
-                return kidsHtml;
-            } catch (err) {
-                console.error("Kids Favourite render error:", err);
-                return '';
-            }
-        };
-
-
-
-
-
-
-
-
-
-            
-            
             if (validCategories.length > 0) htmlOutput += generateSliderRowHTML(validCategories[0]);
             if (validCategories.length > 1) htmlOutput += generateSliderRowHTML(validCategories[1]);
             
-            htmlOutput += generateKidsFavouriteHTML();
-            
             htmlOutput += adViewportHTML;
+
+            if (validCategories.length > 2) htmlOutput += generateSliderRowHTML(validCategories[2]);
+            if (validCategories.length > 3) htmlOutput += generateSliderRowHTML(validCategories[3]);
+            
+            const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
+            htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
             htmlOutput += generateLogoModelViewerHTML();
 
-            for (let i = 2; i < validCategories.length; i++) {
+            for (let i = 5; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
 
@@ -954,7 +882,59 @@
                 return;
             }
 
-            slider.appendChild(slideDiv);
+            slider.innerHTML = '';
+            let dotsHtml = '';
+
+            currentAds.forEach((ad, idx) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = "w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center bg-black overflow-hidden cursor-pointer";
+
+                if (ad.type === 'video') {
+                    const videoEl = document.createElement('video');
+                    videoEl.src = ad.link;
+                    videoEl.autoplay = true;
+                    videoEl.muted = true;
+                    videoEl.playsInline = true;
+                    videoEl.loop = true;
+                    videoEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
+
+                    const badge = document.createElement('div');
+                    badge.className = "absolute inset-0 flex items-center justify-center pointer-events-none z-10 speaker-badge-container";
+                    badge.innerHTML = `
+                        <div class="w-14 h-14 rounded-full bg-slate-950/70 backdrop-blur-xl flex items-center justify-center text-white shadow-2xl border border-white/25 icon-morph">
+                            <i class="fa-solid fa-volume-xmark text-lg text-amber-400"></i>
+                        </div>
+                    `;
+
+                    slideDiv.addEventListener('click', () => {
+                        videoEl.muted = !videoEl.muted;
+                        const iconBox = badge.firstElementChild;
+                        const icon = iconBox.querySelector('i');
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'scale(1)';
+
+                        if (videoEl.muted) {
+                            icon.className = "fa-solid fa-volume-xmark text-lg text-amber-400 icon-morph";
+                        } else {
+                            icon.className = "fa-solid fa-volume-high text-lg text-amber-400 icon-morph";
+                            setTimeout(() => {
+                                badge.style.transform = 'scale(0.85)';
+                                badge.style.opacity = '0';
+                            }, 50);
+                        }
+                    });
+
+                    slideDiv.appendChild(videoEl);
+                    slideDiv.appendChild(badge);
+                } else {
+                    const imgEl = document.createElement('img');
+                    imgEl.src = ad.link;
+                    imgEl.alt = `Ad ${idx + 1}`;
+                    imgEl.className = "absolute inset-0 w-full h-full object-contain pointer-events-none";
+                    slideDiv.appendChild(imgEl);
+                }
+
+                slider.appendChild(slideDiv);
                 dotsHtml += `<span class="w-2 h-2 rounded-full ${idx === 0 ? 'bg-amber-500 w-4' : 'bg-white/50'} transition-all duration-300 inline-block"></span>`;
             });
 
@@ -1068,30 +1048,6 @@
                     }
                 }, { passive: true });
             }
-        });
-        <script>
-        // Additional utility functions or handlers for MY Food Products catalog
-        
-        window.shareProduct = function(name, price, key) {
-            const shareUrl = window.location.origin + `/scaledup.html?id=${key}`;
-            if (navigator.share) {
-                navigator.share({
-                    title: name,
-                    text: `Check out ${name} for ₹${price} at MY Store - Organic Food Products!`,
-                    url: shareUrl,
-                }).catch(() => {});
-            } else {
-                navigator.clipboard.writeText(shareUrl);
-                alert('Product link copied to clipboard!');
-            }
-        };
-
-        // Quick touch feedback optimizer for mobile cards
-        document.addEventListener('touchstart', function() {}, {passive: true});
-
-        // Global error boundary for smooth user experience
-        window.addEventListener('error', function(e) {
-            console.warn('Catalog runtime note:', e.message);
         });
     </script>
 </body>
