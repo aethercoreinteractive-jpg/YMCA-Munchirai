@@ -771,6 +771,73 @@
                 return recHtml;
             };
 
+
+
+
+                        const generateKidsFavouriteHTML = () => {
+                const kidsCat = categoriesCache.find(c => c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child'));
+                let kidsList = kidsCat ? sortedProducts.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
+                
+                if (kidsList.length === 0) {
+                    kidsList = [...sortedProducts].sort(() => 0.5 - Math.random());
+                }
+                
+                const displayKidsList = kidsList.slice(0, 4);
+                if (displayKidsList.length === 0) return '';
+                displayKidsList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
+                const targetCategoryName = kidsCat ? kidsCat.name : (validCategories[0] || "Uncategorized");
+
+                let kidsHtml = `
+                    <div class="space-y-2.5 my-4">
+                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
+                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                <i class="fa-solid fa-face-smile text-amber-500 mr-0.5"></i> Kids' Favourite
+                            </h2>
+                            <button onclick="window.selectCategory('${targetCategoryName}')" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
+                                <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5 pt-0.5">
+                `;
+
+                displayKidsList.forEach(item => {
+                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
+                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+                    const offerBadgeHtml = getOfferBadgeHTML(item);
+                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                    const isInStock = item.inStock !== false;
+
+                    kidsHtml += `
+                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                            ${offerBadgeHtml}
+                            <div>
+                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                    ${priceDisplayHtml}
+                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                </div>
+                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                kidsHtml += `</div></div>`;
+                return kidsHtml;
+            };
+
+
+
+            
+
             const generateDark8CardSectionHTML = (catName) => {
                 const fullGroupItems = categoryGroups[catName] || [];
                 const displayGroupItems = fullGroupItems.slice(0, 8);
@@ -848,24 +915,46 @@
                 </div>
             `;
 
-            htmlOutput += generateBestSellersHTML();
+
+
+
+
+                        htmlOutput += generateBestSellersHTML();
             htmlOutput += generateRecommendedHTML();
+            
+            // 1. Category section 1
             if (validCategories.length > 0) htmlOutput += generateSliderRowHTML(validCategories[0]);
+            
+            // 2. Category section 2
             if (validCategories.length > 1) htmlOutput += generateSliderRowHTML(validCategories[1]);
             
+            // 3. Heroic banner
             htmlOutput += adViewportHTML;
-
+            
+            // 4. Category section 3 & 4
             if (validCategories.length > 2) htmlOutput += generateSliderRowHTML(validCategories[2]);
             if (validCategories.length > 3) htmlOutput += generateSliderRowHTML(validCategories[3]);
             
+            // 5. Dark section
             const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
             htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
+            
+            // 6. 3D logo section
             htmlOutput += generateLogoModelViewerHTML();
-
+            
+            // 7. Kids' Favourite section (includes 4 products + dark-style View All button)
+            htmlOutput += generateKidsFavouriteHTML();
+            
+            // 8. Remaining Category sections
             for (let i = 5; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
 
+
+
+
+            
+            
             container.innerHTML = htmlOutput;
             renderPreviewSlider();
             setupAutoSlide();
