@@ -919,7 +919,7 @@
 
 
 
-                        htmlOutput += generateBestSellersHTML();
+                                    htmlOutput += generateBestSellersHTML();
             htmlOutput += generateRecommendedHTML();
             
             // 1. Category section 1
@@ -942,13 +942,18 @@
             // 6. 3D logo section
             htmlOutput += generateLogoModelViewerHTML();
             
-            // 7. Kids' Favourite section (includes 4 products + dark-style View All button)
+            // 7. Two Category sections between 3D Logo and Kids' Favourite
+            if (validCategories.length > 5) htmlOutput += generateSliderRowHTML(validCategories[5]);
+            if (validCategories.length > 6) htmlOutput += generateSliderRowHTML(validCategories[6]);
+            
+            // 8. Kids' Favourite section
             htmlOutput += generateKidsFavouriteHTML();
             
-            // 8. Remaining Category sections
-            for (let i = 5; i < validCategories.length; i++) {
+            // 9. Remaining Category sections below Kids' Favourite
+            for (let i = 7; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
+
 
 
 
