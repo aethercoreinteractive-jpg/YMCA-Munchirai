@@ -1061,7 +1061,24 @@
 
 
 
+            // State tracker and view-all handler for Kids' Favourite
+            if (typeof window.isShowingKidsFavouriteOnly === 'undefined') {
+                window.isShowingKidsFavouriteOnly = false;
+            }
 
+            window.showKidsFavouriteAll = () => {
+                window.isShowingKidsFavouriteOnly = true;
+                if (typeof window.selectedCategory !== 'undefined') window.selectedCategory = null;
+                if (typeof renderCatalog === 'function') {
+                    renderCatalog(window.sortedProducts || (typeof sortedProducts !== 'undefined' ? sortedProducts : []));
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+
+
+
+        
 
 
 
