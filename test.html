@@ -774,19 +774,31 @@
 
 
 
-                        const generateKidsFavouriteHTML = () => {
+                                    const generateKidsFavouriteHTML = () => {
+                // 1. Find category containing 'kid' or 'child', or fallback to items matching kid-friendly keywords
                 const kidsCat = categoriesCache.find(c => c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child'));
-                let kidsList = kidsCat ? sortedProducts.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
                 
-                if (kidsList.length === 0) {
-                    kidsList = [...sortedProducts].sort(() => 0.5 - Math.random());
+                let kidsList = [];
+                let targetCategoryName = '';
+
+                if (kidsCat) {
+                    targetCategoryName = kidsCat.name;
+                    kidsList = sortedProducts.filter(item => (item.category || "Uncategorized") === targetCategoryName);
+                } else {
+                    // Fallback: filter items with kid-friendly keywords in name/desc, or fallback to general products if none
+                    kidsList = sortedProducts.filter(item => {
+                        const text = (item.name + " " + (item.desc || item.description || "")).toLowerCase();
+                        return text.includes('kid') || text.includes('child') || text.includes('chocolate') || text.includes('sweet') || text.includes('toy');
+                    });
+                    if (kidsList.length === 0) {
+                        kidsList = [...sortedProducts];
+                    }
+                    targetCategoryName = kidsList[0]?.category || validCategories[0] || "Uncategorized";
                 }
                 
                 const displayKidsList = kidsList.slice(0, 4);
                 if (displayKidsList.length === 0) return '';
                 displayKidsList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
-
-                const targetCategoryName = kidsCat ? kidsCat.name : (validCategories[0] || "Uncategorized");
 
                 let kidsHtml = `
                     <div class="space-y-2.5 my-4">
@@ -833,6 +845,7 @@
                 kidsHtml += `</div></div>`;
                 return kidsHtml;
             };
+
 
 
 
