@@ -774,9 +774,22 @@
 
 
 
+
+
+                        // State tracker and view-all handler for Kids' Favourite
+            window.isShowingKidsFavouriteOnly = false;
+
+            window.showKidsFavouriteAll = () => {
+                window.isShowingKidsFavouriteOnly = true;
+                if (typeof window.selectedCategory !== 'undefined') window.selectedCategory = null;
+                if (typeof renderCatalog === 'function') {
+                    renderCatalog(sortedProducts);
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
             
 
-                                        const generateKidsFavouriteHTML = () => {
+                const generateKidsFavouriteHTML = () => {
                 const kidsCat = categoriesCache.find(c => c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child'));
                 let kidsList = kidsCat ? sortedProducts.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
                 
