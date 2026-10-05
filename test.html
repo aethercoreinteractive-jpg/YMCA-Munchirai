@@ -774,19 +774,41 @@
 
 
 
-                                                const generateKidsFavouriteHTML = () => {
+                                                            window.showKidsFavouriteAll = () => {
                 const kidsCat = categoriesCache.find(c => c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child'));
                 let kidsList = kidsCat ? sortedProducts.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
                 
                 if (kidsList.length === 0) {
-                    kidsList = [...sortedProducts].sort(() => 0.5 - Math.random());
+                    kidsList = sortedProducts.filter(item => {
+                        const text = (item.name + " " + (item.desc || item.description || "")).toLowerCase();
+                        return text.includes('kid') || text.includes('child') || text.includes('chocolate') || text.includes('sweet') || text.includes('toy');
+                    });
+                    if (kidsList.length === 0) kidsList = [...sortedProducts];
+                }
+                
+                if (typeof renderCatalog === 'function') {
+                    renderCatalog(kidsList);
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const generateKidsFavouriteHTML = () => {
+                const kidsCat = categoriesCache.find(c => c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child'));
+                let kidsList = kidsCat ? sortedProducts.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
+                
+                if (kidsList.length === 0) {
+                    kidsList = sortedProducts.filter(item => {
+                        const text = (item.name + " " + (item.desc || item.description || "")).toLowerCase();
+                        return text.includes('kid') || text.includes('child') || text.includes('chocolate') || text.includes('sweet') || text.includes('toy');
+                    });
+                    if (kidsList.length === 0) {
+                        kidsList = [...sortedProducts].sort(() => 0.5 - Math.random());
+                    }
                 }
                 
                 const displayKidsList = kidsList.slice(0, 4);
                 if (displayKidsList.length === 0) return '';
                 displayKidsList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
-
-                const targetCategoryName = kidsCat ? kidsCat.name : (validCategories[0] || "Uncategorized");
 
                 let kidsHtml = `
                     <div class="space-y-2.5 my-4">
@@ -795,7 +817,7 @@
                                 <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
                                 <i class="fa-solid fa-face-smile text-amber-500 mr-0.5"></i> Kids' Favourite
                             </h2>
-                            <button onclick="window.selectCategory('${targetCategoryName}')" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
+                            <button onclick="window.showKidsFavouriteAll()" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
                                 <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
                             </button>
                         </div>
@@ -833,6 +855,7 @@
                 kidsHtml += `</div></div>`;
                 return kidsHtml;
             };
+
 
 
 
