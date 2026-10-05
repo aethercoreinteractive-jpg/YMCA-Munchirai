@@ -776,17 +776,20 @@
 
 
 
-                                    const generateKidsFavouriteHTML = () => {
-                const kidsCat = categoriesCache.find(c => c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child'));
-                let kidsList = kidsCat ? sortedProducts.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
+                                                const generateKidsFavouriteHTML = () => {
+                const prodSource = window.sortedProducts || (typeof sortedProducts !== 'undefined' ? sortedProducts : []);
+                const catSource = window.categoriesCache || (typeof categoriesCache !== 'undefined' ? categoriesCache : []);
+                
+                const kidsCat = catSource.find(c => c.name && (c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child')));
+                let kidsList = kidsCat ? prodSource.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
                 
                 if (kidsList.length === 0) {
-                    kidsList = sortedProducts.filter(item => {
-                        const text = (item.name + " " + (item.desc || item.description || "")).toLowerCase();
+                    kidsList = prodSource.filter(item => {
+                        const text = ((item.name || "") + " " + (item.desc || item.description || "")).toLowerCase();
                         return text.includes('kid') || text.includes('child') || text.includes('chocolate') || text.includes('sweet') || text.includes('toy');
                     });
                     if (kidsList.length === 0) {
-                        kidsList = [...sortedProducts].sort(() => 0.5 - Math.random());
+                        kidsList = [...prodSource].sort(() => 0.5 - Math.random());
                     }
                 }
                 
@@ -809,9 +812,9 @@
                 `;
 
                 displayKidsList.forEach(item => {
-                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
-                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const offerBadgeHtml = getOfferBadgeHTML(item);
+                    const priceDisplayHtml = typeof getPriceDisplayHTML === 'function' ? getPriceDisplayHTML(item, false) : '';
+                    const actionButtonHtml = typeof getCartActionHTML === 'function' ? getCartActionHTML(item.firebaseKey) : '';
+                    const offerBadgeHtml = typeof getOfferBadgeHTML === 'function' ? getOfferBadgeHTML(item) : '';
                     const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
                     const isInStock = item.inStock !== false;
 
@@ -932,131 +935,130 @@
 
                  
                                      
-                    
-                        // State tracker and view-all handler for Kids' Favourite
-            if (typeof window.isShowingKidsFavouriteOnly === 'undefined') {
-                window.isShowingKidsFavouriteOnly = false;
-            }
+                                window.renderCatalog = function(productsToRender) {
+                try {
+                    const prodSource = productsToRender || window.sortedProducts || (typeof sortedProducts !== 'undefined' ? sortedProducts : []);
+                    const catSource = window.categoriesCache || (typeof categoriesCache !== 'undefined' ? categoriesCache : []);
+                    const validCats = window.validCategories || (typeof validCategories !== 'undefined' ? validCategories : []);
 
-            window.showKidsFavouriteAll = () => {
-                window.isShowingKidsFavouriteOnly = true;
-                if (typeof window.selectedCategory !== 'undefined') window.selectedCategory = null;
-                if (typeof renderCatalog === 'function') {
-                    renderCatalog(window.sortedProducts || sortedProducts);
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
+                    // 1. If View All is active, render the full Kids' Favourite collection at the top
+                    if (window.isShowingKidsFavouriteOnly) {
+                        const kidsCat = catSource.find(c => c.name && (c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child')));
+                        let kidsList = kidsCat ? prodSource.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
+                        
+                        if (kidsList.length === 0) {
+                            kidsList = prodSource.filter(item => {
+                                const text = ((item.name || "") + " " + (item.desc || item.description || "")).toLowerCase();
+                                return text.includes('kid') || text.includes('child') || text.includes('chocolate') || text.includes('sweet') || text.includes('toy');
+                            });
+                            if (kidsList.length === 0) kidsList = [...prodSource];
+                        }
 
-            window.renderCatalog = function(productsToRender) {
-                const prodSource = productsToRender || window.sortedProducts || (typeof sortedProducts !== 'undefined' ? sortedProducts : []);
-                const catSource = window.categoriesCache || (typeof categoriesCache !== 'undefined' ? categoriesCache : []);
-                const validCats = window.validCategories || (typeof validCategories !== 'undefined' ? validCategories : []);
+                        let fullKidsHtml = `
+                            <div class="space-y-3 my-4 px-2">
+                                <div class="flex items-center justify-between border-b-2 border-amber-500 pb-2 bg-amber-50 p-2.5 rounded-t-lg">
+                                    <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                                        <i class="fa-solid fa-face-smile text-amber-500"></i> Kids' Favourite Collection (${kidsList.length})
+                                    </h2>
+                                    <button onclick="window.isShowingKidsFavouriteOnly = false; window.renderCatalog(); window.scrollTo({top:0, behavior:'smooth'});" class="text-[11px] bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
+                                        <i class="fa-solid fa-arrow-left text-[9px]"></i> <span>Back to Store</span>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                        `;
 
-                // 1. If View All is active, render the full Kids' Favourite collection at the top
-                if (window.isShowingKidsFavouriteOnly) {
-                    const kidsCat = catSource.find(c => c.name && (c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child')));
-                    let kidsList = kidsCat ? prodSource.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
-                    
-                    if (kidsList.length === 0) {
-                        kidsList = prodSource.filter(item => {
-                            const text = ((item.name || "") + " " + (item.desc || item.description || "")).toLowerCase();
-                            return text.includes('kid') || text.includes('child') || text.includes('chocolate') || text.includes('sweet') || text.includes('toy');
+                        kidsList.forEach(item => {
+                            const priceDisplayHtml = typeof getPriceDisplayHTML === 'function' ? getPriceDisplayHTML(item, false) : '';
+                            const actionButtonHtml = typeof getCartActionHTML === 'function' ? getCartActionHTML(item.firebaseKey) : '';
+                            const offerBadgeHtml = typeof getOfferBadgeHTML === 'function' ? getOfferBadgeHTML(item) : '';
+                            const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+                            const isInStock = item.inStock !== false;
+
+                            fullKidsHtml += `
+                                <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                                    ${offerBadgeHtml}
+                                    <div>
+                                        <div class="relative bg-slate-100 rounded-md overflow-hidden h-28 mb-1.5 border border-gray-100 flex items-center justify-center">
+                                            <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                                            <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
+                                        </div>
+                                        <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                                        <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                                            ${priceDisplayHtml}
+                                            <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                                        </div>
+                                        <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                                    </div>
+                                </div>
+                            `;
                         });
-                        if (kidsList.length === 0) kidsList = [...prodSource];
+
+                        fullKidsHtml += `</div></div>`;
+                        
+                        const container = document.getElementById('catalog-container') || document.getElementById('product-grid');
+                        if (container) container.innerHTML = fullKidsHtml;
+                        return;
                     }
 
-                    let fullKidsHtml = `
-                        <div class="space-y-3 my-4 px-2">
-                            <div class="flex items-center justify-between border-b-2 border-amber-500 pb-2 bg-amber-50 p-2.5 rounded-t-lg">
-                                <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-                                    <i class="fa-solid fa-face-smile text-amber-500"></i> Kids' Favourite Collection (${kidsList.length})
-                                </h2>
-                                <button onclick="window.isShowingKidsFavouriteOnly = false; window.renderCatalog(); window.scrollTo({top:0, behavior:'smooth'});" class="text-[11px] bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
-                                    <i class="fa-solid fa-arrow-left text-[9px]"></i> <span>Back to Store</span>
-                                </button>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2.5 pt-1">
-                    `;
-
-                    kidsList.forEach(item => {
-                        const priceDisplayHtml = typeof getPriceDisplayHTML === 'function' ? getPriceDisplayHTML(item, false) : '';
-                        const actionButtonHtml = typeof getCartActionHTML === 'function' ? getCartActionHTML(item.firebaseKey) : '';
-                        const offerBadgeHtml = typeof getOfferBadgeHTML === 'function' ? getOfferBadgeHTML(item) : '';
-                        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
-                        const isInStock = item.inStock !== false;
-
-                        fullKidsHtml += `
-                            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
-                                ${offerBadgeHtml}
-                                <div>
-                                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-28 mb-1.5 border border-gray-100 flex items-center justify-center">
-                                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
-                                    </div>
-                                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
-                                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
-                                </div>
-                                <div>
-                                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                        ${priceDisplayHtml}
-                                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
-                                    </div>
-                                    <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    fullKidsHtml += `</div></div>`;
+                    // 2. Default Storefront Layout Sequence (Untouched order with safe execution wrappers)
+                    let htmlOutput = "";
                     
+                    if (typeof generateBestSellersHTML === 'function') htmlOutput += generateBestSellersHTML() || '';
+                    if (typeof generateRecommendedHTML === 'function') htmlOutput += generateRecommendedHTML() || '';
+                    
+                    // Category section 1 & 2
+                    if (validCats.length > 0 && typeof generateSliderRowHTML === 'function') htmlOutput += generateSliderRowHTML(validCats[0]) || '';
+                    if (validCats.length > 1 && typeof generateSliderRowHTML === 'function') htmlOutput += generateSliderRowHTML(validCats[1]) || '';
+                    
+                    // Heroic banner
+                    if (typeof adViewportHTML !== 'undefined') {
+                        htmlOutput += (typeof adViewportHTML === 'function' ? adViewportHTML() : adViewportHTML) || '';
+                    }
+                    
+                    // Category section 3 & 4
+                    if (validCats.length > 2 && typeof generateSliderRowHTML === 'function') htmlOutput += generateSliderRowHTML(validCats[2]) || '';
+                    if (validCats.length > 3 && typeof generateSliderRowHTML === 'function') htmlOutput += generateSliderRowHTML(validCats[3]) || '';
+                    
+                    // Dark section
+                    const darkSectionCategory = validCats.length > 4 ? validCats[4] : (validCats[0] || "Uncategorized");
+                    if (typeof generateDark8CardSectionHTML === 'function') {
+                        htmlOutput += generateDark8CardSectionHTML(darkSectionCategory) || '';
+                    }
+                    
+                    // 3D logo section
+                    if (typeof generateLogoModelViewerHTML === 'function') {
+                        htmlOutput += generateLogoModelViewerHTML() || '';
+                    }
+                    
+                    // Two Category sections between 3D Logo and Kids' Favourite
+                    if (validCats.length > 5 && typeof generateSliderRowHTML === 'function') htmlOutput += generateSliderRowHTML(validCats[5]) || '';
+                    if (validCats.length > 6 && typeof generateSliderRowHTML === 'function') htmlOutput += generateSliderRowHTML(validCats[6]) || '';
+                    
+                    // Kids' Favourite preview section
+                    if (typeof generateKidsFavouriteHTML === 'function') {
+                        htmlOutput += generateKidsFavouriteHTML() || '';
+                    }
+                    
+                    // Remaining Category sections below Kids' Favourite
+                    for (let i = 7; i < validCats.length; i++) {
+                        if (typeof generateSliderRowHTML === 'function') {
+                            htmlOutput += generateSliderRowHTML(validCats[i]) || '';
+                        }
+                    }
+
                     const container = document.getElementById('catalog-container') || document.getElementById('product-grid');
                     if (container) {
-                        container.innerHTML = fullKidsHtml;
+                        container.innerHTML = htmlOutput;
                     }
-                    return;
-                }
-
-                // 2. Default Storefront Layout Sequence (Untouched order)
-                let htmlOutput = "";
-                if (typeof generateBestSellersHTML === 'function') htmlOutput += generateBestSellersHTML();
-                if (typeof generateRecommendedHTML === 'function') htmlOutput += generateRecommendedHTML();
-                
-                // Category section 1 & 2
-                if (validCats.length > 0) htmlOutput += generateSliderRowHTML(validCats[0]);
-                if (validCats.length > 1) htmlOutput += generateSliderRowHTML(validCats[1]);
-                
-                // Heroic banner
-                if (typeof adViewportHTML !== 'undefined') htmlOutput += adViewportHTML;
-                
-                // Category section 3 & 4
-                if (validCats.length > 2) htmlOutput += generateSliderRowHTML(validCats[2]);
-                if (validCats.length > 3) htmlOutput += generateSliderRowHTML(validCats[3]);
-                
-                // Dark section
-                const darkSectionCategory = validCats.length > 4 ? validCats[4] : (validCats[0] || "Uncategorized");
-                if (typeof generateDark8CardSectionHTML === 'function') htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
-                
-                // 3D logo section
-                if (typeof generateLogoModelViewerHTML === 'function') htmlOutput += generateLogoModelViewerHTML();
-                
-                // Two Category sections between 3D Logo and Kids' Favourite
-                if (validCats.length > 5) htmlOutput += generateSliderRowHTML(validCats[5]);
-                if (validCats.length > 6) htmlOutput += generateSliderRowHTML(validCats[6]);
-                
-                // Kids' Favourite preview section
-                htmlOutput += generateKidsFavouriteHTML();
-                
-                // Remaining Category sections below Kids' Favourite
-                for (let i = 7; i < validCats.length; i++) {
-                    htmlOutput += generateSliderRowHTML(validCats[i]);
-                }
-
-                const container = document.getElementById('catalog-container') || document.getElementById('product-grid');
-                if (container) {
-                    container.innerHTML = htmlOutput;
+                } catch (e) {
+                    console.error("renderCatalog execution error:", e);
                 }
             };
+
 
 
 
