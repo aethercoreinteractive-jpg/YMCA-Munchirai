@@ -776,76 +776,68 @@
 
 
 
-                        // State tracker and view-all handler for Kids' Favourite
-            window.isShowingKidsFavouriteOnly = false;
+                        const renderKidsFavoritesSection = (kfList) => {
+    if (!kfList || kfList.length === 0) return '';
+    
+    let kfHtml = `
+        <div class="mb-4">
+            <div class="flex items-center justify-between px-1 mb-2">
+                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Kids' Favorite 🧒</h2>
+            </div>
+            <div id="kids-fav-container" class="flex overflow-x-auto space-x-2 pb-2 scrollbar-none snap-x scroll-smooth">
+    `;
 
-            window.showKidsFavouriteAll = () => {
-                window.isShowingKidsFavouriteOnly = true;
-                if (typeof window.selectedCategory !== 'undefined') window.selectedCategory = null;
-                if (typeof renderCatalog === 'function') {
-                    renderCatalog(sortedProducts);
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
-            
+    kfList.forEach(item => {
+        const priceDisplayHtml = getPriceDisplayHTML(item, false);
+        const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+        const offerBadgeHtml = getOfferBadgeHTML(item);
+        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Healthy organic treat!';
+        const isInStock = item.inStock !== false;
 
-                const generateKidsFavouriteHTML = () => {
-                const kidsCat = categoriesCache.find(c => c.name.toLowerCase().includes('kid') || c.name.toLowerCase().includes('child'));
-                let kidsList = kidsCat ? sortedProducts.filter(item => (item.category || "Uncategorized") === kidsCat.name) : [];
-                
-                if (kidsList.length === 0) {
-                    kidsList = [...sortedProducts].sort(() => 0.5 - Math.random());
-                }
-                
-                const displayKidsList = kidsList.slice(0, 4);
-                if (displayKidsList.length === 0) return '';
-                displayKidsList.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+        kfHtml += `
+            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-amber-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                ${offerBadgeHtml}
+                <div>
+                    <div class="relative bg-amber-50/50 rounded-md overflow-hidden h-20 mb-1 border border-amber-100/60 flex items-center justify-center">
+                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
+                        <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-400 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Kids ❤️' : 'Out'}</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
+                    <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
+                        ${priceDisplayHtml}
+                        <span class="text-[8px] text-slate-500 font-semibold truncate max-w-[50px]">${item.qty ? item.qty : 'Std'}</span>
+                    </div>
+                    <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                </div>
+            </div>
+        `;
+    });
 
-                let kidsHtml = `
-                    <div class="space-y-2.5 my-4">
-                        <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1">
-                            <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                                <i class="fa-solid fa-face-smile text-amber-500 mr-0.5"></i> Kids' Favourite
-                            </h2>
-                            <button onclick="window.showKidsFavouriteAll()" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
-                                <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
-                            </button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2.5 pt-0.5">
-                `;
+    kfHtml += `</div></div>`;
+    return kfHtml;
+};
 
-                displayKidsList.forEach(item => {
-                    const priceDisplayHtml = getPriceDisplayHTML(item, false);
-                    const actionButtonHtml = getCartActionHTML(item.firebaseKey);
-                    const offerBadgeHtml = getOfferBadgeHTML(item);
-                    const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
-                    const isInStock = item.inStock !== false;
+// Function to activate auto-scroll after the section is rendered onto the page
+const initKidsFavAutoScroll = () => {
+    const container = document.getElementById('kids-fav-container');
+    if (!container) return;
 
-                    kidsHtml += `
-                        <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
-                            ${offerBadgeHtml}
-                            <div>
-                                <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
-                                    <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
-                                    <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids' : 'Out'}</span>
-                                </div>
-                                <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
-                                <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
-                            </div>
-                            <div>
-                                <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
-                                    ${priceDisplayHtml}
-                                    <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
-                                </div>
-                                <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                kidsHtml += `</div></div>`;
-                return kidsHtml;
-            };
+    let autoScroll = setInterval(() => {
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            container.scrollBy({ left: 150, behavior: 'smooth' });
+        }
+    }, 3000);
+
+    // Pause auto-scrolling instantly when the user touches or hovers over it
+    container.addEventListener('mouseenter', () => clearInterval(autoScroll));
+    container.addEventListener('touchstart', () => clearInterval(autoScroll), { passive: true });
+};
+
 
 
 
