@@ -779,7 +779,6 @@
 const renderKidsFavoritesSection = (kfList) => {
     if (!kfList || kfList.length === 0) return '';
     
-    // Take a selection of items for the kids section
     const displayList = kfList.slice(0, 8); 
     
     let kfHtml = `
@@ -790,7 +789,7 @@ const renderKidsFavoritesSection = (kfList) => {
                     Kids' Favorite 🧒
                 </h2>
             </div>
-            <div id="kids-fav-container" class="flex overflow-x-auto no-scrollbar gap-2.5 pb-2 pt-0.5 snap-x scroll-smooth">
+            <div id="kids-fav-container" class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
     `;
 
     displayList.forEach(item => {
@@ -800,9 +799,9 @@ const renderKidsFavoritesSection = (kfList) => {
         const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Healthy organic treat!';
         const isInStock = item.inStock !== false;
 
-        // Styled exactly like the "Recommended For You" card structure (2 columns per view on mobile, fixed width to fit 4 clean columns on wider screens)
+        // Exactly 2 cards fit full screen width without clipping or half-visible peeking
         kfHtml += `
-            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="flex-shrink-0 snap-start w-[45%] sm:w-[22%] border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="flex-shrink-0 snap-start w-[calc(50%-4px)] sm:w-[calc(25%-6px)] border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                 ${offerBadgeHtml}
                 <div>
                     <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
@@ -827,14 +826,12 @@ const renderKidsFavoritesSection = (kfList) => {
     return kfHtml;
 };
 
-
-// Auto-scroll function configured to slide an entire view of products at once
+// Auto-scroll function that runs continuously without pausing on touch or hover
 const initKidsFavAutoScroll = () => {
     const container = document.getElementById('kids-fav-container');
     if (!container) return;
 
-    let autoScroll = setInterval(() => {
-        // Scroll by the full visible width of the container (sliding all visible items at once)
+    setInterval(() => {
         const scrollDistance = container.clientWidth; 
 
         if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
@@ -843,12 +840,7 @@ const initKidsFavAutoScroll = () => {
             container.scrollBy({ left: scrollDistance, behavior: 'smooth' });
         }
     }, 3500);
-
-    // Pause auto-scrolling instantly when the user touches or hovers over it
-    container.addEventListener('mouseenter', () => clearInterval(autoScroll));
-    container.addEventListener('touchstart', () => clearInterval(autoScroll), { passive: true });
 };
-
 
 
 
