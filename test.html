@@ -779,15 +779,18 @@
                         const renderKidsFavoritesSection = (kfList) => {
     if (!kfList || kfList.length === 0) return '';
     
+    // Take up to 4 items (or however many you want in a group)
+    const displayList = kfList.slice(0, 8); 
+    
     let kfHtml = `
         <div class="mb-4">
             <div class="flex items-center justify-between px-1 mb-2">
                 <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Kids' Favorite 🧒</h2>
             </div>
-            <div id="kids-fav-container" class="flex overflow-x-auto space-x-2 pb-2 scrollbar-none snap-x scroll-smooth">
+            <div id="kids-fav-container" class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
     `;
 
-    kfList.forEach(item => {
+    displayList.forEach(item => {
         const priceDisplayHtml = getPriceDisplayHTML(item, false);
         const actionButtonHtml = getCartActionHTML(item.firebaseKey);
         const offerBadgeHtml = getOfferBadgeHTML(item);
@@ -820,23 +823,27 @@
     return kfHtml;
 };
 
-// Function to activate auto-scroll after the section is rendered onto the page
+// Auto-scroll function configured to slide an entire view of products at once
 const initKidsFavAutoScroll = () => {
     const container = document.getElementById('kids-fav-container');
     if (!container) return;
 
     let autoScroll = setInterval(() => {
+        // Scroll by the full visible width of the container (sliding all visible items at once)
+        const scrollDistance = container.clientWidth; 
+
         if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
             container.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
-            container.scrollBy({ left: 150, behavior: 'smooth' });
+            container.scrollBy({ left: scrollDistance, behavior: 'smooth' });
         }
-    }, 3000);
+    }, 3500);
 
     // Pause auto-scrolling instantly when the user touches or hovers over it
     container.addEventListener('mouseenter', () => clearInterval(autoScroll));
     container.addEventListener('touchstart', () => clearInterval(autoScroll), { passive: true });
 };
+
 
 
 
