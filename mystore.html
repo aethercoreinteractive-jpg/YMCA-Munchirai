@@ -771,6 +771,90 @@
                 return recHtml;
             };
 
+
+
+
+
+
+const renderKidsFavoritesSection = (kfList) => {
+    if (!kfList || kfList.length === 0) return '';
+    
+    const displayList = kfList.slice(0, 8); 
+    
+    let kfHtml = `
+        <div class="mb-4">
+            <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1 mb-2.5">
+                <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    Kids' Favorite 🧒
+                </h2>
+                <button onclick="window.filterKidsFavoriteAll()" class="text-[11px] bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 px-2.5 py-1 rounded-md font-bold transition shadow-sm flex items-center gap-1 cursor-pointer">
+                    <span>View All</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </button>
+            </div>
+            <div id="kids-fav-container" class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
+    `;
+
+    displayList.forEach(item => {
+        const priceDisplayHtml = getPriceDisplayHTML(item, false);
+        const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+        const offerBadgeHtml = getOfferBadgeHTML(item);
+        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Healthy organic treat!';
+        const isInStock = item.inStock !== false;
+
+        kfHtml += `
+            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="flex-shrink-0 snap-start w-[calc(50%-4px)] sm:w-[calc(25%-6px)] border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                ${offerBadgeHtml}
+                <div>
+                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids ❤️' : 'Out'}</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                        ${priceDisplayHtml}
+                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                    </div>
+                    <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                </div>
+            </div>
+        `;
+    });
+
+    kfHtml += `</div></div>`;
+    return kfHtml;
+};
+
+
+// Auto-scroll function that runs continuously without pausing on touch or hover
+const initKidsFavAutoScroll = () => {
+    const container = document.getElementById('kids-fav-container');
+    if (!container) return;
+
+    setInterval(() => {
+        const scrollDistance = container.clientWidth; 
+
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            container.scrollBy({ left: scrollDistance, behavior: 'smooth' });
+        }
+    }, 3500);
+};
+
+
+
+
+
+
+
+
+
+            
+
             const generateDark8CardSectionHTML = (catName) => {
                 const fullGroupItems = categoryGroups[catName] || [];
                 const displayGroupItems = fullGroupItems.slice(0, 8);
@@ -848,27 +932,59 @@
                 </div>
             `;
 
+
+
+
+
+                 
+                                     
+                    
             htmlOutput += generateBestSellersHTML();
             htmlOutput += generateRecommendedHTML();
+            
+            // 1. Category section 1
             if (validCategories.length > 0) htmlOutput += generateSliderRowHTML(validCategories[0]);
+            
+            // 2. Category section 2
             if (validCategories.length > 1) htmlOutput += generateSliderRowHTML(validCategories[1]);
             
+            // 3. Heroic banner
             htmlOutput += adViewportHTML;
-
+            
+            // 4. Category section 3 & 4
             if (validCategories.length > 2) htmlOutput += generateSliderRowHTML(validCategories[2]);
             if (validCategories.length > 3) htmlOutput += generateSliderRowHTML(validCategories[3]);
             
+            // 5. Dark section
             const darkSectionCategory = validCategories.length > 4 ? validCategories[4] : (validCategories[0] || "Uncategorized");
             htmlOutput += generateDark8CardSectionHTML(darkSectionCategory);
+            
+            // 6. 3D logo section
             htmlOutput += generateLogoModelViewerHTML();
+            
+            // 7. Two Category sections between 3D Logo and Kids' Favourite
+            if (validCategories.length > 5) htmlOutput += generateSliderRowHTML(validCategories[5]);
+            if (validCategories.length > 6) htmlOutput += generateSliderRowHTML(validCategories[6]);
+            
+            // 8. Kids' Favourite section
+                htmlOutput += renderKidsFavoritesSection(sortedProducts);
 
-            for (let i = 5; i < validCategories.length; i++) {
+            
+            // 9. Remaining Category sections below Kids' Favourite
+            for (let i = 7; i < validCategories.length; i++) {
                 htmlOutput += generateSliderRowHTML(validCategories[i]);
             }
 
+
+
+
+
+
             container.innerHTML = htmlOutput;
+            initKidsFavAutoScroll(); // <-- Add this line here
             renderPreviewSlider();
             setupAutoSlide();
+            
         };
 
         function renderPreviewSlider() {
@@ -990,6 +1106,68 @@
             renderCatalog(liveInventory);
         };
 
+
+
+
+
+
+        
+
+        window.filterKidsFavoriteAll = function() {
+    isSearchActive = true;
+    selectedCategoryFilter = null;
+    
+    // Push a history state so the back button correctly resets the view
+    window.history.pushState({ searchActive: true, kidsFavoriteAll: true, sort: currentSortValue }, "");
+
+    const searchResultsSection = document.getElementById('search-results-section');
+    const searchResultsGrid = document.getElementById('search-results-grid');
+    const searchResultsTitle = document.getElementById('search-results-title');
+
+    searchResultsSection.classList.remove('hidden');
+    searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>Kids' Favorite Collection</span>`;
+
+    // Filter items matching Kids' Favorite criteria (e.g. category or tag, or simply slice the top items)
+    let chosenItems = [...liveInventory].slice(0, 12); 
+    chosenItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
+    let chosenHtml = '';
+    chosenItems.forEach(item => {
+        const priceDisplayHtml = getPriceDisplayHTML(item, false);
+        const actionButtonHtml = getCartActionHTML(item.firebaseKey);
+        const offerBadgeHtml = getOfferBadgeHTML(item);
+        const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Authentic organic food product.';
+        const isInStock = item.inStock !== false;
+
+        chosenHtml += `
+            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+                ${offerBadgeHtml}
+                <div>
+                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-550 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids ❤️' : 'Out'}</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
+                        ${priceDisplayHtml}
+                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
+                    </div>
+                    <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
+                </div>
+            </div>
+        `;
+    });
+    searchResultsGrid.innerHTML = chosenHtml;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+
+
+
+        
         window.addToCart = function(firebaseKey) {
             const product = liveInventory.find(p => p.firebaseKey === firebaseKey);
             if (!product || product.inStock === false) return;
