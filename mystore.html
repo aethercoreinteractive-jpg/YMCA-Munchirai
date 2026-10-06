@@ -1229,67 +1229,110 @@ const initKidsFavAutoScroll = () => {
         });
     </script>
 
-    <footer class="bg-slate-950 text-slate-400 text-xs border-t border-slate-800 mt-12 pb-20 sm:pb-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+    <footer class="bg-slate-950 text-slate-400 text-xs border-t border-slate-800/80 mt-16 pb-24 sm:pb-12 relative overflow-hidden">
+    <!-- Subtle top background glow for a modern SaaS/E-commerce finish -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
             
-            <!-- Brand & Info Column -->
-            <div class="space-y-3 md:col-span-1">
-                <div class="flex items-center gap-2">
-                    <span class="bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded text-sm font-black shadow">MY</span> 
-                    <span class="text-white font-black tracking-tight uppercase text-base">Store</span>
+            <!-- Column 1: Brand & Mission Statement (Span 2 on large screens) -->
+            <div class="space-y-4 lg:col-span-2">
+                <div class="flex items-center gap-2.5">
+                    <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-sm font-black tracking-wider shadow-sm">MY</span> 
+                    <span class="text-white font-extrabold tracking-tight uppercase text-base">Store</span>
                 </div>
-                <p class="text-[11px] text-slate-400 leading-relaxed">
-                    Bringing you wholesome, 100% natural organic food essentials sourced directly for healthy living.
+                <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
+                    Bringing you wholesome, 100% natural organic food essentials sourced directly to promote healthy living and mindful nutrition.
                 </p>
-                <div class="pt-1">
-                    <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Charity Initiative</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5">
+                <div class="p-3 bg-slate-900/60 border border-slate-800/80 rounded-lg max-w-sm space-y-1">
+                    <div class="flex items-center gap-1.5 text-amber-400 font-bold text-[11px] uppercase tracking-wider">
+                        <i class="fa-solid fa-hand-holding-heart text-xs"><span>Charity Initiative</span></i>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-normal">
                         Profits from MY Food Products directly fund charity initiatives run by Munchirai YMCA.
                     </p>
                 </div>
             </div>
 
-            <!-- Quick Links -->
-            <div>
-                <h4 class="text-white font-bold text-[11px] uppercase tracking-wider mb-3 border-l-2 border-amber-500 pl-2">Quick Links</h4>
-                <ul class="space-y-2 text-[11px]">
-                    <li><a href="index.html" class="hover:text-amber-400 transition">Home Catalog</a></li>
-                    <li><a href="cart.html" class="hover:text-amber-400 transition">Shopping Cart</a></li>
-                    <li><a href="bankdetails.html" class="hover:text-amber-400 transition">Bank & Payment Info</a></li>
-                    <li><a href="employeeregistration.html" class="hover:text-amber-400 transition">Careers & Partners</a></li>
-                </ul>
-            </div>
-
-            <!-- Customer Support -->
-            <div>
-                <h4 class="text-white font-bold text-[11px] uppercase tracking-wider mb-3 border-l-2 border-amber-500 pl-2">Support & Help</h4>
-                <ul class="space-y-2 text-[11px]">
-                    <li><a href="#" onclick="toggleCategoryDrawer(); return false;" class="hover:text-amber-400 transition">Browse Categories</a></li>
-                    <li><a href="tel:+919943021998" class="hover:text-amber-400 transition flex items-center gap-1.5"><i class="fa-solid fa-phone text-amber-500 text-[10px]"></i> +91 - 9943021998</a></li>
-                    <li><span class="text-slate-500">Secure Checkout Enabled</span></li>
-                </ul>
-            </div>
-
-            <!-- Newsletter / Trust Badge Section -->
+            <!-- Column 2: Quick Links -->
             <div class="space-y-3">
-                <h4 class="text-white font-bold text-[11px] uppercase tracking-wider mb-3 border-l-2 border-amber-500 pl-2">Secure & Verified</h4>
-                <p class="text-[10px] text-slate-400">All transactions and data exchanges are protected with industry-standard encryption.</p>
-                <div class="flex items-center gap-2 pt-2 text-slate-300">
-                    <span class="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-[10px] font-semibold"><i class="fa-solid fa-shield-halved text-amber-400 mr-1"></i> SSL Secure</span>
-                    <span class="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-[10px] font-semibold"><i class="fa-solid fa-seedling text-amber-400 mr-1"></i> 100% Organic</span>
+                <h4 class="text-white font-bold text-xs uppercase tracking-wider border-l-2 border-amber-500 pl-2.5">Quick Links</h4>
+                <ul class="space-y-2.5 text-xs">
+                    <li>
+                        <a href="index.html" class="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                            <span class="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition-colors"></span> Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/myfoodproductsputhukkadai?stkn=MXhmMjVwY2piZGZqMQ==" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                            <span class="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition-colors"></span> Instagram
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.ymcamunchirai.com/" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                            <span class="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition-colors"></span> Munchirai YMCA
+                        </a>
+                    </li>
+                    <li>
+                        <a href="bankdetails.html" class="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                            <span class="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition-colors"></span> Bank & Payment Info
+                        </a>
+                    </li>
+                    <li>
+                        <a href="employeeregistration.html" class="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                            <span class="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition-colors"></span> Careers
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+               <!-- Column 3: Customer Support -->
+            <div class="space-y-3">
+                <h4 class="text-white font-bold text-xs uppercase tracking-wider border-l-2 border-amber-500 pl-2.5">Support & Help</h4>
+                <ul class="space-y-3 text-xs">
+                    <li>
+                        <a href="tel:+919943021998" class="hover:text-amber-400 transition-colors flex items-start gap-2.5 group">
+                            <div class="w-6 h-6 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-amber-500 shrink-0 group-hover:border-amber-500/50 transition-colors">
+                                <i class="fa-solid fa-phone text-[10px]"></i>
+                            </div>
+                            <span class="mt-1 font-medium text-slate-300 group-hover:text-amber-400">+91 - 9943021998</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="mailto:munchiraiymcaestore@gmail.com" class="hover:text-amber-400 transition-colors flex items-start gap-2.5 group">
+                            <div class="w-6 h-6 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-amber-500 shrink-0 group-hover:border-amber-500/50 transition-colors">
+                                <i class="fa-solid fa-envelope text-[10px]"></i>
+                            </div>
+                            <span class="mt-1 font-medium text-slate-300 group-hover:text-amber-400 break-all">munchiraiymcaestore@gmail.com</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Column 4: Security & Compliance Trust Badges -->
+            <div class="space-y-3">
+                <h4 class="text-white font-bold text-xs uppercase tracking-wider border-l-2 border-amber-500 pl-2.5">Secure & Verified</h4>
+                <p class="text-[11px] text-slate-400 leading-relaxed">All data exchanges and checkout procedures are protected with high-grade SSL encryption.</p>
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <div class="inline-flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded text-[11px] text-slate-300 font-medium">
+                        <i class="fa-solid fa-shield-halved text-amber-400"></i> SSL Secure
+                    </div>
+                    <div class="inline-flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded text-[11px] text-slate-300 font-medium">
+                        <i class="fa-solid fa-seedling text-amber-400"></i> 100% Organic
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- Bottom Copyright Row -->
-        <div class="border-t border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] text-slate-500">
+        <!-- Bottom Copyright & Legal Links Bar -->
+        <div class="border-t border-slate-900 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <p>&copy; 2026 MY Food Products. All rights reserved.</p>
-            <div class="flex items-center gap-4">
-                <span class="hover:text-slate-400 transition cursor-pointer">Privacy Policy</span>
-                <span>&bull;</span>
-                <span class="hover:text-slate-400 transition cursor-pointer">Terms of Service</span>
+            <div class="flex items-center gap-6">
+                <a href="privacypolicy.html" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
+                <span class="text-slate-700">&bull;</span>
+                <a href="termsofservice.html" class="hover:text-slate-300 transition-colors">Terms of Service</a>
             </div>
         </div>
     </div>
