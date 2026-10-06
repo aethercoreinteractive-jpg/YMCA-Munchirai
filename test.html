@@ -776,18 +776,21 @@
 
 
 
-                        const renderKidsFavoritesSection = (kfList) => {
+const renderKidsFavoritesSection = (kfList) => {
     if (!kfList || kfList.length === 0) return '';
     
-    // Take up to 4 items (or however many you want in a group)
+    // Take a selection of items for the kids section
     const displayList = kfList.slice(0, 8); 
     
     let kfHtml = `
         <div class="mb-4">
-            <div class="flex items-center justify-between px-1 mb-2">
-                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Kids' Favorite 🧒</h2>
+            <div class="flex items-center justify-between border-b-2 border-amber-500 pb-1 mb-2.5">
+                <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    Kids' Favorite 🧒
+                </h2>
             </div>
-            <div id="kids-fav-container" class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
+            <div id="kids-fav-container" class="flex overflow-x-auto no-scrollbar gap-2.5 pb-2 pt-0.5 snap-x scroll-smooth">
     `;
 
     displayList.forEach(item => {
@@ -797,21 +800,22 @@
         const cardSmallDesc = item.descSmall || item.smallDesc || item.desc || item.description || 'Healthy organic treat!';
         const isInStock = item.inStock !== false;
 
+        // Styled exactly like the "Recommended For You" card structure (2 columns per view on mobile, fixed width to fit 4 clean columns on wider screens)
         kfHtml += `
-            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="mobile-triple-card flex-shrink-0 snap-start border ${isInStock ? 'border-amber-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-1.5 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
+            <div onclick="window.location.href='scaledup.html?id=${item.firebaseKey}'" class="flex-shrink-0 snap-start w-[45%] sm:w-[22%] border ${isInStock ? 'border-gray-200 active:border-amber-500' : 'border-slate-300 opacity-60 grayscale'} bg-white rounded-lg p-2 shadow-sm transition flex flex-col justify-between cursor-pointer group relative overflow-hidden">
                 ${offerBadgeHtml}
                 <div>
-                    <div class="relative bg-amber-50/50 rounded-md overflow-hidden h-20 mb-1 border border-amber-100/60 flex items-center justify-center">
-                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-0.5">
-                        <span class="absolute top-0.5 left-0.5 ${isInStock ? 'bg-amber-400 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1 py-0.2 rounded shadow">${isInStock ? 'Kids ❤️' : 'Out'}</span>
+                    <div class="relative bg-slate-100 rounded-md overflow-hidden h-24 mb-1.5 border border-gray-100 flex items-center justify-center">
+                        <img src="${item.img || 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&q=80&w=600'}" alt="${item.name}" class="w-full h-full object-contain p-1">
+                        <span class="absolute top-1 left-1 ${isInStock ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-white'} font-bold text-[7px] px-1.5 py-0.5 rounded shadow">${isInStock ? 'Kids ❤️' : 'Out'}</span>
                     </div>
-                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5" style="font-size: 8.5px; word-break: break-word;">${item.name}</h3>
-                    <p class="text-gray-500 font-light leading-tight mb-1" style="font-size: 7px; word-break: break-word;">${cardSmallDesc}</p>
+                    <h3 class="font-bold text-gray-900 leading-tight mb-0.5 text-xs" style="word-break: break-word;">${item.name}</h3>
+                    <p class="text-gray-500 font-light leading-tight mb-1.5 text-[9px]" style="word-break: break-word;">${cardSmallDesc}</p>
                 </div>
                 <div>
-                    <div class="flex items-center justify-between text-[10px] py-0.5 border-t border-b border-gray-100 mb-1 bg-gray-50 px-1 rounded">
+                    <div class="flex items-center justify-between text-[10px] py-1 border-t border-b border-gray-100 mb-1.5 bg-gray-50 px-1.5 rounded">
                         ${priceDisplayHtml}
-                        <span class="text-[8px] text-slate-500 font-semibold truncate max-w-[50px]">${item.qty ? item.qty : 'Std'}</span>
+                        <span class="text-[9px] text-slate-500 font-semibold truncate max-w-[60px]">${item.qty ? item.qty : 'Std'}</span>
                     </div>
                     <div id="action-container-${item.firebaseKey}">${actionButtonHtml}</div>
                 </div>
@@ -822,6 +826,7 @@
     kfHtml += `</div></div>`;
     return kfHtml;
 };
+
 
 // Auto-scroll function configured to slide an entire view of products at once
 const initKidsFavAutoScroll = () => {
