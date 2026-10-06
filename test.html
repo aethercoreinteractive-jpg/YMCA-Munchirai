@@ -960,7 +960,8 @@ const initKidsFavAutoScroll = () => {
             if (validCategories.length > 6) htmlOutput += generateSliderRowHTML(validCategories[6]);
             
             // 8. Kids' Favourite section
-            htmlOutput += generateKidsFavouriteHTML();
+                htmlOutput += renderKidsFavoritesSection(sortedProducts);
+
             
             // 9. Remaining Category sections below Kids' Favourite
             for (let i = 7; i < validCategories.length; i++) {
@@ -979,6 +980,12 @@ const initKidsFavAutoScroll = () => {
             container.innerHTML = htmlOutput;
             renderPreviewSlider();
             setupAutoSlide();
+
+            container.innerHTML = htmlOutput;
+            initKidsFavAutoScroll(); // <-- Add this line here
+            renderPreviewSlider();
+            setupAutoSlide();
+            
         };
 
         function renderPreviewSlider() {
