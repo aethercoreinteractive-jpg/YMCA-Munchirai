@@ -82,20 +82,38 @@
 
     <!-- Cancel Confirmation Modal -->
     <div id="cancel-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
             <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-rose-100 shadow-inner">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <div class="text-center">
-                <h3 class="font-extrabold text-slate-900 text-sm">Cancel Order?</h3>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Are you sure you want to cancel this order? This action will move it to order history.</p>
+            
+            <div class="text-center space-y-1">
+                <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wide">Cancel Order</h3>
+                <p class="text-[11px] text-slate-500">Please provide a reason for cancelling this order.</p>
+            </div>
+
+            <div class="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-inner space-y-2.5 text-left">
+                <div>
+                    <span class="text-[9px] font-bold text-amber-400 uppercase tracking-widest block">Order Number</span>
+                    <span id="cancel-modal-order-number" class="text-sm font-black font-mono tracking-wide text-white"></span>
+                </div>
+                <div class="border-t border-slate-800/80 pt-2">
+                    <span class="text-[9px] font-bold text-rose-400 uppercase tracking-widest block">Customer Name</span>
+                    <span id="cancel-modal-customer-name" class="text-base font-extrabold tracking-tight text-white"></span>
+                </div>
+            </div>
+
+            <!-- Cancellation Reason Input -->
+            <div class="space-y-1.5 text-left">
+                <label for="cancel-reason-input" class="block text-[11px] font-bold text-slate-700">Reason for Cancellation <span class="text-rose-600">*</span></label>
+                <textarea id="cancel-reason-input" rows="2" placeholder="Enter reason (e.g., Out of stock, Customer requested cancellation)..." class="w-full rounded-xl border border-slate-300 p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-slate-900 placeholder:text-slate-400 resize-none shadow-sm" oninput="validateCancelInput()"></textarea>
             </div>
 
             <div class="grid grid-cols-2 gap-2.5 pt-1">
                 <button type="button" onclick="closeCancelModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
                     No, Keep
                 </button>
-                <button type="button" id="confirm-cancel-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
+                <button type="button" id="confirm-cancel-btn" disabled class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
                     Yes, Cancel
                 </button>
             </div>
@@ -231,8 +249,9 @@
             fetchExistingLogo();
 
             document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
-                if (orderKeyToCancel) {
-                    window.advanceOrderStatus(orderKeyToCancel, 'Cancelled');
+                const reason = document.getElementById('cancel-reason-input').value.trim();
+                if (orderKeyToCancel && reason) {
+                    window.advanceOrderStatus(orderKeyToCancel, 'Cancelled', reason);
                     closeCancelModal();
                 }
             });
@@ -388,7 +407,7 @@
                             </div>
                             
                             <div class="flex items-center gap-2">
-                                <button onclick="window.promptCancelOrder('${order.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1">
+                                <button onclick="window.promptCancelOrder('${order.firebaseKey}', '${orderNumber}', '${customer.name.replace(/'/g, "\\'")}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1">
                                     <i class="fa-solid fa-xmark"></i> Cancel
                                 </button>
                                 ${actionButtonHtml}
@@ -399,14 +418,26 @@
             }).join('');
         });
 
-        window.promptCancelOrder = function(firebaseKey) {
+        window.promptCancelOrder = function(firebaseKey, orderNumber, customerName) {
             orderKeyToCancel = firebaseKey;
+            document.getElementById('cancel-modal-order-number').textContent = orderNumber;
+            document.getElementById('cancel-modal-customer-name').textContent = customerName;
+            document.getElementById('cancel-reason-input').value = "";
+            document.getElementById('confirm-cancel-btn').disabled = true;
             document.getElementById('cancel-confirm-modal').classList.remove('hidden');
         };
 
         window.closeCancelModal = function() {
             document.getElementById('cancel-confirm-modal').classList.add('hidden');
             orderKeyToCancel = null;
+            document.getElementById('cancel-reason-input').value = "";
+            document.getElementById('confirm-cancel-btn').disabled = true;
+        };
+
+        window.validateCancelInput = function() {
+            const reason = document.getElementById('cancel-reason-input').value.trim();
+            const confirmBtn = document.getElementById('confirm-cancel-btn');
+            confirmBtn.disabled = reason.length === 0;
         };
 
         window.promptDeliveredOrder = function(firebaseKey, orderNumber, customerName) {
@@ -421,7 +452,7 @@
             orderKeyToDeliver = null;
         };
 
-        window.advanceOrderStatus = function(firebaseKey, newStatus) {
+        window.advanceOrderStatus = function(firebaseKey, newStatus, cancelReason = null) {
             const updatePayload = { status: newStatus };
             
             // Capture specific step timestamps for analytics/history tracking
@@ -429,7 +460,10 @@
             if (newStatus === 'Processing') updatePayload.processingTime = nowIso;
             if (newStatus === 'Ready') updatePayload.readyTime = nowIso;
             if (newStatus === 'Delivered') updatePayload.deliveredTime = nowIso;
-            if (newStatus === 'Cancelled') updatePayload.cancelledTime = nowIso;
+            if (newStatus === 'Cancelled') {
+                updatePayload.cancelledTime = nowIso;
+                updatePayload.cancelReason = cancelReason;
+            }
 
             update(ref(db, `orders/${firebaseKey}`), updatePayload)
                 .catch(err => {
