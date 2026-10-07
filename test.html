@@ -104,18 +104,31 @@
 
     <!-- Delivered Confirmation Modal -->
     <div id="delivered-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
             <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-emerald-100 shadow-inner">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
-            <div class="text-center">
-                <h3 class="font-extrabold text-slate-900 text-sm">Mark as Delivered?</h3>
-                <p id="delivered-modal-text" class="text-xs text-slate-500 mt-1 leading-relaxed">Are you sure you want to mark this order as delivered?</p>
+            
+            <div class="text-center space-y-1">
+                <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wide">Confirm Order Delivery</h3>
+                <p class="text-[11px] text-slate-500">Please verify customer details before completing delivery.</p>
+            </div>
+
+            <!-- Professional Attention Box -->
+            <div class="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-inner space-y-2.5 text-left">
+                <div>
+                    <span class="text-[9px] font-bold text-amber-400 uppercase tracking-widest block">Order Number</span>
+                    <span id="modal-order-number" class="text-sm font-black font-mono tracking-wide text-white"></span>
+                </div>
+                <div class="border-t border-slate-800/80 pt-2">
+                    <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest block">Customer Name</span>
+                    <span id="modal-customer-name" class="text-base font-extrabold tracking-tight text-white"></span>
+                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2.5 pt-1">
                 <button type="button" onclick="closeDeliveredModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
-                    No, Keep
+                    No, Go Back
                 </button>
                 <button type="button" id="confirm-delivered-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
                     Yes, Delivered
@@ -398,7 +411,8 @@
 
         window.promptDeliveredOrder = function(firebaseKey, orderNumber, customerName) {
             orderKeyToDeliver = firebaseKey;
-            document.getElementById('delivered-modal-text').innerHTML = `Are you sure you want to mark order <strong class="text-slate-900">${orderNumber}</strong> for <strong class="text-slate-900">${customerName}</strong> as delivered?`;
+            document.getElementById('modal-order-number').textContent = orderNumber;
+            document.getElementById('modal-customer-name').textContent = customerName;
             document.getElementById('delivered-confirm-modal').classList.remove('hidden');
         };
 
