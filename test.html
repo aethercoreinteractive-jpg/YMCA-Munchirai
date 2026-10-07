@@ -3,18 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Munchirai YMCA | Live Orders</title>
+    <title>Munchirai YMCA | Order History</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#1e293b', 900: '#0f172a', 950: '#090d16' },
+                        amber: { 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- FontAwesome for UI icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased selection:bg-amber-500 selection:text-slate-950 pt-14 flex flex-col min-h-screen">
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16 flex flex-col min-h-screen">
 
     <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
     <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
@@ -30,13 +44,13 @@
 
     <!-- Professional Fixed Header -->
     <header class="fixed top-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md text-white shadow-lg border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 shrink-0">
-                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token');" class="text-sm sm:text-2xl font-black tracking-tighter uppercase text-white flex items-center gap-2">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 shrink-0">
+                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token');" class="text-sm sm:text-lg font-black tracking-tighter uppercase text-white flex items-center gap-2">
                     <div id="header-logo-container" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
                         <span>MY</span>
                     </div>
-                    <span>Live Orders</span>
+                    <span>Order History</span>
                 </a>
             </div>
             <div class="flex items-center gap-2">
@@ -44,121 +58,146 @@
                     <i class="fa-solid fa-arrow-left text-amber-400"></i>
                     <span>Back</span>
                 </button>
-                <a href="orderhistory.html" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition border border-slate-700 flex items-center gap-1 font-semibold">
-                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> History
-                </a>
+                <button onclick="openSecurityModal('clearAll')" class="text-xs bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 px-3 py-2 rounded-xl transition border border-rose-800/80 flex items-center gap-1.5 font-bold shadow-sm active:scale-95">
+                    <i class="fa-solid fa-trash-can text-rose-400"></i>
+                    <span class="hidden xs:inline">Clear All</span>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Orders Content -->
-    <main class="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <!-- Main History Content -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl shadow-sm border border-slate-200/80">
             <div>
-                <span class="text-[9px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Active Queue</span>
-                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 mt-1">Live Customer Orders</h1>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Archived Records</span>
+                <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 mt-1">Completed & Cancelled Orders</h1>
             </div>
-            <div class="flex items-center gap-2">
-                <span id="total-orders-badge" class="text-xs font-bold bg-slate-200 text-slate-800 px-3 py-1.5 rounded-xl shadow-sm">0 Live Orders</span>
+            <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+                <span id="active-timeframe-badge" class="text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-xl shadow-sm cursor-pointer hover:bg-amber-100 transition flex items-center gap-1.5" onclick="openTimeframeModal()">
+                    <i class="fa-regular fa-calendar text-amber-600"></i> <span id="timeframe-label">Lifetime</span>
+                </span>
+                <span id="total-history-badge" class="text-xs font-extrabold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">0 Archived Orders</span>
             </div>
         </div>
 
-        <!-- Orders Container -->
-        <div id="orders-container" class="space-y-4">
-            <div class="text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm text-gray-400 text-xs">
-                Loading live orders...
+        <!-- Search Bar and Status Filters -->
+        <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200/80 space-y-3">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input type="text" id="order-search-input" placeholder="Search by order number or customer name..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition" oninput="filterHistoryOrders()">
+            </div>
+            
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0">Filter:</span>
+                <button type="button" onclick="setStatusFilter('all')" id="filter-btn-all" class="text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-900 text-white border-slate-900 shadow-sm transition shrink-0">All</button>
+                <button type="button" onclick="setStatusFilter('Delivered')" id="filter-btn-delivered" class="text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 transition shrink-0">Delivered</button>
+                <button type="button" onclick="setStatusFilter('Cancelled')" id="filter-btn-cancelled" class="text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 transition shrink-0">Cancelled</button>
+            </div>
+        </div>
+
+        <!-- History Container -->
+        <div id="history-container" class="space-y-4">
+            <div class="text-center py-16 bg-white rounded-3xl border border-slate-200/80 shadow-sm text-slate-400 text-xs font-medium">
+                Loading order history...
             </div>
         </div>
 
         <!-- Empty State Notice -->
-        <div id="empty-orders-state" class="hidden text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm">
-            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-3 text-lg shadow-inner">
-                <i class="fa-solid fa-clipboard-check"></i>
+        <div id="empty-history-state" class="hidden text-center py-16 bg-white rounded-3xl border border-slate-200/80 shadow-sm px-4">
+            <div class="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl border border-slate-100 shadow-inner">
+                <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
-            <h3 class="font-bold text-xs text-gray-900">No active orders</h3>
-            <p class="text-[11px] text-gray-500 mt-1">All customer checkouts have been processed or archived.</p>
+            <h3 class="font-bold text-sm text-slate-900">No history records found</h3>
+            <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">No orders match your current filter or timeframe criteria.</p>
         </div>
     </main>
 
-    <!-- Cancel Confirmation Modal -->
-    <div id="cancel-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
-            <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-rose-100 shadow-inner">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400 mt-auto">
+        Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
+    </footer>
+
+    <!-- Timeframe Selection Modal -->
+    <div id="timeframe-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-amber-100 shadow-inner">
+                <i class="fa-regular fa-calendar-days"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="font-extrabold text-slate-900 text-sm">Select Timeframe</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Choose a period to filter archived order history records.</p>
             </div>
             
-            <div class="text-center space-y-1">
-                <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wide">Cancel Order</h3>
-                <p class="text-[11px] text-slate-500">Please provide a reason for cancelling this order.</p>
-            </div>
-
-            <div class="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-inner space-y-2.5 text-left">
-                <div>
-                    <span class="text-[9px] font-bold text-amber-400 uppercase tracking-widest block">Order Number</span>
-                    <span id="cancel-modal-order-number" class="text-sm font-black font-mono tracking-wide text-white"></span>
-                </div>
-                <div class="border-t border-slate-800/80 pt-2">
-                    <span class="text-[9px] font-bold text-rose-400 uppercase tracking-widest block">Customer Name</span>
-                    <span id="cancel-modal-customer-name" class="text-base font-extrabold tracking-tight text-white"></span>
-                </div>
-            </div>
-
-            <!-- Cancellation Reason Input -->
-            <div class="space-y-1.5 text-left">
-                <label for="cancel-reason-input" class="block text-[11px] font-bold text-slate-700">Reason for Cancellation <span class="text-rose-600">*</span></label>
-                <textarea id="cancel-reason-input" rows="2" placeholder="Enter reason (e.g., Out of stock, Customer requested cancellation)..." class="w-full rounded-xl border border-slate-300 p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-slate-900 placeholder:text-slate-400 resize-none shadow-sm" oninput="validateCancelInput()"></textarea>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2.5 pt-1">
-                <button type="button" onclick="closeCancelModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
-                    No, Keep
+            <div class="space-y-2">
+                <button type="button" onclick="selectTimeframe('3months')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Past 3 Months</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                 </button>
-                <button type="button" id="confirm-cancel-btn" disabled class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
-                    Yes, Cancel
+                <button type="button" onclick="selectTimeframe('6months')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Past 6 Months</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                </button>
+                <button type="button" onclick="selectTimeframe('1year')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Past 1 Year</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                </button>
+                <button type="button" onclick="selectTimeframe('lifetime')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Lifetime</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                </button>
+                <button type="button" onclick="toggleCalendarInput()" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Custom Date Check</span>
+                    <i class="fa-regular fa-calendar text-[11px] text-amber-600"></i>
+                </button>
+                <div id="calendar-input-container" class="hidden pt-1">
+                    <input type="date" id="custom-date-picker" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium shadow-sm transition" onchange="selectCustomDate(this.value)">
+                </div>
+            </div>
+
+            <div class="pt-1">
+                <button type="button" onclick="closeTimeframeModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
+                    Cancel
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Delivered Confirmation Modal -->
-    <div id="delivered-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
-            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-emerald-100 shadow-inner">
-                <i class="fa-solid fa-circle-check"></i>
+    <!-- Custom In-Website Security Password Modal -->
+    <div id="security-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-amber-100 shadow-inner">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="font-extrabold text-slate-900 text-sm" id="modal-title">Authentication Required</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed" id="modal-desc">Enter company key, admin password, or company code to proceed.</p>
             </div>
             
-            <div class="text-center space-y-1">
-                <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wide">Confirm Order Delivery</h3>
-                <p class="text-[11px] text-slate-500">Please verify customer details before completing delivery.</p>
-            </div>
-
-            <!-- Professional Attention Box -->
-            <div class="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-inner space-y-2.5 text-left">
-                <div>
-                    <span class="text-[9px] font-bold text-amber-400 uppercase tracking-widest block">Order Number</span>
-                    <span id="modal-order-number" class="text-sm font-black font-mono tracking-wide text-white"></span>
-                </div>
-                <div class="border-t border-slate-800/80 pt-2">
-                    <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest block">Customer Name</span>
-                    <span id="modal-customer-name" class="text-base font-extrabold tracking-tight text-white"></span>
-                </div>
+            <div>
+                <input type="password" id="modal-password-input" placeholder="Enter security key..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition">
+                <p id="modal-error-msg" class="text-[11px] text-rose-600 font-bold mt-1.5 hidden flex items-center gap-1 justify-center">
+                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect security key or password.
+                </p>
             </div>
 
             <div class="grid grid-cols-2 gap-2.5 pt-1">
-                <button type="button" onclick="closeDeliveredModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
-                    No, Go Back
+                <button onclick="closeSecurityModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
+                    Cancel
                 </button>
-                <button type="button" id="confirm-delivered-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
-                    Yes, Delivered
+                <button onclick="verifySecurityKey()" id="modal-confirm-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
+                    Confirm
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK Imports & Orders Script -->
+    <!-- Firebase SDK Imports & History Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         // SECURITY CHECKPOINT: Enforce Session Token Verification for Admin or Staff
         function verifyAdminSession() {
@@ -200,9 +239,17 @@
         const db = getDatabase(app);
 
         const ordersRef = ref(db, 'orders');
+        const CORRECT_COMPANY_KEY = "ymca2026";
+        const FALLBACK_PASSWORD = "Admin@123";
+        const IMMUTABLE_COMPANY_CODE = "399812";
+        
+        let pendingActionType = null; 
+        let pendingTargetKey = null;   
 
-        let orderKeyToCancel = null;
-        let orderKeyToDeliver = null;
+        let rawOrdersCache = [];
+        let currentStatusFilter = 'all';
+        let currentTimeframe = 'lifetime';
+        let customSelectedDate = null;
 
         // Convert Google Drive share link into a direct viewable image link
         window.formatDriveUrl = function(rawUrl) {
@@ -247,21 +294,6 @@
         // Initialize logo on load and listen for real-time changes
         document.addEventListener('DOMContentLoaded', () => {
             fetchExistingLogo();
-
-            document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
-                const reason = document.getElementById('cancel-reason-input').value.trim();
-                if (orderKeyToCancel && reason) {
-                    window.advanceOrderStatus(orderKeyToCancel, 'Cancelled', reason);
-                    closeCancelModal();
-                }
-            });
-
-            document.getElementById('confirm-delivered-btn').addEventListener('click', () => {
-                if (orderKeyToDeliver) {
-                    window.advanceOrderStatus(orderKeyToDeliver, 'Delivered');
-                    closeDeliveredModal();
-                }
-            });
         });
 
         onValue(ref(db, 'settings/storeLogo'), (snapshot) => {
@@ -272,49 +304,182 @@
             }
         });
 
+        // Helper function to format any epoch/timestamp string into 12-hour AM/PM format
+        function format12HourTime(timestampInput) {
+            if (!timestampInput) return null;
+            const dateObj = new Date(timestampInput);
+            if (isNaN(dateObj.getTime())) return null;
+            return dateObj.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
         onValue(ordersRef, (snapshot) => {
             const data = snapshot.val();
-            const container = document.getElementById('orders-container');
-            const emptyState = document.getElementById('empty-orders-state');
-            const badge = document.getElementById('total-orders-badge');
-
             if (!data) {
-                container.innerHTML = "";
-                emptyState.classList.remove('hidden');
-                badge.textContent = "0 Live Orders";
+                rawOrdersCache = [];
+                renderHistoryOrders([]);
                 return;
             }
 
-            const ordersList = Object.keys(data).map(key => ({
+            rawOrdersCache = Object.keys(data).map(key => ({
                 firebaseKey: key,
                 ...data[key]
-            })).reverse();
+            }));
 
-            // Filter out delivered or cancelled orders so they move to history
-            const liveOrders = ordersList.filter(order => {
-                const status = order.status || 'Pending Confirmation';
-                return status !== 'Delivered' && status !== 'Cancelled';
+            filterHistoryOrders();
+        });
+
+        window.filterHistoryOrders = function() {
+            const searchQuery = (document.getElementById('order-search-input').value || "").toLowerCase().trim();
+
+            // Filter status & history state
+            let historyOrders = rawOrdersCache.filter(order => {
+                const status = order.status || '';
+                return status === 'Delivered' || status === 'Cancelled';
             });
 
-            if (liveOrders.length === 0) {
+            // Filter status tab
+            if (currentStatusFilter !== 'all') {
+                historyOrders = historyOrders.filter(order => order.status === currentStatusFilter);
+            }
+
+            // Filter Timeframe / Calendar
+            const now = new Date();
+            if (currentTimeframe === '3months') {
+                const limitDate = new Date();
+                limitDate.setMonth(now.getMonth() - 3);
+                historyOrders = historyOrders.filter(order => {
+                    const orderDate = new Date(order.deliveredTime || order.cancelledTime || order.timestamp || 0);
+                    return orderDate >= limitDate;
+                });
+            } else if (currentTimeframe === '6months') {
+                const limitDate = new Date();
+                limitDate.setMonth(now.getMonth() - 6);
+                historyOrders = historyOrders.filter(order => {
+                    const orderDate = new Date(order.deliveredTime || order.cancelledTime || order.timestamp || 0);
+                    return orderDate >= limitDate;
+                });
+            } else if (currentTimeframe === '1year') {
+                const limitDate = new Date();
+                limitDate.setFullYear(now.getFullYear() - 1);
+                historyOrders = historyOrders.filter(order => {
+                    const orderDate = new Date(order.deliveredTime || order.cancelledTime || order.timestamp || 0);
+                    return orderDate >= limitDate;
+                });
+            } else if (currentTimeframe === 'custom' && customSelectedDate) {
+                historyOrders = historyOrders.filter(order => {
+                    const actionTimeStr = order.deliveredTime || order.cancelledTime || order.timestamp;
+                    if (!actionTimeStr) return false;
+                    const orderDateStr = new Date(actionTimeStr).toISOString().split('T')[0];
+                    return orderDateStr === customSelectedDate;
+                });
+            }
+
+            // Sort: Always sort by the last action done on top (highest/most recent timestamp between deliveredTime or cancelledTime)
+            historyOrders.sort((a, b) => {
+                const timeA = new Date(a.deliveredTime || a.cancelledTime || a.timestamp || 0).getTime();
+                const timeB = new Date(b.deliveredTime || b.cancelledTime || b.timestamp || 0).getTime();
+                return timeB - timeA;
+            });
+
+            // Filter Search query (order number or customer name)
+            if (searchQuery) {
+                historyOrders = historyOrders.filter(order => {
+                    const orderNum = (order.orderNumber || `YM-${order.firebaseKey.slice(-6)}`).toLowerCase();
+                    const custName = (order.customer && order.customer.name ? order.customer.name : "").toLowerCase();
+                    return orderNum.includes(searchQuery) || custName.includes(searchQuery);
+                });
+            }
+
+            renderHistoryOrders(historyOrders);
+        };
+
+        window.setStatusFilter = function(status) {
+            currentStatusFilter = status;
+            ['all', 'Delivered', 'Cancelled'].forEach(s => {
+                const btn = document.getElementById(`filter-btn-${s.toLowerCase()}`);
+                if (btn) {
+                    if (s.toLowerCase() === status.toLowerCase() || (status === 'all' && s === 'all')) {
+                        btn.className = "text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-900 text-white border-slate-900 shadow-sm transition shrink-0";
+                    } else {
+                        btn.className = "text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 transition shrink-0";
+                    }
+                }
+            });
+            filterHistoryOrders();
+        };
+
+        window.openTimeframeModal = function() {
+            document.getElementById('timeframe-modal').classList.remove('hidden');
+        };
+
+        window.closeTimeframeModal = function() {
+            document.getElementById('timeframe-modal').classList.add('hidden');
+        };
+
+        window.toggleCalendarInput = function() {
+            const container = document.getElementById('calendar-input-container');
+            container.classList.toggle('hidden');
+        };
+
+        window.selectTimeframe = function(timeframe) {
+            currentTimeframe = timeframe;
+            customSelectedDate = null;
+            const labels = {
+                '3months': 'Past 3 Months',
+                '6months': 'Past 6 Months',
+                '1year': 'Past 1 Year',
+                'lifetime': 'Lifetime'
+            };
+            document.getElementById('timeframe-label').textContent = labels[timeframe] || 'Lifetime';
+            closeTimeframeModal();
+            filterHistoryOrders();
+        };
+
+        window.selectCustomDate = function(dateStr) {
+            if (!dateStr) return;
+            currentTimeframe = 'custom';
+            customSelectedDate = dateStr;
+            document.getElementById('timeframe-label').textContent = `Date: ${dateStr}`;
+            closeTimeframeModal();
+            filterHistoryOrders();
+        };
+
+        function renderHistoryOrders(historyOrders) {
+            const container = document.getElementById('history-container');
+            const emptyState = document.getElementById('empty-history-state');
+            const badge = document.getElementById('total-history-badge');
+
+            if (historyOrders.length === 0) {
                 container.innerHTML = "";
                 emptyState.classList.remove('hidden');
-                badge.textContent = "0 Live Orders";
+                badge.textContent = "0 Archived Orders";
                 return;
             }
 
             emptyState.classList.add('hidden');
-            badge.textContent = `${liveOrders.length} Live Order${liveOrders.length > 1 ? 's' : ''}`;
+            badge.textContent = `${historyOrders.length} Archived Order${historyOrders.length > 1 ? 's' : ''}`;
 
-            container.innerHTML = liveOrders.map(order => {
-                const dateStr = order.timestamp ? new Date(order.timestamp).toLocaleString() : 'Recent';
-                const status = order.status || 'Pending Confirmation';
+            container.innerHTML = historyOrders.map(order => {
+                const rawDate = order.timestamp ? new Date(order.timestamp) : null;
+                const orderDateFormatted = rawDate && !isNaN(rawDate.getTime()) 
+                    ? `${rawDate.toLocaleDateString()} at ${format12HourTime(order.timestamp)}` 
+                    : 'N/A';
+
+                const processingTime12 = format12HourTime(order.processingTime);
+                const readyTime12 = format12HourTime(order.readyTime);
+                const deliveredTime12 = format12HourTime(order.deliveredTime);
+                const cancelledTime12 = format12HourTime(order.cancelledTime);
+                
+                const status = order.status || 'Delivered';
                 const orderNumber = order.orderNumber || `YM-${order.firebaseKey.slice(-6).toUpperCase()}`;
                 const paymentMethod = order.paymentMethod || 'Cash on Delivery';
-                
-                let statusBadgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
-                if (status === 'Processing') statusBadgeColor = 'bg-blue-100 text-blue-800 border-blue-200';
-                if (status === 'Ready') statusBadgeColor = 'bg-indigo-100 text-indigo-800 border-indigo-200';
+
+                let statusBadgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                if (status === 'Cancelled') statusBadgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
 
                 // Payment Method Badge Styling
                 let paymentBadgeHtml = '';
@@ -334,53 +499,46 @@
                 };
 
                 const itemsHtml = (order.items || []).map(item => `
-                    <div class="flex items-center justify-between text-xs py-1 border-b border-gray-100 last:border-0">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-900">${item.qtyCount || 1}x</span>
-                            <span class="text-gray-700">${item.name}</span>
+                    <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0">
+                        <div class="flex items-center gap-2.5">
+                            <span class="font-extrabold text-slate-900 bg-slate-200/60 px-1.5 py-0.5 rounded text-[10px]">${item.qtyCount || 1}x</span>
+                            <span class="text-slate-700 font-medium">${item.name}</span>
                         </div>
-                        <span class="font-semibold text-slate-900">₹${(item.price || 0) * (item.qtyCount || 1)}</span>
+                        <span class="font-bold text-slate-900">₹${(item.price || 0) * (item.qtyCount || 1)}</span>
                     </div>
                 `).join('');
 
-                // Multi-step progression buttons based on status
-                let actionButtonHtml = '';
-                if (status === 'Pending Confirmation' || !order.status) {
-                    actionButtonHtml = `
-                        <button onclick="window.advanceOrderStatus('${order.firebaseKey}', 'Processing')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-spinner"></i> Processing
-                        </button>
-                    `;
-                } else if (status === 'Processing') {
-                    actionButtonHtml = `
-                        <button onclick="window.advanceOrderStatus('${order.firebaseKey}', 'Ready')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-box-open"></i> Mark Ready
-                        </button>
-                    `;
-                } else if (status === 'Ready') {
-                    actionButtonHtml = `
-                        <button onclick="window.promptDeliveredOrder('${order.firebaseKey}', '${orderNumber}', '${customer.name.replace(/'/g, "\\'")}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-check-double"></i> Delivered
-                        </button>
-                    `;
+                // Timeline details with 12-hour AM/PM format & cancellation reason integration
+                let timelineHtml = `<div class="text-[11px] text-slate-500 space-y-1"><p class="font-medium"><i class="fa-regular fa-calendar-days text-amber-500 mr-1"></i> Ordered: ${orderDateFormatted}</p>`;
+                if (processingTime12) timelineHtml += `<p class="text-blue-600 font-semibold">⚡ Processing: ${processingTime12}</p>`;
+                if (readyTime12) timelineHtml += `<p class="text-indigo-600 font-semibold">📦 Ready: ${readyTime12}</p>`;
+                if (deliveredTime12) timelineHtml += `<p class="text-emerald-600 font-semibold">✅ Delivered: ${deliveredTime12}</p>`;
+                if (cancelledTime12) {
+                    timelineHtml += `<p class="text-rose-600 font-semibold">❌ Cancelled: ${cancelledTime12}</p>`;
+                    if (order.cancelReason) {
+                        timelineHtml += `<p class="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-2 mt-1 font-medium"><strong class="font-bold">Reason:</strong> ${order.cancelReason}</p>`;
+                    }
                 }
+                timelineHtml += `</div>`;
 
                 return `
-                    <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-gray-100">
-                            <div class="flex items-center gap-2.5 flex-wrap">
-                                <span class="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-black px-2.5 py-1 rounded-xl font-mono">${orderNumber}</span>
-                                <span class="text-[10px] text-gray-400 font-mono">ID: ${order.firebaseKey.slice(-6)}</span>
-                                <p class="text-[11px] text-gray-500 font-medium">${dateStr}</p>
+                    <div class="bg-white border border-slate-200/80 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5 transition">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 border-b border-slate-100 pb-3.5">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2.5 flex-wrap">
+                                    <span class="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-black px-2.5 py-1 rounded-xl font-mono">${orderNumber}</span>
+                                    <span class="text-[10px] text-slate-400 font-mono">ID: ${order.firebaseKey.slice(-6)}</span>
+                                </div>
+                                ${timelineHtml}
                             </div>
-                            <div class="flex items-center gap-2 flex-wrap">
+                            <div class="flex items-center gap-2 flex-wrap shrink-0 self-start">
                                 ${paymentBadgeHtml}
-                                <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${statusBadgeColor}">${status}</span>
+                                <span class="text-[10px] font-extrabold px-3 py-1 rounded-xl border uppercase tracking-wider ${statusBadgeColor}">${status}</span>
                             </div>
                         </div>
 
                         <!-- Customer Details Section -->
-                        <div class="bg-amber-50/50 rounded-xl p-3 border border-amber-100/60 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-amber-50/50 rounded-2xl p-3 border border-amber-100/60 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div>
                                 <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block mb-0.5"><i class="fa-solid fa-user mr-1"></i> Customer Info</span>
                                 <p class="font-extrabold text-slate-900">${customer.name}</p>
@@ -394,82 +552,131 @@
                             </div>
                         </div>
 
-                      <!-- Items Breakdown -->
-                        <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 space-y-1">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Ordered Items</span>
+                        <!-- Items Breakdown -->
+                        <div class="bg-slate-50/80 rounded-2xl p-3.5 border border-slate-200/60 space-y-1">
+                            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Purchased Items</span>
                             ${itemsHtml}
                         </div>
 
                         <div class="flex items-center justify-between pt-1">
                             <div class="text-xs">
-                                <span class="text-gray-500">Total:</span>
-                                <span class="font-black text-slate-900 text-sm ml-1">₹${order.totalAmount || 0}</span>
+                                <span class="text-slate-500 font-medium">Total:</span>
+                                <span class="font-black text-slate-900 text-sm ml-1.5">₹${order.totalAmount || 0}</span>
                             </div>
                             
-                            <div class="flex items-center gap-2">
-                                <button onclick="window.promptCancelOrder('${order.firebaseKey}', '${orderNumber}', '${customer.name.replace(/'/g, "\\'")}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1">
-                                    <i class="fa-solid fa-xmark"></i> Cancel
-                                </button>
-                                ${actionButtonHtml}
-                            </div>
+                            <button onclick="openSecurityModal('single', '${order.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1.5 shadow-sm active:scale-95">
+                                <i class="fa-solid fa-trash text-[11px]"></i> Delete
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
-        });
+        }
 
-        window.promptCancelOrder = function(firebaseKey, orderNumber, customerName) {
-            orderKeyToCancel = firebaseKey;
-            document.getElementById('cancel-modal-order-number').textContent = orderNumber;
-            document.getElementById('cancel-modal-customer-name').textContent = customerName;
-            document.getElementById('cancel-reason-input').value = "";
-            document.getElementById('confirm-cancel-btn').disabled = true;
-            document.getElementById('cancel-confirm-modal').classList.remove('hidden');
-        };
-
-        window.closeCancelModal = function() {
-            document.getElementById('cancel-confirm-modal').classList.add('hidden');
-            orderKeyToCancel = null;
-            document.getElementById('cancel-reason-input').value = "";
-            document.getElementById('confirm-cancel-btn').disabled = true;
-        };
-
-        window.validateCancelInput = function() {
-            const reason = document.getElementById('cancel-reason-input').value.trim();
-            const confirmBtn = document.getElementById('confirm-cancel-btn');
-            confirmBtn.disabled = reason.length === 0;
-        };
-
-        window.promptDeliveredOrder = function(firebaseKey, orderNumber, customerName) {
-            orderKeyToDeliver = firebaseKey;
-            document.getElementById('modal-order-number').textContent = orderNumber;
-            document.getElementById('modal-customer-name').textContent = customerName;
-            document.getElementById('delivered-confirm-modal').classList.remove('hidden');
-        };
-
-        window.closeDeliveredModal = function() {
-            document.getElementById('delivered-confirm-modal').classList.add('hidden');
-            orderKeyToDeliver = null;
-        };
-
-        window.advanceOrderStatus = function(firebaseKey, newStatus, cancelReason = null) {
-            const updatePayload = { status: newStatus };
+        window.openSecurityModal = function(actionType, targetKey = null) {
+            pendingActionType = actionType;
+            pendingTargetKey = targetKey;
             
-            // Capture specific step timestamps for analytics/history tracking
-            const nowIso = new Date().toISOString();
-            if (newStatus === 'Processing') updatePayload.processingTime = nowIso;
-            if (newStatus === 'Ready') updatePayload.readyTime = nowIso;
-            if (newStatus === 'Delivered') updatePayload.deliveredTime = nowIso;
-            if (newStatus === 'Cancelled') {
-                updatePayload.cancelledTime = nowIso;
-                updatePayload.cancelReason = cancelReason;
+            document.getElementById('modal-password-input').value = "";
+            document.getElementById('modal-error-msg').classList.add('hidden');
+            
+            if (actionType === 'clearAll') {
+                document.getElementById('modal-title').textContent = "Clear All History?";
+                document.getElementById('modal-desc').textContent = "Enter security key to wipe all archived history records.";
+            } else {
+                document.getElementById('modal-title').textContent = "Delete History Record?";
+                document.getElementById('modal-desc').textContent = "Enter security key to permanently delete this order.";
             }
 
-            update(ref(db, `orders/${firebaseKey}`), updatePayload)
-                .catch(err => {
-                    console.error("Error updating status:", err);
-                    alert("Failed to update status.");
-                });
+            document.getElementById('security-modal').classList.remove('hidden');
+            document.getElementById('modal-password-input').focus();
+        };
+
+        window.closeSecurityModal = function() {
+            document.getElementById('security-modal').classList.add('hidden');
+            pendingActionType = null;
+            pendingTargetKey = null;
+        };
+
+        window.verifySecurityKey = async function() {
+            const enteredKey = document.getElementById('modal-password-input').value.trim();
+            const errorMsg = document.getElementById('modal-error-msg');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+
+            if (!enteredKey) {
+                errorMsg.textContent = "Please enter a security key.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Verifying...";
+
+            try {
+                const passRef = ref(db, 'settings/adminPassword');
+                const codeRef = ref(db, 'settings/companyCode');
+                const [passSnap, codeSnap] = await Promise.all([get(passRef), get(codeRef)]);
+
+                let cloudPass = FALLBACK_PASSWORD;
+                if (passSnap.exists()) cloudPass = passSnap.val();
+
+                let cloudCode = IMMUTABLE_COMPANY_CODE;
+                if (codeSnap.exists()) cloudCode = codeSnap.val();
+
+                // Check against company key, cloud password, company code, or fallback
+                if (enteredKey === CORRECT_COMPANY_KEY || enteredKey === cloudPass || enteredKey === cloudCode || enteredKey === FALLBACK_PASSWORD) {
+                    errorMsg.classList.add('hidden');
+                    
+                    if (pendingActionType === 'single' && pendingTargetKey) {
+                        await remove(ref(db, `orders/${pendingTargetKey}`));
+                    } else if (pendingActionType === 'clearAll') {
+                        const snapshot = await get(ordersRef);
+                        const data = snapshot.val();
+                        if (data) {
+                            const deletions = Object.keys(data).map(key => {
+                                const status = data[key].status || '';
+                                if (status === 'Delivered' || status === 'Cancelled') {
+                                    return remove(ref(db, `orders/${key}`));
+                                }
+                                return Promise.resolve();
+                            });
+                            await Promise.all(deletions);
+                        }
+                    }
+
+                    closeSecurityModal();
+                } else {
+                    errorMsg.textContent = "Incorrect security key or password.";
+                    errorMsg.classList.add('hidden');
+                    document.getElementById('modal-password-input').focus();
+                }
+            } catch (err) {
+                console.error("Verification error:", err);
+                if (enteredKey === CORRECT_COMPANY_KEY || enteredKey === FALLBACK_PASSWORD || enteredKey === IMMUTABLE_COMPANY_CODE) {
+                    errorMsg.classList.add('hidden');
+                    if (pendingActionType === 'single' && pendingTargetKey) {
+                        await remove(ref(db, `orders/${pendingTargetKey}`));
+                    } else if (pendingActionType === 'clearAll') {
+                        const snapshot = await get(ordersRef);
+                        const data = snapshot.val();
+                        if (data) {
+                            for (const key of Object.keys(data)) {
+                                const status = data[key].status || '';
+                                if (status === 'Delivered' || status === 'Cancelled') {
+                                    await remove(ref(db, `orders/${key}`));
+                                }
+                            }
+                        }
+                    }
+                    closeSecurityModal();
+                } else {
+                    errorMsg.textContent = "Verification failed. Check network connection.";
+                    errorMsg.classList.add('hidden');
+                }
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "Confirm";
+            }
         };
     </script>
 </body>
