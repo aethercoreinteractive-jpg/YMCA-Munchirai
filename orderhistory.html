@@ -328,14 +328,14 @@
                    securityModalHidden;
         }
 
-        // Initialize history state on load
+        // Initialize history state on load and push dummy state to trap back button
         document.addEventListener('DOMContentLoaded', () => {
             fetchExistingLogo();
 
-            // Push default state into history stack
-            window.history.replaceState({ defaultState: true }, '');
+            // Push a history state immediately so that the first native back button press is intercepted
+            window.history.pushState({ orderHistoryTrap: true }, '');
 
-            // Intercept mobile back button / popstate
+            // Intercept mobile hardware back button / popstate across all filter changes and modals
             window.addEventListener('popstate', (event) => {
                 const timeframeModal = document.getElementById('timeframe-modal');
                 const securityModal = document.getElementById('security-modal');
@@ -353,19 +353,18 @@
                 }
 
                 if (handledModal) {
-                    // Re-seed history state so back button stays trapped
-                    window.history.pushState({ defaultState: false }, '');
+                    window.history.pushState({ orderHistoryTrap: true }, '');
                     return;
                 }
 
-                // Check if page settings are already in default state
+                // Check if page settings are in default state
                 if (isPageInDefaultState()) {
-                    // Already default, allow leaving the page
+                    // Already in default state, allow leaving the page cleanly
                     window.history.go(-1);
                 } else {
-                    // Not default: reset everything back to default and block navigation
+                    // Not in default state (e.g. Delivered, Cancelled, Past 1 Year active): reset everything immediately and trap navigation
                     resetAllToDefault();
-                    window.history.pushState({ defaultState: true }, '');
+                    window.history.pushState({ orderHistoryTrap: true }, '');
                 }
             });
         });
@@ -514,7 +513,6 @@
 
         window.openTimeframeModal = function() {
             document.getElementById('timeframe-modal').classList.remove('hidden');
-            window.history.pushState({ modalOpen: true }, '');
         };
 
         window.closeTimeframeModal = function() {
@@ -691,7 +689,6 @@
 
             document.getElementById('security-modal').classList.remove('hidden');
             document.getElementById('modal-password-input').focus();
-            window.history.pushState({ modalOpen: true }, '');
         };
 
         window.closeSecurityModal = function() {
