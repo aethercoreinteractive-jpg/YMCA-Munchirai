@@ -1123,23 +1123,25 @@ const initKidsFavAutoScroll = () => {
 
         
 
-        window.filterKidsFavoriteAll = function() {
-    isSearchActive = true;
-    selectedCategoryFilter = null;
-    
-    // Push a history state so the back button correctly resets the view
-    window.history.pushState({ searchActive: true, kidsFavoriteAll: true, sort: currentSortValue }, "");
+                window.filterKidsFavoriteAll = function() {
+            isSearchActive = true;
+            selectedCategoryFilter = null;
+            
+            // Push a history state so the back button correctly resets the view
+            window.history.pushState({ searchActive: true, kidsFavoriteAll: true, sort: currentSortValue }, "");
 
-    const searchResultsSection = document.getElementById('search-results-section');
-    const searchResultsGrid = document.getElementById('search-results-grid');
-    const searchResultsTitle = document.getElementById('search-results-title');
+            const searchResultsSection = document.getElementById('search-results-section');
+            const searchResultsGrid = document.getElementById('search-results-grid');
+            const searchResultsTitle = document.getElementById('search-results-title');
 
-    searchResultsSection.classList.remove('hidden');
-    searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>Kids' Favorite Collection</span>`;
+            searchResultsSection.classList.remove('hidden');
+            searchResultsTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> <span>Kids' Favorite Collection</span>`;
 
-    // Filter items matching Kids' Favorite criteria (e.g. category or tag, or simply slice the top items)
-    let chosenItems = [...liveInventory].slice(0, 12); 
-    chosenItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+            // Filter items matching saved Firebase kids' favourite keys
+            const kfKeys = Object.keys(savedKidsFavourite).filter(k => savedKidsFavourite[k] === true);
+            let chosenItems = liveInventory.filter(item => kfKeys.includes(item.firebaseKey));
+            chosenItems.sort((a, b) => (b.inStock !== false ? 1 : 0) - (a.inStock !== false ? 1 : 0));
+
 
     let chosenHtml = '';
     chosenItems.forEach(item => {
