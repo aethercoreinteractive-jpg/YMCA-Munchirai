@@ -26,9 +26,32 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Disable text selection, copy, cut, and highlights across the entire page */
+        body, html {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        /* Allow text selection, copy, and paste ONLY inside the search bar input with visible selection styling */
+        #order-search-input {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        #order-search-input::selection {
+            background: #fde68a !important;
+            color: #0f172a !important;
+        }
+        #order-search-input::-moz-selection {
+            background: #fde68a !important;
+            color: #0f172a !important;
+        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased selection:bg-amber-500 selection:text-slate-950 pt-16 flex flex-col min-h-screen">
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-transparent selection:text-transparent pt-16 flex flex-col min-h-screen" oncopy="if(event.target.id !== 'order-search-input') return false;" oncut="if(event.target.id !== 'order-search-input') return false;" onpaste="if(event.target.id !== 'order-search-input') return false;" oncontextmenu="if(event.target.id !== 'order-search-input') return false;">
 
     <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
     <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
@@ -73,8 +96,28 @@
                 <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Archived Records</span>
                 <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 mt-1">Completed & Cancelled Orders</h1>
             </div>
-            <div class="flex items-center gap-2 self-start sm:self-auto">
+            <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+                <span id="active-timeframe-badge" class="text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-xl shadow-sm cursor-pointer hover:bg-amber-100 transition flex items-center gap-1.5" onclick="openTimeframeModal()">
+                    <i class="fa-regular fa-calendar text-amber-600"></i> <span id="timeframe-label">Lifetime</span>
+                </span>
                 <span id="total-history-badge" class="text-xs font-extrabold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">0 Archived Orders</span>
+            </div>
+        </div>
+
+        <!-- Search Bar and Status Filters -->
+        <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200/80 space-y-3">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input type="text" id="order-search-input" placeholder="Search by order number or customer name..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium shadow-sm transition" oninput="filterHistoryOrders()">
+            </div>
+            
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0">Filter:</span>
+                <button type="button" onclick="setStatusFilter('all')" id="filter-btn-all" class="text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-900 text-white border-slate-900 shadow-sm transition shrink-0">All</button>
+                <button type="button" onclick="setStatusFilter('Delivered')" id="filter-btn-delivered" class="text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 transition shrink-0">Delivered</button>
+                <button type="button" onclick="setStatusFilter('Cancelled')" id="filter-btn-cancelled" class="text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 transition shrink-0">Cancelled</button>
             </div>
         </div>
 
@@ -90,8 +133,8 @@
             <div class="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl border border-slate-100 shadow-inner">
                 <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
-            <h3 class="font-bold text-sm text-slate-900">No history records yet</h3>
-            <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Delivered or cancelled orders will appear here automatically.</p>
+            <h3 class="font-bold text-sm text-slate-900">No history records found</h3>
+            <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">No orders match your current filter or timeframe criteria.</p>
         </div>
     </main>
 
@@ -99,6 +142,51 @@
     <footer class="bg-slate-900 border-t border-slate-800 py-5 px-4 text-center text-[11px] text-slate-400 mt-auto">
         Munchirai YMCA Secure Portal &bull; Enterprise Operations Center
     </footer>
+
+    <!-- Timeframe Selection Modal -->
+    <div id="timeframe-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-amber-100 shadow-inner">
+                <i class="fa-regular fa-calendar-days"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="font-extrabold text-slate-900 text-sm">Select Timeframe</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Choose a period to filter archived order history records.</p>
+            </div>
+            
+            <div class="space-y-2">
+                <button type="button" onclick="selectTimeframe('3months')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Past 3 Months</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                </button>
+                <button type="button" onclick="selectTimeframe('6months')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Past 6 Months</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                </button>
+                <button type="button" onclick="selectTimeframe('1year')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Past 1 Year</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                </button>
+                <button type="button" onclick="selectTimeframe('lifetime')" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Lifetime</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                </button>
+                <button type="button" onclick="toggleCalendarInput()" class="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold border bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-700 transition flex items-center justify-between">
+                    <span>Custom Date Check</span>
+                    <i class="fa-regular fa-calendar text-[11px] text-amber-600"></i>
+                </button>
+                <div id="calendar-input-container" class="hidden pt-1">
+                    <input type="date" id="custom-date-picker" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium shadow-sm transition" onchange="selectCustomDate(this.value)">
+                </div>
+            </div>
+
+            <div class="pt-1">
+                <button type="button" onclick="closeTimeframeModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Custom In-Website Security Password Modal -->
     <div id="security-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
@@ -181,6 +269,11 @@
         let pendingActionType = null; 
         let pendingTargetKey = null;   
 
+        let rawOrdersCache = [];
+        let currentStatusFilter = 'all';
+        let currentTimeframe = 'lifetime';
+        let customSelectedDate = null;
+
         // Convert Google Drive share link into a direct viewable image link
         window.formatDriveUrl = function(rawUrl) {
             if (!rawUrl) return "";
@@ -221,9 +314,44 @@
             }
         }
 
-        // Initialize logo on load and listen for real-time changes
+        // Initialize logo on load, listen for real-time changes, and handle hardware/browser back button for modals/filters
         document.addEventListener('DOMContentLoaded', () => {
             fetchExistingLogo();
+
+            // Seed history state so we intercept the first back press
+            window.history.replaceState({ modalOpen: false }, '');
+
+            // Handle native back button navigation for open modals or active filters
+            window.addEventListener('popstate', (event) => {
+                const timeframeModal = document.getElementById('timeframe-modal');
+                const securityModal = document.getElementById('security-modal');
+
+                let modalWasOpen = false;
+                if (timeframeModal && !timeframeModal.classList.contains('hidden')) {
+                    timeframeModal.classList.add('hidden');
+                    modalWasOpen = true;
+                }
+                if (securityModal && !securityModal.classList.contains('hidden')) {
+                    securityModal.classList.add('hidden');
+                    pendingActionType = null;
+                    pendingTargetKey = null;
+                    modalWasOpen = true;
+                }
+
+                if (!modalWasOpen) {
+                    // Reset all filters and search back to default state
+                    currentStatusFilter = 'all';
+                    currentTimeframe = 'lifetime';
+                    customSelectedDate = null;
+                    document.getElementById('order-search-input').value = '';
+                    document.getElementById('timeframe-label').textContent = 'Lifetime';
+                    setStatusFilterUI('all');
+                    filterHistoryOrders();
+                }
+
+                // Re-seed state so subsequent back presses continue to reset/close rather than exiting the page
+                window.history.replaceState({ modalOpen: false }, '');
+            });
         });
 
         onValue(ref(db, 'settings/storeLogo'), (snapshot) => {
@@ -248,26 +376,151 @@
 
         onValue(ordersRef, (snapshot) => {
             const data = snapshot.val();
-            const container = document.getElementById('history-container');
-            const emptyState = document.getElementById('empty-history-state');
-            const badge = document.getElementById('total-history-badge');
-
             if (!data) {
-                container.innerHTML = "";
-                emptyState.classList.remove('hidden');
-                badge.textContent = "0 Archived Orders";
+                rawOrdersCache = [];
+                renderHistoryOrders([]);
                 return;
             }
 
-            const ordersList = Object.keys(data).map(key => ({
+            rawOrdersCache = Object.keys(data).map(key => ({
                 firebaseKey: key,
                 ...data[key]
-            })).reverse();
+            }));
 
-            const historyOrders = ordersList.filter(order => {
+            filterHistoryOrders();
+        });
+
+        window.filterHistoryOrders = function() {
+            const searchQuery = (document.getElementById('order-search-input').value || "").toLowerCase().trim();
+
+            // Filter status & history state
+            let historyOrders = rawOrdersCache.filter(order => {
                 const status = order.status || '';
                 return status === 'Delivered' || status === 'Cancelled';
             });
+
+            // Filter status tab
+            if (currentStatusFilter !== 'all') {
+                historyOrders = historyOrders.filter(order => order.status === currentStatusFilter);
+            }
+
+            // Filter Timeframe / Calendar
+            const now = new Date();
+            if (currentTimeframe === '3months') {
+                const limitDate = new Date();
+                limitDate.setMonth(now.getMonth() - 3);
+                historyOrders = historyOrders.filter(order => {
+                    const orderDate = new Date(order.deliveredTime || order.cancelledTime || order.timestamp || 0);
+                    return orderDate >= limitDate;
+                });
+            } else if (currentTimeframe === '6months') {
+                const limitDate = new Date();
+                limitDate.setMonth(now.getMonth() - 6);
+                historyOrders = historyOrders.filter(order => {
+                    const orderDate = new Date(order.deliveredTime || order.cancelledTime || order.timestamp || 0);
+                    return orderDate >= limitDate;
+                });
+            } else if (currentTimeframe === '1year') {
+                const limitDate = new Date();
+                limitDate.setFullYear(now.getFullYear() - 1);
+                historyOrders = historyOrders.filter(order => {
+                    const orderDate = new Date(order.deliveredTime || order.cancelledTime || order.timestamp || 0);
+                    return orderDate >= limitDate;
+                });
+            } else if (currentTimeframe === 'custom' && customSelectedDate) {
+                historyOrders = historyOrders.filter(order => {
+                    const actionTimeStr = order.deliveredTime || order.cancelledTime || order.timestamp;
+                    if (!actionTimeStr) return false;
+                    const orderDateStr = new Date(actionTimeStr).toISOString().split('T')[0];
+                    return orderDateStr === customSelectedDate;
+                });
+            }
+
+            // Sort: Always sort by the last action done on top (highest/most recent timestamp between deliveredTime or cancelledTime)
+            historyOrders.sort((a, b) => {
+                const timeA = new Date(a.deliveredTime || a.cancelledTime || a.timestamp || 0).getTime();
+                const timeB = new Date(b.deliveredTime || b.cancelledTime || b.timestamp || 0).getTime();
+                return timeB - timeA;
+            });
+
+            // Filter Search query (order number or customer name)
+            if (searchQuery) {
+                historyOrders = historyOrders.filter(order => {
+                    const orderNum = (order.orderNumber || `YM-${order.firebaseKey.slice(-6)}`).toLowerCase();
+                    const custName = (order.customer && order.customer.name ? order.customer.name : "").toLowerCase();
+                    return orderNum.includes(searchQuery) || custName.includes(searchQuery);
+                });
+            }
+
+            renderHistoryOrders(historyOrders);
+        };
+
+        function setStatusFilterUI(status) {
+            ['all', 'Delivered', 'Cancelled'].forEach(s => {
+                const btn = document.getElementById(`filter-btn-${s.toLowerCase()}`);
+                if (btn) {
+                    if (s.toLowerCase() === status.toLowerCase() || (status === 'all' && s === 'all')) {
+                        btn.className = "text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-900 text-white border-slate-900 shadow-sm transition shrink-0";
+                    } else {
+                        btn.className = "text-xs font-bold px-3 py-1.5 rounded-xl border bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 transition shrink-0";
+                    }
+                }
+            });
+        }
+
+        window.setStatusFilter = function(status) {
+            currentStatusFilter = status;
+            setStatusFilterUI(status);
+            filterHistoryOrders();
+        };
+
+        window.openTimeframeModal = function() {
+            window.history.pushState({ modalOpen: true }, '');
+            document.getElementById('timeframe-modal').classList.remove('hidden');
+        };
+
+        window.closeTimeframeModal = function() {
+            const modal = document.getElementById('timeframe-modal');
+            if (!modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                try { window.history.back(); } catch(e) {}
+            }
+        };
+
+        window.toggleCalendarInput = function() {
+            const container = document.getElementById('calendar-input-container');
+            container.classList.toggle('hidden');
+        };
+
+        window.selectTimeframe = function(timeframe) {
+            currentTimeframe = timeframe;
+            customSelectedDate = null;
+            const labels = {
+                '3months': 'Past 3 Months',
+                '6months': 'Past 6 Months',
+                '1year': 'Past 1 Year',
+                'lifetime': 'Lifetime'
+            };
+            document.getElementById('timeframe-label').textContent = labels[timeframe] || 'Lifetime';
+            document.getElementById('timeframe-modal').classList.add('hidden');
+            try { window.history.back(); } catch(e) {}
+            filterHistoryOrders();
+        };
+
+        window.selectCustomDate = function(dateStr) {
+            if (!dateStr) return;
+            currentTimeframe = 'custom';
+            customSelectedDate = dateStr;
+            document.getElementById('timeframe-label').textContent = `Date: ${dateStr}`;
+            document.getElementById('timeframe-modal').classList.add('hidden');
+            try { window.history.back(); } catch(e) {}
+            filterHistoryOrders();
+        };
+
+        function renderHistoryOrders(historyOrders) {
+            const container = document.getElementById('history-container');
+            const emptyState = document.getElementById('empty-history-state');
+            const badge = document.getElementById('total-history-badge');
 
             if (historyOrders.length === 0) {
                 container.innerHTML = "";
@@ -324,12 +577,17 @@
                     </div>
                 `).join('');
 
-                  // Timeline details with 12-hour AM/PM format
+                // Timeline details with 12-hour AM/PM format & cancellation reason integration
                 let timelineHtml = `<div class="text-[11px] text-slate-500 space-y-1"><p class="font-medium"><i class="fa-regular fa-calendar-days text-amber-500 mr-1"></i> Ordered: ${orderDateFormatted}</p>`;
                 if (processingTime12) timelineHtml += `<p class="text-blue-600 font-semibold">⚡ Processing: ${processingTime12}</p>`;
                 if (readyTime12) timelineHtml += `<p class="text-indigo-600 font-semibold">📦 Ready: ${readyTime12}</p>`;
                 if (deliveredTime12) timelineHtml += `<p class="text-emerald-600 font-semibold">✅ Delivered: ${deliveredTime12}</p>`;
-                if (cancelledTime12) timelineHtml += `<p class="text-rose-600 font-semibold">❌ Cancelled: ${cancelledTime12}</p>`;
+                if (cancelledTime12) {
+                    timelineHtml += `<p class="text-rose-600 font-semibold">❌ Cancelled: ${cancelledTime12}</p>`;
+                    if (order.cancelReason) {
+                        timelineHtml += `<p class="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-2 mt-1 font-medium"><strong class="font-bold">Reason:</strong> ${order.cancelReason}</p>`;
+                    }
+                }
                 timelineHtml += `</div>`;
 
                 return `
@@ -348,7 +606,7 @@
                             </div>
                         </div>
 
-<!-- Customer Details Section -->
+                        <!-- Customer Details Section -->
                         <div class="bg-amber-50/50 rounded-2xl p-3 border border-amber-100/60 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div>
                                 <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block mb-0.5"><i class="fa-solid fa-user mr-1"></i> Customer Info</span>
@@ -382,11 +640,12 @@
                     </div>
                 `;
             }).join('');
-        });
+        }
 
         window.openSecurityModal = function(actionType, targetKey = null) {
             pendingActionType = actionType;
             pendingTargetKey = targetKey;
+            window.history.pushState({ modalOpen: true }, '');
             
             document.getElementById('modal-password-input').value = "";
             document.getElementById('modal-error-msg').classList.add('hidden');
@@ -404,9 +663,13 @@
         };
 
         window.closeSecurityModal = function() {
-            document.getElementById('security-modal').classList.add('hidden');
-            pendingActionType = null;
-            pendingTargetKey = null;
+            const modal = document.getElementById('security-modal');
+            if (!modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                pendingActionType = null;
+                pendingTargetKey = null;
+                try { window.history.back(); } catch(e) {}
+            }
         };
 
         window.verifySecurityKey = async function() {
@@ -455,7 +718,10 @@
                         }
                     }
 
-                    closeSecurityModal();
+                    document.getElementById('security-modal').classList.add('hidden');
+                    pendingActionType = null;
+                    pendingTargetKey = null;
+                    try { window.history.back(); } catch(e) {}
                 } else {
                     errorMsg.textContent = "Incorrect security key or password.";
                     errorMsg.classList.add('hidden');
@@ -479,7 +745,10 @@
                             }
                         }
                     }
-                    closeSecurityModal();
+                    document.getElementById('security-modal').classList.add('hidden');
+                    pendingActionType = null;
+                    pendingTargetKey = null;
+                    try { window.history.back(); } catch(e) {}
                 } else {
                     errorMsg.textContent = "Verification failed. Check network connection.";
                     errorMsg.classList.add('hidden');
