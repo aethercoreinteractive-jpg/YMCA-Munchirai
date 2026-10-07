@@ -253,10 +253,17 @@
             renderCatalog(liveInventory);
         });
 
-        onValue(ref(db, 'bestsellers'), (snapshot) => {
+                onValue(ref(db, 'bestsellers'), (snapshot) => {
             savedBestSellers = snapshot.val() || {};
             renderCatalog(liveInventory);
         });
+
+        let savedKidsFavourite = {};
+        onValue(ref(db, 'kidsfavourite'), (snapshot) => {
+            savedKidsFavourite = snapshot.val() || {};
+            renderCatalog(liveInventory);
+        });
+
 
         onValue(ref(db, 'inventory'), (snapshot) => {
             const data = snapshot.val();
@@ -776,14 +783,6 @@
 
 
 
-let savedKidsFavourite = {};
-
-// Listen to saved kidsfavourite keys in real-time from Firebase
-onValue(ref(db, 'kidsfavourite'), (snapshot) => {
-    savedKidsFavourite = snapshot.val() || {};
-    renderCatalog(liveInventory);
-});
-
 const renderKidsFavoritesSection = (allProducts) => {
     const kfKeys = Object.keys(savedKidsFavourite).filter(k => savedKidsFavourite[k] === true);
     const kfList = allProducts.filter(item => kfKeys.includes(item.firebaseKey));
@@ -836,6 +835,7 @@ const renderKidsFavoritesSection = (allProducts) => {
     kfHtml += `</div></div>`;
     return kfHtml;
 };
+
 
 
 
