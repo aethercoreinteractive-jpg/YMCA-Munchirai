@@ -102,6 +102,41 @@
         </div>
     </div>
 
+    <!-- Delivered Confirmation Modal -->
+    <div id="delivered-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-base border border-emerald-100 shadow-inner">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <div class="text-center space-y-1">
+                <h3 class="font-extrabold text-slate-900 text-sm uppercase tracking-wide">Confirm Order Delivery</h3>
+                <p class="text-[11px] text-slate-500">Please verify customer details before completing delivery.</p>
+            </div>
+
+            <!-- Professional Attention Box -->
+            <div class="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-inner space-y-2.5 text-left">
+                <div>
+                    <span class="text-[9px] font-bold text-amber-400 uppercase tracking-widest block">Order Number</span>
+                    <span id="modal-order-number" class="text-sm font-black font-mono tracking-wide text-white"></span>
+                </div>
+                <div class="border-t border-slate-800/80 pt-2">
+                    <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest block">Customer Name</span>
+                    <span id="modal-customer-name" class="text-base font-extrabold tracking-tight text-white"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button type="button" onclick="closeDeliveredModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition active:scale-95 shadow-sm">
+                    No, Go Back
+                </button>
+                <button type="button" id="confirm-delivered-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md active:scale-95">
+                    Yes, Delivered
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK Imports & Orders Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -149,6 +184,7 @@
         const ordersRef = ref(db, 'orders');
 
         let orderKeyToCancel = null;
+        let orderKeyToDeliver = null;
 
         // Convert Google Drive share link into a direct viewable image link
         window.formatDriveUrl = function(rawUrl) {
@@ -198,6 +234,13 @@
                 if (orderKeyToCancel) {
                     window.advanceOrderStatus(orderKeyToCancel, 'Cancelled');
                     closeCancelModal();
+                }
+            });
+
+            document.getElementById('confirm-delivered-btn').addEventListener('click', () => {
+                if (orderKeyToDeliver) {
+                    window.advanceOrderStatus(orderKeyToDeliver, 'Delivered');
+                    closeDeliveredModal();
                 }
             });
         });
@@ -297,7 +340,7 @@
                     `;
                 } else if (status === 'Ready') {
                     actionButtonHtml = `
-                        <button onclick="window.advanceOrderStatus('${order.firebaseKey}', 'Delivered')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                        <button onclick="window.promptDeliveredOrder('${order.firebaseKey}', '${orderNumber}', '${customer.name.replace(/'/g, "\\'")}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
                             <i class="fa-solid fa-check-double"></i> Delivered
                         </button>
                     `;
@@ -364,6 +407,18 @@
         window.closeCancelModal = function() {
             document.getElementById('cancel-confirm-modal').classList.add('hidden');
             orderKeyToCancel = null;
+        };
+
+        window.promptDeliveredOrder = function(firebaseKey, orderNumber, customerName) {
+            orderKeyToDeliver = firebaseKey;
+            document.getElementById('modal-order-number').textContent = orderNumber;
+            document.getElementById('modal-customer-name').textContent = customerName;
+            document.getElementById('delivered-confirm-modal').classList.remove('hidden');
+        };
+
+        window.closeDeliveredModal = function() {
+            document.getElementById('delivered-confirm-modal').classList.add('hidden');
+            orderKeyToDeliver = null;
         };
 
         window.advanceOrderStatus = function(firebaseKey, newStatus) {
