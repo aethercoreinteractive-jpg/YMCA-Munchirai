@@ -34,24 +34,24 @@
             user-select: none;
             -webkit-touch-callout: none;
         }
-        /* Allow text selection, copy, and paste ONLY inside the search bar input with visible selection styling */
-        #order-search-input {
+        /* Allow text selection, copy, and paste ONLY inside the search bar input and order numbers */
+        #order-search-input, .copyable-order-no {
             -webkit-user-select: text;
             -moz-user-select: text;
             -ms-user-select: text;
             user-select: text;
         }
-        #order-search-input::selection {
+        #order-search-input::selection, .copyable-order-no::selection {
             background: #fde68a !important;
             color: #0f172a !important;
         }
-        #order-search-input::-moz-selection {
+        #order-search-input::-moz-selection, .copyable-order-no::-moz-selection {
             background: #fde68a !important;
             color: #0f172a !important;
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased selection:bg-transparent selection:text-transparent pt-16 flex flex-col min-h-screen" oncopy="if(event.target.id !== 'order-search-input') return false;" oncut="if(event.target.id !== 'order-search-input') return false;" onpaste="if(event.target.id !== 'order-search-input') return false;" oncontextmenu="if(event.target.id !== 'order-search-input') return false;">
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-transparent selection:text-transparent pt-16 flex flex-col min-h-screen" oncopy="if(event.target.id !== 'order-search-input' && !event.target.classList.contains('copyable-order-no')) return false;" oncut="if(event.target.id !== 'order-search-input' && !event.target.classList.contains('copyable-order-no')) return false;" onpaste="if(event.target.id !== 'order-search-input') return false;" oncontextmenu="if(event.target.id !== 'order-search-input' && !event.target.classList.contains('copyable-order-no')) return false;">
 
     <!-- SECURITY GATEKEEPER BLOCKING LAYER -->
     <div id="security-lock-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 text-center hidden">
@@ -77,7 +77,7 @@
                 </a>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" onclick="window.history.back()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                <button type="button" onclick="handleManualBack()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
                     <i class="fa-solid fa-arrow-left text-amber-400"></i>
                     <span>Back</span>
                 </button>
@@ -314,43 +314,59 @@
             }
         }
 
-        // Initialize logo on load, listen for real-time changes, and handle hardware/browser back button for modals/filters
+        // Helper function to check if page is completely in default state
+        function isPageInDefaultState() {
+            const searchQuery = document.getElementById('order-search-input').value.trim();
+            const timeframeModalHidden = document.getElementById('timeframe-modal').classList.contains('hidden');
+            const securityModalHidden = document.getElementById('security-modal').classList.contains('hidden');
+
+            return currentStatusFilter === 'all' && 
+                   currentTimeframe === 'lifetime' && 
+                   customSelectedDate === null && 
+                   searchQuery === '' && 
+                   timeframeModalHidden && 
+                   securityModalHidden;
+        }
+
+        // Initialize history state on load
         document.addEventListener('DOMContentLoaded', () => {
             fetchExistingLogo();
 
-            // Seed history state so we intercept the first back press
-            window.history.replaceState({ modalOpen: false }, '');
+            // Push default state into history stack
+            window.history.replaceState({ defaultState: true }, '');
 
-            // Handle native back button navigation for open modals or active filters
+            // Intercept mobile back button / popstate
             window.addEventListener('popstate', (event) => {
                 const timeframeModal = document.getElementById('timeframe-modal');
                 const securityModal = document.getElementById('security-modal');
 
-                let modalWasOpen = false;
+                let handledModal = false;
                 if (timeframeModal && !timeframeModal.classList.contains('hidden')) {
                     timeframeModal.classList.add('hidden');
-                    modalWasOpen = true;
+                    handledModal = true;
                 }
                 if (securityModal && !securityModal.classList.contains('hidden')) {
                     securityModal.classList.add('hidden');
                     pendingActionType = null;
                     pendingTargetKey = null;
-                    modalWasOpen = true;
+                    handledModal = true;
                 }
 
-                if (!modalWasOpen) {
-                    // Reset all filters and search back to default state
-                    currentStatusFilter = 'all';
-                    currentTimeframe = 'lifetime';
-                    customSelectedDate = null;
-                    document.getElementById('order-search-input').value = '';
-                    document.getElementById('timeframe-label').textContent = 'Lifetime';
-                    setStatusFilterUI('all');
-                    filterHistoryOrders();
+                if (handledModal) {
+                    // Re-seed history state so back button stays trapped
+                    window.history.pushState({ defaultState: false }, '');
+                    return;
                 }
 
-                // Re-seed state so subsequent back presses continue to reset/close rather than exiting the page
-                window.history.replaceState({ modalOpen: false }, '');
+                // Check if page settings are already in default state
+                if (isPageInDefaultState()) {
+                    // Already default, allow leaving the page
+                    window.history.go(-1);
+                } else {
+                    // Not default: reset everything back to default and block navigation
+                    resetAllToDefault();
+                    window.history.pushState({ defaultState: true }, '');
+                }
             });
         });
 
@@ -468,6 +484,28 @@
             });
         }
 
+        function resetAllToDefault() {
+            currentStatusFilter = 'all';
+            currentTimeframe = 'lifetime';
+            customSelectedDate = null;
+            document.getElementById('order-search-input').value = '';
+            document.getElementById('timeframe-label').textContent = 'Lifetime';
+            setStatusFilterUI('all');
+            document.getElementById('timeframe-modal').classList.add('hidden');
+            document.getElementById('security-modal').classList.add('hidden');
+            pendingActionType = null;
+            pendingTargetKey = null;
+            filterHistoryOrders();
+        }
+
+        window.handleManualBack = function() {
+            if (isPageInDefaultState()) {
+                window.location.href = "admin.html";
+            } else {
+                resetAllToDefault();
+            }
+        };
+
         window.setStatusFilter = function(status) {
             currentStatusFilter = status;
             setStatusFilterUI(status);
@@ -475,16 +513,12 @@
         };
 
         window.openTimeframeModal = function() {
-            window.history.pushState({ modalOpen: true }, '');
             document.getElementById('timeframe-modal').classList.remove('hidden');
+            window.history.pushState({ modalOpen: true }, '');
         };
 
         window.closeTimeframeModal = function() {
-            const modal = document.getElementById('timeframe-modal');
-            if (!modal.classList.contains('hidden')) {
-                modal.classList.add('hidden');
-                try { window.history.back(); } catch(e) {}
-            }
+            document.getElementById('timeframe-modal').classList.add('hidden');
         };
 
         window.toggleCalendarInput = function() {
@@ -502,8 +536,7 @@
                 'lifetime': 'Lifetime'
             };
             document.getElementById('timeframe-label').textContent = labels[timeframe] || 'Lifetime';
-            document.getElementById('timeframe-modal').classList.add('hidden');
-            try { window.history.back(); } catch(e) {}
+            closeTimeframeModal();
             filterHistoryOrders();
         };
 
@@ -512,8 +545,7 @@
             currentTimeframe = 'custom';
             customSelectedDate = dateStr;
             document.getElementById('timeframe-label').textContent = `Date: ${dateStr}`;
-            document.getElementById('timeframe-modal').classList.add('hidden');
-            try { window.history.back(); } catch(e) {}
+            closeTimeframeModal();
             filterHistoryOrders();
         };
 
@@ -595,7 +627,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 border-b border-slate-100 pb-3.5">
                             <div class="space-y-2">
                                 <div class="flex items-center gap-2.5 flex-wrap">
-                                    <span class="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-black px-2.5 py-1 rounded-xl font-mono">${orderNumber}</span>
+                                    <span class="copyable-order-no bg-amber-50 text-amber-800 border border-amber-200 text-xs font-black px-2.5 py-1 rounded-xl font-mono">${orderNumber}</span>
                                     <span class="text-[10px] text-slate-400 font-mono">ID: ${order.firebaseKey.slice(-6)}</span>
                                 </div>
                                 ${timelineHtml}
@@ -645,7 +677,6 @@
         window.openSecurityModal = function(actionType, targetKey = null) {
             pendingActionType = actionType;
             pendingTargetKey = targetKey;
-            window.history.pushState({ modalOpen: true }, '');
             
             document.getElementById('modal-password-input').value = "";
             document.getElementById('modal-error-msg').classList.add('hidden');
@@ -660,16 +691,13 @@
 
             document.getElementById('security-modal').classList.remove('hidden');
             document.getElementById('modal-password-input').focus();
+            window.history.pushState({ modalOpen: true }, '');
         };
 
         window.closeSecurityModal = function() {
-            const modal = document.getElementById('security-modal');
-            if (!modal.classList.contains('hidden')) {
-                modal.classList.add('hidden');
-                pendingActionType = null;
-                pendingTargetKey = null;
-                try { window.history.back(); } catch(e) {}
-            }
+            document.getElementById('security-modal').classList.add('hidden');
+            pendingActionType = null;
+            pendingTargetKey = null;
         };
 
         window.verifySecurityKey = async function() {
@@ -718,10 +746,7 @@
                         }
                     }
 
-                    document.getElementById('security-modal').classList.add('hidden');
-                    pendingActionType = null;
-                    pendingTargetKey = null;
-                    try { window.history.back(); } catch(e) {}
+                    closeSecurityModal();
                 } else {
                     errorMsg.textContent = "Incorrect security key or password.";
                     errorMsg.classList.add('hidden');
@@ -745,10 +770,7 @@
                             }
                         }
                     }
-                    document.getElementById('security-modal').classList.add('hidden');
-                    pendingActionType = null;
-                    pendingTargetKey = null;
-                    try { window.history.back(); } catch(e) {}
+                    closeSecurityModal();
                 } else {
                     errorMsg.textContent = "Verification failed. Check network connection.";
                     errorMsg.classList.add('hidden');
