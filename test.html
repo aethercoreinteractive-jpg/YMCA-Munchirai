@@ -40,16 +40,14 @@
             -moz-user-select: text;
             -ms-user-select: text;
             user-select: text;
-            selection-background-color: #fde68a;
-            selection-color: #0f172a;
         }
         #order-search-input::selection {
-            background: #fde68a;
-            color: #0f172a;
+            background: #fde68a !important;
+            color: #0f172a !important;
         }
         #order-search-input::-moz-selection {
-            background: #fde68a;
-            color: #0f172a;
+            background: #fde68a !important;
+            color: #0f172a !important;
         }
     </style>
 </head>
@@ -320,27 +318,27 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchExistingLogo();
 
-            // Push an initial history state on load so that the first back press resets filters instead of exiting
-            window.history.replaceState({ page: 'history_default' }, '');
+            // Seed history state so we intercept the first back press
+            window.history.replaceState({ modalOpen: false }, '');
 
             // Handle native back button navigation for open modals or active filters
             window.addEventListener('popstate', (event) => {
                 const timeframeModal = document.getElementById('timeframe-modal');
                 const securityModal = document.getElementById('security-modal');
 
-                let modalClosed = false;
+                let modalWasOpen = false;
                 if (timeframeModal && !timeframeModal.classList.contains('hidden')) {
                     timeframeModal.classList.add('hidden');
-                    modalClosed = true;
+                    modalWasOpen = true;
                 }
                 if (securityModal && !securityModal.classList.contains('hidden')) {
                     securityModal.classList.add('hidden');
                     pendingActionType = null;
                     pendingTargetKey = null;
-                    modalClosed = true;
+                    modalWasOpen = true;
                 }
 
-                if (!modalClosed) {
+                if (!modalWasOpen) {
                     // Reset all filters and search back to default state
                     currentStatusFilter = 'all';
                     currentTimeframe = 'lifetime';
@@ -351,8 +349,8 @@
                     filterHistoryOrders();
                 }
 
-                // Maintain history stack state
-                window.history.pushState({ page: 'history_default' }, '');
+                // Re-seed state so subsequent back presses continue to reset/close rather than exiting the page
+                window.history.replaceState({ modalOpen: false }, '');
             });
         });
 
@@ -477,11 +475,16 @@
         };
 
         window.openTimeframeModal = function() {
+            window.history.pushState({ modalOpen: true }, '');
             document.getElementById('timeframe-modal').classList.remove('hidden');
         };
 
         window.closeTimeframeModal = function() {
-            document.getElementById('timeframe-modal').classList.add('hidden');
+            const modal = document.getElementById('timeframe-modal');
+            if (!modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                try { window.history.back(); } catch(e) {}
+            }
         };
 
         window.toggleCalendarInput = function() {
@@ -499,7 +502,8 @@
                 'lifetime': 'Lifetime'
             };
             document.getElementById('timeframe-label').textContent = labels[timeframe] || 'Lifetime';
-            closeTimeframeModal();
+            document.getElementById('timeframe-modal').classList.add('hidden');
+            try { window.history.back(); } catch(e) {}
             filterHistoryOrders();
         };
 
@@ -508,7 +512,8 @@
             currentTimeframe = 'custom';
             customSelectedDate = dateStr;
             document.getElementById('timeframe-label').textContent = `Date: ${dateStr}`;
-            closeTimeframeModal();
+            document.getElementById('timeframe-modal').classList.add('hidden');
+            try { window.history.back(); } catch(e) {}
             filterHistoryOrders();
         };
 
@@ -640,6 +645,7 @@
         window.openSecurityModal = function(actionType, targetKey = null) {
             pendingActionType = actionType;
             pendingTargetKey = targetKey;
+            window.history.pushState({ modalOpen: true }, '');
             
             document.getElementById('modal-password-input').value = "";
             document.getElementById('modal-error-msg').classList.add('hidden');
@@ -657,9 +663,13 @@
         };
 
         window.closeSecurityModal = function() {
-            document.getElementById('security-modal').classList.add('hidden');
-            pendingActionType = null;
-            pendingTargetKey = null;
+            const modal = document.getElementById('security-modal');
+            if (!modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                pendingActionType = null;
+                pendingTargetKey = null;
+                try { window.history.back(); } catch(e) {}
+            }
         };
 
         window.verifySecurityKey = async function() {
@@ -708,7 +718,10 @@
                         }
                     }
 
-                    closeSecurityModal();
+                    document.getElementById('security-modal').classList.add('hidden');
+                    pendingActionType = null;
+                    pendingTargetKey = null;
+                    try { window.history.back(); } catch(e) {}
                 } else {
                     errorMsg.textContent = "Incorrect security key or password.";
                     errorMsg.classList.add('hidden');
@@ -719,7 +732,7 @@
                 if (enteredKey === CORRECT_COMPANY_KEY || enteredKey === FALLBACK_PASSWORD || enteredKey === IMMUTABLE_COMPANY_CODE) {
                     errorMsg.classList.add('hidden');
                     if (pendingActionType === 'single' && pendingTargetKey) {
-                        await remove(ref(db, `orders/${key}`));
+                        await remove(ref(db, `orders/${pendingTargetKey}`));
                     } else if (pendingActionType === 'clearAll') {
                         const snapshot = await get(ordersRef);
                         const data = snapshot.val();
@@ -732,7 +745,10 @@
                             }
                         }
                     }
-                    closeSecurityModal();
+                    document.getElementById('security-modal').classList.add('hidden');
+                    pendingActionType = null;
+                    pendingTargetKey = null;
+                    try { window.history.back(); } catch(e) {}
                 } else {
                     errorMsg.textContent = "Verification failed. Check network connection.";
                     errorMsg.classList.add('hidden');
