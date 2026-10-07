@@ -776,10 +776,19 @@
 
 
 
-const renderKidsFavoritesSection = (kfList) => {
+let savedKidsFavourite = {};
+
+// Listen to saved kidsfavourite keys in real-time from Firebase
+onValue(ref(db, 'kidsfavourite'), (snapshot) => {
+    savedKidsFavourite = snapshot.val() || {};
+    renderCatalog(liveInventory);
+});
+
+const renderKidsFavoritesSection = (allProducts) => {
+    const kfKeys = Object.keys(savedKidsFavourite).filter(k => savedKidsFavourite[k] === true);
+    const kfList = allProducts.filter(item => kfKeys.includes(item.firebaseKey));
+
     if (!kfList || kfList.length === 0) return '';
-    
-    const displayList = kfList.slice(0, 8); 
     
     let kfHtml = `
         <div class="mb-4">
@@ -795,7 +804,7 @@ const renderKidsFavoritesSection = (kfList) => {
             <div id="kids-fav-container" class="flex overflow-x-auto no-scrollbar gap-2 pb-2 pt-0.5 snap-x scroll-smooth">
     `;
 
-    displayList.forEach(item => {
+    kfList.forEach(item => {
         const priceDisplayHtml = getPriceDisplayHTML(item, false);
         const actionButtonHtml = getCartActionHTML(item.firebaseKey);
         const offerBadgeHtml = getOfferBadgeHTML(item);
@@ -827,6 +836,7 @@ const renderKidsFavoritesSection = (kfList) => {
     kfHtml += `</div></div>`;
     return kfHtml;
 };
+
 
 
 // Auto-scroll function that runs continuously without pausing on touch or hover
