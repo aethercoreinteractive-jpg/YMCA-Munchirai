@@ -207,7 +207,7 @@
     <!-- CORE FIREBASE & AUTH SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAfOnytIIbLs6vA4pgAwic9FRZyORMrYGw",
@@ -297,7 +297,7 @@
             } else {
                 sessionStorage.setItem("ymca_redirect_token", "active");
                 fetchExistingLogo();
-                fetchApplicationCount();
+                initApplicationCountListener();
             }
         }
 
@@ -315,13 +315,15 @@
             }
         }
 
-        async function fetchApplicationCount() {
-            try {
-                const appRef = ref(db, 'jobApplications');
-                const snap = await get(appRef);
+        function initApplicationCountListener() {
+            const employeesRef = ref(db, 'employees');
+            onValue(employeesRef, (snapshot) => {
+                const data = snapshot.val();
                 const badge = document.getElementById('recruitment-badge');
-                if (snap.exists() && snap.val()) {
-                    const count = Object.keys(snap.val()).length;
+                if (!badge) return;
+
+                if (data) {
+                    const count = Object.keys(data).length;
                     if (count > 0) {
                         badge.innerText = count;
                         badge.classList.remove('hidden');
@@ -331,11 +333,7 @@
                 } else {
                     badge.classList.add('hidden');
                 }
-            } catch (err) {
-                console.error("Error loading application count:", err);
-                const badge = document.getElementById('recruitment-badge');
-                if (badge) badge.classList.add('hidden');
-            }
+            });
         }
 
         function updateHeaderLogo(url) {
@@ -373,7 +371,7 @@
                     document.getElementById('login-error').classList.add('hidden');
                     document.getElementById('login-input').value = "";
                     fetchExistingLogo();
-                    fetchApplicationCount();
+                    initApplicationCountListener();
                     window.showToast("Authenticated", "Welcome to MY Food Admin Portal.");
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
@@ -386,7 +384,7 @@
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     fetchExistingLogo();
-                    fetchApplicationCount();
+                    initApplicationCountListener();
                     window.showToast("Authenticated", "Session started securely.");
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
