@@ -182,14 +182,17 @@
                         <p class="text-[11px] text-slate-500">Manage and sync homepage banners</p>
                     </div>
                 </a>
-                <a href="staffrecruitment.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-50/50 border border-slate-200 transition flex items-center gap-3 group">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm group-hover:bg-amber-500 group-hover:text-white transition">
-                        <i class="fa-solid fa-user-plus"></i>
+                <a href="staffrecruitment.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-50/50 border border-slate-200 transition flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm group-hover:bg-amber-500 group-hover:text-white transition">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-900">Staff Recruitment</h3>
+                            <p class="text-[11px] text-slate-500">Manage job postings and applications</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-900">Staff Recruitment</h3>
-                        <p class="text-[11px] text-slate-500">Manage job postings and applications</p>
-                    </div>
+                    <span id="recruitment-badge" class="hidden px-2 py-0.5 text-[10px] font-extrabold bg-amber-500 text-slate-950 rounded-full shadow-sm animate-pulse">0</span>
                 </a>
             </div>
         </div>
@@ -294,6 +297,7 @@
             } else {
                 sessionStorage.setItem("ymca_redirect_token", "active");
                 fetchExistingLogo();
+                fetchApplicationCount();
             }
         }
 
@@ -308,6 +312,27 @@
                 }
             } catch (err) {
                 console.error("Error loading logo:", err);
+            }
+        }
+
+        async function fetchApplicationCount() {
+            try {
+                const appRef = ref(db, 'jobApplications');
+                const snap = await get(appRef);
+                const badge = document.getElementById('recruitment-badge');
+                if (snap.exists() && snap.val()) {
+                    const count = Object.keys(snap.val()).length;
+                    if (count > 0) {
+                        badge.innerText = count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                } else {
+                    badge.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error("Error loading application count:", err);
             }
         }
 
@@ -346,6 +371,7 @@
                     document.getElementById('login-error').classList.add('hidden');
                     document.getElementById('login-input').value = "";
                     fetchExistingLogo();
+                    fetchApplicationCount();
                     window.showToast("Authenticated", "Welcome to MY Food Admin Portal.");
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
@@ -358,6 +384,7 @@
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('login-error').classList.add('hidden');
                     fetchExistingLogo();
+                    fetchApplicationCount();
                     window.showToast("Authenticated", "Session started securely.");
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
