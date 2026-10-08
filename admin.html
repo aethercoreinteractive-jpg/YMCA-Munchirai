@@ -182,17 +182,17 @@
                         <p class="text-[11px] text-slate-500">Manage and sync homepage banners</p>
                     </div>
                 </a>
-                <a href="staffrecruitment.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-50/50 border border-slate-200 transition flex items-center justify-between group">
-                    <div class="flex items-center gap-3">
+                <a href="staffrecruitment.html" onclick="sessionStorage.setItem('ymca_redirect_token', 'active');" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-50/50 border border-slate-200 transition flex items-center gap-3 group relative">
+                    <div class="relative flex-shrink-0">
                         <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm group-hover:bg-amber-500 group-hover:text-white transition">
                             <i class="fa-solid fa-user-plus"></i>
                         </div>
-                        <div>
-                            <h3 class="text-xs font-bold text-slate-900">Staff Recruitment</h3>
-                            <p class="text-[11px] text-slate-500">Manage job postings and applications</p>
-                        </div>
+                        <span id="recruitment-badge" class="absolute -top-1.5 -right-1.5 hidden min-w-[18px] h-[18px] px-1 bg-rose-600 text-white font-black text-[9px] rounded-full flex items-center justify-center shadow-md ring-2 ring-white">0</span>
                     </div>
-                    <span id="recruitment-badge" class="px-2.5 py-0.5 text-[10px] font-extrabold bg-amber-500 text-slate-950 rounded-full shadow-sm">0</span>
+                    <div class="min-w-0 flex-grow">
+                        <h3 class="text-xs font-bold text-slate-900">Staff Recruitment</h3>
+                        <p class="text-[11px] text-slate-500">Manage job postings and applications</p>
+                    </div>
                 </a>
             </div>
         </div>
@@ -322,14 +322,19 @@
                 const badge = document.getElementById('recruitment-badge');
                 if (snap.exists() && snap.val()) {
                     const count = Object.keys(snap.val()).length;
-                    badge.innerText = count;
+                    if (count > 0) {
+                        badge.innerText = count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
                 } else {
-                    badge.innerText = "0";
+                    badge.classList.add('hidden');
                 }
             } catch (err) {
                 console.error("Error loading application count:", err);
                 const badge = document.getElementById('recruitment-badge');
-                if (badge) badge.innerText = "0";
+                if (badge) badge.classList.add('hidden');
             }
         }
 
