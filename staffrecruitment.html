@@ -311,6 +311,7 @@
 
             container.innerHTML = applications.map(app => {
                 const dateStr = app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recent';
+                const formattedDob = app.dob ? (app.dob.includes('-') && app.dob.split('-')[0].length === 4 ? app.dob.split('-').reverse().join('-') : app.dob) : 'N/A';
                 return `
                     <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition hover:border-amber-300">
                         <div class="space-y-1.5 flex-grow">
@@ -321,7 +322,7 @@
                             </div>
                             <div class="flex items-center gap-4 text-xs text-slate-600 flex-wrap">
                                 <span><i class="fa-solid fa-phone text-amber-600 mr-1.5"></i><a href="tel:${app.mobile}" class="hover:underline font-medium">${app.mobile || 'N/A'}</a></span>
-                                <span><i class="fa-solid fa-cake-candles text-amber-600 mr-1.5"></i>DOB: ${app.dob || 'N/A'}</span>
+                                <span><i class="fa-solid fa-cake-candles text-amber-600 mr-1.5"></i>DOB: ${formattedDob}</span>
                             </div>
                             <div class="text-xs text-slate-700 bg-white border border-slate-200/60 p-2.5 rounded-xl mt-2">
                                 <span class="font-bold block text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Work Experience Details</span>
