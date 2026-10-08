@@ -49,10 +49,35 @@
         </a>
     </div>
 
+    <!-- CUSTOM PASSWORD PROMPT MODAL -->
+    <div id="admin-password-modal" class="fixed inset-0 z-[99] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-200">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 text-lg border border-amber-200">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="text-base font-extrabold text-slate-900 mb-1">Admin Authorization Required</h3>
+            <p id="password-modal-desc" class="text-xs text-slate-500 mb-4">Enter admin password to proceed with deletion.</p>
+            <input type="password" id="admin-password-input" placeholder="Enter password..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white transition mb-3">
+            <div id="password-error-msg" class="text-[11px] text-rose-600 font-medium mb-3 hidden">Incorrect password. Please try again.</div>
+            <div class="flex gap-2">
+                <button type="button" onclick="closePasswordModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">Cancel</button>
+                <button type="button" onclick="confirmPasswordAction()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ENTERPRISE NAVIGATION HEADER -->
     <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg backdrop-blur-md bg-opacity-95">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-            <!-- Brand Mark -->
+            <!-- Left Side: Back Dashboard Button -->
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token'); sessionStorage.removeItem('staff_redirect_token');" class="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-arrow-left text-xs"></i>
+                    <span class="hidden xs:inline">Dashboard</span>
+                </a>
+            </div>
+
+            <!-- Brand Mark Center/Middle -->
             <div class="flex items-center gap-3 shrink-0">
                 <div id="header-logo-container" class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-xs tracking-tighter shadow-md overflow-hidden border border-amber-400/30">
                     <span>MY</span>
@@ -63,16 +88,12 @@
                 </div>
             </div>
             
-            <!-- Quick Actions -->
+            <!-- Right Side: Delete All Button -->
             <div class="flex items-center gap-2">
-                <a href="admininventory.html" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
-                    <i class="fa-solid fa-boxes-stacked text-amber-400"></i>
-                    <span class="hidden xs:inline">Inventory</span>
-                </a>
-                <a href="admin.html" onclick="sessionStorage.removeItem('ymca_redirect_token'); sessionStorage.removeItem('staff_redirect_token');" class="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
-                    <i class="fa-solid fa-arrow-left text-xs"></i>
-                    <span class="hidden xs:inline">Dashboard</span>
-                </a>
+                <button type="button" onclick="promptClearAllApplications()" class="px-3 py-2 rounded-xl text-xs font-bold bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-trash text-xs"></i>
+                    <span class="hidden xs:inline">Delete All</span>
+                </button>
             </div>
         </div>
     </header>
@@ -159,6 +180,10 @@
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
+        let pendingDeleteAction = null;
+        let pendingDeleteKey = null;
+        let pendingDeleteName = null;
+
         // Fetch and apply existing store logo into the header
         async function fetchExistingLogo() {
             try {
@@ -204,12 +229,65 @@
             setTimeout(() => { msgEl.classList.add('hidden'); }, 4000);
         }
 
-        // Delete candidate application record
-        window.deleteApplication = function(key, name) {
-            if (!confirm(`Are you sure you want to delete the application for ${name}?`)) return;
-            remove(ref(db, `employees/${key}`))
-                .then(() => showStatus(`Application for ${name} removed successfully.`))
-                .catch((err) => showStatus("Failed to remove application: " + err.message, true));
+        // Custom Password Prompt Triggers
+        window.promptDeleteApplication = function(key, name) {
+            pendingDeleteAction = 'single';
+            pendingDeleteKey = key;
+            pendingDeleteName = name;
+            document.getElementById('password-modal-desc').textContent = `Enter admin password to delete application for ${name}.`;
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('password-error-msg').classList.add('hidden');
+            document.getElementById('admin-password-modal').classList.remove('hidden');
+        };
+
+        window.promptClearAllApplications = function() {
+            pendingDeleteAction = 'all';
+            pendingDeleteKey = null;
+            pendingDeleteName = null;
+            document.getElementById('password-modal-desc').textContent = `Enter admin password to delete all staff applications.`;
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('password-error-msg').classList.add('hidden');
+            document.getElementById('admin-password-modal').classList.remove('hidden');
+        };
+
+        window.closePasswordModal = function() {
+            document.getElementById('admin-password-modal').classList.add('hidden');
+            pendingDeleteAction = null;
+            pendingDeleteKey = null;
+            pendingDeleteName = null;
+        };
+
+        window.confirmPasswordAction = async function() {
+            const pwdInput = document.getElementById('admin-password-input').value;
+            const errorMsg = document.getElementById('password-error-msg');
+
+            try {
+                const passRef = ref(db, 'settings/adminPassword');
+                const snap = await get(passRef);
+                const actualPassword = snap.exists() ? snap.val() : "admin123";
+
+                if (pwdInput !== actualPassword) {
+                    errorMsg.classList.remove('hidden');
+                    return;
+                }
+
+                errorMsg.classList.add('hidden');
+                document.getElementById('admin-password-modal').classList.add('hidden');
+
+                if (pendingDeleteAction === 'single' && pendingDeleteKey) {
+                    remove(ref(db, `employees/${pendingDeleteKey}`))
+                        .then(() => showStatus(`Application for ${pendingDeleteName} removed successfully.`))
+                        .catch((err) => showStatus("Failed to remove application: " + err.message, true));
+                } else if (pendingDeleteAction === 'all') {
+                    remove(ref(db, 'employees'))
+                        .then(() => showStatus("All staff applications cleared successfully."))
+                        .catch((err) => showStatus("Failed to clear applications: " + err.message, true));
+                }
+            } catch (err) {
+                console.error("Password verification error:", err);
+                errorMsg.textContent = "Verification failed. Please try again.";
+                errorMsg.classList.remove('hidden');
+            }
         };
 
         // Real-time listener for employee submissions
@@ -259,7 +337,7 @@
                                 <i class="fa-solid fa-file-arrow-down text-xs"></i>
                                 <span>View Resume</span>
                             </a>
-                            <button type="button" onclick="window.deleteApplication('${app.key}', '${app.fullName || 'Candidate'}')" class="text-slate-400 hover:text-red-600 bg-white hover:bg-red-50 border border-slate-200 px-3 py-2 rounded-xl text-xs transition flex items-center justify-center" title="Delete Application">
+                            <button type="button" onclick="window.promptDeleteApplication('${app.key}', '${app.fullName || 'Candidate'}')" class="text-slate-400 hover:text-red-600 bg-white hover:bg-red-50 border border-slate-200 px-3 py-2 rounded-xl text-xs transition flex items-center justify-center" title="Delete Application">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
