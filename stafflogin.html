@@ -129,7 +129,21 @@
         </div>
 
         <!-- Portal Navigation Action Buttons -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- POS Billing & Invoicing Button (Sorted to Top) -->
+            <a href="invoice.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex items-center sm:flex-col justify-between sm:justify-center sm:text-center gap-4 sm:col-span-2">
+                <div class="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-3">
+                    <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner shrink-0">
+                        <i class="fa-solid fa-cash-register"></i>
+                    </div>
+                    <div class="text-left sm:text-center">
+                        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-amber-900 transition">POS Billing & Invoicing</h3>
+                        <p class="text-xs text-slate-400 font-medium sm:hidden mt-0.5">Point of sale billing, QR checkout, and receipt generator</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-right text-xs text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition hidden sm:block"></i>
+            </a>
+
             <!-- Live Orders Button -->
             <a href="orders.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex items-center sm:flex-col justify-between sm:justify-center sm:text-center gap-4 relative">
                 <div class="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-3">
@@ -162,7 +176,7 @@
             </a>
 
             <!-- Inventory Button -->
-            <a href="admininventory.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex items-center sm:flex-col justify-between sm:justify-center sm:text-center gap-4">
+            <a href="admininventory.html" onclick="sessionStorage.setItem('staff_redirect_token', 'active');" class="desktop-grid-card bg-white hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-400 rounded-3xl p-6 sm:p-8 shadow-sm group flex items-center sm:flex-col justify-between sm:justify-center sm:text-center gap-4 sm:col-span-2">
                 <div class="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-3">
                     <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-slate-950 rounded-2xl flex items-center justify-center text-xl border border-amber-100 group-hover:border-amber-500 transition shadow-inner shrink-0">
                         <i class="fa-solid fa-boxes-stacked"></i>
