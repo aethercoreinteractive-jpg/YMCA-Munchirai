@@ -84,7 +84,7 @@
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">Search Terminal</span>
                     <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1.5">Product Lookup</h2>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Search items by name or category to add to invoice</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Search items by name or category to add to bill</p>
                 </div>
 
                 <!-- SEARCH BAR WITH CATEGORY FILTER -->
@@ -121,16 +121,16 @@
                 </div>
             </section>
 
-            <!-- RIGHT COLUMN: INVOICE FORM & CHECKOUT (5 COLS) -->
+            <!-- RIGHT COLUMN: BILL FORM & CHECKOUT (5 COLS) -->
             <section class="lg:col-span-5 bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/80 flex flex-col justify-between space-y-5">
                 <div class="space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div>
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">Cart Terminal</span>
-                            <h2 class="text-base font-extrabold text-slate-900 mt-1">Invoice Items</h2>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">Billing Terminal</span>
+                            <h2 class="text-base font-extrabold text-slate-900 mt-1">Current Bill</h2>
                         </div>
-                        <button type="button" id="clear-cart-btn" class="text-[11px] font-bold text-red-500 hover:text-red-700 transition flex items-center gap-1">
-                            <i class="fa-solid fa-trash-can text-[10px]"></i> Clear
+                        <button type="button" id="clear-bill-btn" class="text-[11px] font-bold text-red-500 hover:text-red-700 transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i> Clear Bill
                         </button>
                     </div>
 
@@ -157,9 +157,9 @@
                         </div>
                     </div>
 
-                    <!-- ADDED CART ITEMS -->
-                    <div id="cart-items-container" class="max-h-[260px] overflow-y-auto no-scrollbar space-y-2 pr-1">
-                        <div class="py-8 text-center text-slate-400 text-xs">Cart is empty. Add products to generate bill.</div>
+                    <!-- ADDED BILL ITEMS -->
+                    <div id="bill-items-container" class="max-h-[260px] overflow-y-auto no-scrollbar space-y-2 pr-1">
+                        <div class="py-8 text-center text-slate-400 text-xs">Bill is empty. Search and add products above.</div>
                     </div>
                 </div>
 
@@ -167,11 +167,11 @@
                 <div class="pt-4 border-t border-slate-100 space-y-3">
                     <div class="flex items-center justify-between text-xs font-bold text-slate-600">
                         <span>Total Items:</span>
-                        <span id="cart-total-qty" class="text-slate-900 font-extrabold">0</span>
+                        <span id="bill-total-qty" class="text-slate-900 font-extrabold">0</span>
                     </div>
                     <div class="flex items-center justify-between text-sm font-extrabold text-slate-900">
                         <span>Grand Total:</span>
-                        <span id="cart-total-price" class="text-amber-600 text-base">₹0.00</span>
+                        <span id="bill-total-price" class="text-amber-600 text-base">₹0.00</span>
                     </div>
 
                     <button type="button" id="checkout-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3.5 rounded-2xl text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
@@ -283,8 +283,8 @@
         let allInventory = [];
         let selectedCategory = 'ALL';
         
-        // Cart & Checkout State stored in LocalStorage for persistence
-        let cartItems = JSON.parse(localStorage.getItem('ymca_invoice_cart') || '[]');
+        // Bill & Checkout State stored in LocalStorage for persistence
+        let billItems = JSON.parse(localStorage.getItem('ymca_invoice_bill') || '[]');
         let checkoutDetails = JSON.parse(localStorage.getItem('ymca_checkout_state') || 'null');
 
         // DOM Element Refs
@@ -293,13 +293,13 @@
         const searchResultsContainer = document.getElementById('search-results-container');
         const categoryChipsContainer = document.getElementById('category-chips');
         const resultsCountEl = document.getElementById('results-count');
-        const cartItemsContainer = document.getElementById('cart-items-container');
-        const cartTotalQtyEl = document.getElementById('cart-total-qty');
-        const cartTotalPriceEl = document.getElementById('cart-total-price');
+        const billItemsContainer = document.getElementById('bill-items-container');
+        const billTotalQtyEl = document.getElementById('bill-total-qty');
+        const billTotalPriceEl = document.getElementById('bill-total-price');
         const customerPhoneInput = document.getElementById('customer-phone');
         const customerEmailInput = document.getElementById('customer-email');
         const checkoutBtn = document.getElementById('checkout-btn');
-        const clearCartBtn = document.getElementById('clear-cart-btn');
+        const clearBillBtn = document.getElementById('clear-bill-btn');
 
         const activeBillingView = document.getElementById('active-billing-view');
         const paymentModalView = document.getElementById('payment-modal-view');
@@ -391,17 +391,7 @@
                 clearSearchBtn.classList.add('hidden');
             }
 
-            if (!query && selectedCategory === 'ALL') {
-                searchResultsContainer.innerHTML = `
-                    <div class="py-12 text-center text-slate-400 text-xs">
-                        <i class="fa-solid fa-search mb-2 text-base text-slate-300"></i>
-                        <p>Type above or select a category chip to search products</p>
-                    </div>
-                `;
-                resultsCountEl.textContent = '0 items';
-                return;
-            }
-
+            // Fixed: "All Categories" now successfully shows all products when selected or typed
             const filtered = allInventory.filter(item => {
                 const matchesCategory = selectedCategory === 'ALL' || (item.category || 'General') === selectedCategory;
                 const matchesQuery = !query || 
@@ -419,26 +409,30 @@
                 return;
             }
 
-            searchResultsContainer.innerHTML = filtered.map(item => `
-                <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-xs hover:border-slate-300 transition">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
-                            <img src="${formatDriveUrl(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
-                        </div>
-                        <div class="min-w-0">
-                            <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/50">₹${Number(item.price || 0).toFixed(2)}</span>
-                                <span class="text-[9px] font-semibold text-slate-400">${item.category || 'General'}</span>
+            searchResultsContainer.innerHTML = filtered.map(item => {
+                const isAlreadyInBill = billItems.some(i => i.key === item.key);
+                return `
+                    <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-xs hover:border-slate-300 transition">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                <img src="${formatDriveUrl(item.img) || ''}" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=IMG'">
+                            </div>
+                            <div class="min-w-0">
+                                <h5 class="font-extrabold text-slate-900 text-xs truncate">${item.name}</h5>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/50">₹${Number(item.price || 0).toFixed(2)}</span>
+                                    <span class="text-[9px] font-semibold text-slate-400">${item.category || 'General'}</span>
+                                </div>
                             </div>
                         </div>
+                        
+                        <!-- ADD / CHECK BUTTON -->
+                        <button type="button" onclick="window.addToBill('${item.key}')" class="px-3.5 py-2 rounded-xl text-[11px] font-extrabold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${isAlreadyInBill ? 'bg-emerald-600 text-white shadow-sm' : 'bg-amber-400 hover:bg-amber-300 text-slate-900'}">
+                            ${isAlreadyInBill ? '<i class="fa-solid fa-check text-xs"></i><span>Added</span>' : '<i class="fa-solid fa-plus text-[10px]"></i><span>Add</span>'}
+                        </button>
                     </div>
-                    <button type="button" onclick="window.addToCart('${item.key}')" class="px-3 py-1.5 rounded-xl text-[11px] font-extrabold text-slate-900 bg-amber-400 hover:bg-amber-300 transition active:scale-95 flex items-center gap-1 shrink-0">
-                        <i class="fa-solid fa-plus text-[10px]"></i>
-                        <span>Add</span>
-                    </button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Handle Search Inputs
@@ -448,16 +442,16 @@
             filterAndRenderSearch();
         });
 
-        // Cart Actions & State Management
-        window.addToCart = function(key) {
+        // Bill Actions & State Management
+        window.addToBill = function(key) {
             const product = allInventory.find(p => p.key === key);
             if (!product) return;
 
-            const existingIndex = cartItems.findIndex(i => i.key === key);
+            const existingIndex = billItems.findIndex(i => i.key === key);
             if (existingIndex > -1) {
-                cartItems[existingIndex].qty += 1;
+                billItems[existingIndex].qty += 1;
             } else {
-                cartItems.push({
+                billItems.push({
                     key: product.key,
                     name: product.name,
                     price: Number(product.price || 0),
@@ -465,51 +459,71 @@
                     qty: 1
                 });
             }
-            saveCartState();
-            renderCart();
-            showStatus(`Added "${product.name}" to cart`);
+            saveBillState();
+            renderBill();
+            filterAndRenderSearch(); // Update button to check mark
+            showStatus(`Added "${product.name}" to bill`);
         };
 
         window.updateQty = function(key, delta) {
-            const item = cartItems.find(i => i.key === key);
-            if (!item) return;
+            const itemIndex = billItems.findIndex(i => i.key === key);
+            if (itemIndex === -1) return;
 
-            item.qty += delta;
-            if (item.qty <= 0) {
-                cartItems = cartItems.filter(i => i.key !== key);
+            const item = billItems[itemIndex];
+            const newQty = item.qty + delta;
+
+            // Confirm if quantity goes below 1
+            if (newQty < 1) {
+                const confirmRemove = window.confirm(`Do you want to remove "${item.name}" from the bill?`);
+                if (confirmRemove) {
+                    billItems.splice(itemIndex, 1);
+                } else {
+                    return; // Cancel reduction
+                }
+            } else {
+                item.qty = newQty;
             }
-            saveCartState();
-            renderCart();
+
+            saveBillState();
+            renderBill();
+            filterAndRenderSearch();
         };
 
-        window.removeFromCart = function(key) {
-            cartItems = cartItems.filter(i => i.key !== key);
-            saveCartState();
-            renderCart();
+        window.removeFromBill = function(key) {
+            const item = billItems.find(i => i.key === key);
+            const confirmRemove = window.confirm(`Do you want to remove "${item ? item.name : 'this item'}" from the bill?`);
+            if (!confirmRemove) return;
+
+            billItems = billItems.filter(i => i.key !== key);
+            saveBillState();
+            renderBill();
+            filterAndRenderSearch();
         };
 
-        clearCartBtn.addEventListener('click', () => {
-            cartItems = [];
-            saveCartState();
-            renderCart();
+        clearBillBtn.addEventListener('click', () => {
+            if (billItems.length > 0 && !window.confirm("Are you sure you want to clear the entire bill?")) return;
+            billItems = [];
+            saveBillState();
+            renderBill();
+            filterAndRenderSearch();
         });
 
-        function saveCartState() {
-            localStorage.setItem('ymca_invoice_cart', JSON.stringify(cartItems));
+        function saveBillState() {
+            localStorage.setItem('ymca_invoice_bill', JSON.stringify(billItems));
         }
 
-        function renderCart() {
-            if (cartItems.length === 0) {
-                cartItemsContainer.innerHTML = `<div class="py-8 text-center text-slate-400 text-xs">Cart is empty. Add products to generate bill.</div>`;
-                cartTotalQtyEl.textContent = '0';
-                cartTotalPriceEl.textContent = '₹0.00';
+        function renderBill() {
+            if (billItems.length === 0) {
+                billItemsContainer.innerHTML = `<div class="py-8 text-center text-slate-400 text-xs">Bill is empty. Search and add products above.</div>`;
+                billTotalQtyEl.textContent = '0';
+                billTotalPriceEl.textContent = '₹0.00';
                 return;
             }
 
             let totalQty = 0;
             let totalPrice = 0;
 
-            cartItemsContainer.innerHTML = cartItems.map(item => {
+            billItemsContainer.innerHTML = billItems.map(item => {
                 const subtotal = item.price * item.qty;
                 totalQty += item.qty;
                 totalPrice += subtotal;
@@ -524,14 +538,14 @@
                             <button type="button" onclick="window.updateQty('${item.key}', -1)" class="w-6 h-6 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-700 text-xs font-bold hover:bg-slate-100 active:scale-95">-</button>
                             <span class="text-xs font-bold w-5 text-center">${item.qty}</span>
                             <button type="button" onclick="window.updateQty('${item.key}', 1)" class="w-6 h-6 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-700 text-xs font-bold hover:bg-slate-100 active:scale-95">+</button>
-                            <button type="button" onclick="window.removeFromCart('${item.key}')" class="ml-1 text-red-500 hover:text-red-700 text-xs p-1"><i class="fa-solid fa-xmark"></i></button>
+                            <button type="button" onclick="window.removeFromBill('${item.key}')" class="ml-1 text-red-500 hover:text-red-700 text-xs p-1"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            cartTotalQtyEl.textContent = totalQty;
-            cartTotalPriceEl.textContent = `₹${totalPrice.toFixed(2)}`;
+            billTotalQtyEl.textContent = totalQty;
+            billTotalPriceEl.textContent = `₹${totalPrice.toFixed(2)}`;
         }
 
         // Checkout logic
@@ -545,18 +559,18 @@
                 return;
             }
 
-            if (cartItems.length === 0) {
-                showStatus("Please add at least one product to the cart.", true);
+            if (billItems.length === 0) {
+                showStatus("Please add at least one product to the bill.", true);
                 return;
             }
 
-            const grandTotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const grandTotal = billItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
             // Construct state and persist so page reloads won't clear QR view
             checkoutDetails = {
                 phone: phone,
                 email: email,
-                items: cartItems,
+                items: billItems,
                 totalAmount: grandTotal,
                 timestamp: new Date().toISOString()
             };
@@ -604,15 +618,16 @@
                 showStatus(`Order logged successfully via ${paymentMethod}!`);
 
                 // Reset states completely
-                cartItems = [];
+                billItems = [];
                 checkoutDetails = null;
-                localStorage.removeItem('ymca_invoice_cart');
+                localStorage.removeItem('ymca_invoice_bill');
                 localStorage.removeItem('ymca_checkout_state');
                 customerPhoneInput.value = '';
                 customerEmailInput.value = '';
 
-                renderCart();
+                renderBill();
                 renderCheckoutView();
+                filterAndRenderSearch();
             } catch (err) {
                 showStatus("Failed to log sale: " + err.message, true);
             }
@@ -623,11 +638,10 @@
 
         // Initialize state from local storage on startup
         customerPhoneInput.addEventListener('input', () => {
-            const currentCart = JSON.parse(localStorage.getItem('ymca_invoice_cart') || '[]');
-            saveCartState();
+            saveBillState();
         });
 
-        renderCart();
+        renderBill();
         if (checkoutDetails) {
             renderCheckoutView();
         }
