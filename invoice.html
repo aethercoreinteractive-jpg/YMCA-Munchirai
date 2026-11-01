@@ -105,7 +105,7 @@
                     </div>
                 </div>
 
-                <!-- SEARCH RESULTS LIST (FIXED SCROLL HEIGHT) -->
+                <!-- SEARCH RESULTS LIST -->
                 <div class="space-y-2">
                     <div class="flex items-center justify-between text-[11px] text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100 pb-1.5">
                         <span>Matching Products</span>
@@ -596,7 +596,7 @@
             summaryTotal.textContent = `₹${Number(checkoutDetails.totalAmount).toFixed(2)}`;
         }
 
-        // Complete Order (Paid via Online or Cash)
+        // Complete Order & Automatically Open WhatsApp with Formatted Bill
         async function completePayment(paymentMethod) {
             if (!checkoutDetails) return;
 
@@ -604,15 +604,83 @@
                 const salesRef = ref(db, 'sales');
                 const newSaleRef = push(salesRef);
                 
-                await set(newSaleRef, {
+                const saleData = {
                     ...checkoutDetails,
                     paymentMethod: paymentMethod,
                     status: 'COMPLETED',
                     createdAt: new Date().toISOString()
+                };
+
+                await set(newSaleRef, saleData);
+
+                // Format Invoice Number
+                const invoiceNo = `#MYP-${newSaleRef.key.slice(-8).toUpperCase()}`;
+                const currentDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                // Build Items List Text
+                let itemsText = "";
+                checkoutDetails.items.forEach((item, index) => {
+                    const lineTotal = item.price * item.qty;
+                    itemsText += `${index + 1}. ${item.name}\n   Qty: ${item.qty}  |  Rate: ₹${item.price}  |  ₹${lineTotal.toFixed(2)}\n\n`;
                 });
 
-                showStatus(`Order logged successfully via ${paymentMethod}!`);
+                // Construct WhatsApp Bill Message matching your template
+                const whatsappMessage = 
+`=================================
+      🌿 MY FOOD PRODUCTS 🌿
+  Pure • Organic • Goodness
+=================================
 
+🧾 INVOICE / E-BILL
+---------------------------------
+Invoice No : ${invoiceNo} 
+Date       : ${currentDate}
+Phone      : +91 ${checkoutDetails.phone}
+Payment    : ${paymentMethod === 'ONLINE' ? 'UPI / Online Paid ✅' : 'Cash Paid ✅'}
+
+---------------------------------
+ITEMS ORDERED
+---------------------------------
+${itemsText.trim()}
+---------------------------------
+SUMMARY
+---------------------------------
+Subtotal            : ₹${checkoutDetails.totalAmount.toFixed(2)}
+Delivery Fee        : FREE
+---------------------------------
+TOTAL PAID          : ₹${checkoutDetails.totalAmount.toFixed(2)}
+---------------------------------
+
+🎉 SPECIAL FESTIVE OFFER FOR YOU!
+---------------------------------
+Get 10% OFF on your next purchase!
+Use Code: HEALTH10 at checkout.
+🎁 Valid till: 15 Nov 2026
+
+---------------------------------
+💚 Thank you for choosing MY Food Products!
+We truly appreciate your trust in our healthy, organic quality. 
+
+Visit again & stay healthy! 🌿
+
+🛒 Shop Online at MY Store:
+🌐 mystore.html
+
+📞 Customer Support: +91 9943021998
+=================================`;
+
+                // Clean phone number and open WhatsApp API
+                let cleanPhone = checkoutDetails.phone.replace(/\D/g, '');
+                if (cleanPhone.length === 10) {
+                    cleanPhone = '91' + cleanPhone; // Prefix India country code if missing
+                }
+
+                const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMessage)}`;
+                window.open(whatsappUrl, '_blank');
+
+                showStatus(`Order saved & WhatsApp bill generated!`);
+
+                // Reset states completely
                 billItems = [];
                 checkoutDetails = null;
                 localStorage.removeItem('ymca_invoice_bill');
