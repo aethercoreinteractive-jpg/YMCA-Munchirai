@@ -547,6 +547,92 @@
             filterHistoryOrders();
         };
 
+        // Function to send bill via WhatsApp for a specific order
+        window.sendOrderWhatsAppBill = function(firebaseKey) {
+            const order = rawOrdersCache.find(o => o.firebaseKey === firebaseKey);
+            if (!order) return;
+
+            const customerPhone = order.customer && order.customer.phone ? order.customer.phone : "";
+            let cleanPhone = customerPhone.replace(/\D/g, '');
+            if (!cleanPhone || cleanPhone.length < 10) {
+                alert("Customer phone number is invalid or missing.");
+                return;
+            }
+            if (cleanPhone.length === 10) {
+                cleanPhone = '91' + cleanPhone;
+            }
+
+            const rawDate = order.timestamp ? new Date(order.timestamp) : null;
+            const currentDate = rawDate && !isNaN(rawDate.getTime()) 
+                ? rawDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) 
+                : 'N/A';
+
+            const orderNumber = order.orderNumber || `YM-${order.firebaseKey.slice(-6).toUpperCase()}`;
+            const paymentMethod = order.paymentMethod || 'Cash on Delivery';
+
+            let itemsText = "";
+            let totalSubtotal = 0;
+            let totalDiscount = 0;
+
+            (order.items || []).forEach((item, index) => {
+                const qty = item.qtyCount || 1;
+                const price = Number(item.price || 0);
+                const lineTotal = price * qty;
+                totalSubtotal += lineTotal;
+                itemsText += `${index + 1}. ${item.name}\n   Qty: ${qty}  |  Rate: ₹${price.toFixed(2)}  |  ₹${lineTotal.toFixed(2)}\n\n`;
+            });
+
+            const grandTotal = order.totalAmount || totalSubtotal;
+
+            const whatsappMessage = 
+`=================================
+      🌿 MY FOOD PRODUCTS 🌿
+  Pure • Organic • Goodness
+=================================
+
+🧾 INVOICE / E-BILL
+---------------------------------
+Invoice No : ${orderNumber} 
+Date       : ${currentDate}
+Phone      : +91 ${customerPhone}
+Payment    : ${paymentMethod}
+Status     : ${order.status || 'Delivered'}
+
+---------------------------------
+ITEMS ORDERED
+---------------------------------
+${itemsText.trim()}
+---------------------------------
+SUMMARY
+---------------------------------
+Subtotal            : ₹${(order.subtotalAmount || totalSubtotal).toFixed(2)}
+${order.discountAmount > 0 ? `Total Savings       : -₹${order.discountAmount.toFixed(2)}\n` : ''}Delivery Fee        : FREE
+---------------------------------
+TOTAL PAID          : ₹${grandTotal.toFixed(2)}
+---------------------------------
+
+🎉 SPECIAL FESTIVE OFFER FOR YOU!
+---------------------------------
+Get 10% OFF on your next purchase!
+Use Code: HEALTH10 at checkout.
+🎁 Valid till: 15 Nov 2026
+
+---------------------------------
+💚 Thank you for choosing MY Food Products!
+We truly appreciate your trust in our healthy, organic quality. 
+
+Visit again & stay healthy! 🌿
+
+🛒 Shop Online at MY Store:
+🌐 mystore.html
+
+📞 Customer Support: +91 9943021998
+=================================`;
+
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMessage)}`;
+            window.open(whatsappUrl, '_blank');
+        };
+
         function renderHistoryOrders(historyOrders) {
             const container = document.getElementById('history-container');
             const emptyState = document.getElementById('empty-history-state');
@@ -663,9 +749,14 @@
                                 <span class="font-black text-slate-900 text-sm ml-1.5">₹${order.totalAmount || 0}</span>
                             </div>
                             
-                            <button onclick="openSecurityModal('single', '${order.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1.5 shadow-sm active:scale-95">
-                                <i class="fa-solid fa-trash text-[11px]"></i> Delete
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="sendOrderWhatsAppBill('${order.firebaseKey}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-emerald-200 flex items-center gap-1.5 shadow-sm active:scale-95">
+                                    <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i> Send WhatsApp Bill
+                                </button>
+                                <button onclick="openSecurityModal('single', '${order.firebaseKey}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1.5 shadow-sm active:scale-95">
+                                    <i class="fa-solid fa-trash text-[11px]"></i> Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
