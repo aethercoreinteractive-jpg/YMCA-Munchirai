@@ -743,28 +743,92 @@
             summaryTotal.textContent = `₹${Number(checkoutDetails.totalAmount).toFixed(2)}`;
         }
 
-        // Complete Order & Automatically Open WhatsApp with Formatted Bill
+        // Complete Order & Automatically Open WhatsApp with Formatted Bill + Push to Firebase History/Orders
         async function completePayment(paymentMethod) {
             if (!checkoutDetails) return;
 
             try {
-                const salesRef = ref(db, 'sales');
-                const newSaleRef = push(salesRef);
+                const ordersRef = ref(db, 'orders');
+                const newOrderRef = push(ordersRef);
+
+                // Format order number matching cart convention
+                const orderNumber = `#MYP-${newOrderRef.key.slice(-8).toUpperCase()}`;
                 
-                const saleData = {
-                    ...checkoutDetails,
-                    paymentMethod: paymentMethod,
-                    status: 'COMPLETED',
-                    createdAt: new Date().toISOString()
+                // Format items with correct qtyCount so order history and dashboard metrics calculate them perfectly
+                let totalSubtotal = 0;
+                let totalDiscount = 0;
+
+                const formattedItems = checkoutDetails.items.map(item => {
+                    const rawPrice = Number(item.originalPrice !== undefined ? item.originalPrice : item.price);
+                    const hasOffer = item.hasOffer === true;
+                    const offerPercent = Number(item.offerPercent || 0);
+                    
+                    let itemFinalPrice = rawPrice;
+                    let itemDiscountAmount = 0;
+
+                    if (hasOffer && offerPercent > 0) {
+                        itemDiscountAmount = (rawPrice * offerPercent / 100);
+                        itemFinalPrice = rawPrice - itemDiscountAmount;
+                    } else {
+                        itemFinalPrice = Number(item.price);
+                    }
+
+                    totalSubtotal += rawPrice * item.qty;
+                    totalDiscount += itemDiscountAmount * item.qty;
+
+                    return {
+                        name: item.name,
+                        price: Number(itemFinalPrice.toFixed(2)),
+                        originalPrice: rawPrice,
+                        qtyCount: item.qty, // Matches cart.html qtyCount structure
+                        hasOffer: hasOffer,
+                        offerPercent: offerPercent,
+                        img: item.img || ""
+                    };
+                });
+
+                const grandTotal = Math.max(0, totalSubtotal - totalDiscount);
+                const paymentLabel = paymentMethod === 'ONLINE' ? 'Pay via UPI' : 'Cash on Delivery';
+                const currentTime = new Date().toISOString();
+
+                // Construct complete order payload compatible with order history & active orders dashboard
+                const orderPayload = {
+                    orderNumber: orderNumber,
+                    customer: {
+                        name: "Walk-in Counter Customer",
+                        phone: checkoutDetails.phone,
+                        email: checkoutDetails.email || "N/A",
+                        address: "POS Terminal / Counter Sale",
+                        landmark: "N/A"
+                    },
+                    items: formattedItems,
+                    subtotalAmount: totalSubtotal,
+                    discountAmount: totalDiscount,
+                    totalAmount: grandTotal,
+                    paymentMethod: paymentLabel,
+                    status: 'Delivered', // Instantly recorded as Delivered in Order History for counter bills
+                    timestamp: currentTime,
+                    deliveredTime: currentTime
                 };
 
-                await set(newSaleRef, saleData);
+                // Push to Firebase under 'orders' (which orderHistory.html reads from)
+                await set(newOrderRef, orderPayload);
 
-                // Format Invoice Number
-                const invoiceNo = `#MYP-${newSaleRef.key.slice(-8).toUpperCase()}`;
+                // Also record under 'sales' for analytics if needed
+                const salesRef = ref(db, 'sales');
+                const newSaleRef = push(salesRef);
+                await set(newSaleRef, {
+                    ...checkoutDetails,
+                    orderNumber: orderNumber,
+                    paymentMethod: paymentMethod,
+                    status: 'COMPLETED',
+                    createdAt: currentTime
+                });
+
+                // Format Invoice Date
                 const currentDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
-                // Build Items List Text
+                // Build Items List Text for WhatsApp
                 let itemsText = "";
                 checkoutDetails.items.forEach((item, index) => {
                     const rawPrice = Number(item.originalPrice !== undefined ? item.originalPrice : item.price);
@@ -775,7 +839,7 @@
                     itemsText += `${index + 1}. ${item.name}\n   Qty: ${item.qty}  |  Rate: ₹${itemFinalPrice.toFixed(2)}  |  ₹${lineTotal.toFixed(2)}\n\n`;
                 });
 
-                // Construct WhatsApp Bill Message matching your template
+                // Construct WhatsApp Bill Message
                 const whatsappMessage = 
 `=================================
       🌿 MY FOOD PRODUCTS 🌿
@@ -784,7 +848,7 @@
 
 🧾 INVOICE / E-BILL
 ---------------------------------
-Invoice No : ${invoiceNo} 
+Invoice No : ${orderNumber} 
 Date       : ${currentDate}
 Phone      : +91 ${checkoutDetails.phone}
 Payment    : ${paymentMethod === 'ONLINE' ? 'UPI / Online Paid ✅' : 'Cash Paid ✅'}
@@ -796,7 +860,7 @@ ${itemsText.trim()}
 ---------------------------------
 SUMMARY
 ---------------------------------
-Subtotal            : ₹${(checkoutDetails.subtotalAmount || checkoutDetails.totalAmount).toFixed(2)}
+Subtotal            : ₹${(checkoutDetails.subtotalAmount || totalSubtotal).toFixed(2)}
 ${checkoutDetails.discountAmount > 0 ? `Total Savings       : -₹${checkoutDetails.discountAmount.toFixed(2)}\n` : ''}Delivery Fee        : FREE
 ---------------------------------
 TOTAL PAID          : ₹${checkoutDetails.totalAmount.toFixed(2)}
